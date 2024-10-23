@@ -46,6 +46,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import options.GameplayChangersSubstate;
 
 using mikolka.funkin.custom.FunkinTools;
 using mikolka.funkin.utils.ArrayTools;
@@ -111,13 +112,13 @@ class FreeplayState extends MusicBeatSubstate
 	/**
 	 * For the audio preview, the duration of the fade-in effect.
 	 */
-	public static final FADE_IN_DURATION:Float = 2;
+	public static final FADE_IN_DURATION:Float = 1;
 
 	/**
 	 * For the audio preview, the duration of the fade-out effect.
 	 *
 	 */
-	public static final FADE_OUT_DURATION:Float = 0.25;
+	public static final FADE_OUT_DURATION:Float = 1;
 
 	/**
 	 * For the audio preview, the volume at which the fade-in starts.
@@ -361,10 +362,12 @@ class FreeplayState extends MusicBeatSubstate
 
 		// LOAD CHARACTERS
 
+		#if debug 
 		trace(FlxG.width);
 		trace(FlxG.camera.zoom);
 		trace(FlxG.camera.initialZoom);
 		trace(FlxCamera.defaultZoom);
+		#end
 
 		if (backingCard != null)
 		{
@@ -1791,6 +1794,16 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			grpCapsules.members[curSelected].onConfirm();
 		}
+		else if(FlxG.keys.justPressed.CONTROL)
+		{
+			persistentUpdate = false;
+			openSubState(new GameplayChangersSubstate());
+		}
+	}
+
+	override function closeSubState() {
+		persistentUpdate = true;
+		super.closeSubState();
 	}
 
 	override function beatHit()
@@ -1937,7 +1950,7 @@ class FreeplayState extends MusicBeatSubstate
 				continue;
 			if (!song.contains(actualSongTho) && song.contains(".partial")) // .partial
 			{
-				trace('trying to remove: ' + song);
+				#if debug trace('trying to remove: ' + song); #end
 				openfl.Assets.cache.clear(song);
 			}
 		}

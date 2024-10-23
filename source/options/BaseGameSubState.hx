@@ -15,14 +15,22 @@ class BaseGameSubState extends BaseOptionsMenu {
 			'vsliceResults',
 			'bool');
 		addOption(option);
+
 		var option:Option = new Option('Smooth health bar',
 			'If enabled makes health bar move more smoothly',
 			'vsliceSmoothBar',
 			'bool');
 		addOption(option);
+
 		var option:Option = new Option('Special freeplay cards',
 			'If disabled will force every character to use BF\'s card (including pico)',
 			'vsliceSpecialCards',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Listen whole song of freeplay',
+			'If enabled will load of whole music file in freeplay preview,\nIt makes more loads cpu.',
+			'vsliceLoadInstAll',
 			'bool');
 		addOption(option);
         super();

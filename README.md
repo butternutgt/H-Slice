@@ -1,3 +1,17 @@
+# FNF - P-Sliced HRK Engine
+This engine will implement some features inherited from my old Engine.  
+And add some new things.....?.....in the future.
+
+If you want to add my features in your own engine,
+Please contact me before s0m3th1ng happens.
+Because I don't like to be imitated so much.
+Credit isn't required, but I'm glad if u did.
+Discord: hrk.exex
+X(Twitter): @Hrek_Hexex
+Bluesky: @hrekexexex.bsky.social
+
+<details>
+<summary>Original description is here</summary>
 <!-- Thanks soushimiya for this README template! -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
@@ -168,3 +182,4 @@ Distributed under the Apache License 2.0. See [Licence](https://github.com/Psych
 [issues-url]: https://github.com/Psych-Slice/P-Slice/issues
 [license-shield]: https://img.shields.io/github/license/Psych-Slice/P-Slice.svg?style=for-the-badge
 [license-url]: https://github.com/Psych-Slice/P-Slice/blob/master/LICENSE.txt!
+</details>

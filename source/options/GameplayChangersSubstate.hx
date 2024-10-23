@@ -15,6 +15,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
 	private var curOption(get, never):GameplayOption;
+	public static var fromOtherState:Bool = false;
 	function get_curOption() return optionsArray[curSelected]; //shorter lol
 
 	function getOptions()
@@ -137,6 +138,8 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 		changeSelection();
 		reloadCheckboxes();
+
+		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
 	var nextAccept:Int = 5;

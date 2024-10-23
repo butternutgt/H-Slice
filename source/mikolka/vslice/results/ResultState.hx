@@ -248,7 +248,7 @@ class ResultState extends MusicBeatSubState
               animation.onAnimationComplete.add((_name:String) -> {
                 if (animation != null)
                 {
-                  trace("AHAHAH");
+                  #if debug trace("AHAHAH"); #end
                   animation.anim.curFrame = animData.loopFrame ?? 0;
                   animation.anim.play(); // unpauses this anim, since it's on PlayOnce!
                 }
@@ -498,7 +498,7 @@ class ResultState extends MusicBeatSubState
 
     clearPercentLerp = Std.int(Math.max(0, clearPercentTarget - 36));
 
-    trace('Clear percent target: ' + clearPercentFloat + ', round: ' + clearPercentTarget);
+    trace('Clear percent target: ' + clearPercentFloat + ', floor: ' + clearPercentTarget);
 
     var clearPercentCounter:ClearPercentCounter = new ClearPercentCounter(FlxG.width / 2 + 190, FlxG.height / 2 - 70, clearPercentLerp);
     FlxTween.tween(clearPercentCounter, {curNumber: clearPercentTarget}, 58 / 24,
