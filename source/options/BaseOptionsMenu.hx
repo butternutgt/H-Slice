@@ -22,6 +22,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 	private var descBox:FlxSprite;
 	private var descText:FlxText;
+	private var interpolate = CoolUtil.interpolate;
 
 	public var title:String;
 	public var rpcTitle:String;

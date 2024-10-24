@@ -135,8 +135,10 @@ class FreeplaySongData
 			else
 			{
 				this.songDifficulties = ['normal'];
+				#if debug
 				trace('Directory $sngDataPath does not exist! $songName has no charts (difficulties)!');
 				trace('Forcing "normal" difficulty. Expect issues!!');
+				#end
 			}
 		}
 		if (!this.songDifficulties.contains(currentDifficulty))

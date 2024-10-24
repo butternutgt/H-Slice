@@ -12,7 +12,10 @@
 				"$haxe-trace"
 			],
 			"label": "lime: build windows",
-			"group": "build"
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		},
 		{
 			"type": "lime",

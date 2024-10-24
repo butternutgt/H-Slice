@@ -97,7 +97,7 @@ class MainMenuState extends MusicBeatState
 			menuItem.screenCenter(X);
 		}
 
-		var padding:Float = 10;
+		var padding:Float = 8;
 		var hrkVer:FlxText = new FlxText(padding, FlxG.height - 58 - padding, FlxG.width, "HRK Engine Redux " + hrkVersion, 12);
 		var psychVer:FlxText = new FlxText(padding, FlxG.height - 38 - padding, FlxG.width, "Psych Engine " + psychEngineVersion, 12);
 		var fnfVer:FlxText = new FlxText(padding, FlxG.height - 18 - padding, FlxG.width, 'Friday Night Funkin\' v${funkinVersion} (P-slice ${pSliceVersion})', 12);
@@ -130,7 +130,7 @@ class MainMenuState extends MusicBeatState
 
 		super.create();
 
-		FlxG.camera.follow(camFollow, null, 0.06);
+		FlxG.camera.follow(camFollow, null, 0.2);
 	}
 
 	var selectedSomethin:Bool = false;

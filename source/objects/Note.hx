@@ -50,6 +50,7 @@ class Note extends FlxSprite
 
 	public var strumTime:Float = 0;
 	public var noteData:Int = 0;
+	public var strum:StrumNote = null;
 
 	public var mustPress:Bool = false;
 	public var canBeHit:Bool = false;
@@ -497,16 +498,16 @@ class Note extends FlxSprite
 		_lastValidChecked = '';
 	}
 
-	public function followStrumNote(myStrum:StrumNote, fakeCrochet:Float, songSpeed:Float = 1)
+	public function followStrumNote(songSpeed:Float = 1)
 	{
-		var strumX:Float = myStrum.x;
-		var strumY:Float = myStrum.y;
-		var strumAngle:Float = myStrum.angle;
-		var strumAlpha:Float = myStrum.alpha;
-		var strumDirection:Float = myStrum.direction;
+		var strumX:Float = strum.x;
+		var strumY:Float = strum.y;
+		var strumAngle:Float = strum.angle;
+		var strumAlpha:Float = strum.alpha;
+		var strumDirection:Float = strum.direction;
 
 		distance = (0.45 * (Conductor.songPosition - strumTime) * songSpeed * multSpeed);
-		if (!myStrum.downScroll) distance *= -1;
+		if (!strum.downScroll) distance *= -1;
 
 		var angleDir = strumDirection * Math.PI / 180;
 		if (copyAngle)
@@ -521,7 +522,7 @@ class Note extends FlxSprite
 		if(copyY)
 		{
 			y = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
-			if(myStrum.downScroll && isSustainNote)
+			if(strum.downScroll && isSustainNote)
 			{
 				if(PlayState.isPixelStage)
 				{
@@ -532,15 +533,15 @@ class Note extends FlxSprite
 		}
 	}
 
-	public function clipToStrumNote(myStrum:StrumNote)
+	public function clipToStrumNote()
 	{
-		var center:Float = myStrum.y + offsetY + Note.swagWidth / 2;
-		if((mustPress || !ignoreNote) && (wasGoodHit || (prevNote.wasGoodHit && !canBeHit)))
+		var center:Float = strum.y + offsetY + Note.swagWidth / 2;
+		if((mustPress || !ignoreNote) && (wasGoodHit || hitByOpponent || (prevNote.wasGoodHit && !canBeHit)))
 		{
 			var swagRect:FlxRect = clipRect;
 			if(swagRect == null) swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
 
-			if (myStrum.downScroll)
+			if (strum.downScroll)
 			{
 				if(y - offset.y * scale.y + height >= center)
 				{

@@ -319,6 +319,14 @@ class NoteSplash extends FlxSprite
 		scale.set(value.scale, value.scale);
 		return config = value;
 	}
+
+	public function killSplash(targetId:Int = -1) {
+		try {
+			if (targetId != -1) PlayState.splashUsing[noteData].splice(targetId, 1);
+			else PlayState.splashUsing[noteData].splice(0, 1);
+		} catch (e:Dynamic) {}
+		super.kill();
+	}
 }
 
 class PixelSplashShaderRef 

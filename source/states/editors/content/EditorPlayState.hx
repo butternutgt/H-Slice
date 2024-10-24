@@ -156,6 +156,12 @@ class EditorPlayState extends MusicBeatSubstate
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
+	// Spawning things
+	var totalCnt:Int = 0;
+	var targetNote:Note = null;
+	var dunceNote:Note = null;
+	var strumGroup:FlxTypedGroup<StrumNote>;
+	
 	override function update(elapsed:Float)
 	{
 		if(controls.BACK || FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.F12)
@@ -183,39 +189,36 @@ class EditorPlayState extends MusicBeatSubstate
 			}
 		}
 
-		if (unspawnNotes[0] != null)
+		if (unspawnNotes.length > totalCnt)
 		{
-			var time:Float = spawnTime * playbackRate;
-			if(songSpeed < 1) time /= songSpeed;
-			if(unspawnNotes[0].multSpeed < 1) time /= unspawnNotes[0].multSpeed;
-
-			while (unspawnNotes.length > 0 && unspawnNotes[0].strumTime - Conductor.songPosition < time)
+			targetNote = unspawnNotes[totalCnt];
+			while (targetNote.strumTime - Conductor.songPosition < spawnTime)
 			{
-				var dunceNote:Note = unspawnNotes[0];
-				notes.insert(0, dunceNote);
+				dunceNote = targetNote;
 				dunceNote.spawned = true;
 
-				var index:Int = unspawnNotes.indexOf(dunceNote);
-				unspawnNotes.splice(index, 1);
+				strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
+				dunceNote.strum = strumGroup.members[dunceNote.noteData];
+				notes.insert(0, dunceNote);
+
+				++totalCnt;
+				if (unspawnNotes.length > totalCnt)
+					targetNote = unspawnNotes[totalCnt];
+				else break;
 			}
 		}
 
 		keysCheck();
 		if(notes.length > 0)
 		{
-			var fakeCrochet:Float = (60 / PlayState.SONG.bpm) * 1000;
 			notes.forEachAlive(function(daNote:Note)
 			{
-				var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
-				if(!daNote.mustPress) strumGroup = opponentStrums;
+				daNote.followStrumNote(songSpeed / playbackRate);
 
-				var strum:StrumNote = strumGroup.members[daNote.noteData];
-				daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
-
-				if(!daNote.mustPress && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
+				if(!daNote.mustPress && !daNote.hitByOpponent && !daNote.ignoreNote && daNote.strumTime <= Conductor.songPosition)
 					opponentNoteHit(daNote);
 
-				if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
+				if(daNote.isSustainNote && daNote.strum.sustainReduce) daNote.clipToStrumNote();
 
 				// Kill extremely late notes and cause misses
 				if (Conductor.songPosition - daNote.strumTime > noteKillOffset)

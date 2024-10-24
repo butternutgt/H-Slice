@@ -1,12 +1,11 @@
 package;
 
-import openfl.display.FPS;
+import debug.FPSBg;
 #if android
 import android.content.Context;
 #end
+import debug.FPSCounter;
 
-
-import mikolka.vslice.components.MemoryCounter;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -55,8 +54,10 @@ class Main extends Sprite
 		startFullscreen: false // if the game should start at fullscreen mode
 	};
 
-	public static var fpsVar:FPS;
-	public static var memoryCounter:MemoryCounter;
+	public static var fpsBg:FPSBg;
+	public static var fpsVar:FPSCounter;
+
+	public static var isConsoleAvailable:Bool = true;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -68,6 +69,14 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+
+		#if desktop
+		try {
+			Sys.stdout().writeString("Console Available!\n");
+		} catch (e:Dynamic) {isConsoleAvailable = false;}
+		#else
+		isConsoleAvailable = false;
+		#end
 
 		// Credits to MAJigsaw77 (he's the og author for this code)
 		#if android
@@ -136,22 +145,18 @@ class Main extends Sprite
 		addChild(gameObject);
 
 		#if !mobile
-		fpsVar = new FPS(10, 3, 0xFFFFFF);
+		fpsBg = new FPSBg();
+		fpsVar = new FPSCounter(6, 1, 0xFFFFFF);
+		addChild(fpsBg);
 		addChild(fpsVar);
+
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
-		if(fpsVar != null) {
+		if(fpsVar != null)
 			fpsVar.visible = ClientPrefs.data.showFPS;
-		}
-		#end
+		if(fpsBg != null) 
+			fpsBg.visible = ClientPrefs.data.showFPS;
 
-		#if !html5
-		// TODO: disabled on HTML5 (todo: find another method that works?)
-		memoryCounter = new MemoryCounter(10, 13, 0xFFFFFF);
-		addChild(memoryCounter);
-		if(memoryCounter != null) {
-			memoryCounter.visible = ClientPrefs.data.showFPS;
-		}
 		#end
 
 		#if linux
@@ -211,7 +216,7 @@ class Main extends Sprite
 		dateNow = dateNow.replace(" ", "_");
 		dateNow = dateNow.replace(":", "'");
 
-		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
+		path = "./crash/" + "P-Sliced-HRK-Engine_" + dateNow + ".txt";
 
 		for (stackItem in callStack)
 		{

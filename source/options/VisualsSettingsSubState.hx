@@ -11,6 +11,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	var notes:FlxTypedGroup<StrumNote>;
 	var splashes:FlxTypedGroup<NoteSplash>;
 	var noteY:Float = 90;
+	var fpsRateOption:Option;
+
 	public function new()
 	{
 		title = Language.getPhrase('visuals_menu', 'Visuals Settings');
@@ -82,9 +84,31 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.minValue = 0.0;
 		option.maxValue = 1;
 		option.changeValue = 0.1;
-		option.decimals = 1;
+		option.decimals = 2;
 		addOption(option);
 		option.onChange = playNoteSplashes;
+
+		var option:Option = new Option('Note Splash Count:',
+			'How much the Note Splashes should spawn every arrow?\n0 means no limits for appears splash.',
+			'splashCount',
+			INT);
+		option.scrollSpeed = 30;
+		option.minValue = 0;
+		option.maxValue = 15;
+		option.changeValue = 1;
+		addOption(option);
+
+		var option:Option = new Option('Opponent Note Splash',
+			'If checked, Note Splash appears in Opponent Strum.',
+			'splashOpponent',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Strum Animation',
+			'If checked, Play animation of strum arrows every note hits.',
+			'strumAnim',
+			BOOL);
+		addOption(option);
 
 		var option:Option = new Option('Hide HUD',
 			'If checked, hides most HUD elements.',
@@ -135,6 +159,19 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
+		
+		var option:Option = new Option('FC - Update Rate',
+			"It can change updating date on FPS Counter.",
+			'showFPS',
+			INT);
+		option.scrollSpeed = 30;
+		option.minValue = 1;
+		option.maxValue = 1000;
+		option.changeValue = 1;
+		option.decimals = 0;
+		option.onChange = onChangeFPSRate;
+		addOption(option);
+		fpsRateOption = option;
 		#end
 		
 		var option:Option = new Option('Pause Music:',
@@ -271,13 +308,17 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		super.destroy();
 	}
 
+
 	#if !mobile
 	function onChangeFPSCounter()
 	{
 		if(Main.fpsVar != null)
 			Main.fpsVar.visible = ClientPrefs.data.showFPS;
-		if(Main.memoryCounter != null)
-			Main.memoryCounter.visible = ClientPrefs.data.showFPS;
+	}
+
+	function onChangeFPSRate()
+	{
+		fpsRateOption.scrollSpeed = interpolate(30, 50000, (holdTime - 0.5) / 10, 3);
 	}
 	#end
 }

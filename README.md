@@ -2,14 +2,14 @@
 This engine will implement some features inherited from my old Engine.  
 And add some new things.....?.....in the future.
 
-If you want to add my features in your own engine,
-Please contact me before s0m3th1ng happens.
-Because I don't like to be imitated so much.
-Credit isn't required, but I'm glad if u did.
-Discord: hrk.exex
-X(Twitter): @Hrek_Hexex
-Bluesky: @hrekexexex.bsky.social
-
+If you want to add my features in your own engine,  
+Please contact me before s0m3th1ng happens.  
+Because I don't like to be imitated so much.  
+Credit isn't required, but I'm glad if u did.  
+Discord: hrk.exex  
+X(Twitter): @Hrek_Hexex  
+Bluesky: @hrekexexex.bsky.social  
+  
 <details>
 <summary>Original description is here</summary>
 <!-- Thanks soushimiya for this README template! -->

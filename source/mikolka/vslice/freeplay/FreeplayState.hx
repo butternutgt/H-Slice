@@ -1940,7 +1940,7 @@ class FreeplayState extends MusicBeatSubstate
 	function clearDaCache(actualSongTho:String):Void
 	{
 		// ? changed implementation of this
-		trace("Purging song previews!");
+		#if debug trace("Purging song previews!"); #end
 		var cacheObj = cast(openfl.Assets.cache, AssetCache);
 		@:privateAccess
 		var list = cacheObj.sound.keys();
@@ -2167,7 +2167,7 @@ class FreeplayState extends MusicBeatSubstate
 			// ? psych dir setting
 			var songData = daSongCapsule.songData;
 			ModsHelper.loadModDir(songData.folder);
-			FunkinSound.playMusic(daSongCapsule.songData.songId, {
+			var didPlay:Bool = FunkinSound.playMusic(daSongCapsule.songData.songId, {
 				startingVolume: 0.0,
 				overrideExisting: true,
 				restartTrack: false,
@@ -2188,6 +2188,10 @@ class FreeplayState extends MusicBeatSubstate
 					FreeplayHelpers.BPM = newBPM; // ? reimplementing
 				}
 			});
+
+			if (!didPlay) {
+				trace("Preview Cancelled");
+			}
 		}
 	}
 

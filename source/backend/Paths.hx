@@ -1,5 +1,7 @@
 package backend;
 
+import objects.NoteSplash.NoteSplashConfig;
+import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.graphics.FlxGraphic;
@@ -29,6 +31,11 @@ class Paths
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
 	inline public static var VIDEO_EXT = "mp4";
 
+	public static var popUpFramesMap:Map<String, FlxFramesCollection> = new Map();
+
+	public static var splashConfigs:Map<String, NoteSplashConfig> = new Map();
+	public static var splashAnimCountMap:Map<String, Int> = new Map();
+	
 	public static function excludeAsset(key:String) {
 		if (!dumpExclusions.contains(key))
 			dumpExclusions.push(key);

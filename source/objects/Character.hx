@@ -81,6 +81,11 @@ class Character extends FlxSprite
 	public var originalFlipX:Bool = false;
 	public var editorIsPlayer:Null<Bool> = null;
 
+	// Fix on high/low bpm songs
+	public var prevCrochet:Float;
+	public var charaCrochet:Float;
+	private final targetCrochet:Float = 0.075;
+
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
 	{
 		super(x, y);
@@ -100,6 +105,9 @@ class Character extends FlxSprite
 			case 'pico-blazin', 'darnell-blazin':
 				skipDance = true;
 		}
+
+		prevCrochet = Conductor.stepCrochet;
+		charaCrochet = prevCrochet / 1000.0;
 	}
 
 	public function changeCharacter(character:String)
@@ -290,7 +298,17 @@ class Character extends FlxSprite
 		if (getAnimationName().startsWith('sing')) holdTimer += elapsed;
 		else if(isPlayer) holdTimer = 0;
 
-		if (!isPlayer && holdTimer >= Conductor.stepCrochet * (0.0011 #if FLX_PITCH / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1) #end) * singDuration)
+		if (prevCrochet != Conductor.stepCrochet) {
+			prevCrochet = Conductor.stepCrochet;
+			charaCrochet = prevCrochet / 1000.0;
+		}
+		do {
+			if (charaCrochet < targetCrochet) charaCrochet *= 2.0;
+			// else if (targetCrochet * 2 <= charaCrochet) charaCrochet /= 2.0;
+			else break;
+		} while (true);
+
+		if (!isPlayer && holdTimer >= charaCrochet * singDuration)
 		{
 			dance();
 			holdTimer = 0;

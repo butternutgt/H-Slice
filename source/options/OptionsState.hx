@@ -42,6 +42,9 @@ class OptionsState extends MusicBeatState
 		}
 	}
 
+	var selectorLeft:Alphabet;
+	var selectorRight:Alphabet;
+
 	override function create()
 	{
 		#if DISCORD_ALLOWED
@@ -53,6 +56,7 @@ class OptionsState extends MusicBeatState
 		bg.color = 0xFFea71fd;
 		bg.updateHitbox();
 
+
 		bg.screenCenter();
 		add(bg);
 
@@ -62,11 +66,18 @@ class OptionsState extends MusicBeatState
 		for (num => option in options)
 		{
 			var optionText:Alphabet = new Alphabet(0, 0, Language.getPhrase('options_$option', option), true);
+			optionText.setScale(0.8);
 			optionText.screenCenter();
-			optionText.y += (69 * (num - (options.length / 2))) + 33.75;
-			optionText.setScale(0.75);
+			optionText.y += (69 * (num - (options.length / 2))) + 35;
 			grpOptions.add(optionText);
 		}
+
+		selectorLeft = new Alphabet(0, 0, '>>>', true);
+		selectorLeft.setScale(0.8);
+		add(selectorLeft);
+		selectorRight = new Alphabet(0, 0, '<<<', true);
+		selectorRight.setScale(0.8);
+		add(selectorRight);
 
 		changeSelection();
 		ClientPrefs.saveSettings();
@@ -116,6 +127,10 @@ class OptionsState extends MusicBeatState
 			if (item.targetY == 0)
 			{
 				item.alpha = 1;
+				selectorLeft.x = item.x - 122;
+				selectorLeft.y = item.y;
+				selectorRight.x = item.x + item.width + 26;
+				selectorRight.y = item.y;
 			}
 		}
 		FlxG.sound.play(Paths.sound('scrollMenu'));
