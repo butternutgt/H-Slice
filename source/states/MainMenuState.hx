@@ -1,7 +1,7 @@
 package states;
 
 import mikolka.compatibility.ModsHelper;
-import mikolka.vslice.freeplay.FreeplayState;
+import mikolka.vslice.freeplay.FreeplayState as NewFreeplayState;
 import flixel.FlxObject;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.effects.FlxFlicker;
@@ -48,7 +48,7 @@ class MainMenuState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("In the Menus", null);
+		DiscordClient.changePresence("In the Main Menus", null);
 		#end
 
 
@@ -140,8 +140,8 @@ class MainMenuState extends MusicBeatState
 		if (FlxG.sound.music.volume < 0.8 * ClientPrefs.data.bgmVolume)
 		{
 			FlxG.sound.music.volume += 0.5 * elapsed * ClientPrefs.data.bgmVolume;
-			//if (FreeplayState.vocals != null)
-				//FreeplayState.vocals.volume += 0.5 * elapsed;
+			//if (NewFreeplayState.vocals != null)
+				//NewFreeplayState.vocals.volume += 0.5 * elapsed;
 		}
 
 		if (!selectedSomethin)
@@ -181,25 +181,27 @@ class MainMenuState extends MusicBeatState
 						{
 							case 'story_mode':
 								MusicBeatState.switchState(new StoryMenuState());
-							case 'freeplay':{
-								persistentDraw = true;
-								persistentUpdate = false;
-								// Freeplay has its own custom transition
-								FlxTransitionableState.skipNextTransIn = true;
-								FlxTransitionableState.skipNextTransOut = true;
+							case 'freeplay':
+								if (ClientPrefs.data.vsliceFreeplay) {
+									persistentDraw = true;
+									persistentUpdate = false;
+									// Freeplay has its own custom transition
+									FlxTransitionableState.skipNextTransIn = true;
+									FlxTransitionableState.skipNextTransOut = true;
 
-								openSubState(new FreeplayState());
-								subStateOpened.addOnce(state -> {
-									for (i in 0...menuItems.members.length) {
-										menuItems.members[i].revive();
-										menuItems.members[i].alpha = 1;
-										menuItems.members[i].visible = true;
-										selectedSomethin = false;
-									}
-									changeItem(0);
-								});
-								
-							}
+									openSubState(new NewFreeplayState());
+									subStateOpened.addOnce(state -> {
+										for (i in 0...menuItems.members.length) {
+											menuItems.members[i].revive();
+											menuItems.members[i].alpha = 1;
+											menuItems.members[i].visible = true;
+											selectedSomethin = false;
+										}
+										changeItem(0);
+									});
+								} else {
+									MusicBeatState.switchState(new FreeplayState());
+								}
 
 							#if MODS_ALLOWED
 							case 'mods':

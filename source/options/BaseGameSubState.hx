@@ -4,6 +4,12 @@ class BaseGameSubState extends BaseOptionsMenu {
     public function new() {
         title = "V-Slice settings";
         rpcTitle = "V-Slice settings menu";
+        var option:Option = new Option('Use New Freeplay State',
+			'If unchecked, it uses older freeplay state as usual.',
+			'vsliceFreeplay',
+			BOOL);
+		addOption(option);
+
         var option:Option = new Option('Freeplay Dynamic Coloring',
 			'Enables dynamic freeplay background color. Disable this if you prefer original V-slice freeplay menu colors',
 			'vsliceFreeplayColors',

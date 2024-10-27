@@ -34,6 +34,7 @@ import states.TitleState;
 	public var numberFormat:Bool = false;
 	public var showInfoType:String = "None";
 
+	public var vsliceFreeplay:Bool = true;
 	public var vsliceFreeplayColors:Bool = true;
 	public var vsliceResults:Bool = true;
 	public var vsliceSpecialCards:Bool = true;

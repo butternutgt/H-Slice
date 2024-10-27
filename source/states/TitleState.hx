@@ -135,7 +135,7 @@ class TitleState extends MusicBeatState
 		#else
 		if (FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
-			FlxTransitionableState.skipNextTransIn = true;
+			FlxTransitionableState.skipNextTransIn = false;
 			FlxTransitionableState.skipNextTransOut = false;
 			MusicBeatState.switchState(new FlashingState());
 		}
@@ -488,7 +488,7 @@ class TitleState extends MusicBeatState
 							FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 							FlxG.sound.music.fadeIn(4, 0, 0.7 * ClientPrefs.data.bgmVolume);
 						}
-						FlxTransitionableState.skipNextTransIn = true;
+						FlxTransitionableState.skipNextTransIn = false;
 						MusicBeatState.switchState(new MainMenuState());
 					}
 
@@ -531,8 +531,8 @@ class TitleState extends MusicBeatState
 							FlxTween.tween(black, {alpha: 1}, 1, {
 								onComplete: function(twn:FlxTween)
 								{
-									FlxTransitionableState.skipNextTransIn = true;
-									FlxTransitionableState.skipNextTransOut = true;
+									FlxTransitionableState.skipNextTransIn = false;
+									FlxTransitionableState.skipNextTransOut = false;
 									MusicBeatState.switchState(new TitleState());
 								}
 							});
