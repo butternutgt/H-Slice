@@ -141,12 +141,12 @@ class DeprecatedFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "musicFadeIn", function(duration:Float, fromValue:Float = 0, toValue:Float = 1) {
-			FlxG.sound.music.fadeIn(duration, fromValue, toValue);
+			FlxG.sound.music.fadeIn(duration, fromValue * ClientPrefs.data.bgmVolume, toValue * ClientPrefs.data.bgmVolume);
 			FunkinLua.luaTrace('musicFadeIn is deprecated! Use soundFadeIn instead.', false, true);
 
 		});
 		Lua_helper.add_callback(lua, "musicFadeOut", function(duration:Float, toValue:Float = 0) {
-			FlxG.sound.music.fadeOut(duration, toValue);
+			FlxG.sound.music.fadeOut(duration, toValue * ClientPrefs.data.bgmVolume);
 			FunkinLua.luaTrace('musicFadeOut is deprecated! Use soundFadeOut instead.', false, true);
 		});
 		Lua_helper.add_callback(lua, "updateHitboxFromGroup", function(group:String, index:Int) {

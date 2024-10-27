@@ -15,13 +15,13 @@ import flixel.text.FlxText.FlxTextAlign;
 class TallyCounter extends FlxTypedSpriteGroup<FlxSprite>
 {
   public var curNumber:Float = 0;
-  public var neededNumber:Int = 0;
+  public var neededNumber:Float = 0;
 
   public var flavour:Int = 0xFFFFFFFF;
 
   public var align:FlxTextAlign = FlxTextAlign.LEFT;
 
-  public function new(x:Float, y:Float, neededNumber:Int = 0, ?flavour:Int = 0xFFFFFFFF, align:FlxTextAlign = FlxTextAlign.LEFT)
+  public function new(x:Float, y:Float, neededNumber:Float = 0, ?flavour:Int = 0xFFFFFFFF, align:FlxTextAlign = FlxTextAlign.LEFT)
   {
     super(x, y);
 

@@ -1,5 +1,6 @@
 package backend;
 
+import cpp.Float64;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
 
@@ -225,6 +226,23 @@ class CoolUtil
 			  });
 		return list;
 	}
+
+	@:functionCode('
+		LARGE_INTEGER freq;
+		LARGE_INTEGER time;
+
+		QueryPerformanceFrequency(&freq);
+		QueryPerformanceCounter(&time);
+
+		if (freq.QuadPart == 0L || time.QuadPart == 0L) return 0;
+		double get = static_cast<double>(time.QuadPart) / freq.QuadPart;
+
+		return get;
+	')
+	static public function getNanoTime():Float64
+	{
+		return 0;
+	}
 	
 	// stolen and modded from FlxStringUtil
 	public static function formatTime(seconds:Float, precision:Int = 0):String
@@ -418,4 +436,23 @@ class CoolUtil
 				text.borderStyle = NONE;
 		}
 	}
+
+	#if windows
+	@:functionCode('
+		HWND hWnd = GetActiveWindow();
+        LPCSTR lwDesc = desc.c_str();
+        LPCSTR lwCap = cap.c_str();
+
+        res = MessageBoxA(
+            hWnd,
+            lwDesc,
+            NULL,
+            MB_OK
+        );
+	')
+	static public function sendMsgBox(desc:String = "", cap:String = "", res:Int = 0) // TODO: Linux and macOS (will do soon)
+	{
+		return res;
+	}
+	#end
 }

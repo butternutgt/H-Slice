@@ -13,7 +13,7 @@ import flixel.util.FlxStringUtil;
 class DiscordClient
 {
 	public static var isInitialized:Bool = false;
-	private inline static final _defaultID:String = "6060103261604059037";
+	private inline static final _defaultID:String = "1299730442324541470";
 	public static var clientID(default, set):String = _defaultID;
 	private static var presence:DiscordPresence = new DiscordPresence();
 	// hides this field from scripts and reflection in general
@@ -114,7 +114,9 @@ class DiscordClient
 		presence.endTimestamp = Std.int(endTimestamp / 1000);
 		updatePresence();
 
-		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
+		#if debug
+		trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
+		#end
 	}
 
 	public static function updatePresence()
@@ -148,7 +150,7 @@ class DiscordClient
 		if(pack != null && pack.discordRPC != null && pack.discordRPC != clientID)
 		{
 			clientID = pack.discordRPC;
-			//trace('Changing clientID! $clientID, $_defaultID');
+			// trace('Changing clientID! $clientID, $_defaultID');
 		}
 	}
 	#end

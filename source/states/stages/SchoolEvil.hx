@@ -31,7 +31,7 @@ class SchoolEvil extends BaseStage
 		setDefaultGF('gf-pixel');
 
 		FlxG.sound.playMusic(Paths.music('LunchboxScary'), 0);
-		FlxG.sound.music.fadeIn(1, 0, 0.8);
+		FlxG.sound.music.fadeIn(1, 0, 0.8 * ClientPrefs.data.bgmVolume);
 		if(isStoryMode && !seenCutscene)
 		{
 			initDoof();

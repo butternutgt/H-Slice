@@ -42,6 +42,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
 
 import haxe.Json;
+import shaders.WiggleEffect;
 
 import mikolka.vslice.freeplay.FreeplayState;
 
@@ -589,6 +590,26 @@ class FunkinLua {
 			else luaTrace('doTweenColor: Couldnt find object: ' + vars, false, false, FlxColor.RED);
 			return null;
 		});
+		
+		// Available Shaders
+		Lua_helper.add_callback(lua, "addGlitchEffect", function(tag:String, ?spd:Float = 2.25, ?freq:Float = 5, ?amp:Float = 0.1, ?type:String = 'FLAG') {
+			if(PlayState.instance.modchartSprites.exists(tag)) {
+				var shit:ModchartSprite = PlayState.instance.modchartSprites.get(tag);
+				var neoWiggle:WiggleEffect = new WiggleEffect();
+				neoWiggle.effectType = if(type == 'WAVY') WAVY
+					else if(type == 'DREAMY') DREAMY
+					else if(type == 'HORIZONTAL') HEAT_WAVE_HORIZONTAL
+					else if(type == 'VERTICAL') HEAT_WAVE_VERTICAL
+					else FLAG;
+				neoWiggle.waveSpeed = spd;
+				neoWiggle.waveFrequency = freq;
+				neoWiggle.waveAmplitude = amp;
+				shit.shader = neoWiggle.shader;
+				PlayState.instance.modchartWiggles.set(tag, neoWiggle);
+				return true;
+			}
+			return false;
+		});
 
 		//Tween shit, but for strums
 		Lua_helper.add_callback(lua, "noteTweenX", function(tag:String, note:Int, value:Dynamic, duration:Float, ?ease:String = 'linear') {
@@ -754,7 +775,7 @@ class FunkinLua {
 
 			#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 			PlayState.changedDifficulty = false;
 			PlayState.chartingMode = false;
 			game.transitioning = true;
@@ -1315,7 +1336,7 @@ class FunkinLua {
 		});
 
 		Lua_helper.add_callback(lua, "playMusic", function(sound:String, ?volume:Float = 1, ?loop:Bool = false) {
-			FlxG.sound.playMusic(Paths.music(sound), volume, loop);
+			FlxG.sound.playMusic(Paths.music(sound), volume * ClientPrefs.data.bgmVolume, loop);
 		});
 		Lua_helper.add_callback(lua, "playSound", function(sound:String, ?volume:Float = 1, ?tag:String = null, ?loop:Bool = false) {
 			if(tag != null && tag.length > 0)
@@ -1388,28 +1409,28 @@ class FunkinLua {
 			if(tag == null || tag.length < 1)
 			{
 				if(FlxG.sound.music != null)
-					FlxG.sound.music.fadeIn(duration, fromValue, toValue);
+					FlxG.sound.music.fadeIn(duration, fromValue * ClientPrefs.data.bgmVolume, toValue * ClientPrefs.data.bgmVolume);
 			}
 			else
 			{
 				tag = LuaUtils.formatVariable('sound_$tag');
 				var snd:FlxSound = MusicBeatState.getVariables().get(tag);
 				if(snd != null)
-					snd.fadeIn(duration, fromValue, toValue);
+					snd.fadeIn(duration, fromValue * ClientPrefs.data.bgmVolume, toValue * ClientPrefs.data.bgmVolume);
 			}
 		});
 		Lua_helper.add_callback(lua, "soundFadeOut", function(tag:String, duration:Float, toValue:Float = 0) {
 			if(tag == null || tag.length < 1)
 			{
 				if(FlxG.sound.music != null)
-					FlxG.sound.music.fadeOut(duration, toValue);
+					FlxG.sound.music.fadeOut(duration, toValue * ClientPrefs.data.bgmVolume);
 			}
 			else
 			{
 				tag = LuaUtils.formatVariable('sound_$tag');
 				var snd:FlxSound = MusicBeatState.getVariables().get(tag);
 				if(snd != null)
-					snd.fadeOut(duration, toValue);
+					snd.fadeOut(duration, toValue * ClientPrefs.data.bgmVolume);
 			}
 		});
 		Lua_helper.add_callback(lua, "soundFadeCancel", function(tag:String) {
@@ -1446,7 +1467,7 @@ class FunkinLua {
 				tag = LuaUtils.formatVariable('sound_$tag');
 				if(FlxG.sound.music != null)
 				{
-					FlxG.sound.music.volume = value;
+					FlxG.sound.music.volume = value * ClientPrefs.data.bgmVolume;
 					return;
 				}
 			}

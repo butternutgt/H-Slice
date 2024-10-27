@@ -112,7 +112,7 @@ class DialogueBox extends FlxSpriteGroup
 		swagDialogue = new FlxTypeText(240, 500, Std.int(FlxG.width * 0.6), '', 32);
 		swagDialogue.font = Paths.font('pixel-latin.ttf');
 		swagDialogue.color = 0xFF3F2021;
-		swagDialogue.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
+		swagDialogue.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6 * ClientPrefs.data.sfxVolume)];
 		swagDialogue.borderStyle = SHADOW;
 		swagDialogue.borderColor = 0xFFD89494;
 		swagDialogue.shadowOffset.set(2, 2);
@@ -172,7 +172,7 @@ class DialogueBox extends FlxSpriteGroup
 					case SKIP: {
 							trace('skipped cutscene');
 							dialogueCompleted();
-							FlxG.sound.play(Paths.sound('clickText'), 0.8);
+							FlxG.sound.play(Paths.sound('clickText'), 0.8 * ClientPrefs.data.sfxVolume);
 						}
 					case RESUME: {
 						FlxG.sound.music.resume();
@@ -183,7 +183,7 @@ class DialogueBox extends FlxSpriteGroup
 						startDialogue();
 						if(songName != 'roses'){
 							FlxG.sound.music.play(true);
-							FlxG.sound.music.fadeIn(1, 0, 0.8);
+							FlxG.sound.music.fadeIn(1, 0, 0.8 * ClientPrefs.data.bgmVolume);
 						}
 					}
 				}
@@ -202,12 +202,12 @@ class DialogueBox extends FlxSpriteGroup
 				{
 					dialogueList.remove(dialogueList[0]);
 					startDialogue();
-					FlxG.sound.play(Paths.sound('clickText'), 0.8);
+					FlxG.sound.play(Paths.sound('clickText'), 0.8 * ClientPrefs.data.sfxVolume);
 				}
 			}
 			else if (dialogueStarted)
 			{
-				FlxG.sound.play(Paths.sound('clickText'), 0.8);
+				FlxG.sound.play(Paths.sound('clickText'), 0.8 * ClientPrefs.data.sfxVolume);
 				swagDialogue.skip();
 
 				if (skipDialogueThing != null)
@@ -223,7 +223,7 @@ class DialogueBox extends FlxSpriteGroup
 	function dialogueCompleted()
 	{
 		isEnding = true;
-		FlxG.sound.play(Paths.sound('clickText'), 0.8);
+		FlxG.sound.play(Paths.sound('clickText'), 0.8 * ClientPrefs.data.sfxVolume);
 
 		if (songName == 'senpai' || songName == 'thorns')
 			FlxG.sound.music.fadeOut(1.5, 0, (_) -> FlxG.sound.music.stop());

@@ -45,7 +45,7 @@ class Scoring
 			return Scoring.calculateRankFromData(sngScore, sngAccuracy, sngFC);
 		}
 
-	public static function calculateRankFromData(sngScore:Int, sngAccuracy:Float, sngFC:Bool):Null<ScoringRank>{
+	public static function calculateRankFromData(sngScore:Float, sngAccuracy:Float, sngFC:Bool):Null<ScoringRank>{
 		// Reminder that it MUSt be formatted first
 
 		// we can return null here, meaning that the player hasn't actually played and finished the song (thus has no data)
@@ -84,7 +84,7 @@ class Scoring
 	}
 	public static function calculateRank(scoreData:SaveScoreData):Null<ScoringRank>
 	{ 
-		var sngScore:Int = scoreData.score;
+		var sngScore:Float = scoreData.score;
 		var sngAccuracy:Float = Math.min(1,scoreData.accPoints/scoreData.totalNotesHit);
 		var sngFC:Bool = scoreData.missed == 0;
 		if(scoreData.totalNotesHit == 0) sngAccuracy = 0;

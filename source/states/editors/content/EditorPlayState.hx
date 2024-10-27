@@ -277,7 +277,7 @@ class EditorPlayState extends MusicBeatSubstate
 	{
 		startingSong = false;
 		FlxG.sound.music.onComplete = finishSong;
-		FlxG.sound.music.volume = vocals.volume = opponentVocals.volume = 1;
+		FlxG.sound.music.volume = vocals.volume = opponentVocals.volume = ClientPrefs.data.bgmVolume;
 
 		FlxG.sound.music.play();
 		vocals.play();

@@ -121,7 +121,7 @@ class FunkinSound extends FlxSound
 		else{
 			var targetPath = key+"/"+key;
 			if(key == "freakyMenu") targetPath = "freakyMenu";
-			FlxG.sound.playMusic(Paths.music(targetPath),params.startingVolume,params.loop);
+			FlxG.sound.playMusic(Paths.music(targetPath),params.startingVolume * ClientPrefs.data.sfxVolume,params.loop);
 			if(params.onLoad!= null)params.onLoad();
 			return true;
 		}

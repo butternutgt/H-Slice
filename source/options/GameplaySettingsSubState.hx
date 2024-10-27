@@ -2,6 +2,13 @@ package options;
 
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
+	var pastValue:Float = 0;
+	var timerMethod:Option;
+	var bgmVolume:Option;
+	var sfxVolume:Option;
+	var hitVolume:Option;
+	var rateHold:Float;
+
 	public function new()
 	{
 		title = Language.getPhrase('gameplay_menu', 'Gameplay Settings');
@@ -44,6 +51,40 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'noReset',
 			BOOL);
 		addOption(option);
+
+		var option:Option = new Option('Accurate Song Position',
+			"If checked, songPosition supports microSeconds, but It doesn't support too old cpu.",
+			'nanoPosition',
+			BOOL);
+		option.onChange = onChangeCounterMethod;
+		timerMethod = option;
+		addOption(option);
+
+		var option:Option = new Option('BGM/Music Volume',
+			"I wonder why doesn't this option exists in official build? xd",
+			'bgmVolume',
+			PERCENT);
+		addOption(option);
+		option.scrollSpeed = 1;
+		option.minValue = 0.0;
+		option.maxValue = 1;
+		option.changeValue = 0.01;
+		option.decimals = 2;
+		option.onChange = onChangebgmVolume;
+		bgmVolume = option;
+
+		var option:Option = new Option('SE/SFX Volume',
+			"I wonder why doesn't this option exists in official build? xd",
+			'sfxVolume',
+			PERCENT);
+		addOption(option);
+		option.scrollSpeed = 1;
+		option.minValue = 0.0;
+		option.maxValue = 1;
+		option.changeValue = 0.01;
+		option.decimals = 2;
+		option.onChange = onChangeSfxVolume;
+		sfxVolume = option;
 
 		var option:Option = new Option('Hitsound Volume',
 			'Funny notes does \"Tick!\" when you hit them.',
@@ -116,8 +157,41 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		super();
 	}
 
-	function onChangeHitsoundVolume()
-		FlxG.sound.play(Paths.sound('hitsound'), ClientPrefs.data.hitsoundVolume);
+	function onChangebgmVolume(){
+		if(pastValue != bgmVolume.getValue()) {
+			FlxG.sound.music.volume = pastValue = bgmVolume.getValue();
+		}
+	}
+
+	function onChangeSfxVolume(){
+		if(pastValue != sfxVolume.getValue()) {
+			if(holdTime - rateHold > 0.05 || holdTime <= 0.5) {
+				rateHold = holdTime;
+			}
+			pastValue = sfxVolume.getValue();
+		}
+	}
+
+	function onChangeHitsoundVolume(){
+		if(pastValue != hitVolume.getValue()) {
+			if(holdTime - rateHold > 0.05 || holdTime <= 0.5) {
+				FlxG.sound.play(Paths.sound('hitsound'), ClientPrefs.data.hitsoundVolume);
+				rateHold = holdTime;
+			}
+			pastValue = hitVolume.getValue();
+		}
+	}
+
+	function onChangeCounterMethod() {
+		if (timerMethod.getValue() == true) {
+			var check:Float = CoolUtil.getNanoTime();
+			if (check == 0) {
+				CoolUtil.sendMsgBox("This device doesn't support this feature.", 0);
+				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+				timerMethod.setValue(false);
+			}
+		}
+	}
 
 	function onChangeAutoPause()
 		FlxG.autoPause = ClientPrefs.data.autoPause;

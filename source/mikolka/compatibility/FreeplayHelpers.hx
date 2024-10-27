@@ -90,7 +90,7 @@ class FreeplayHelpers {
                     state.busy = false;
                     state.letterSort.inputEnabled = true;
                 }
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 				return;
 			}
 			LoadingState.loadAndSwitchState(new PlayState());

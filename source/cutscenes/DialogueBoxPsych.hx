@@ -62,7 +62,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 		if(song != null && song != '') {
 			FlxG.sound.playMusic(Paths.music(song), 0);
-			FlxG.sound.music.fadeIn(2, 0, 1);
+			FlxG.sound.music.fadeIn(2, 0, ClientPrefs.data.bgmVolume);
 		}
 		
 		bgFade = new FlxSprite(-500, -500).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.WHITE);
@@ -179,7 +179,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					if(skipDialogueThing != null) {
 						skipDialogueThing();
 					}
-					FlxG.sound.play(Paths.sound(closeSound), closeVolume);
+					FlxG.sound.play(Paths.sound(closeSound), closeVolume * ClientPrefs.data.sfxVolume);
 				}
 				else if (back && !pauseJustClosed && !dialogueEnded)
 					{
@@ -203,7 +203,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 								case SKIP: {
 										trace('skipped cutscene');
 										skipDialogue();
-										FlxG.sound.play(Paths.sound(closeSound), closeVolume);
+										FlxG.sound.play(Paths.sound(closeSound), closeVolume * ClientPrefs.data.sfxVolume);
 									}
 								case RESUME: {
 									FlxG.sound.music.resume();
@@ -213,17 +213,17 @@ class DialogueBoxPsych extends FlxSpriteGroup
 									dialogueList.dialogue = staticDialList.copy();
 									currentText = 0;
 									startNextDialog();
-									FlxG.sound.play(Paths.sound(closeSound), closeVolume);
+									FlxG.sound.play(Paths.sound(closeSound), closeVolume * ClientPrefs.data.sfxVolume);
 								}
 							}
 						});
 					}
 				else if(currentText >= dialogueList.dialogue.length)
 				{
-					FlxG.sound.play(Paths.sound(closeSound), closeVolume);
+					FlxG.sound.play(Paths.sound(closeSound), closeVolume * ClientPrefs.data.sfxVolume);
 					skipDialogue();
 				} else {
-					FlxG.sound.play(Paths.sound(closeSound), closeVolume);
+					FlxG.sound.play(Paths.sound(closeSound), closeVolume * ClientPrefs.data.sfxVolume);
 					startNextDialog();
 				}
 			} else if(daText.finishedText) {

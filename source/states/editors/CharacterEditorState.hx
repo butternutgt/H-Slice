@@ -454,7 +454,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			else
 			{
 				reloadCharacterDropDown();
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 			}
 		});
 		reloadCharacterDropDown();
@@ -1055,7 +1055,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				if(!unsavedProgress)
 				{
 					MusicBeatState.switchState(new states.editors.MasterEditorMenu());
-					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 				}
 				else openSubState(new ExitConfirmationPrompt());
 			}

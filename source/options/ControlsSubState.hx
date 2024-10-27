@@ -321,7 +321,7 @@ class ControlsSubState extends MusicBeatSubstate
 					binding = true;
 					holdingEsc = 0;
 					ClientPrefs.toggleVolumeKeys(false);
-					FlxG.sound.play(Paths.sound('scrollMenu'));
+					FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
 				}
 				else
 				{
@@ -332,7 +332,7 @@ class ControlsSubState extends MusicBeatSubstate
 					createTexts();
 					curSelected = lastSel;
 					updateText();
-					FlxG.sound.play(Paths.sound('cancelMenu'));
+					FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 				}
 			}
 		}
@@ -345,7 +345,7 @@ class ControlsSubState extends MusicBeatSubstate
 				holdingEsc += elapsed;
 				if(holdingEsc > 0.5)
 				{
-					FlxG.sound.play(Paths.sound('cancelMenu'));
+					FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 					closeBinding();
 				}
 			}
@@ -360,7 +360,7 @@ class ControlsSubState extends MusicBeatSubstate
 						ClientPrefs.gamepadBinds.get(curOption[2])[altNum] = NONE;
 					ClientPrefs.clearInvalidKeys(curOption[2]);
 					updateBind(Math.floor(curSelected * 2) + altNum, onKeyboardMode ? InputFormatter.getKeyName(NONE) : InputFormatter.getGamepadName(NONE));
-					FlxG.sound.play(Paths.sound('cancelMenu'));
+					FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 					closeBinding();
 				}
 			}
@@ -454,7 +454,7 @@ class ControlsSubState extends MusicBeatSubstate
 						}
 						updateBind(Math.floor(curSelected * 2) + n, key);
 					}
-					FlxG.sound.play(Paths.sound('confirmMenu'));
+					FlxG.sound.play(Paths.sound('confirmMenu'), ClientPrefs.data.sfxVolume);
 					closeBinding();
 				}
 			}
@@ -502,7 +502,7 @@ class ControlsSubState extends MusicBeatSubstate
 		});
 
 		updateAlt();
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
 	}
 
 	function swapMode()
@@ -522,7 +522,7 @@ class ControlsSubState extends MusicBeatSubstate
 		if(doSwap)
 		{
 			curAlt = !curAlt;
-			FlxG.sound.play(Paths.sound('scrollMenu'));
+			FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
 		}
 		selectSpr.sprTracker = grpBlacks.members[Math.floor(curSelected * 2) + (curAlt ? 1 : 0)];
 		selectSpr.visible = (selectSpr.sprTracker != null);

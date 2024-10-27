@@ -9,6 +9,7 @@ class OptionsState extends MusicBeatState
 		'Note Colors',
 		'Controls',
 		'Adjust Delay and Combo',
+		'Optimizer',
 		'Graphics',
 		'Visuals',
 		'Gameplay',
@@ -27,6 +28,8 @@ class OptionsState extends MusicBeatState
 				openSubState(new options.NotesColorSubState());
 			case 'Controls':
 				openSubState(new options.ControlsSubState());
+			case 'Optimizer':
+				openSubState(new options.OptimizeSettingsSubState());
 			case 'Graphics':
 				openSubState(new options.GraphicsSettingsSubState());
 			case 'Visuals':
@@ -73,10 +76,11 @@ class OptionsState extends MusicBeatState
 		}
 
 		selectorLeft = new Alphabet(0, 0, '>>>', true);
-		selectorLeft.setScale(0.8);
+		selectorLeft.alignment = RIGHT;
+		selectorLeft.setScale(0.7);
 		add(selectorLeft);
 		selectorRight = new Alphabet(0, 0, '<<<', true);
-		selectorRight.setScale(0.8);
+		selectorRight.setScale(0.7);
 		add(selectorRight);
 
 		changeSelection();
@@ -104,7 +108,7 @@ class OptionsState extends MusicBeatState
 
 		if (controls.BACK)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 			if(onPlayState)
 			{
 				StageData.loadDirectory(PlayState.SONG);
@@ -127,13 +131,13 @@ class OptionsState extends MusicBeatState
 			if (item.targetY == 0)
 			{
 				item.alpha = 1;
-				selectorLeft.x = item.x - 122;
-				selectorLeft.y = item.y;
-				selectorRight.x = item.x + item.width + 26;
-				selectorRight.y = item.y;
+				selectorLeft.x = item.x - 140;
+				selectorLeft.y = item.y + 7;
+				selectorRight.x = item.x + item.width + 35;
+				selectorRight.y = item.y + 7;
 			}
 		}
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
 	}
 
 	override function destroy()

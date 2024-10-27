@@ -136,7 +136,7 @@ class TitleState extends MusicBeatState
 		if (FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
 			FlxTransitionableState.skipNextTransIn = true;
-			FlxTransitionableState.skipNextTransOut = true;
+			FlxTransitionableState.skipNextTransOut = false;
 			MusicBeatState.switchState(new FlashingState());
 		}
 		else
@@ -470,7 +470,7 @@ class TitleState extends MusicBeatState
 					titleText.animation.play('press');
 
 				FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
-				FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
+				FlxG.sound.play(Paths.sound('confirmMenu'), 0.7 * ClientPrefs.data.sfxVolume);
 
 				transitioning = true;
 				// FlxG.sound.music.stop();
@@ -486,7 +486,7 @@ class TitleState extends MusicBeatState
 						if (cheatActive)
 						{
 							FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
-							FlxG.sound.music.fadeIn(4, 0, 0.7);
+							FlxG.sound.music.fadeIn(4, 0, 0.7 * ClientPrefs.data.bgmVolume);
 						}
 						FlxTransitionableState.skipNextTransIn = true;
 						MusicBeatState.switchState(new MainMenuState());
@@ -520,7 +520,7 @@ class TitleState extends MusicBeatState
 								FlxG.save.data.psychDevsEasterEgg = word;
 							FlxG.save.flush();
 
-							FlxG.sound.play(Paths.sound('secret'));
+							FlxG.sound.play(Paths.sound('secret'), ClientPrefs.data.sfxVolume);
 
 							var black:FlxSprite = new FlxSprite(0, 0).makeGraphic(1, 1, FlxColor.BLACK);
 							black.scale.set(FlxG.width, FlxG.height);
@@ -643,7 +643,7 @@ class TitleState extends MusicBeatState
 					#if VIDEOS_ALLOWED
 						FlxG.sound.music.onComplete = moveToAttract;
 					#end
-					FlxG.sound.music.fadeIn(4, 0, 0.7);
+					FlxG.sound.music.fadeIn(4, 0, 0.7 * ClientPrefs.data.bgmVolume);
 				case 2:
 					createCoolText(['Funkin Crew Inc', 'Shadow Mario', 'mikolka9144']);
 				case 4:
@@ -700,13 +700,13 @@ class TitleState extends MusicBeatState
 				switch (easteregg)
 				{
 					case 'RIVEREN':
-						sound = FlxG.sound.play(Paths.sound('JingleRiver'));
+						sound = FlxG.sound.play(Paths.sound('JingleRiver'), ClientPrefs.data.sfxVolume);
 					case 'SHADOW':
-						FlxG.sound.play(Paths.sound('JingleShadow'));
+						FlxG.sound.play(Paths.sound('JingleShadow'), ClientPrefs.data.sfxVolume);
 					case 'BBPANZU':
-						sound = FlxG.sound.play(Paths.sound('JingleBB'));
+						sound = FlxG.sound.play(Paths.sound('JingleBB'), ClientPrefs.data.sfxVolume);
 					case 'PESSY':
-						sound = FlxG.sound.play(Paths.sound('JinglePessy'));
+						sound = FlxG.sound.play(Paths.sound('JinglePessy'), ClientPrefs.data.sfxVolume);
 
 					default: // Go back to normal ugly ass boring GF
 						remove(ngSpr);
@@ -715,7 +715,7 @@ class TitleState extends MusicBeatState
 						skippedIntro = true;
 
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
-						FlxG.sound.music.fadeIn(4, 0, 0.7);
+						FlxG.sound.music.fadeIn(4, 0, 0.7 * ClientPrefs.data.bgmVolume);
 						return;
 				}
 
@@ -738,7 +738,7 @@ class TitleState extends MusicBeatState
 					sound.onComplete = function()
 					{
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
-						FlxG.sound.music.fadeIn(4, 0, 0.7);
+						FlxG.sound.music.fadeIn(4, 0, 0.7 * ClientPrefs.data.bgmVolume);
 						transitioning = false;
 						if(easteregg == 'PESSY')
 							Achievements.unlock('pessy_easter_egg');
@@ -810,10 +810,10 @@ class TitleState extends MusicBeatState
 		FlxG.sound.playMusic(Paths.music('girlfriendsRingtone'), 0);
 		Conductor.bpm = 160; // GF's ringnote has different BPM
 
-		FlxG.sound.music.fadeIn(4.0, 0.0, 1.0);
+		FlxG.sound.music.fadeIn(4.0, 0.0, ClientPrefs.data.bgmVolume);
 
 		FlxG.camera.flash(FlxColor.WHITE, 1);
-		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
+		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7 * ClientPrefs.data.bgmVolume);
 	}
 
 	/**

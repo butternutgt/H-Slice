@@ -116,7 +116,7 @@ class LanguageSubState extends MusicBeatSubstate
 				MusicBeatState.resetState();
 			}
 			else close();
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 		}
 
 		if(controls.ACCEPT)
@@ -139,7 +139,7 @@ class LanguageSubState extends MusicBeatSubstate
 			lang.alpha = 0.6;
 			if(num == curSelected) lang.alpha = 1;
 		}
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+		FlxG.sound.play(Paths.sound('scrollMenu'), 0.6 * ClientPrefs.data.sfxVolume);
 	}
 	#end
 }

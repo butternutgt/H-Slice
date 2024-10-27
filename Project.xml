@@ -39,7 +39,7 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" />
+	<window width="1280" height="720" background="#000000" hardware="true" vsync="false" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
@@ -139,6 +139,12 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 	
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
+	<!-- Use C++11 Libraries on build -->
+	<haxedef name="HXCPP_CPP11" if="cpp" />
+
+	<!--Allow working memory greater than 1 gigabyte-->
+	<haxedef name="HXCPP_GC_BIG_BLOCKS" if="cpp" />
+	
 	<!--Enable the Flixel core recording system-->
 	<!--<haxedef name="FLX_RECORD" />-->
 

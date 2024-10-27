@@ -31,11 +31,18 @@ import states.TitleState;
 	public var framerate:Int = 60;
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
+	public var numberFormat:Bool = false;
+	public var showInfoType:String = "None";
+
 	public var vsliceFreeplayColors:Bool = true;
 	public var vsliceResults:Bool = true;
 	public var vsliceSpecialCards:Bool = true;
 	public var vsliceSmoothBar:Bool = true;
 	public var vsliceLoadInstAll:Bool = false;
+	public var vsliceBotPlayPlace:String = "Near the Time Bar";
+
+	public var nanoPosition:Bool = false;
+	public var holdAnim:Bool = true;
 	public var noteOffset:Int = 0;
 	public var arrowRGB:Array<Array<FlxColor>> = [
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
@@ -53,6 +60,8 @@ import states.TitleState;
 	public var scoreZoom:Bool = true;
 	public var noReset:Bool = false;
 	public var healthBarAlpha:Float = 1;
+	public var bgmVolume:Float = 1;
+	public var sfxVolume:Float = 1;
 	public var hitsoundVolume:Float = 0;
 	public var pauseMusic:String = 'Tea Time';
 	public var checkForUpdates:Bool = true;
@@ -89,6 +98,27 @@ import states.TitleState;
 	public var discordRPC:Bool = true;
 	public var loadingScreen:Bool = true;
 	public var language:String = 'en-US';
+	public var changeNotes:Bool = false;
+
+	// Optimizer
+	public var openDoor:String = "!";
+	public var showNotes:Bool = true;
+	public var keepNotes:Bool = false;
+	public var sortNotes:String = "After Note Finalized";
+	public var showRating:Bool = true;
+	public var showComboNum:Bool = true;
+	public var showCombo:Bool = false;
+	public var betterRecycle:Bool = true;
+	public var cacheNotes:Int = 0;
+	public var skipSpawnNote:Bool = true;
+	public var processFirst:Bool = true;
+	public var separateHitProcess:Bool = true;
+	public var optimizeSpawnNote:Bool = true;
+	public var noteHitPreEvent:Bool = true;
+	public var noteHitEvent:Bool = true;
+	public var skipNoteScript:Bool = true;
+	public var spawnNoteScript:Bool = true;
+	public var disableGC:Bool = false;
 }
 
 class ClientPrefs {

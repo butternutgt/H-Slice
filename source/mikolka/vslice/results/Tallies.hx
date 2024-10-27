@@ -60,16 +60,16 @@ typedef SaveScoreData =
   /**
    * The score achieved.
    */
-  var score:Int;
+  var score:Float;
   var accPoints:Float; // Hit points. Divide by all notes to get accuracy
 
-  var sick:Int;
-  var good:Int;
-  var bad:Int;
-  var shit:Int;
-  var missed:Int;
-  var combo:Int;
-  var maxCombo:Int;
-  var totalNotesHit:Int;
-  var totalNotes:Int;
+  var sick:Float;
+  var good:Float;
+  var bad:Float;
+  var shit:Float;
+  var missed:Float;
+  var combo:Float;
+  var maxCombo:Float;
+  var totalNotesHit:Float;
+  var totalNotes:Float;
 }

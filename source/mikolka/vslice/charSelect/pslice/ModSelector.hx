@@ -38,7 +38,7 @@ class ModSelector extends FlxTypedSpriteGroup<FlxSprite> {
     
     public function changeDirectory(change:Int = 0)
         {
-            //FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+            //FlxG.sound.play(Paths.sound('scrollMenu'), 0.4 * ClientPrefs.data.sfxVolume);
     
             curDirectory += change;
     

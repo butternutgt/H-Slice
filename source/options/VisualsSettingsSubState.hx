@@ -115,6 +115,29 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			'hideHud',
 			BOOL);
 		addOption(option);
+
+		var option:Option = new Option('3 digits Separator',
+			'If checked, Increases the visibility of large numbers, such as 1000 or more.',
+			'numberFormat',
+			'bool');
+		addOption(option);
+
+		var option:Option = new Option('Show Info:',
+			"If checked, shows amount of some infomation in screen.\nwell It's for Debug.",
+			'showInfoType',
+			STRING,
+			[
+				'None',
+				'Notes Per Second',
+				'Rendered Notes',
+				'Note Splash Counter',
+				'Note Appear Time',
+				'Video Info',
+				'Note Info',
+				'Song Info',
+				'Debug Info',
+			]);
+		addOption(option);
 		
 		var option:Option = new Option('Time Bar:',
 			"What should the Time Bar display?",
@@ -204,6 +227,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Combo <-> Notes',
+			"If checked, The popup become a note counter instead combo.\nIt appears opponent hits too, and bf and opponent combo are combined.",
+			'changeNotes',
+			'bool');
+		addOption(option);
+
 		super();
 		add(notes);
 		add(splashes);
@@ -247,7 +276,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		if(ClientPrefs.data.pauseMusic == 'None')
 			FlxG.sound.music.volume = 0;
 		else
-			FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)));
+			FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), ClientPrefs.data.bgmVolume);
 
 		changedMusic = true;
 	}
@@ -304,7 +333,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
 	override function destroy()
 	{
-		if(changedMusic && !OptionsState.onPlayState) FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
+		if(changedMusic && !OptionsState.onPlayState) FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume, true);
 		super.destroy();
 	}
 

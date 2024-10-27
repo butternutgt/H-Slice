@@ -130,7 +130,7 @@ class SpookyMansionErect extends PicoCapableStage
 	}
 	function lightningStrikeShit():Void
 	{
-		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
+		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2), ClientPrefs.data.sfxVolume);
 			FlxTimer.wait(0.06, () ->
 			{
 				halloweenBGLight.alpha = 0;

@@ -894,7 +894,7 @@ class NoteSplashEditorState extends MusicBeatState
     {
         super.destroy();
 
-        FlxG.sound.music.volume = 1;
+        FlxG.sound.music.volume = ClientPrefs.data.bgmVolume;
         FlxG.sound.muteKeys = [FlxKey.ZERO];
 	    FlxG.sound.volumeDownKeys = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
 	    FlxG.sound.volumeUpKeys = [FlxKey.NUMPADPLUS, FlxKey.PLUS];

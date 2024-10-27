@@ -451,8 +451,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		outputTxt.text = txt;
 		outputTime = 3;
 		
-		if(isError) FlxG.sound.play(Paths.sound('cancelMenu'), 0.4);
-		else FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		if(isError) FlxG.sound.play(Paths.sound('cancelMenu'), 0.4 * ClientPrefs.data.sfxVolume);
+		else FlxG.sound.play(Paths.sound('scrollMenu'), 0.4 * ClientPrefs.data.sfxVolume);
 	}
 
 	var createPopup:FlxSpriteGroup;
@@ -1147,7 +1147,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			}
 			else
 			{
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 				reloadStageDropDown();
 			}
 		});
@@ -1352,7 +1352,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			if(!unsavedProgress)
 			{
 				MusicBeatState.switchState(new states.editors.MasterEditorMenu());
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 			}
 			else openSubState(new ExitConfirmationPrompt());
 			return;

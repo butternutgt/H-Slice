@@ -85,7 +85,7 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 				missingText.screenCenter(Y);
 				missingText.visible = true;
 				missingTextBG.visible = true;
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 
 				new FlxTimer().start(2.5, function(tmr:FlxTimer)
 				{

@@ -445,7 +445,7 @@ class CharSelectSubState extends MusicBeatSubState
 		{
 			FunkinSound.playMusic('stayFunky',
 				{
-					startingVolume: 1,
+					startingVolume: ClientPrefs.data.bgmVolume,
 					overrideExisting: true,
 					restartTrack: true,
 					onLoad: function() {
@@ -590,7 +590,7 @@ class CharSelectSubState extends MusicBeatSubState
 
 					FunkinSound.playMusic('stayFunky',
 						{
-							startingVolume: 1,
+							startingVolume: ClientPrefs.data.bgmVolume,
 							overrideExisting: true,
 							restartTrack: true,
 							onLoad: function() {

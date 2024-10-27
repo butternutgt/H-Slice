@@ -77,7 +77,7 @@ class School extends BaseStage
 		{
 			case 'senpai':
 				FlxG.sound.playMusic(Paths.music('Lunchbox'), 0);
-				FlxG.sound.music.fadeIn(1, 0, 0.8);
+				FlxG.sound.music.fadeIn(1, 0, 0.8 * ClientPrefs.data.bgmVolume);
 			case 'roses':
 				FlxG.sound.play(Paths.sound('ANGRY_TEXT_BOX'));
 		}

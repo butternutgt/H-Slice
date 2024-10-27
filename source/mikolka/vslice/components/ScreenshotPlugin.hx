@@ -183,7 +183,7 @@ class ScreenshotPlugin extends FlxBasic
       catch(x){} // this can crach if flashSpr is not a child of stage anymore.
     });
     // Play a sound (auto-play is true).
-    FlxG.sound.play(Paths.sound('screenshot'),1.0);
+    FlxG.sound.play(Paths.sound('screenshot'), ClientPrefs.data.sfxVolume);
   }
 
   static final PREVIEW_INITIAL_DELAY = 0.25; // How long before the preview starts fading in.

@@ -2,11 +2,11 @@ package backend;
 
 class Highscore
 {
-	public static var weekScores:Map<String, Int> = new Map();
-	public static var weekRating:Map<String, Float> = new Map<String, Float>();
+	public static var weekScores:Map<String, Float> = new Map<String, Float>();
 	public static var weekFCState:Map<String, Bool> = new Map<String, Bool>();
+	public static var weekRating:Map<String, Float> = new Map<String, Float>();
 
-	public static var songScores:Map<String, Int> = new Map<String, Int>();
+	public static var songScores:Map<String, Float> = new Map<String, Float>();
 	public static var songFCState:Map<String, Bool> = new Map<String, Bool>();
 	public static var songRating:Map<String, Float> = new Map<String, Float>();
 
@@ -25,7 +25,7 @@ class Highscore
 		setWeekFC(daWeek, false);
 	}
 
-	public static function saveScore(song:String, score:Int = 0, ?diff:Int = 0, ?rating:Float = -1,?FC:Bool = false):Void
+	public static function saveScore(song:String, score:Float = 0, ?diff:Int = 0, ?rating:Float = -1,?FC:Bool = false):Void
 	{
 		var daSong:String = formatSong(song, diff);
 
@@ -48,7 +48,7 @@ class Highscore
 		}
 	}
 
-	public static function saveWeekScore(week:String, score:Int = 0, ?diff:Int = 0, ?rating:Float = -1,?FC:Bool = false):Void
+	public static function saveWeekScore(week:String, score:Float = 0, ?diff:Int = 0, ?rating:Float = -1,?FC:Bool = false):Void
 	{
 		var daWeek:String = formatSong(week, diff);
 
@@ -70,7 +70,7 @@ class Highscore
 	/**
 	 * YOU SHOULD FORMAT SONG WITH formatSong() BEFORE TOSSING IN SONG VARIABLE
 	 */
-	static function setScore(song:String, score:Int):Void
+	static function setScore(song:String, score:Float):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!
 		songScores.set(song, score);
@@ -78,7 +78,7 @@ class Highscore
 		FlxG.save.flush();
 	}
 
-	static function setWeekScore(week:String, score:Int):Void
+	static function setWeekScore(week:String, score:Float):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!
 		weekScores.set(week, score);
@@ -123,7 +123,7 @@ class Highscore
 		return Paths.formatToSongPath(song) + Difficulty.getFilePath(diff);
 	}
 
-	public static function getScore(song:String, diff:Int):Int
+	public static function getScore(song:String, diff:Int):Float
 	{
 		var daSong:String = formatSong(song, diff);
 		if (!songScores.exists(daSong))
@@ -150,7 +150,7 @@ class Highscore
 		return songRating.get(daSong);
 	}
 
-	public static function getWeekScore(week:String, diff:Int):Int
+	public static function getWeekScore(week:String, diff:Int):Float
 	{
 		var daWeek:String = formatSong(week, diff);
 		if (!weekScores.exists(daWeek))

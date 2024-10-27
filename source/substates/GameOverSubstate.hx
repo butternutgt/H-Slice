@@ -153,7 +153,7 @@ class GameOverSubstate extends MusicBeatSubstate
 						FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(1, 25, exclude)), 1, false, null, true, function() {
 							if(!isEnding)
 							{
-								FlxG.sound.music.fadeIn(0.2, 1, 4);
+								FlxG.sound.music.fadeIn(0.2, ClientPrefs.data.bgmVolume, 4 * ClientPrefs.data.bgmVolume);
 							}
 						});
 
@@ -174,7 +174,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	function coolStartDeath(?volume:Float = 1):Void
 	{
 		FlxG.sound.music.play(true);
-		FlxG.sound.music.volume = volume;
+		FlxG.sound.music.volume = volume * ClientPrefs.data.bgmVolume;
 	}
 
 	function endBullshit():Void
