@@ -1,5 +1,7 @@
 package mikolka.vslice.freeplay;
 
+import backend.WeekData;
+import backend.Song;
 import mikolka.compatibility.FunkinControls;
 import mikolka.vslice.charSelect.CharSelectSubState;
 import openfl.filters.ShaderFilter;
@@ -158,6 +160,9 @@ class FreeplayState extends MusicBeatSubstate
 
 	var grpDifficulties:FlxTypedSpriteGroup<DifficultySprite>;
 	var grpFallbackDifficulty:FlxText;
+	
+	var missingTextBG:FlxSprite;
+	var missingText:FlxText;
 
 	var coolColors:Array<Int> = [
 		0xFF9271FD,
@@ -390,6 +395,17 @@ class FreeplayState extends MusicBeatSubstate
 
 		bgDad.shader = angleMaskShader;
 		bgDad.visible = false;
+
+		missingTextBG = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		missingTextBG.alpha = 0.6;
+		missingTextBG.visible = false;
+		add(missingTextBG);
+		
+		missingText = new FlxText(50, 0, FlxG.width - 100, '', 24);
+		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		missingText.scrollFactor.set();
+		missingText.visible = false;
+		add(missingText);
 
 		var blackOverlayBullshitLOLXD:FlxSprite = new FlxSprite(FlxG.width, 0, FunkinPath.image("back"));
 		blackOverlayBullshitLOLXD.alpha = 1; // ? graphic because shareds are shit
@@ -1641,6 +1657,8 @@ class FreeplayState extends MusicBeatSubstate
 
 		if ((controls.UI_UP || controls.UI_DOWN))
 		{
+			missingText.visible = false;
+			missingTextBG.visible = false;
 			if (spamming)
 			{
 				if (spamTimer >= 0.07)
@@ -1845,6 +1863,9 @@ class FreeplayState extends MusicBeatSubstate
 	function changeDiff(change:Int = 0, force:Bool = false):Void
 	{
 		touchTimer = 0;
+		
+		missingText.visible = false;
+		missingTextBG.visible = false;
 
 		var currentDifficultyIndex:Int = diffIdsCurrent.indexOf(currentDifficulty);
 
@@ -2031,12 +2052,53 @@ class FreeplayState extends MusicBeatSubstate
 	 */
 	function capsuleOnConfirmDefault(cap:SongMenuItem, ?targetInstId:String):Void
 	{
+		var targetSong = cap.songData;
 		busy = true;
 		letterSort.inputEnabled = false;
 
+		var diffId = targetSong.loadAndGetDiffId();
+		if (diffId == -1)
+		{
+			trace("SELECTED DIFFICULTY IS MISSING: " + currentDifficulty);
+			diffId = 0;
+		}
+
+		var songLowercase:String = Paths.formatToSongPath(targetSong.songId);
+		var poop:String = Highscore.formatSong(songLowercase, diffId); // TODO //currentDifficulty);
+		trace(poop);
+
+		try
+		{
+			PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+			PlayState.isStoryMode = false;
+			PlayState.storyDifficulty = diffId;
+
+			trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
+		}
+		catch (e:Dynamic)
+		{
+			trace('ERROR! $e');
+			
+			busy = false;
+			letterSort.inputEnabled = true;
+			
+			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+			
+			var errorStr:String = e.message;
+			if(errorStr.contains('There is no TEXT asset with an ID of')) errorStr = 'Missing file: ' + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1); //Missing chart
+			else errorStr += '\n\n' + e.stack;
+
+			missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+			missingText.screenCenter(Y);
+			missingText.visible = true;
+			missingTextBG.visible = true;
+			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+
+			return;
+		}
+
 		PlayState.isStoryMode = false;
 
-		var targetSong = cap.songData;
 		if (targetSong == null)
 		{
 			FlxG.log.warn('WARN: could not find song with id (${cap.songData.songId})');

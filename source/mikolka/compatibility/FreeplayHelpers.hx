@@ -55,15 +55,6 @@ class FreeplayHelpers {
 			state.persistentUpdate = false;
 			Mods.currentModDirectory = cap.folder;
 
-			var diffId = cap.loadAndGetDiffId();
-			if (diffId == -1)
-			{
-				trace("SELECTED DIFFICULTY IS MISSING: " + currentDifficulty);
-				diffId = 0;
-			}
-
-			var songLowercase:String = Paths.formatToSongPath(cap.songId);
-			var poop:String = Highscore.formatSong(songLowercase, diffId); // TODO //currentDifficulty);
 			/*#if MODS_ALLOWED
 				if(!FileSystem.exists(Paths.modsJson(songLowercase + '/' + poop)) && !FileSystem.exists(Paths.json(songLowercase + '/' + poop))) {
 				#else
@@ -73,26 +64,25 @@ class FreeplayHelpers {
 					curDifficulty = 1;
 					trace('Couldnt find file');
 			}*/
-			trace(poop);
 
-			try
-			{
-				PlayState.SONG = Song.loadFromJson(poop, songLowercase);
-				PlayState.isStoryMode = false;
-				PlayState.storyDifficulty = diffId;
+			// try
+			// {
+			// 	PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+			// 	PlayState.isStoryMode = false;
+			// 	PlayState.storyDifficulty = diffId;
 
-				trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
-			}
-			catch (e:Dynamic)
-			{
-				trace('ERROR! $e');
-                @:privateAccess{
-                    state.busy = false;
-                    state.letterSort.inputEnabled = true;
-                }
-				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
-				return;
-			}
+			// 	trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
+			// }
+			// catch (e:Dynamic)
+			// {
+			// 	trace('ERROR! $e');
+            //     @:privateAccess{
+            //         state.busy = false;
+            //         state.letterSort.inputEnabled = true;
+            //     }
+			// 	FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+			// 	return;
+			// }
 			LoadingState.loadAndSwitchState(new PlayState());
 
 			FlxG.sound.music.volume = 0;
