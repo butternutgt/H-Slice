@@ -2260,23 +2260,33 @@ class FreeplayState extends MusicBeatSubstate
 				pathsFunction: INST,
 				suffix: potentiallyErect,
 				partialParams: {
-					loadPartial: true,
+					loadPartial: !ClientPrefs.data.vsliceLoadInstAll,
 					start: songData.freeplayPrevStart,
 					end: songData.freeplayPrevEnd
 				},
-				onLoad: function()
+				onLoad: () ->
 				{
-					// ? onLoad doesn't start plaing music automatically here
+					// ? onLoad doesn't start plaing music automatically here FADE_IN_START_VOLUME
 					var endVolume = (dj.playingCartoon ? 0.1 : FADE_IN_END_VOLUME) * ClientPrefs.data.bgmVolume;
 					FlxG.sound.music.fadeIn(FADE_IN_DURATION, FADE_IN_START_VOLUME, endVolume);
 					// ? set BPMs
 					var newBPM = daSongCapsule.songData.songStartingBpm;
 					FreeplayHelpers.BPM = newBPM; // ? reimplementing
+
+					// Sys.println(daSongCapsule.songData.songId +", "+ daSongCapsule.songData.songStartingBpm);
 				}
 			});
+			// Sys.println("didPlay?: "+(didPlay ? "Yes" : "No"));
 
 			if (!didPlay) {
-				trace("Preview Cancelled");
+				#if debug trace("Preview Cancelled"); #end
+				
+				FunkinSound.playMusic('freeplayRandom', {
+					startingVolume: 0.0,
+					overrideExisting: true,
+					restartTrack: false
+				});
+				FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
 			}
 		}
 	}
