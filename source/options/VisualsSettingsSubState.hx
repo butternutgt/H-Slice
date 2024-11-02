@@ -97,6 +97,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.maxValue = 15;
 		option.changeValue = 1;
 		addOption(option);
+		option.onChange = playNoteSplashes;
 
 		var option:Option = new Option('Opponent Note Splash',
 			'If checked, Note Splash appears in Opponent Strum.',
@@ -108,6 +109,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			'If checked, Play animation of strum arrows every note hits.',
 			'strumAnim',
 			BOOL);
+		addOption(option);
+		
+		var option:Option = new Option('Play Animation on Sustain Hit',
+			"If unchecked, ignores hit animaiton when hits sustain notes.",
+			'holdAnim',
+			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Hide HUD',
@@ -185,8 +192,9 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		
 		var option:Option = new Option('FC - Update Rate',
 			"It can change updating date on FPS Counter.",
-			'showFPS',
+			'fpsRate',
 			INT);
+		option.defaultValue = 1;
 		option.scrollSpeed = 30;
 		option.minValue = 1;
 		option.maxValue = 1000;
@@ -221,8 +229,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		#end
 
-		var option:Option = new Option('Combo Stacking',
-			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",
+		var option:Option = new Option('Popup Stacking',
+			"If unchecked, The popup won't stack. but it's using recycling system,\nso it doesn't have effects so much.",
 			'comboStacking',
 			BOOL);
 		addOption(option);
@@ -245,7 +253,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		
 		switch(curOption.variable)
 		{
-			case 'noteSkin', 'splashSkin', 'splashAlpha':
+			case 'noteSkin', 'splashSkin', 'splashAlpha', 'splashCount':
 				if(!notesShown)
 				{
 					for (note in notes.members)

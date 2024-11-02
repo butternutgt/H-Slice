@@ -14,6 +14,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
+	private var scrollOption:GameplayOption;
+	private var playbackOption:GameplayOption;
+
+	private var interpolate = CoolUtil.interpolate;
+
 	private var curOption(get, never):GameplayOption;
 	public static var fromOtherState:Bool = false;
 	function get_curOption() return optionsArray[curSelected]; //shorter lol
@@ -24,46 +29,48 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		optionsArray.push(goption);
 
 		var option:GameplayOption = new GameplayOption('Scroll Speed', 'scrollspeed', FLOAT, 1);
-		option.scrollSpeed = 2.0;
-		option.minValue = 0.35;
-		option.changeValue = 0.05;
+		option.scrollSpeed = 1.0;
+		option.minValue = 0.01;
+		option.changeValue = 0.01;
 		option.decimals = 2;
 		if (goption.getValue() != "constant")
 		{
 			option.displayFormat = '%vX';
-			option.maxValue = 3;
+			option.maxValue = 128;
 		}
 		else
 		{
 			option.displayFormat = "%v";
-			option.maxValue = 6;
+			option.maxValue = 1024;
 		}
 		optionsArray.push(option);
+		scrollOption = option;
 
 		#if FLX_PITCH
 		var option:GameplayOption = new GameplayOption('Playback Rate', 'songspeed', FLOAT, 1);
 		option.scrollSpeed = 1;
-		option.minValue = 0.5;
-		option.maxValue = 3.0;
-		option.changeValue = 0.05;
+		option.minValue = 0.01;
+		option.maxValue = 128;
+		option.changeValue = 0.01;
 		option.displayFormat = '%vX';
-		option.decimals = 2;
+		option.decimals = 3;
 		optionsArray.push(option);
+		playbackOption = option;
 		#end
 
 		var option:GameplayOption = new GameplayOption('Health Gain Multiplier', 'healthgain', FLOAT, 1);
-		option.scrollSpeed = 2.5;
+		option.scrollSpeed = 5;
 		option.minValue = 0;
-		option.maxValue = 5;
-		option.changeValue = 0.1;
+		option.maxValue = 10;
+		option.changeValue = 0.01;
 		option.displayFormat = '%vX';
 		optionsArray.push(option);
 
 		var option:GameplayOption = new GameplayOption('Health Loss Multiplier', 'healthloss', FLOAT, 1);
-		option.scrollSpeed = 2.5;
-		option.minValue = 0.5;
-		option.maxValue = 5;
-		option.changeValue = 0.1;
+		option.scrollSpeed = 5;
+		option.minValue = 0;
+		option.maxValue = 10;
+		option.changeValue = 0.01;
 		option.displayFormat = '%vX';
 		optionsArray.push(option);
 
@@ -180,6 +187,8 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 					var pressed = (controls.UI_LEFT_P || controls.UI_RIGHT_P);
 					if(holdTime > 0.5 || pressed)
 					{
+						scrollOption.scrollSpeed = interpolate(1.5, 100, (holdTime - 0.5) / 5, 3);
+						playbackOption.scrollSpeed = interpolate(1, 100, (holdTime - 0.5) / 5, 3);
 						if(pressed)
 						{
 							var add:Dynamic = null;
@@ -319,8 +328,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 	function clearHold()
 	{
-		if(holdTime > 0.5)
+		if(holdTime > 0.5) {
 			FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
+			scrollOption.setValue(CoolUtil.floorDecimal(scrollOption.getValue(), scrollOption.decimals));
+			playbackOption.setValue(CoolUtil.floorDecimal(playbackOption.getValue(), playbackOption.decimals));
+		}
 
 		holdTime = 0;
 	}

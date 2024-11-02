@@ -9,7 +9,7 @@
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
-				"$haxe-trace"
+				// "$haxe-trace"
 			],
 			"label": "lime: build windows",
 			"group": {
@@ -25,7 +25,7 @@
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
-				"$haxe-trace"
+				// "$haxe-trace"
 			],
 			"label": "lime: test windows",
 			"group": {

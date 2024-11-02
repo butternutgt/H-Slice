@@ -38,6 +38,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'ghostTapping',
 			BOOL);
 		addOption(option);
+
+		var option:Option = new Option('Remove Overlapped Notes',
+			"If checked, Remove notes which hidden behind other.\n(Except one which can see by multiplied scroll speed)",
+			'skipGhostNotes',
+			BOOL);
+		addOption(option);
 		
 		var option:Option = new Option('Auto Pause',
 			"If checked, the game automatically pauses if the screen isn't on focus.",

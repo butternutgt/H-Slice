@@ -15,7 +15,7 @@ import states.TitleState;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
 	public var showFPS:Bool = true;
-	public var fpsRate:Int = 1;
+	public var fpsRate:Int = 60;
 	public var flashing:Bool = true;
 	public var autoPause:Bool = true;
 	public var antialiasing:Bool = true;
@@ -25,10 +25,12 @@ import states.TitleState;
 	public var splashCount:Int = 2;
 	public var splashOpponent:Bool = false;
 	public var strumAnim:Bool = true;
+	public var holdAnim:Bool = true;
 	public var lowQuality:Bool = false;
 	public var shaders:Bool = true;
 	public var cacheOnGPU:Bool = #if !switch false #else true #end; //From Stilic
 	public var framerate:Int = 60;
+	public var vsync:Bool = true;
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
 	public var numberFormat:Bool = false;
@@ -43,7 +45,6 @@ import states.TitleState;
 	public var vsliceBotPlayPlace:String = "Near the Time Bar";
 
 	public var nanoPosition:Bool = false;
-	public var holdAnim:Bool = true;
 	public var noteOffset:Int = 0;
 	public var arrowRGB:Array<Array<FlxColor>> = [
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
@@ -57,6 +58,7 @@ import states.TitleState;
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
 
 	public var ghostTapping:Bool = true;
+	public var skipGhostNotes:Bool = false;
 	public var timeBarType:String = 'Time Left';
 	public var scoreZoom:Bool = true;
 	public var noReset:Bool = false;
@@ -89,7 +91,7 @@ import states.TitleState;
 		'opponentplay' => false
 	];
 
-	public var comboOffset:Array<Int> = [0, 0, 0, 0];
+	public var comboOffset:Array<Int> = [0, 0, 0, 0, 0, 0];
 	public var ratingOffset:Int = 0;
 	public var sickWindow:Int = 45;
 	public var goodWindow:Int = 90;

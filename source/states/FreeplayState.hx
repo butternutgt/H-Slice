@@ -1,5 +1,6 @@
 package states;
 
+import cpp.vm.Gc;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
@@ -56,6 +57,7 @@ class FreeplayState extends MusicBeatState
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
+		Gc.compact();
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
@@ -102,7 +104,7 @@ class FreeplayState extends MusicBeatState
 			}
 			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Weeklist (${i+1}/${WeekData.weeksList.length})');
 		}
-		Sys.println(null);
+		Sys.print("\n");
 		Mods.loadTopMod();
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -139,7 +141,7 @@ class FreeplayState extends MusicBeatState
 			// songText.screenCenter(X);
 			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Song (${i+1}/${songs.length})');
 		}
-		Sys.println('Loading Done');
+		Sys.println('\nLoading Done');
 		WeekData.setDirectoryFromWeek();
 
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
@@ -339,8 +341,33 @@ class FreeplayState extends MusicBeatState
 				FlxG.sound.music.volume = 0;
 
 				Mods.currentModDirectory = songs[curSelected].folder;
+				var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
 				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-				Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+
+				try { Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase()); }
+				catch(e:haxe.Exception)
+				{
+					if (ClientPrefs.data.disableGC) {
+						MemoryUtil.enable();
+						MemoryUtil.collect(true);
+					}
+					trace('ERROR! ${e.message}');
+	
+					var errorStr:String = e.message;
+					if(errorStr.contains('There is no TEXT asset with an ID of')) errorStr = 'Missing file: ' + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1); //Missing chart
+					else errorStr += '\n\n' + e.stack;
+	
+					missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
+					missingText.screenCenter(Y);
+					missingText.visible = true;
+					missingTextBG.visible = true;
+					FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+	
+					updateTexts(elapsed);
+					super.update(elapsed);
+					return;
+				}
+				
 				if (PlayState.SONG.needsVoices)
 				{
 					vocals = new FlxSound();
@@ -414,6 +441,11 @@ class FreeplayState extends MusicBeatState
 
 			try
 			{
+				if (ClientPrefs.data.disableGC) {
+					MemoryUtil.enable();
+					MemoryUtil.collect(true);
+					MemoryUtil.disable();
+				}
 				Song.loadFromJson(poop, songLowercase);
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;
@@ -422,6 +454,10 @@ class FreeplayState extends MusicBeatState
 			}
 			catch(e:haxe.Exception)
 			{
+				if (ClientPrefs.data.disableGC) {
+					MemoryUtil.enable();
+					MemoryUtil.collect(true);
+				}
 				trace('ERROR! ${e.message}');
 
 				var errorStr:String = e.message;

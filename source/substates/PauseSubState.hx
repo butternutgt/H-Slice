@@ -1,6 +1,7 @@
 package substates;
 
-import mikolka.vslice.freeplay.FreeplayState;
+import mikolka.vslice.freeplay.FreeplayState as NewFreeplayState;
+import states.FreeplayState;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
@@ -357,7 +358,7 @@ class PauseSubState extends MusicBeatSubstate
 
 					PlayState.instance.canResync = false;
 					//! not yet
-					//Mods.loadTopMod();
+					Mods.loadTopMod();
 					if (PlayState.isStoryMode)
 						{
 							PlayState.storyPlaylist = [];
@@ -365,7 +366,16 @@ class PauseSubState extends MusicBeatSubstate
 						}
 						else
 						{
-							openSubState(new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker)));
+							if (ClientPrefs.data.vsliceFreeplay) {
+								FlxTransitionableState.skipNextTransIn = true;
+								FlxTransitionableState.skipNextTransOut = true;
+								openSubState(new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker)));
+							} else {
+								FlxTransitionableState.skipNextTransIn = false;
+								FlxTransitionableState.skipNextTransOut = false;
+								MusicBeatState.switchState(new FreeplayState());
+								FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+							}
 						}
 					PlayState.changedDifficulty = false;
 					PlayState.chartingMode = false;

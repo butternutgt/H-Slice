@@ -29,7 +29,7 @@ class FPSCounter extends TextField
 	var curTime:Float = 0;
 	var frameTime:Float = 0;
 	var multipleRate:Float = 1.0;
-	var updateRate:Int = 50;
+	var updateRate:Float = 50;
 
 	/**
 		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
@@ -39,7 +39,7 @@ class FPSCounter extends TextField
 		return Gc.memInfo64(Gc.MEM_INFO_USAGE);
 
 	@:noCompletion private var cacheCount:Float;
-	@:noCompletion private var times:Array<Float>;
+	@:noCompletion private var times:Array<Int>;
 
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
@@ -67,15 +67,14 @@ class FPSCounter extends TextField
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		final now:Float = Timer.stamp();
+		updateRate = ClientPrefs.data.fpsRate;
+		final now:Int = Std.int(Timer.stamp() * 1000);
 		times.push(now);
-		while (times[0] < now - 1) times.shift();
+		while (times[0] < now - 1000) times.shift();
 
 		// prevents the overlay from updating every frame, why would you need to anyways @crowplexus
-		if (deltaTimeout < updateRate) {
-			deltaTimeout += deltaTime;
-			return;
-		}
+		deltaTimeout += deltaTime;
+		if (deltaTimeout < 1 / updateRate) return;
 		// Literally the stupidest thing i've done for the FPS counter but it allows it to update correctly when on 60 FPS??
 		currentFPS = Math.round((times.length + cacheCount) / 2) - 1;
 		updateText();
@@ -83,8 +82,8 @@ class FPSCounter extends TextField
 	}
 
 	public dynamic function updateText():Void { // so people can override it in hscript
-		text = "FPS: " + currentFPS;
-		text += "\nRAM: " + CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)
+		text = "FPS: " + currentFPS
+		+ "\nRAM: " + CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)
 		+ (" / " + CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true))
 		+ (" / " + CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true));
 

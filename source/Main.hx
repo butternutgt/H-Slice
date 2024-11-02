@@ -1,5 +1,6 @@
 package;
 
+import lime.ui.WindowAttributes;
 import debug.FPSBg;
 #if android
 import android.content.Context;
@@ -8,6 +9,7 @@ import debug.FPSCounter;
 
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
+import flixel.FlxG;
 import flixel.FlxState;
 import haxe.io.Path;
 import openfl.Assets;
@@ -149,7 +151,7 @@ class Main extends Sprite
 		fpsVar = new FPSCounter(6, 1, 0xFFFFFF);
 		addChild(fpsBg);
 		addChild(fpsVar);
-
+		
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		if(fpsVar != null)

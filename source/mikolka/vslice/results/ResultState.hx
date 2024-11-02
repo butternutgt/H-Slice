@@ -1,5 +1,6 @@
 package mikolka.vslice.results;
 
+import flxanimate.animate.FlxAnim.ClickStuff;
 import mikolka.compatibility.ModsHelper;
 import mikolka.compatibility.VsliceOptions;
 import mikolka.funkin.FlxAtlasSprite;
@@ -10,7 +11,8 @@ import mikolka.compatibility.FreeplayHelpers;
 import mikolka.compatibility.FunkinPath as Paths;
 import mikolka.vslice.results.Tallies.SaveScoreData;
 import mikolka.compatibility.FunkinCamera;
-import mikolka.vslice.freeplay.FreeplayState;
+import states.FreeplayState;
+import mikolka.vslice.freeplay.FreeplayState as NewFreeplayState;
 import flixel.addons.transition.FlxTransitionableState;
 import substates.StickerSubState;
 import mikolka.funkin.Scoring;
@@ -808,8 +810,9 @@ class ResultState extends MusicBeatSubState
 					trace('THE RANK IS Higher.....');
 
 					shouldTween = true;
-					FlxTransitionableState.skipNextTransOut = true;
-					targetState = FreeplayState.build(
+					if (ClientPrefs.data.vsliceFreeplay) {
+						FlxTransitionableState.skipNextTransOut = true;
+						targetState = NewFreeplayState.build(
 						{
 							{
 								fromResults:
@@ -822,13 +825,28 @@ class ResultState extends MusicBeatSubState
 									}
 							}
 						});
+					} else {
+						FlxTransitionableState.skipNextTransIn = false;
+						FlxTransitionableState.skipNextTransOut = false;
+						MusicBeatState.switchState(new FreeplayState());
+						FlxG.sound.music.stop();
+						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+					}
 				}
 				else
 				{
-					FlxG.sound.pause(); //? fix sound
-					shouldTween = false;
-					shouldUseSubstate = true;
-					targetState = new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker));
+					if (!ClientPrefs.data.vsliceFreeplay) {
+						FlxG.sound.pause(); //? fix sound
+						shouldTween = false;
+						shouldUseSubstate = true;
+						targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
+					} else {
+						FlxTransitionableState.skipNextTransIn = false;
+						FlxTransitionableState.skipNextTransOut = false;
+						MusicBeatState.switchState(new FreeplayState());
+						FlxG.sound.music.stop();
+						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+					}
 				}
 			}
 

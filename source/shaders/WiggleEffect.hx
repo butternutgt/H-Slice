@@ -14,8 +14,8 @@ enum WiggleEffectType
 
 class WiggleEffect
 {
-	public var shader(default, null):WiggleShader = new WiggleShader();
-	public var effectType(default, set):WiggleEffectType = DREAMY;
+	public var shader(default, set):WiggleShader = new WiggleShader();
+	public var effectType(default, set):WiggleEffectType = FLAG;
 	public var waveSpeed(default, set):Float = 0;
 	public var waveFrequency(default, set):Float = 0;
 	public var waveAmplitude(default, set):Float = 0;
@@ -33,6 +33,12 @@ class WiggleEffect
 	public function setValue(value:Float):Void
 	{
 		shader.uTime.value[0] = value;
+	}
+
+	function set_shader(v:WiggleShader):WiggleShader
+	{
+		shader = v;
+		return v;
 	}
 
 	function set_effectType(v:WiggleEffectType):WiggleEffectType

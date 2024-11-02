@@ -10,6 +10,7 @@ enum PopupType {
 class Popup extends FlxSprite {
     public var type:PopupType;
     public var popUpTime:Float = 0;
+    // static var comboDigit:Int = 0;
 	var placement:Float = FlxG.width * 0.35;
     var i:PlayState;
 
@@ -65,46 +66,17 @@ class Popup extends FlxSprite {
         });
     }
 
-    // ╔════════════════════╗
-    // ║ COMBO SPRITE STUFF ║
-    // ╚════════════════════╝
-
-    public function setupComboData(comboImg:String) {
-        type = COMBO;
-        reloadTexture(comboImg);
-        screenCenter();
-        x = placement;
-        acceleration.y = FlxG.random.int(200, 300);
-        velocity.y -= FlxG.random.int(140, 160);
-        velocity.x += FlxG.random.int(1, 10);
-        visible = (!ClientPrefs.data.hideHud && i.showCombo);
-        x += ClientPrefs.data.comboOffset[0];
-        y -= ClientPrefs.data.comboOffset[1] + 60;
-        antialiasing = i.antialias;
-        setGraphicSize(Std.int(width * (PlayState.isPixelStage ? 0.85 * PlayState.daPixelZoom : 0.7)));
-        updateHitbox();
-    }
-
-    public function comboOtherStuff() {
-        FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
-            onComplete: function(tween:FlxTween)
-            {
-                kill();
-            },
-            startDelay: 1.4 / i.playbackRate
-        });
-    }
-
     // ╔═════════════════════╗
     // ║ NUMBER SPRITE STUFF ║
     // ╚═════════════════════╝
 
     public function setupNumberData(numberImg:String, daloop:Int, tempNotes:Float) {
+        // comboDigit = Std.string(Math.fround(Math.abs(tempNotes))).length;
         type = NUMBER;
         reloadTexture(numberImg);
         screenCenter();
-        x = placement + (43 * daloop) - 90 + ClientPrefs.data.comboOffset[2] - 43/2 * (Std.string(tempNotes).length - 1);
-        y += 80 - ClientPrefs.data.comboOffset[3];
+        x = placement + (43 * daloop) - 90 + ClientPrefs.data.comboOffset[2] - 43/2 * (Std.string(tempNotes).length - 3);
+        y += 75 - ClientPrefs.data.comboOffset[3];
 
         setGraphicSize(Std.int(width * (PlayState.isPixelStage ? PlayState.daPixelZoom : 0.5)));
         updateHitbox();
@@ -118,6 +90,36 @@ class Popup extends FlxSprite {
     }
 
     public function numberOtherStuff() {
+        FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
+            onComplete: function(tween:FlxTween)
+            {
+                kill();
+            },
+            startDelay: 1.4 / i.playbackRate
+        });
+    }
+
+    // ╔════════════════════╗
+    // ║ COMBO SPRITE STUFF ║
+    // ╚════════════════════╝
+
+    public function setupComboData(comboImg:String) {
+        type = COMBO;
+        reloadTexture(comboImg);
+        screenCenter();
+        x = placement;
+        acceleration.y = FlxG.random.int(200, 300);
+        velocity.y -= FlxG.random.int(140, 160);
+        velocity.x += FlxG.random.int(1, 10);
+        visible = (!ClientPrefs.data.hideHud && i.showCombo);
+        x += 75 + ClientPrefs.data.comboOffset[4];
+        y += 60 - ClientPrefs.data.comboOffset[5];
+        antialiasing = i.antialias;
+        setGraphicSize(Std.int(width * (PlayState.isPixelStage ? 0.7 * PlayState.daPixelZoom : 0.55)));
+        updateHitbox();
+    }
+
+    public function comboOtherStuff() {
         FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
             onComplete: function(tween:FlxTween)
             {

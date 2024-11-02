@@ -41,6 +41,8 @@ class NoteSplash extends FlxSprite
 	public static var configs:Map<String, NoteSplashConfig> = new Map();
 
 	public var babyArrow:StrumNote;
+	public var noteData:Int = 0;
+	private var noteAnim:Int = 0;
 	var noteDataMap:Map<Int, String> = new Map();
 
 	public function new(?splash:String)
@@ -144,7 +146,7 @@ class NoteSplash extends FlxSprite
 			}
 
 			if (animArray.length > 1)
-				noteData = animArray[FlxG.random.bool() ? 0 : 1];
+				noteAnim = animArray[FlxG.random.int(0, animArray.length - 1)];
 		}
 
 		this.noteData = noteData;
@@ -225,7 +227,7 @@ class NoteSplash extends FlxSprite
 
 		animation.finishCallback = function(name:String)
 		{
-			kill();
+			PlayState.instance != null ? killLimit() : kill();
 		};
 		
         alpha = ClientPrefs.data.splashAlpha;
@@ -246,10 +248,9 @@ class NoteSplash extends FlxSprite
 		}
 	}
 	
-	public var noteData:Int = 0;
 	public function playDefaultAnim()
 	{
-		var animation:String = noteDataMap.get(noteData);
+		var animation:String = noteDataMap.get(noteAnim);
 		if (animation != null && this.animation.exists(animation))
 			this.animation.play(animation, true);
 		else
@@ -316,15 +317,25 @@ class NoteSplash extends FlxSprite
 			}
 		}
 
+		// trace(noteDataMap.toString());
+
 		scale.set(value.scale, value.scale);
 		return config = value;
 	}
 
-	public function killSplash(targetId:Int = -1) {
+	var before:Int; var after:Int;
+	public function killLimit(targetId:Int = -1) {
 		try {
+			before = PlayState.splashUsing[noteData].length;
 			if (targetId != -1) PlayState.splashUsing[noteData].splice(targetId, 1);
 			else PlayState.splashUsing[noteData].splice(0, 1);
-		} catch (e:Dynamic) { PlayState.splashUsing[noteData].resize(0); }
+			after = PlayState.splashUsing[noteData].length;
+			// trace("killed: " + before + " -> " + after);
+		} catch (e) { trace("something went wrong? " + e.message); }
+		kill();
+	}
+
+	override function kill() {
 		super.kill();
 	}
 }

@@ -215,16 +215,16 @@ class FreeplayState extends MusicBeatSubstate
 	public var bgDad:FlxSprite;
 
 	var fromResultsParams:Null<FromResultsParams> = null;
-
 	var prepForNewRank:Bool = false;
-
 	var styleData:Null<FreeplayStyle> = null;
-
 	var fromCharSelect:Null<Bool> = null;
+
+	public static var inNewFreeplayState:Bool = false;
 
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
 		super();
+		inNewFreeplayState = true;
 		var saveBox = VsliceOptions.LAST_MOD;
 		currentCharacterId = saveBox.char_name;
 
@@ -355,6 +355,7 @@ class FreeplayState extends MusicBeatSubstate
 			}
 			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Weeklist (${index+1}/${allSongs.length})');
 		}
+		Sys.print("\n");
 		// TODO put the method
 		//
 
@@ -395,17 +396,6 @@ class FreeplayState extends MusicBeatSubstate
 
 		bgDad.shader = angleMaskShader;
 		bgDad.visible = false;
-
-		missingTextBG = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		missingTextBG.alpha = 0.6;
-		missingTextBG.visible = false;
-		add(missingTextBG);
-		
-		missingText = new FlxText(50, 0, FlxG.width - 100, '', 24);
-		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		missingText.scrollFactor.set();
-		missingText.visible = false;
-		add(missingText);
 
 		var blackOverlayBullshitLOLXD:FlxSprite = new FlxSprite(FlxG.width, 0, FunkinPath.image("back"));
 		blackOverlayBullshitLOLXD.alpha = 1; // ? graphic because shareds are shit
@@ -579,7 +569,7 @@ class FreeplayState extends MusicBeatSubstate
 			speed: 0.8,
 			wait: 0.1
 		});
-		Sys.println(null);
+		Sys.print("\n");
 
 		letterSort.changeSelectionCallback = (str) ->
 		{
@@ -632,6 +622,15 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			add(charSelectHint);
 		}
+
+		missingTextBG = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		missingTextBG.alpha = 0.6;
+		missingTextBG.visible = false;
+		
+		missingText = new FlxText(50, 0, FlxG.width - 100, '', 24);
+		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		missingText.scrollFactor.set();
+		missingText.visible = false;
 
 		// be careful not to "add()" things in here unless it's to a group that's already added to the state
 		// otherwise it won't be properly attatched to funnyCamera (relavent code should be at the bottom of create())
@@ -718,6 +717,8 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			onDJIntroDone();
 		}
+
+
 		currentDifficulty = rememberedDifficulty; // ? use last difficulty to create this list
 		generateSongList(null, false);
 
@@ -752,6 +753,9 @@ class FreeplayState extends MusicBeatSubstate
 			enterFromCharSel();
 			onDJIntroDone();
 		}
+
+		add(missingTextBG);
+		add(missingText);
 	}
 
 	var currentFilter:SongFilter = null;
@@ -877,6 +881,7 @@ class FreeplayState extends MusicBeatSubstate
 
 		changeSelection();
 		changeDiff(0, true);
+		Sys.println('\nLoading Done');
 	}
 
 	/**
@@ -1423,10 +1428,12 @@ class FreeplayState extends MusicBeatSubstate
 	 * If true, disable interaction with the interface.
 	 */
 	public var busy:Bool = false;
-
 	var originalPos:FlxPoint = new FlxPoint();
-
 	var hintTimer:Float = 0;
+
+	var targetAmt:Float;
+	var targetSong:Null<FreeplaySongData>;
+	var realShit:Int;
 
 	override function update(elapsed:Float):Void
 	{
@@ -1435,7 +1442,7 @@ class FreeplayState extends MusicBeatSubstate
 		if (charSelectHint != null)
 		{
 			hintTimer += elapsed * 2;
-			var targetAmt:Float = (Math.sin(hintTimer) + 1) / 2;
+			targetAmt = (Math.sin(hintTimer) + 1) / 2;
 			charSelectHint.alpha = FlxMath.lerp(0.3, 0.9, targetAmt);
 		}
 
@@ -1477,12 +1484,11 @@ class FreeplayState extends MusicBeatSubstate
 
 		if (controls.FAVORITE && !busy) // ? change control binding
 		{
-			var targetSong = grpCapsules.members[curSelected]?.songData;
+			targetSong = grpCapsules.members[curSelected]?.songData;
 			if (targetSong != null)
 			{
-				var realShit:Int = curSelected;
-				var isFav = targetSong.toggleFavorite();
-				if (isFav)
+				realShit = curSelected;
+				if (targetSong.toggleFavorite())
 				{
 					grpCapsules.members[realShit].favIcon.visible = true;
 					grpCapsules.members[realShit].favIconBlurred.visible = true;
@@ -1858,6 +1864,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		// remove and destroy freeplay camera
 		FlxG.cameras.remove(funnyCam);
+		inNewFreeplayState = false;
 	}
 
 	function changeDiff(change:Int = 0, force:Bool = false):Void

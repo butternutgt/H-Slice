@@ -1,5 +1,7 @@
 package backend;
 
+import mikolka.vslice.freeplay.FreeplayState as NewFreeplayState;
+import cpp.vm.Gc;
 import objects.NoteSplash.NoteSplashConfig;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
@@ -32,9 +34,6 @@ class Paths
 	inline public static var VIDEO_EXT = "mp4";
 
 	public static var popUpFramesMap:Map<String, FlxFramesCollection> = new Map();
-
-	public static var splashConfigs:Map<String, NoteSplashConfig> = new Map();
-	public static var splashAnimCountMap:Map<String, Int> = new Map();
 	
 	public static function excludeAsset(key:String) {
 		if (!dumpExclusions.contains(key))
@@ -57,7 +56,12 @@ class Paths
 		}
 
 		// run the garbage collector for good measure lmfao
-		System.gc();
+		if (ClientPrefs.data.disableGC) {
+			MemoryUtil.enable();
+			MemoryUtil.collect(true);
+			// trace('${Std.string(FlxG.state)}');
+			if ((cast FlxG.state) is PlayState) MemoryUtil.disable();
+		} else System.gc();
 	}
 
 	// define the locally tracked assets
@@ -203,7 +207,7 @@ class Paths
 
 			if (bitmap == null)
 			{
-				#if debug trace('oh no its returning null NOOOO ($file)'); #end
+				if (!NewFreeplayState.inNewFreeplayState) trace('oh no its returning null NOOOO ($file)');
 				return null;
 			}
 		}
@@ -317,7 +321,7 @@ class Paths
 		}
 		return parentFrames;
 	}
-
+	
 	inline static public function getSparrowAtlas(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames
 	{
 		if(key.contains('psychic')) trace(key, parentFolder, allowGPU);

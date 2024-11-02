@@ -6,6 +6,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 {
 	var antialiasingOption:Int;
 	var boyfriend:Character = null;
+	var fpsOption:Option;
+	var syncOption:Option;
 	public function new()
 	{
 		title = Language.getPhrase('graphics_menu', 'Graphics Settings');
@@ -25,8 +27,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			BOOL); //Variable type
 		addOption(option);
 
-		var option:Option = new Option('Anti-Aliasing',
-			'If unchecked, disables anti-aliasing, increases performance\nat the cost of sharper visuals.',
+		var option:Option = new Option('Anti-Aliasing', //Name
+			'If unchecked, disables anti-aliasing, increases performance\nat the cost of sharper visuals.', //Description
 			'antialiasing',
 			BOOL);
 		option.onChange = onChangeAntiAliasing; //Changing onChange is only needed if you want to make a special interaction after it changes the value
@@ -53,11 +55,20 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		final refreshRate:Int = FlxG.stage.application.window.displayMode.refreshRate;
-		option.minValue = 60;
-		option.maxValue = 240;
+		option.minValue = 10;
+		option.maxValue = 1000;
 		option.defaultValue = Std.int(FlxMath.bound(refreshRate, option.minValue, option.maxValue));
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
+		fpsOption = option;
+
+		// var option:Option = new Option('Enable V-Sync', //Name
+		// 	"If checked, Tearing disappears perfectly. but the delay may occurs", //Description
+		// 	'vsync',
+		// 	BOOL);
+		// option.onChange = onChangeVsync;
+		// addOption(option);
+		// syncOption = option;
 		#end
 
 		super();
@@ -77,6 +88,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeFramerate()
 	{
+		fpsOption.scrollSpeed = interpolate(30, 1000, (holdTime - 0.5) / 5, 3);
 		if(ClientPrefs.data.framerate > FlxG.drawFramerate)
 		{
 			FlxG.updateFramerate = ClientPrefs.data.framerate;
@@ -87,6 +99,10 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			FlxG.drawFramerate = ClientPrefs.data.framerate;
 			FlxG.updateFramerate = ClientPrefs.data.framerate;
 		}
+	}
+
+	function onChangeVsync() {
+		
 	}
 
 	override function changeSelection(change:Int = 0)

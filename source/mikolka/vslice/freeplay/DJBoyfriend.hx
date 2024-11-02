@@ -137,7 +137,7 @@ class FreeplayDJ extends FlxAtlasSprite
 				}
 				else if (getCurrentAnimation() == animPrefixB)
 				{
-					trace("Loss Intro");
+					#if debug trace("Loss Intro"); #end
 					var endFrame = playableCharData.getFistPumpIntroBadEndFrame();
 					if (endFrame > -1 && anim.curFrame >= endFrame)
 					{
@@ -163,7 +163,7 @@ class FreeplayDJ extends FlxAtlasSprite
 				}
 				else if (getCurrentAnimation() == animPrefixB)
 				{
-					trace("Loss GYATT");
+					#if debug trace("Loss GYATT"); #end
 					var endFrame = playableCharData.getFistPumpLoopBadEndFrame();
 					if (endFrame > -1 && anim.curFrame >= endFrame)
 					{
@@ -247,32 +247,34 @@ class FreeplayDJ extends FlxAtlasSprite
 			}
 			onIntroDone.dispatch();
 		}
+		#if debug
 		else if (name == playableCharData.getAnimationPrefix('idle'))
 		{
-			// trace('Finished idle');
+			trace('Finished idle');
 		}
 		else if (name == playableCharData.getAnimationPrefix('confirm'))
 		{
-			// trace('Finished confirm');
+			trace('Finished confirm');
 		}
+		#end
 		else if (name == playableCharData.getAnimationPrefix('fistPump'))
 		{
-			// trace('Finished fist pump');
+			#if debug trace('Finished fist pump'); #end
 			currentState = Idle;
 		}
 		else if (name == playableCharData.getAnimationPrefix('idleEasterEgg'))
 		{
-			// trace('Finished spook');
+			#if debug trace('Finished spook'); #end
 			currentState = Idle;
 		}
 		else if (name == playableCharData.getAnimationPrefix('loss'))
 		{
-			// trace('Finished loss reaction');
+			#if debug trace('Finished loss reaction'); #end
 			currentState = Idle;
 		}
 		else if (name == playableCharData.getAnimationPrefix('cartoon'))
 		{
-			// trace('Finished cartoon');
+			#if debug trace('Finished cartoon'); #end
 
 			var frame:Int = FlxG.random.bool(33) ? playableCharData.getCartoonLoopBlinkFrame() : playableCharData.getCartoonLoopFrame();
 
@@ -283,21 +285,23 @@ class FreeplayDJ extends FlxAtlasSprite
 				// boyfriend switches channel code?
 				// runTvLogic();
 			}
-			trace('Replay idle: ${frame}');
+			#if debug trace('Replay idle: ${frame}'); #end
 			playFlashAnimation(playableCharData.getAnimationPrefix('cartoon'), true, false, false, frame);
-			// trace('Finished confirm');
+			#if debug trace('Finished confirm'); #end
 		}
+		#if debug
 		else if (name == playableCharData.getAnimationPrefix('newUnlock'))
 		{
 			// Animation should loop.
 		}
+		#end
 		else if (name == playableCharData.getAnimationPrefix('charSelect'))
 		{
 			onCharSelectComplete();
 		}
 		else
 		{
-			trace('Finished ${name}');
+			#if debug trace('Finished ${name}'); #end
 		}
 	}
 
@@ -313,7 +317,7 @@ class FreeplayDJ extends FlxAtlasSprite
 	 */
 	public dynamic function onCharSelectComplete():Void
 	{
-		trace('onCharSelectComplete()');
+		#if debug trace('onCharSelectComplete()'); #end
 	}
 
 	var offsetX:Float = 0.0;
@@ -493,7 +497,7 @@ class FreeplayDJ extends FlxAtlasSprite
 		}
 		else
 		{
-			trace('No offset found ($AnimName), defaulting to: 0, 0');
+			#if debug trace('No offset found ($AnimName), defaulting to: 0, 0'); #end
 			offset.set(0, 0);
 		}
 	}

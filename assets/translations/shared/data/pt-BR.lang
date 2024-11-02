@@ -132,6 +132,7 @@ delay_beat_hit: "Batida!"
 delay_current_offset: "Atraso: {1} ms";
 combo_rating_offset: "Offset de Classificação:"
 combo_numbers_offset: "Offset de Números:"
+combo_combo_offset: "Offset do Combo:"
 combo_offset: "Offset do Combo";
 note_delay: "Atraso das Notas";
 switch_on_accept: "(Pressione Accept para Trocar)"

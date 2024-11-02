@@ -393,6 +393,7 @@ class Character extends FlxSprite
 		}
 	}
 
+	var daOffset:Null<Array<Dynamic>>;
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
 		specialAnim = false;
@@ -409,7 +410,7 @@ class Character extends FlxSprite
 
 		if (hasAnimation(AnimName))
 		{
-			var daOffset = animOffsets.get(AnimName);
+			daOffset = animOffsets.get(AnimName);
 			offset.set(daOffset[0], daOffset[1]);
 		}
 		//else offset.set(0, 0);
