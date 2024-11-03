@@ -2651,7 +2651,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var strumTimeStepper:PsychUINumericStepper;
 	var noteTypeDropDown:PsychUIDropDownMenu;
 	var noteTypes:Array<String>;
-	var forAddNotes:Array<Dynamic>;
 	function addNoteTab()
 	{
 		var tab_group = mainBox.getTab('Note').menu;
@@ -2711,6 +2710,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		{
 			var newSelected:Array<MetaNote> = [];
 			var typeSelected:String = noteTypes[id].trim();
+
 			for (note in selectedNotes)
 			{
 				if(note == null || note.isEvent) continue;
@@ -2735,14 +2735,47 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		var spamButton:PsychUIButton = new PsychUIButton(noteTypeDropDown.x, noteTypeDropDown.y + 40, "Add Notes", function()
 		{
-			if (selectedNotes != null) {
+			var forAddNotes:Array<Dynamic> = [];
+			var targetNote:MetaNote = null;
+			var newSpamNote:MetaNote = null;
+			var aNote:MetaNote = null;
+			var didAdd:Bool = false;
+			var undoArray:Array<MetaNote> = [];
+			targetNote = selectedNotes[0];
+			
+			if(!FlxG.keys.pressed.ALT)
+				resetSelectedNotes();
+
+			if (targetNote != null) {
 				for(i in 0...Std.int(spamLength)) {
-					forAddNotes = [selectedNotes[0].strumTime + (15000/Conductor.bpm)/spamCloseness, selectedNotes[1], selectedNotes[2], false];
-					createNote(forAddNotes);
+					if (i == 0) continue;
+					forAddNotes = [targetNote.strumTime + (15000*i/Conductor.bpm)/spamCloseness, targetNote.noteData, targetNote.sustainLength, false];
+					
+					newSpamNote = createNote(forAddNotes);
+					didAdd = false;
+					for (num in sectionFirstNoteID...notes.length)
+					{
+						aNote = notes[num];
+						if(aNote.strumTime >= forAddNotes[0])
+						{
+							notes.insert(num, newSpamNote);
+							didAdd = true;
+							break;
+						}
+					}
+					if(!didAdd) notes.push(newSpamNote);
+					selectedNotes.push(newSpamNote);
+					undoArray.push(newSpamNote);
+					
+					onSelectNote();
+					softReloadNotes();
 				}
 				updateGridVisibility();
 				updateNotesRGB();
+				addUndoAction(ADD_NOTE, {notes: undoArray});
+				forAddNotes.resize(0); // for collect gc
 			}
+			
 		});
 
 		stepperSpamCloseness = new PsychUINumericStepper(spamButton.x + 90, spamButton.y + 5, 2, 2, 2, 524288);
