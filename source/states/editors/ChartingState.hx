@@ -2765,6 +2765,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		tab_group.add(noteTypeDropDown);
 		tab_group.add(stepperSpamCloseness);
 		tab_group.add(stepperSpamLength);
+		tab_group.add(spamButton);
 	}
 
 	var mustHitCheckBox:PsychUICheckBox;
