@@ -1,5 +1,8 @@
 package mikolka.funkin;
 
+import lime.app.Promise;
+import sys.thread.Lock;
+import sys.thread.Thread;
 import openfl.media.Sound;
 import mikolka.vslice.freeplay.FreeplayState;
 import funkin.util.flixel.sound.FlxPartialSound;
@@ -91,12 +94,9 @@ class FunkinSound extends FlxSound
 				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
 				#end
 				
-				var future = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
-				if(future == null){
-					trace('Internal failure loading instrumentals for ${key} "${instPath}"');
-					return false;
-				}
-				future.future.onComplete(function(sound:Sound)
+				var future:Promise<Sound> = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
+
+				future.future.onComplete(sound ->
 				{
 					@:privateAccess{
 						if(!Std.isOfType(FlxG.state.subState,FreeplayState)) return;
@@ -109,6 +109,11 @@ class FunkinSound extends FlxSound
 					params.onLoad();
 				});
 				
+				if(future.future.value == null) {
+					#if debug trace('Internal failure loading instrumentals for ${key} "${instPath}"'); #end
+					return false;
+				}
+				
 				#if debug trace('Sound length: ${future.future.value.length}'); #end
 				if (future.future.value.length == 0) {
 					#if debug trace('No size loaded instrumentals for ${key} "${instPath}"'); #end
@@ -117,12 +122,13 @@ class FunkinSound extends FlxSound
 				return true;
 			} catch (x) {
 				var targetPath = instPath == "" ? "" : "from "+instPath;
+				#if debug 
 				trace('Failed to parialy load instrumentals for ${key} ${targetPath}');
 				trace('Exception: ${x.message}');
+				#end
 				return false;
 			}
-		}
-		else{
+		} else {
 			var targetPath = key+"/"+key;
 			if(key == "freakyMenu") targetPath = "freakyMenu";
 			FlxG.sound.playMusic(Paths.music(targetPath),params.startingVolume * ClientPrefs.data.sfxVolume,params.loop);

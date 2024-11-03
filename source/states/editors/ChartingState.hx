@@ -2651,6 +2651,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var strumTimeStepper:PsychUINumericStepper;
 	var noteTypeDropDown:PsychUIDropDownMenu;
 	var noteTypes:Array<String>;
+	var forAddNotes:Array<Dynamic>;
 	function addNoteTab()
 	{
 		var tab_group = mainBox.getTab('Note').menu;
@@ -2736,7 +2737,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		{
 			if (selectedNotes != null) {
 				for(i in 0...Std.int(spamLength)) {
-					createNote(selectedNotes[0] + (15000/Conductor.bpm)/spamCloseness, selectedNotes[1], selectedNotes[2], false);
+					forAddNotes = [selectedNotes[0].strumTime + (15000/Conductor.bpm)/spamCloseness, selectedNotes[1], selectedNotes[2], false];
+					createNote(forAddNotes);
 				}
 				updateGridVisibility();
 				updateNotesRGB();

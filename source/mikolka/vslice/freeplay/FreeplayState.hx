@@ -2247,7 +2247,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		else
 		{
-			if (!daSongCapsule.selected)
+			if (daSongCapsule == null || !daSongCapsule.selected)
 				return; // ? make sure we actually have to load preview
 			var potentiallyErect:String = (currentDifficulty == "erect") || (currentDifficulty == "nightmare") ? "-erect" : "";
 			// ? psych dir setting
@@ -2288,7 +2288,7 @@ class FreeplayState extends MusicBeatSubstate
 				});
 				FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
 			}
-		}
+		} 
 	}
 
 	public function tweenCurSongColor(daSongCapsule:SongMenuItem)
