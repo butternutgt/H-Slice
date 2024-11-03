@@ -238,7 +238,7 @@ class Main extends Sprite
 		*/
 		// 
 		#if officialBuild
-		errMsg += "\nPlease report this error to the GitHub page: https://github.com/mikolka9144/P-Slice\n\n> Crash Handler written by: sqirra-rng";
+		errMsg += "\nPlease report this error to the GitHub page: https://github.com/HRK-EXEX/P-Slice-HRK-Engine-Redux\n\n> Crash Handler written by: sqirra-rng (huge respect is hereby shown)";
 		#end
 
 		if (!FileSystem.exists("./crash/"))
