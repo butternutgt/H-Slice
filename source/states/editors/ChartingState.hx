@@ -166,6 +166,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		24
 	];
 	var curZoom:Float = 1;
+	
+	private var blockPressWhileTypingOnStepper:Array<PsychUINumericStepper> = [];
 
 	var mustHitIndicator:FlxSprite;
 	var eventIcon:FlxSprite;
@@ -2654,6 +2656,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var tab_group = mainBox.getTab('Note').menu;
 		var objX = 10;
 		var objY = 25;
+		var stepperSpamCloseness:PsychUINumericStepper;
+		var stepperSpamLength:PsychUINumericStepper;
+		var spamLength:Float = 5;
+		var spamCloseness:Float = 2;
 
 		susLengthStepper = new PsychUINumericStepper(objX, objY, Conductor.stepCrochet / 2, 0, 0, Conductor.stepCrochet * 128, 1, 80);
 		susLengthStepper.onValueChange = function()
@@ -2725,13 +2731,38 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			selectedNotes = newSelected;
 			softReloadNotes();
 		}, 150);
+
+		var spamButton:PsychUIButton = new PsychUIButton(noteTypeDropDown.x, noteTypeDropDown.y + 40, "Add Notes", function()
+		{
+			if (selectedNotes != null) {
+				for(i in 0...Std.int(spamLength)) {
+					createNote(selectedNotes[0] + (15000/Conductor.bpm)/spamCloseness, selectedNotes[1], selectedNotes[2], false);
+				}
+				updateGridVisibility();
+				updateNotesRGB();
+			}
+		});
+
+		stepperSpamCloseness = new PsychUINumericStepper(spamButton.x + 90, spamButton.y + 5, 2, 2, 2, 524288);
+		stepperSpamCloseness.value = spamCloseness;
+		stepperSpamCloseness.name = 'note_spamthing';
+		blockPressWhileTypingOnStepper.push(stepperSpamCloseness);
+
+		stepperSpamLength = new PsychUINumericStepper(stepperSpamCloseness.x + 90, stepperSpamCloseness.y, 5, 5, 1, 8388607);
+		stepperSpamLength.value = spamLength;
+		stepperSpamLength.name = 'note_spamamount';
+		blockPressWhileTypingOnStepper.push(stepperSpamLength);
 		
 		tab_group.add(new FlxText(susLengthStepper.x, susLengthStepper.y - 15, 80, 'Sustain length:'));
 		tab_group.add(new FlxText(strumTimeStepper.x, strumTimeStepper.y - 15, 100, 'Note Hit time (ms):'));
 		tab_group.add(new FlxText(noteTypeDropDown.x, noteTypeDropDown.y - 15, 80, 'Note Type:'));
+		tab_group.add(new FlxText(stepperSpamCloseness.x, stepperSpamCloseness.y - 15, 0, 'Note Density:'));
+		tab_group.add(new FlxText(stepperSpamLength.x, stepperSpamLength.y - 15, 0, 'Note Amount:'));
 		tab_group.add(susLengthStepper);
 		tab_group.add(strumTimeStepper);
 		tab_group.add(noteTypeDropDown);
+		tab_group.add(stepperSpamCloseness);
+		tab_group.add(stepperSpamLength);
 	}
 
 	var mustHitCheckBox:PsychUICheckBox;
