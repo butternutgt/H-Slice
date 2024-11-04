@@ -598,7 +598,7 @@ class FunkinLua {
 		// Available Shaders
 		
 		Lua_helper.add_callback(lua, "addGlitchEffect", function(tag:String, ?spd:Float = 2.25, ?freq:Float = 5, ?amp:Float = 0.1, ?type:String = 'FLAG') {
-			if(ClientPrefs.data.shaders && MusicBeatState.getVariables().exists(tag)) {
+			if(MusicBeatState.getVariables().exists(tag)) {
 				var shit:ModchartSprite = MusicBeatState.getVariables().get(tag);
 				var neoWiggle:WiggleEffect = new WiggleEffect();
 				neoWiggle.effectType = if(type == 'WAVY') WAVY
