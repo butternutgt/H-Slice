@@ -73,7 +73,7 @@ class CharSelectGF extends FlxAtlasSprite
 
 	var danceEvery:Int = 2;
 
-	public function onBeatHit(beat:Int):Void // ? gather beat instead of event
+	public function onBeatHit(beat:Float):Void // ? gather beat instead of event
 	{
 		// TODO: There's a minor visual bug where there's a little stutter.
 		// This happens because the animation is getting restarted while it's already playing.

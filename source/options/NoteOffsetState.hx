@@ -454,7 +454,7 @@ class NoteOffsetState extends MusicBeatState
 	}
 
 	var zoomTween:FlxTween;
-	var lastBeatHit:Int = -1;
+	var lastBeatHit:Float = -1;
 	override public function beatHit()
 	{
 		super.beatHit();

@@ -220,7 +220,7 @@ class PicoCard extends BackingCard
   var beatFreq:Int = 1;
   var beatFreqList:Array<Int> = [1, 2, 4, 8];
 
-  public override function beatHit(curBeat:Int):Void
+  public override function beatHit(curBeat:Float):Void
   {
     // increases the amount of beats that need to go by to pulse the glow because itd flash like craazy at high bpms.....
     beatFreq = beatFreqList[Math.floor(FreeplayHelpers.BPM / 140)];

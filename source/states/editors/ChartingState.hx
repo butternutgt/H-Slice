@@ -655,7 +655,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var autoSaveCap:Int = 2; //in minutes
 	var backupLimit:Int = 10;
 
-	var lastBeatHit:Int = 0;
+	var lastBeatHit:Float = 0;
 	override function update(elapsed:Float)
 	{
 		if(!fileDialog.completed)

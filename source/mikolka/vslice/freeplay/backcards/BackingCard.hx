@@ -227,7 +227,7 @@ class BackingCard extends FlxSpriteGroup
   /**
    * Called on each beat in freeplay state.
    */
-  public function beatHit(curBeat:Int):Void {}
+  public function beatHit(curBeat:Float):Void {}
 
   /**
    * Called when exiting the freeplay menu.

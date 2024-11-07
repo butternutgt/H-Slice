@@ -241,7 +241,7 @@ class EditorPlayState extends MusicBeatSubstate
 		super.update(elapsed);
 	}
 
-	var lastBeatHit:Int = -1;
+	var lastBeatHit:Float = -1;
 	override function beatHit()
 	{
 		if(lastBeatHit >= curBeat) {

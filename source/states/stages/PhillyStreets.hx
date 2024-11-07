@@ -476,7 +476,6 @@ class PhillyStreets extends PicoCapableStage
 		FlxG.camera.setFilters([new ShaderFilter(rainShader)]);
 	}
 	
-	
 	override function update(elapsed:Float)
 	{
 		if(scrollingSky != null) scrollingSky.scrollX -= elapsed * 22;
@@ -492,10 +491,8 @@ class PhillyStreets extends PicoCapableStage
 		super.update(elapsed);
 	}
 
-	
-
 	var lightsStop:Bool = false;
-	var lastChange:Int = 0;
+	var lastChange:Float = 0;
 	var changeInterval:Int = 8;
 
 	var carWaiting:Bool = false;
@@ -523,7 +520,7 @@ class PhillyStreets extends PicoCapableStage
 		if (curBeat == (lastChange + changeInterval)) changeLights(curBeat);
 	}
 	
-	function changeLights(beat:Int):Void
+	function changeLights(beat:Float):Void
 	{
 		lastChange = beat;
 		lightsStop = !lightsStop;

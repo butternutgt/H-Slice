@@ -756,6 +756,8 @@ class FreeplayState extends MusicBeatSubstate
 
 		add(missingTextBG);
 		add(missingText);
+		missingTextBG.cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+		missingText.cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
 	var currentFilter:SongFilter = null;
@@ -2084,8 +2086,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		catch (e:Dynamic)
 		{
-			trace('ERROR! $e');
-			
 			busy = false;
 			letterSort.inputEnabled = true;
 			
@@ -2094,6 +2094,8 @@ class FreeplayState extends MusicBeatSubstate
 			var errorStr:String = e.message;
 			if(errorStr.contains('There is no TEXT asset with an ID of')) errorStr = 'Missing file: ' + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1); //Missing chart
 			else errorStr += '\n\n' + e.stack;
+
+			trace('ERROR! $errorStr');
 
 			missingText.text = 'ERROR WHILE LOADING CHART:\n$errorStr';
 			missingText.screenCenter(Y);

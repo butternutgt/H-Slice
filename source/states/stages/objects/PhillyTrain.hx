@@ -59,7 +59,7 @@ class PhillyTrain extends BGSprite
 		super.update(elapsed);
 	}
 
-	public function beatHit(curBeat:Int):Void
+	public function beatHit(curBeat:Float):Void
 	{
 		if (!moving)
 			cooldown += 1;

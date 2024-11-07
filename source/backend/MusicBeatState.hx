@@ -1,5 +1,6 @@
 package backend;
 
+import options.GameplaySettingsSubState;
 import flixel.FlxState;
 import backend.PsychCamera;
 
@@ -8,8 +9,12 @@ class MusicBeatState extends FlxState
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
-	private var curStep:Int = 0;
-	private var curBeat:Int = 0;
+	private var oldStep:Float = 0;
+	private var curStep:Float = 0;
+	private var curStepLimit:Int = 0;
+	private var updateCount:Int = 0;
+	private var curBeat:Float = 0;
+	public var updateMaxSteps:Int = 0;
 
 	private var curDecStep:Float = 0;
 	private var curDecBeat:Float = 0;
@@ -33,6 +38,8 @@ class MusicBeatState extends FlxState
 
 		super.create();
 
+		curStepLimit = ClientPrefs.data.updateStepLimit;
+
 		if(!skip) {
 			openSubState(new CustomFadeTransition(0.5, true));
 		}
@@ -51,29 +58,28 @@ class MusicBeatState extends FlxState
 	}
 
 	public static var timePassedOnState:Float = 0;
+
+	var countJudge:Bool = false;
 	override function update(elapsed:Float)
 	{
 		//everyStep();
-		var oldStep:Int = curStep;
 		timePassedOnState += elapsed;
+		updateCount = 0;
 
 		updateCurStep();
 		updateBeat();
 
-		if (oldStep != curStep)
+		if(curStep > 0)
+			stepHit();
+
+		if(PlayState.SONG != null)
 		{
-			if(curStep > 0)
-				stepHit();
-
-			if(PlayState.SONG != null)
-			{
-				if (oldStep < curStep)
-					updateSection();
-				else
-					rollbackSection();
-			}
+			if (oldStep < curStep)
+				updateSection();
+			else
+				rollbackSection();
 		}
-
+				
 		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
 		
 		stagesFunc(function(stage:BaseStage) {
@@ -99,7 +105,7 @@ class MusicBeatState extends FlxState
 	{
 		if(curStep < 0) return;
 
-		var lastSection:Int = curSection;
+		var lastSection:Float = curSection;
 		curSection = 0;
 		stepsToDo = 0;
 		for (i in 0...PlayState.SONG.notes.length)
@@ -167,16 +173,52 @@ class MusicBeatState extends FlxState
 		return cast (FlxG.state, MusicBeatState);
 	}
 
+	var maxBPM:Float = ClientPrefs.data.updateStepLimit * GameplaySettingsSubState.defaultBPM * ClientPrefs.data.framerate;
+	var nextStep:Float;
 	public function stepHit():Void
 	{
-		stagesFunc(function(stage:BaseStage) {
-			stage.curStep = curStep;
-			stage.curDecStep = curDecStep;
-			stage.stepHit();
-		});
+		maxBPM = ClientPrefs.data.updateStepLimit * GameplaySettingsSubState.defaultBPM * ClientPrefs.data.framerate;
+		nextStep = curStep + 1;
 
-		if (curStep % 4 == 0)
-			beatHit();
+		if (Conductor.bpm <= maxBPM) {
+			if (ClientPrefs.data.updateStepLimit != 0) {
+				countJudge = oldStep < nextStep && updateCount < curStepLimit;
+			} else {
+				countJudge = oldStep < nextStep;
+			}
+			
+			while (countJudge) {
+				stagesFunc(function(stage:BaseStage) {
+					stage.curStep = oldStep;
+					stage.curDecStep = oldStep;
+					stage.stepHit();
+				});
+
+				if (oldStep % 4 == 0)
+					beatHit();
+				
+				++oldStep; ++updateCount;
+				
+				countJudge = (ClientPrefs.data.updateStepLimit != 0 ? oldStep < nextStep && updateCount < curStepLimit : oldStep < nextStep);
+			}
+		} else {
+			for (i in 0...ClientPrefs.data.updateStepLimit) {
+				oldStep = Std.int(FlxMath.lerp(oldStep, nextStep, i/ClientPrefs.data.updateStepLimit));
+					
+				stagesFunc(function(stage:BaseStage) {
+					stage.curStep = oldStep;
+					stage.curDecStep = oldStep;
+					stage.stepHit();
+				});
+
+				if (oldStep % 4 == 0)
+					beatHit();
+			}
+			updateCount = ClientPrefs.data.updateStepLimit;
+		}
+		updateMaxSteps = updateCount;
+
+		oldStep = Std.int(Math.max(oldStep, nextStep));
 	}
 
 	public var stages:Array<BaseStage> = [];

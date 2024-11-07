@@ -14,6 +14,7 @@ import states.TitleState;
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
+	public var updateStepLimit:Int = 1;
 	public var showFPS:Bool = true;
 	public var fpsRate:Int = 60;
 	public var flashing:Bool = true;

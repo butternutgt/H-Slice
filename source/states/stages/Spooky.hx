@@ -36,7 +36,7 @@ class Spooky extends BaseStage
 		add(halloweenWhite);
 	}
 
-	var lightningStrikeBeat:Int = 0;
+	var lightningStrikeBeat:Float = 0;
 	var lightningOffset:Int = 8;
 	override function beatHit()
 	{

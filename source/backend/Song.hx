@@ -1,6 +1,6 @@
 package backend;
 
-import haxe.Json;
+import backend.SongJson;
 import lime.utils.Assets;
 
 import objects.Note;
@@ -153,7 +153,7 @@ class Song
 
 	public static function parseJSON(rawData:String, ?nameForError:String = null, ?convertTo:String = 'psych_v1'):SwagSong
 	{
-		var songJson:SwagSong = cast Json.parse(rawData);
+		var songJson:SwagSong = cast SongJson.parse(rawData);
 		if(Reflect.hasField(songJson, 'song'))
 		{
 			var subSong:SwagSong = Reflect.field(songJson, 'song');

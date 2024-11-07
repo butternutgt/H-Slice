@@ -70,9 +70,9 @@ class BaseStage extends FlxBasic
 	public function startSong() {}
 
 	// FNF steps, beats and sections
-	public var curBeat:Int = 0;
+	public var curBeat:Float = 0;
 	public var curDecBeat:Float = 0;
-	public var curStep:Int = 0;
+	public var curStep:Float = 0;
 	public var curDecStep:Float = 0;
 	public var curSection:Int = 0;
 	public function beatHit() {}

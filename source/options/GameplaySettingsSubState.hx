@@ -8,6 +8,8 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	var sfxVolume:Option;
 	var hitVolume:Option;
 	var rateHold:Float;
+	var stepRate:Option;
+	public static final defaultBPM:Float = 15;
 
 	public function new()
 	{
@@ -31,6 +33,22 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'If unchecked, opponent notes get hidden.',
 			'opponentStrums',
 			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Update Count of stepHit',
+			'In this settings, Accurate up to ${
+				ClientPrefs.data.updateStepLimit != 0 ?
+				Std.string(ClientPrefs.data.updateStepLimit * defaultBPM * ClientPrefs.data.framerate) : "Infinite"
+			} BPM.',
+			'updateStepLimit',
+			INT);
+		option.scrollSpeed = 20;
+		option.minValue = 0;
+		option.maxValue = 1000;
+		option.changeValue = 1;
+		option.decimals = 0;
+		option.onChange = onStepUpdateRate;
+		stepRate = option;
 		addOption(option);
 
 		var option:Option = new Option('Ghost Tapping',
@@ -162,6 +180,15 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		super();
+	}
+
+	function onStepUpdateRate(){
+		stepRate.scrollSpeed = interpolate(20, 1000, (holdTime - 0.5) / 10, 3);
+		descText.text = stepRate.description = 
+		'In this settings, Accurate up to ${
+			stepRate.getValue() != 0 ?
+			Std.string(stepRate.getValue() * defaultBPM * ClientPrefs.data.framerate) : "Infinite"
+		} BPM.';
 	}
 
 	function onChangebgmVolume(){

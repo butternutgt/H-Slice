@@ -532,10 +532,10 @@ class SongMenuItem extends FlxSpriteGroup
 	}
 
 	var frameInTicker:Float = 0;
-	var frameInTypeBeat:Int = 0;
+	var frameInTypeBeat:Float = 0;
 
 	var frameOutTicker:Float = 0;
-	var frameOutTypeBeat:Int = 0;
+	var frameOutTypeBeat:Float = 0;
 
 	var xFrames:Array<Float> = [1.7, 1.8, 0.85, 0.85, 0.97, 0.97, 1];
 	var xPosLerpLol:Array<Float> = [0.9, 0.4, 0.16, 0.16, 0.22, 0.22, 0.245]; // NUMBERS ARE JANK CUZ THE SCALING OR WHATEVER
@@ -585,8 +585,10 @@ class SongMenuItem extends FlxSpriteGroup
 		frameInTypeBeat = xFrames.length;
 		frameOutTypeBeat = 0;
 
-		capsule.scale.x = xFrames[frameInTypeBeat - 1];
-		capsule.scale.y = 1 / xFrames[frameInTypeBeat - 1];
+		var intBeat = Std.int(frameInTypeBeat - 1);
+
+		capsule.scale.x = xFrames[intBeat];
+		capsule.scale.y = 1 / xFrames[intBeat];
 		// x = FlxG.width * xPosLerpLol[Std.int(Math.min(frameInTypeBeat - 1, xPosLerpLol.length - 1))];
 
 		x = targetPos.x;
@@ -598,6 +600,7 @@ class SongMenuItem extends FlxSpriteGroup
 		setVisibleGrp(true);
 	}
 
+	var intBeat = 0;
 	override function update(elapsed:Float):Void
 	{
 		if (impactThing != null) impactThing.angle = capsule.angle;
@@ -622,6 +625,7 @@ class SongMenuItem extends FlxSpriteGroup
 		//   newText.y += 1;
 		//   trace(this.x - newText.x, this.y - newText.y);
 		// }
+		intBeat = Std.int(frameInTypeBeat);
 		if (doJumpIn)
 		{
 			frameInTicker += elapsed;
@@ -630,8 +634,8 @@ class SongMenuItem extends FlxSpriteGroup
 			{
 				frameInTicker = 0;
 
-				capsule.scale.x = xFrames[frameInTypeBeat];
-				capsule.scale.y = 1 / xFrames[frameInTypeBeat];
+				capsule.scale.x = xFrames[intBeat];
+				capsule.scale.y = 1 / xFrames[intBeat];
 				x = FlxG.width * xPosLerpLol[Std.int(Math.min(frameInTypeBeat, xPosLerpLol.length - 1))];
 
 				capsule.scale.x *= realScaled;
@@ -649,8 +653,8 @@ class SongMenuItem extends FlxSpriteGroup
 			{
 				frameOutTicker = 0;
 
-				capsule.scale.x = xFrames[frameOutTypeBeat];
-				capsule.scale.y = 1 / xFrames[frameOutTypeBeat];
+				capsule.scale.x = xFrames[intBeat];
+				capsule.scale.y = 1 / xFrames[intBeat];
 				x = FlxG.width * xPosOutLerpLol[Std.int(Math.min(frameOutTypeBeat, xPosOutLerpLol.length - 1))];
 
 				capsule.scale.x *= realScaled;
