@@ -430,84 +430,84 @@ class Paths
 		return modFolders('images/' + key + '.json');
 
 	static public function modFolders(key:String)
+	{
+		if (Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
 		{
-			if (Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
+			var fileToCheck:String = mods(Mods.currentModDirectory + '/' + key);
+			if (FileSystem.exists(fileToCheck))
+				return fileToCheck;
+			#if linux
+			else
 			{
-				var fileToCheck:String = mods(Mods.currentModDirectory + '/' + key);
-				if (FileSystem.exists(fileToCheck))
-					return fileToCheck;
-				#if linux
-				else
-				{
-					var newPath:String = findFile(key);
-					if (newPath != null)
-						return newPath;
-				}
-				#end
+				var newPath:String = findFile(key);
+				if (newPath != null)
+					return newPath;
 			}
-	
-			for (mod in Mods.getGlobalMods())
-			{
-				var fileToCheck:String = mods(mod + '/' + key);
-				if (FileSystem.exists(fileToCheck))
-					return fileToCheck;
-				#if linux
-				else
-				{
-					var newPath:String = findFile(key);
-					if (newPath != null)
-						return newPath;
-				}
-				#end
-			}
-			return 'mods/' + key;
+			#end
 		}
-	
-		#if linux
-		static function findFile(key:String):String // used above ^^^^
-		{ 
-			var targetDir:Array<String> = key.replace('\\','/').split('/');
-			var searchDir:String = mods(Mods.currentModDirectory + '/' + targetDir[0]);
-			targetDir.remove(targetDir[0]);
-	
-			for (x in targetDir)
-			{
-				if(x == '') continue;
-				var newPart:String = findNode(searchDir, x);
-				if (newPart != null)
-				{
-					searchDir += '/' + newPart;
-				}
-				else return null;
-			}
-			//trace('MATCH WITH $key! RETURNING $searchDir');
-			return searchDir;
-		}
-	
-		static function findNode(dir:String, key:String):String
+
+		for (mod in Mods.getGlobalMods())
 		{
-			var allFiles:Array<String> = null;
-			try
+			var fileToCheck:String = mods(mod + '/' + key);
+			if (FileSystem.exists(fileToCheck))
+				return fileToCheck;
+			#if linux
+			else
 			{
-				allFiles = FileSystem.readDirectory(dir);
+				var newPath:String = findFile(key);
+				if (newPath != null)
+					return newPath;
 			}
-			catch (e)
+			#end
+		}
+		return 'mods/' + key;
+	}
+
+	#if linux
+	static function findFile(key:String):String // used above ^^^^
+	{ 
+		var targetDir:Array<String> = key.replace('\\','/').split('/');
+		var searchDir:String = mods(Mods.currentModDirectory + '/' + targetDir[0]);
+		targetDir.remove(targetDir[0]);
+
+		for (x in targetDir)
+		{
+			if(x == '') continue;
+			var newPart:String = findNode(searchDir, x);
+			if (newPart != null)
 			{
-				return null;
+				searchDir += '/' + newPart;
 			}
-	
-			var allSearchies:Array<String> = allFiles.map(s -> s.toLowerCase());
-			for (i => name in allSearchies)
-			{
-				if (key.toLowerCase() == name)
-				{
-					return allFiles[i];
-				}
-			}
+			else return null;
+		}
+		//trace('MATCH WITH $key! RETURNING $searchDir');
+		return searchDir;
+	}
+
+	static function findNode(dir:String, key:String):String
+	{
+		var allFiles:Array<String> = null;
+		try
+		{
+			allFiles = FileSystem.readDirectory(dir);
+		}
+		catch (e)
+		{
 			return null;
 		}
-		#end
-	#end
+
+		var allSearchies:Array<String> = allFiles.map(s -> s.toLowerCase());
+		for (i => name in allSearchies)
+		{
+			if (key.toLowerCase() == name)
+			{
+				return allFiles[i];
+			}
+		}
+		return null;
+	}
+	#end // linux
+	#end // MODS_ALLOWED
 
 	#if flxanimate
 	public static function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:Dynamic, spriteJson:Dynamic = null, animationJson:Dynamic = null)

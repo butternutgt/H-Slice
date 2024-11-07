@@ -2074,20 +2074,23 @@ class PlayState extends MusicBeatState
 	}
 
 	var thresholdTime:Float = 20;
+	var desyncCount:Float = 0;
 	var desyncTime:Float = 0;
+	var desyncBf:Float = 0;
+	var desyncOp:Float = 0;
 	function checkSync() {
 		desyncTime = Math.abs(FlxG.sound.music.time - Conductor.songPosition);
 		if (desyncTime > thresholdTime) {
 			if (!bfVocal && !opVocal) resyncVocals();
 			else {
 				if (bfVocal) {
-					desyncTime = Math.max(desyncTime, Math.abs(FlxG.sound.music.time - vocals.time));
-					if (desyncTime > thresholdTime) resyncVocals();
+					desyncBf = Math.abs(FlxG.sound.music.time - vocals.time);
+					if (desyncBf > thresholdTime) resyncVocals();
 				}
 
 				if (opVocal) {
-					desyncTime = Math.max(desyncTime, Math.abs(FlxG.sound.music.time - opponentVocals.time));
-					if (desyncTime > thresholdTime) resyncVocals();
+					desyncOp = Math.abs(FlxG.sound.music.time - opponentVocals.time);
+					if (desyncOp > thresholdTime) resyncVocals();
 				}
 			}
 		}
@@ -2098,7 +2101,8 @@ class PlayState extends MusicBeatState
 		if (finishTimer != null)
 			return;
 
-		trace('resynced vocals at ' + Math.floor(Conductor.songPosition));
+		desyncCount++;
+		#if debug trace('resynced vocals at ' + Math.floor(Conductor.songPosition)); #end
 
 		FlxG.sound.music.play();
 		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
@@ -2485,6 +2489,12 @@ class PlayState extends MusicBeatState
 				// 	if (dunceNote != null) info += '\nX:${fillNum(dunceNote.x, 5, 32)}, W:${fillNum(dunceNote.width, 5, 32)}, Offset:${fillNum(dunceNote.offset.x, 5, 32)}';
 				case 'Song Info':
 					info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat+1,0)}/${Math.max(curStep+1,0)}, Update Cnt: ${updateMaxSteps}';
+				case 'Music Sync Info':
+					info = 'Desync: ('
+						 + numFormat(desyncTime, 1) + '/'
+						 + numFormat(desyncBf, 1) + '/'
+						 + numFormat(desyncOp, 1) + ') '
+						 + 'Sync Count: $desyncCount';
 				case 'Debug Info':
 					debugInfos = true;
 					switch (debugInfoType) {

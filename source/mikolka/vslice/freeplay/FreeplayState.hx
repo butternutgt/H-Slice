@@ -2078,14 +2078,23 @@ class FreeplayState extends MusicBeatSubstate
 
 		try
 		{
+			if (ClientPrefs.data.disableGC) {
+				MemoryUtil.enable();
+				MemoryUtil.collect(true);
+				MemoryUtil.disable();
+			}
 			PlayState.SONG = Song.loadFromJson(poop, songLowercase);
 			PlayState.isStoryMode = false;
 			PlayState.storyDifficulty = diffId;
 
 			trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
 		}
-		catch (e:Dynamic)
+		catch (e:haxe.Exception)
 		{
+			if (ClientPrefs.data.disableGC) {
+				MemoryUtil.enable();
+				MemoryUtil.collect(true);
+			}
 			busy = false;
 			letterSort.inputEnabled = true;
 			

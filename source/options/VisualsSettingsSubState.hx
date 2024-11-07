@@ -142,6 +142,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 				'Video Info',
 				'Note Info',
 				'Song Info',
+				'Music Sync Info',
 				'Debug Info',
 			]);
 		addOption(option);
