@@ -1674,15 +1674,13 @@ class PlayState extends MusicBeatState
 		var curStepCrochet:Float;
 		var sustainNote:Note;
 
-		var updateTime:Float = 0.05;
+		var updateTime:Float = 0.1;
 		var syncTime:Float = Timer.stamp();
 
-		function showProgress() {
+		function showProgress(force:Bool = false) {
 			if (Main.isConsoleAvailable)
 			{
-				if (sectionNoteCnt > 0)
-					Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
-				else if (Timer.stamp() - syncTime > updateTime)
+				if (Timer.stamp() - syncTime > updateTime || force)
 				{
 					Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 					syncTime = Timer.stamp();
@@ -1794,7 +1792,7 @@ class PlayState extends MusicBeatState
 			notes += sectionNoteCnt;
 		}
 
-		showProgress();
+		showProgress(true);
 		if (skipGhostNotes) {
 			Sys.println('\nSorting for remove overlaps...');
 			unspawnNotes.sort(sortByTime);
