@@ -2078,19 +2078,17 @@ class PlayState extends MusicBeatState
 	var desyncOp:Float = 0;
 	function checkSync() {
 		desyncTime = Math.abs(FlxG.sound.music.time - Conductor.songPosition);
-		if (desyncTime > thresholdTime) {
-			if (!bfVocal && !opVocal) resyncVocals();
-			else {
-				if (bfVocal) {
-					desyncBf = Math.abs(FlxG.sound.music.time - vocals.time);
-					if (desyncBf > thresholdTime) resyncVocals();
-				}
 
-				if (opVocal) {
-					desyncOp = Math.abs(FlxG.sound.music.time - opponentVocals.time);
-					if (desyncOp > thresholdTime) resyncVocals();
-				}
-			}
+		if (desyncTime > thresholdTime)	resyncVocals();
+
+		if (bfVocal) {
+			desyncBf = Math.abs(vocals.time - Conductor.songPosition);
+			if (desyncBf > thresholdTime) resyncVocals();
+		}
+
+		if (opVocal) {
+			desyncOp = Math.abs(opponentVocals.time - Conductor.songPosition);
+			if (desyncOp > thresholdTime) resyncVocals();
 		}
 	}
 
@@ -2489,10 +2487,10 @@ class PlayState extends MusicBeatState
 					info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat+1,0)}/${Math.max(curStep+1,0)}, Update Cnt: ${updateMaxSteps}';
 				case 'Music Sync Info':
 					info = 'Desync: ('
-						 + numFormat(desyncTime, 1) + '/'
-						 + numFormat(desyncBf, 1) + '/'
-						 + numFormat(desyncOp, 1) + ') '
-						 + 'Sync Count: $desyncCount';
+						 + numFormat(desyncTime, 1)
+						 + (bfVocal ? ('/' + numFormat(desyncBf, 1)) : "")
+						 + (opVocal ? ('/' + numFormat(desyncOp, 1)) : "")
+						 + ') Sync Count: $desyncCount';
 				case 'Debug Info':
 					debugInfos = true;
 					switch (debugInfoType) {
