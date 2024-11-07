@@ -97,18 +97,54 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	public static var GRID_SIZE = 40;
 	final BACKUP_EXT = '.bkp';
 
-	public var quantizations:Array<Int> = [
+	public var zoomList:Array<Float> = [
+		0.125,
+		0.1875,
+		0.25,
+		0.375,
+		0.5,
+		0.75,
+		1,
+		1.5,
+		2,
+		3,
 		4,
+		6,
 		8,
 		12,
 		16,
-		20,
 		24,
 		32,
 		48,
 		64,
 		96,
-		192
+		128,
+		192,
+		256,
+		384,
+		512,
+		768,
+		1024,
+		1536,
+		2048,
+		3072,
+		4096,
+		6144,
+		8192,
+		12288,
+		16384,
+		24576,
+		32768,
+		49152,
+		65536,
+		98304,
+		131072,
+		196608,
+		262144,
+		393216,
+		524288,
+		786432,
+		1048576
 	];
 	public var quantColors:Array<FlxColor> = [
 		0xFFDF0000,
@@ -152,19 +188,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var waveformSprite:FlxSprite;
 	var scrollY:Float = 0;
 	
-	var zoomList:Array<Float> = [
-		0.25,
-		0.5,
-		1,
-		2,
-		3,
-		4,
-		6,
-		8,
-		12,
-		16,
-		24
-	];
+	var quantizations:Array<Int> = [];
 	var curZoom:Float = 1;
 	
 	private var blockPressWhileTypingOnStepper:Array<PsychUINumericStepper> = [];
@@ -223,6 +247,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	override function create()
 	{
+		for (zoom in zoomList) {
+			if (zoom >= 4) quantizations.push(Std.int(zoom));
+		}
+
 		if(Difficulty.list.length < 1) Difficulty.resetList();
 		_keysPressedBuffer.resize(keysArray.length);
 
@@ -2656,10 +2684,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var tab_group = mainBox.getTab('Note').menu;
 		var objX = 10;
 		var objY = 25;
+		/*
 		var stepperSpamCloseness:PsychUINumericStepper;
 		var stepperSpamLength:PsychUINumericStepper;
 		var spamLength:Float = 5;
 		var spamCloseness:Float = 2;
+		*/
 
 		susLengthStepper = new PsychUINumericStepper(objX, objY, Conductor.stepCrochet / 2, 0, 0, Conductor.stepCrochet * 128, 1, 80);
 		susLengthStepper.onValueChange = function()
@@ -2733,6 +2763,17 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			softReloadNotes();
 		}, 150);
 
+		/*
+		stepperSpamCloseness = new PsychUINumericStepper(noteTypeDropDown.x + 90, noteTypeDropDown.y + 45, 2, spamCloseness, 2, 524288);
+		stepperSpamCloseness.value = spamCloseness;
+		stepperSpamCloseness.name = 'note_spamthing';
+		blockPressWhileTypingOnStepper.push(stepperSpamCloseness);
+
+		stepperSpamLength = new PsychUINumericStepper(stepperSpamCloseness.x + 90, stepperSpamCloseness.y, 5, spamLength, 1, 8388607);
+		stepperSpamLength.value = spamLength;
+		stepperSpamLength.name = 'note_spamamount';
+		blockPressWhileTypingOnStepper.push(stepperSpamLength);
+
 		var spamButton:PsychUIButton = new PsychUIButton(noteTypeDropDown.x, noteTypeDropDown.y + 40, "Add Notes", function()
 		{
 			var forAddNotes:Array<Dynamic> = [];
@@ -2780,16 +2821,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				forAddNotes.resize(0); // for collect gc
 			}
 		});
-
-		stepperSpamCloseness = new PsychUINumericStepper(spamButton.x + 90, spamButton.y + 5, 2, spamCloseness, 2, 524288);
-		stepperSpamCloseness.value = spamCloseness;
-		stepperSpamCloseness.name = 'note_spamthing';
-		blockPressWhileTypingOnStepper.push(stepperSpamCloseness);
-
-		stepperSpamLength = new PsychUINumericStepper(stepperSpamCloseness.x + 90, stepperSpamCloseness.y, 5, spamLength, 1, 8388607);
-		stepperSpamLength.value = spamLength;
-		stepperSpamLength.name = 'note_spamamount';
-		blockPressWhileTypingOnStepper.push(stepperSpamLength);
+		*/
 		
 		tab_group.add(new FlxText(susLengthStepper.x, susLengthStepper.y - 15, 80, 'Sustain length:'));
 		tab_group.add(new FlxText(strumTimeStepper.x, strumTimeStepper.y - 15, 100, 'Note Hit time (ms):'));
