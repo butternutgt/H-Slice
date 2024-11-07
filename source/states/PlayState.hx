@@ -3930,7 +3930,7 @@ class PlayState extends MusicBeatState
 			popUpGroup.add(ratingPop);
 		}
 
-		if (showCombo) {
+		if (showCombo && combo >= 10) {
 			comboPop = popUpGroup.recycle(Popup);
 			comboPop.setupComboData(uiPrefix + 'combo' + uiPostfix);
 			comboPop.comboOtherStuff();
