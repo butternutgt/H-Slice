@@ -344,14 +344,20 @@ class FreeplayState extends MusicBeatState
 				var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
 				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
 
-				try { Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase()); }
+				try {
+					if (ClientPrefs.data.disableGC) {
+						MemoryUtil.enable();
+						MemoryUtil.collect(true);
+						MemoryUtil.disable();
+					}
+					Song.loadFromJson(poop, true, songs[curSelected].songName.toLowerCase());
+				}
 				catch(e:haxe.Exception)
 				{
 					if (ClientPrefs.data.disableGC) {
 						MemoryUtil.enable();
 						MemoryUtil.collect(true);
 					}
-					trace('ERROR! ${e.message}');
 	
 					var errorStr:String = e.message;
 					if(errorStr.contains('There is no TEXT asset with an ID of')) errorStr = 'Missing file: ' + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1); //Missing chart
@@ -362,6 +368,7 @@ class FreeplayState extends MusicBeatState
 					missingText.visible = true;
 					missingTextBG.visible = true;
 					FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+					trace('ERROR! ${missingText.text}');
 	
 					updateTexts(elapsed);
 					super.update(elapsed);
@@ -446,7 +453,7 @@ class FreeplayState extends MusicBeatState
 					MemoryUtil.collect(true);
 					MemoryUtil.disable();
 				}
-				Song.loadFromJson(poop, songLowercase);
+				Song.loadFromJson(poop, false, songLowercase);
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;
 

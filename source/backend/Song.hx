@@ -121,8 +121,10 @@ class Song
 
 	public static var chartPath:String;
 	public static var loadedSongName:String;
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	public static var skipChart:Bool = false;
+	public static function loadFromJson(jsonInput:String, forPlay:Bool, ?folder:String):SwagSong
 	{
+		skipChart = forPlay;
 		if(folder == null) folder = jsonInput;
 		PlayState.SONG = getChart(jsonInput, folder);
 		loadedSongName = folder;
@@ -171,7 +173,7 @@ class Song
 				case 'psych_v1':
 					if(!fmt.startsWith('psych_v1')) //Convert to Psych 1.0 format
 					{
-						trace('converting chart $nameForError with format $fmt to psych_v1 format...');
+						#if debug trace('converting chart $nameForError with format $fmt to psych_v1 format...'); #end
 						songJson.format = 'psych_v1_convert';
 						convert(songJson);
 					}

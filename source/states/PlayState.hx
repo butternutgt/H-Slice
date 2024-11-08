@@ -118,6 +118,7 @@ class PlayState extends MusicBeatState
 
 	public var songSpeedTween:FlxTween;
 	public var songSpeed(default, set):Float = 1;
+	public var songSpeedRate:Float = 1;
 	public var songSpeedType:String = "multiplicative";
 	public final NoteKillTime:Float = 350;
 	public var noteKillOffset:Float = 0;
@@ -835,6 +836,12 @@ class PlayState extends MusicBeatState
 
 		if (eventNotes.length < 1)
 			checkEventNote();
+
+		if (ClientPrefs.data.disableGC) {
+			MemoryUtil.enable();
+			MemoryUtil.collect(true);
+			MemoryUtil.disable();
+		}
 
 		if (nanoPosition) nanoTime = CoolUtil.getNanoTime();
 	}
@@ -1945,6 +1952,7 @@ class PlayState extends MusicBeatState
 	{
 		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
+		var chochet:Float = Conductor.crochet;
 		for (i in 0...4)
 		{
 			// FlxG.log.add(i);
@@ -1959,11 +1967,25 @@ class PlayState extends MusicBeatState
 
 			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
 			babyArrow.downScroll = ClientPrefs.data.downScroll;
+			skipArrowStartTween = skipArrowStartTween || chochet <= ClientPrefs.data.framerate * 1000;
 			if (!isStoryMode && !skipArrowStartTween)
 			{
-				// babyArrow.y -= 10;
+				babyArrow.y -= 640 / (i+1);
 				babyArrow.alpha = 0;
-				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+				babyArrow.angle = -2 * Math.PI;
+				FlxTween.tween(
+					babyArrow, 
+					{
+						y: babyArrow.y + 640 / (i+1),
+						alpha: targetAlpha,
+						angle: 0
+					},
+					chochet * (4-i),
+					{
+						ease: FlxEase.circOut,
+						startDelay: (chochet * (i+1))
+					}
+				);
 			}
 			else
 				babyArrow.alpha = targetAlpha;
@@ -2192,7 +2214,8 @@ class PlayState extends MusicBeatState
 		splashMoment.fill(0);
 
 		if (nanoPosition) {
-			elapsedNano = Math.min(CoolUtil.getNanoTime() - nanoTime, FlxG.maxElapsed);
+			// elapsedNano = Math.min(CoolUtil.getNanoTime() - nanoTime, FlxG.maxElapsed);
+			elapsedNano = CoolUtil.getNanoTime() - nanoTime;
 			globalElapsed = elapsedNano * playbackRate;
 		} else {
 			globalElapsed = elapsed * playbackRate;
@@ -2582,13 +2605,13 @@ class PlayState extends MusicBeatState
 		if (unspawnNotes.length > totalCnt)
 		{
 			targetNote = unspawnNotes[totalCnt];
-			shownTime = showNotes ? spawnTime / songSpeed : 0;
+			shownTime = showNotes ? targetNote.isSustainNote ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
 			shownRealTime = shownTime * 0.001;
 			while (targetNote.strumTime - Conductor.songPosition < shownTime)
 			{
 				canBeHit = Conductor.songPosition > targetNote.strumTime;
 				tooLate = Conductor.songPosition > targetNote.strumTime + noteKillOffset;
-				noteSpawnJudge = !skipSpawnNote || cpuControlled || !targetNote.isSustainNote ? !canBeHit : !tooLate;
+				noteSpawnJudge = !skipSpawnNote || !cpuControlled || !targetNote.isSustainNote ? !canBeHit : !tooLate;
 
 				if (noteSpawnJudge) {
 					dunceNote = targetNote;
@@ -2637,7 +2660,7 @@ class PlayState extends MusicBeatState
 					}
 				} else {
 					// Skip notes without spawning
-					targetNote.mustPress ? ++skipOp : ++skipBf;
+					targetNote.mustPress ? ++skipBf : ++skipOp;
 					skipNote = targetNote;
 				}
 				
@@ -2680,8 +2703,7 @@ class PlayState extends MusicBeatState
 							canBeHit = Conductor.songPosition - daNote.strumTime > 0;
 							tooLate = Conductor.songPosition - daNote.strumTime > noteKillOffset;
 
-							if (separateHitProcess || !tooLate) daNote.followStrumNote(songSpeed);
-							// noteUpdateJudge = cpuControlled ? canBeHit && !tooLate : !tooLate;
+							if (!separateHitProcess || !tooLate) daNote.followStrumNote(songSpeed);
 
 							if (canBeHit && !tooLate) {
 								if (daNote.mustPress) {
@@ -2708,7 +2730,7 @@ class PlayState extends MusicBeatState
 								} else if (!daNote.hitByOpponent)
 									opponentNoteHit(daNote);
 
-								invalidateNote(daNote);
+								if (daNote != null) invalidateNote(daNote);
 							}
 							--index;
 						}
@@ -2733,7 +2755,7 @@ class PlayState extends MusicBeatState
 	}
 
 	var skipResult:Dynamic = null;
-	var skipNotes:Note = new Note(0, 0);
+	var skipNotes:Note = null;
 	var skipArray:Array<Dynamic> = [];
 	inline public function noteFinalize() {
 		skipNotes = skipNote;
@@ -2939,15 +2961,7 @@ class PlayState extends MusicBeatState
 			FlxG.sound.music.stop();
 		
 		if (bfVocal) vocals.pause();
-		if (opVocal)
-		// 	if (opVocal)
-		// 		if (opVocal)
-		// 			if (opVocal)
-		// 				if (opVocal)
-		// 					if (opVocal)
-		// 						if (opVocal)
-		// 							if (opVocal)
-										opponentVocals.pause();
+		if (opVocal) opponentVocals.pause();
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Chart Editor", null, null, true);
@@ -2966,15 +2980,7 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
-		if (bfVocal)
-		// 	if (bfVocal)
-		// 		if (bfVocal)
-		// 			if (bfVocal)
-		// 				if (bfVocal)
-		// 					if (bfVocal)
-		// 						if (bfVocal)
-		// 							if (bfVocal)
-										vocals.pause();
+		if (bfVocal) vocals.pause();
 		if (opVocal) opponentVocals.pause();
 
 		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
@@ -3302,36 +3308,55 @@ class PlayState extends MusicBeatState
 						flValue2 = 0;
 
 					var newValue:Float = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed') * flValue1;
-					if (flValue2 <= 0)
+					
+					if (flValue2 <= 0) {
 						songSpeed = newValue;
-					else
-						songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, flValue2 / playbackRate, {
-							ease: FlxEase.linear,
-							onComplete: function(twn:FlxTween)
+						songSpeedRate = flValue1;
+					} else {
+						songSpeedTween = FlxTween.tween(
+							this,
 							{
-								songSpeedTween = null;
+								songSpeed: newValue,
+								songSpeedRate: flValue1
+							},
+							flValue2 / playbackRate,
+							{
+								ease: FlxEase.linear,
+								onComplete: function(twn:FlxTween)
+								{
+									songSpeedTween = null;
+								}
 							}
-						});
+						);
+					}
 				}
 			case 'Vslice Scroll Speed':
 				if (songSpeedType != "constant")
 				{
-					if (flValue1 == null)
-						flValue1 = 1;
-					if (flValue2 == null)
-						flValue2 = 0;
+					if (flValue1 == null) flValue1 = 1;
+					if (flValue2 == null) flValue2 = 0;
 
 					var newValue:Float = ClientPrefs.getGameplaySetting('scrollspeed') * flValue1;
-					if (flValue2 <= 0)
+					if (flValue2 <= 0) {
 						songSpeed = newValue;
-					else
-						songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, flValue2 / playbackRate, {
-							ease: FlxEase.quadInOut,
-							onComplete: function(twn:FlxTween)
+						songSpeedRate = flValue1;
+					} else {
+						songSpeedTween = FlxTween.tween(
+							this, 
 							{
-								songSpeedTween = null;
+								songSpeed: newValue,
+								songSpeedRate: flValue1
+							}, 
+							flValue2 / playbackRate, 
+							{
+								ease: FlxEase.quadInOut,
+								onComplete: function(twn:FlxTween)
+								{
+									songSpeedTween = null;
+								}
 							}
-						});
+						);
+					}
 				}
 			case 'Set Property':
 				try
@@ -3629,7 +3654,7 @@ class PlayState extends MusicBeatState
 					FlxTransitionableState.skipNextTransOut = true;
 					prevCamFollow = camFollow;
 
-					Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
+					Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, false, PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
 
 					canResync = false;

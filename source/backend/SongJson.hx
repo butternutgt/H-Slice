@@ -52,13 +52,20 @@ class SongJson {
 	var str:String;
 	var pos:Int;
 	var time:Float = Timer.stamp();
+	var skipChart:Bool = false;
 
 	function new(str:String) {
 		this.str = str;
 		this.pos = 0;
 	}
 
+	var prepareSkipMode:Bool = false;
+	var skipMode:Bool = false;
+	var skipLevel:Int = 0;
+	var skipDone:Bool = false;
+
 	function doParse():Dynamic {
+		this.skipChart = Song.skipChart;
 		var result = parseRec();
 		if (Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
 		while (!StringTools.isEof(c = nextChar())) {
@@ -77,6 +84,8 @@ class SongJson {
 	var field:String = null;
 	var comma:Null<Bool> = null;
 	var save:Int = 0;
+	var bracketL:Null<Int> = 0;
+	var bracketR:Null<Int> = 0;
 
 	var objLayer:Int = -1;
 	var obj:Array<Dynamic> = [];
@@ -90,7 +99,37 @@ class SongJson {
 		while (true) {
 			if(obj[objLayer + 1] != null) obj[objLayer + 1] == null;
 			if(arr[arrLayer + 1] != null) arr[arrLayer + 1] == null;
-			switch (c = nextChar()) {
+			c = nextChar();
+			if (skipMode) {
+				showProgress();
+				
+				bracketL = str.indexOf('[', pos);
+				bracketR = str.indexOf(']', pos);
+				
+				if (bracketL == -1) bracketL = null;
+				if (bracketR == -1) bracketR = null;
+
+				if (bracketL != null && bracketL != null) {
+					pos = FlxMath.minInt(bracketL, bracketR);
+				} else pos = bracketL ?? bracketR ?? pos;
+
+				c = nextChar(); pos--;
+				if (c == '['.code) ++skipLevel;
+				else if (c == ']'.code) {
+					--skipLevel;
+					if (skipLevel <= 0) {
+						prepareSkipMode = skipMode = false; pos++; comma = true;
+						#if debug trace('skipMode deactivated at $pos, $field'); #end
+						skipDone = true;
+					}
+				}
+				
+				if (pos > str.length) prepareSkipMode = skipMode = false; // emergency stop
+
+				skipDone ? return [] : continue;
+			}
+
+			switch (c) {
 				case ' '.code, '\r'.code, '\n'.code, '\t'.code:
 				// loop
 				case '{'.code:
@@ -119,11 +158,19 @@ class SongJson {
 							case '"'.code:
 								if (field != null || comma) invalidChar();
 								field = parseString();
+								#if debug trace('field: $field'); #end
+								if (skipChart && field == "notes") prepareSkipMode = true;
 							default:
 								invalidChar();
 						}
 					}
 				case '['.code:
+					if (prepareSkipMode) {
+						skipMode = true;
+						++skipLevel;
+						#if debug trace('skipMode activated at $pos, $skipLevel'); #end
+						continue;
+					}
 					arr[++arrLayer] = [];
 					comma = null;
 					while (true) {

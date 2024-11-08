@@ -86,7 +86,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		cacheCount = option;
 		addOption(option); */
 
-        var option:Option = new Option('Do Note Process before Spawning Notes',
+        var option:Option = new Option('Do Note Process before Spawning',
 			"Well, It's literally, yes.\nIt boosts game perfomance vastly, It works anytime yeah.\nIf you don't get it, enable this.",
 			'processFirst',
 			BOOL);
@@ -110,25 +110,25 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-        var option:Option = new Option('Allow noteHitPreEvent',
+        var option:Option = new Option('noteHitPreEvent',
 			"If unchecked, don't send any noteHitPreEvent on Lua/HScript.",
 			'noteHitPreEvent',
 			BOOL);
 		addOption(option);
 
-        var option:Option = new Option('Allow noteHitEvent',
+        var option:Option = new Option('noteHitEvent',
 			"If unchecked, don't send any noteHitEvent on Lua/HScript.\nUnrecommended to disable this option.",
 			'noteHitEvent',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Allow noteHitEvent for Spawned Notes',
+		var option:Option = new Option('noteHitEvents for Spawned Notes',
 			"If unchecked, don't send any event on Lua/HScript for spawned notes.\nand It improves performance.",
 			'spawnNoteScript',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Allow noteHitEvent for Skipped Notes',
+		var option:Option = new Option('noteHitEvents for Skipped Notes',
 			"If unchecked, don't send any event on Lua/HScript for skipped notes.\nand It improves performance.",
 			'skipNoteScript',
 			BOOL);
