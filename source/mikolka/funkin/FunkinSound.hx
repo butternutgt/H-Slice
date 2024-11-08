@@ -93,7 +93,7 @@ class FunkinSound extends FlxSound
 				var modsInstPath = Paths.modFolders('songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}');
 				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
 				#end
-				
+				trace(instPath);
 				var future:Promise<Sound> = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
 
 				future.future.onComplete(sound ->

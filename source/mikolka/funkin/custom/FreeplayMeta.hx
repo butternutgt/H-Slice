@@ -1,6 +1,6 @@
 package mikolka.funkin.custom;
 
-import backend.SongJson;
+import haxe.Json;
 using mikolka.funkin.custom.FunkinTools;
 
 class FreeplayMetaJSON {
@@ -27,7 +27,7 @@ class FreeplayMeta {
 
         try {
             if(rawJson != null && rawJson.length > 0) {
-                return new FreeplayMetaJSON().mergeWithJson(SongJson.parse(rawJson));
+                return new FreeplayMetaJSON().mergeWithJson(Json.parse(rawJson));
             }
         }
         catch(x){

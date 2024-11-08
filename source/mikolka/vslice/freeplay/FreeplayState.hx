@@ -264,7 +264,6 @@ class FreeplayState extends MusicBeatSubstate
 
 	override function create():Void
 	{
-		trace("creating");
 		// We build a bunch of sprites BEFORE create() so we can guarantee they aren't null later on.
 		//? but doing it here, because psych 0.6.3 can destroy graphics created in the constructor
 		if(VsliceOptions.FP_CARDS){
@@ -353,7 +352,7 @@ class FreeplayState extends MusicBeatSubstate
 				if (!diffIdsTotalModBinds.exists(difficulty))
 					diffIdsTotalModBinds.set(difficulty, sngCard.folder);
 			}
-			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Weeklist (${index+1}/${allSongs.length})');
+			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GSetting Weeklist (${index+1}/${allSongs.length})');
 		}
 		Sys.print("\n");
 		// TODO put the method
@@ -843,9 +842,9 @@ class FreeplayState extends MusicBeatSubstate
 		randomCapsule.hsvShader = hsvShader;
 		grpCapsules.add(randomCapsule);
 
-		for (i in 0...tempSongs.length)
+		for (i => tempSong in tempSongs)
 		{
-			tempSong = tempSongs[i];
+			// tempSong = tempSongs[i];
 			if (tempSong == null)
 				continue;
 
@@ -868,7 +867,7 @@ class FreeplayState extends MusicBeatSubstate
 
 			grpCapsules.add(funnyMenu);
 
-			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Song (${i+1}/${tempSongs.length})');
+			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GSetting Song (${i+1}/${tempSongs.length})');
 		}
 
 		for (capsule in grpCapsules)
@@ -2284,10 +2283,10 @@ class FreeplayState extends MusicBeatSubstate
 					var newBPM = daSongCapsule.songData.songStartingBpm;
 					FreeplayHelpers.BPM = newBPM; // ? reimplementing
 
-					// Sys.println(daSongCapsule.songData.songId +", "+ daSongCapsule.songData.songStartingBpm);
+					Sys.println(daSongCapsule.songData.songId +", "+ daSongCapsule.songData.songStartingBpm);
 				}
 			});
-			// Sys.println("didPlay?: "+(didPlay ? "Yes" : "No"));
+			Sys.println("didPlay?: "+(didPlay ? "Yes" : "No"));
 
 			if (!didPlay) {
 				#if debug trace("Preview Cancelled"); #end

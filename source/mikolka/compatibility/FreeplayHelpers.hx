@@ -17,35 +17,47 @@ class FreeplayHelpers {
 	public static function get_BPM() {
 		return Conductor.bpm;
 	}
+
+	static var songs = [];
+	static var leWeek:WeekData;
+	static var colors:Array<Int>;
+	static var sngCard:FreeplaySongData;
+	static var offset:Int;
     public inline static function loadSongs(){
-        var songs = [];
+        var songCount:Int = 0;
+		songs = [];
         WeekData.reloadWeekFiles(false);
 		// programmatically adds the songs via LevelRegistry and SongRegistry
-		for (i in 0...WeekData.weeksList.length)
+		for (week in WeekData.weeksList)
 		{
-			if (weekIsLocked(WeekData.weeksList[i]))
+			songCount += WeekData.weeksLoaded.get(week).songs.length;
+		}
+		for (i => week in WeekData.weeksList)
+		{
+			if (weekIsLocked(week))
 				continue;
 
-			var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[i]); // TODO tweak this
+			leWeek = WeekData.weeksLoaded.get(week); // TODO tweak this
 
 			WeekData.setDirectoryFromWeek(leWeek);
-			for (song in leWeek.songs)
+			for (j => song in leWeek.songs)
 			{
-				// trace("pushing "+song);
-				var colors:Array<Int> = song[2];
+				if (Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Song (${j+offset+1}/$songCount)');
+				colors = song[2];
 				if (colors == null || colors.length < 3)
 				{
 					colors = [146, 113, 253];
 				}
-				var sngCard = new FreeplaySongData(i, song[0], song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
+				sngCard = new FreeplaySongData(i, song[0], song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
 				// songName, weekNum, songCharacter, color
 				if (sngCard.songDifficulties.length == 0)
 					continue;
 
 				songs.push(sngCard);
-				
 			}
+			offset += leWeek.songs.length;
 		}
+		Sys.print("\n");
         return songs;
     }
     public static function moveToPlaystate(state:FreeplayState,cap:FreeplaySongData,currentDifficulty:String){
