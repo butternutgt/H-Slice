@@ -2241,8 +2241,10 @@ class FreeplayState extends MusicBeatSubstate
 			tweenCurSongColor(daSongCapsule);
 	}
 
+	var isLoadedInst:Bool = false;
 	public function playCurSongPreview(?daSongCapsule:SongMenuItem):Void
 	{
+		isLoadedInst = false;
 		if (daSongCapsule == null)
 			daSongCapsule = grpCapsules.members[curSelected];
 
@@ -2282,21 +2284,24 @@ class FreeplayState extends MusicBeatSubstate
 					// ? set BPMs
 					var newBPM = daSongCapsule.songData.songStartingBpm;
 					FreeplayHelpers.BPM = newBPM; // ? reimplementing
-
+					isLoadedInst = true;
 					Sys.println(daSongCapsule.songData.songId +", "+ daSongCapsule.songData.songStartingBpm);
 				}
 			});
-			Sys.println("didPlay?: "+(didPlay ? "Yes" : "No"));
 
-			if (!didPlay) {
-				#if debug trace("Preview Cancelled"); #end
-				
-				FunkinSound.playMusic('freeplayRandom', {
-					startingVolume: 0.0,
-					overrideExisting: true,
-					restartTrack: false
-				});
-				FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
+			if (isLoadedInst) {
+				Sys.println("didPlay?: "+(didPlay ? "Yes" : "No"));
+
+				if (!didPlay) {
+					#if debug trace("Preview Cancelled"); #end
+					
+					FunkinSound.playMusic('freeplayRandom', {
+						startingVolume: 0.0,
+						overrideExisting: true,
+						restartTrack: false
+					});
+					FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
+				}
 			}
 		} 
 	}

@@ -93,7 +93,7 @@ class FunkinSound extends FlxSound
 				var modsInstPath = Paths.modFolders('songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}');
 				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
 				#end
-				trace(instPath);
+				trace(instPath,params.partialParams.start,params.partialParams.end);
 				var future:Promise<Sound> = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
 
 				future.future.onComplete(sound ->
@@ -105,6 +105,7 @@ class FunkinSound extends FlxSound
 						var cap = fp.grpCapsules.members[fp.curSelected];
 						if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
 					}
+					trace(sound.bytesLoaded, sound.bytesTotal, sound.length);
 					FlxG.sound.playMusic(sound,0);
 					params.onLoad();
 				});
