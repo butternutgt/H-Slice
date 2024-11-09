@@ -30,6 +30,7 @@ class MusicBeatState extends FlxState
 	public static function getVariables()
 		return getState().variables;
 
+	var maxBPM:Float = 0;
 	override function create() {
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		#if MODS_ALLOWED Mods.updatedOnState = false; #end
@@ -39,6 +40,10 @@ class MusicBeatState extends FlxState
 		super.create();
 
 		curStepLimit = ClientPrefs.data.updateStepLimit;
+		
+		if (curStepLimit > 0) 
+			maxBPM = curStepLimit * GameplaySettingsSubState.defaultBPM * ClientPrefs.data.framerate;
+		else maxBPM = Math.POSITIVE_INFINITY;
 
 		if(!skip) {
 			openSubState(new CustomFadeTransition(0.5, true));
@@ -173,15 +178,16 @@ class MusicBeatState extends FlxState
 		return cast (FlxG.state, MusicBeatState);
 	}
 
-	var maxBPM:Float = ClientPrefs.data.updateStepLimit * GameplaySettingsSubState.defaultBPM * ClientPrefs.data.framerate;
 	var nextStep:Float;
 	public function stepHit():Void
 	{
-		maxBPM = ClientPrefs.data.updateStepLimit * GameplaySettingsSubState.defaultBPM * ClientPrefs.data.framerate;
+		if (curStepLimit > 0) 
+			maxBPM = curStepLimit * GameplaySettingsSubState.defaultBPM * ClientPrefs.data.framerate;
+		else maxBPM = Math.POSITIVE_INFINITY;
 		nextStep = curStep + 1;
 
 		if (Conductor.bpm <= maxBPM) {
-			if (ClientPrefs.data.updateStepLimit != 0) {
+			if (curStepLimit != 0) {
 				countJudge = oldStep < nextStep && updateCount < curStepLimit;
 			} else {
 				countJudge = oldStep < nextStep;
@@ -199,11 +205,11 @@ class MusicBeatState extends FlxState
 				
 				++oldStep; ++updateCount;
 				
-				countJudge = (ClientPrefs.data.updateStepLimit != 0 ? oldStep < nextStep && updateCount < curStepLimit : oldStep < nextStep);
+				countJudge = (curStepLimit != 0 ? oldStep < nextStep && updateCount < curStepLimit : oldStep < nextStep);
 			}
 		} else {
-			for (i in 0...ClientPrefs.data.updateStepLimit) {
-				oldStep = Std.int(FlxMath.lerp(oldStep, nextStep, i/ClientPrefs.data.updateStepLimit));
+			for (i in 0...curStepLimit) {
+				oldStep = Std.int(FlxMath.lerp(oldStep, nextStep, i/curStepLimit));
 					
 				stagesFunc(function(stage:BaseStage) {
 					stage.curStep = oldStep;
@@ -214,7 +220,7 @@ class MusicBeatState extends FlxState
 				if (oldStep % 4 == 0)
 					beatHit();
 			}
-			updateCount = ClientPrefs.data.updateStepLimit;
+			updateCount = curStepLimit;
 		}
 		updateMaxSteps = updateCount;
 
