@@ -23,9 +23,10 @@ class FreeplayHelpers {
 	static var colors:Array<Int>;
 	static var sngCard:FreeplaySongData;
 	static var offset:Int;
+	static var songCount:Int;
     public inline static function loadSongs(){
-        var songCount:Int = 0;
-		songs = [];
+		songs = []; 
+        songCount = offset = 0;
         WeekData.reloadWeekFiles(false);
 		// programmatically adds the songs via LevelRegistry and SongRegistry
 		for (week in WeekData.weeksList)

@@ -2285,12 +2285,12 @@ class FreeplayState extends MusicBeatSubstate
 					var newBPM = daSongCapsule.songData.songStartingBpm;
 					FreeplayHelpers.BPM = newBPM; // ? reimplementing
 					isLoadedInst = true;
-					Sys.println(daSongCapsule.songData.songId +", "+ daSongCapsule.songData.songStartingBpm);
+					#if debug Sys.println(daSongCapsule.songData.songId +", "+ daSongCapsule.songData.songStartingBpm); #end
 				}
 			});
 
 			if (isLoadedInst) {
-				Sys.println("didPlay?: "+(didPlay ? "Yes" : "No"));
+				#if debug Sys.println("didPlay?: "+(didPlay ? "Yes" : "No")); #end
 
 				if (!didPlay) {
 					#if debug trace("Preview Cancelled"); #end
