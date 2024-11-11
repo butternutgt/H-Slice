@@ -270,30 +270,18 @@ class NoteOffsetState extends MusicBeatState
 						{
 							switch(i)
 							{
-								case 0:
-									ClientPrefs.data.comboOffset[0] -= addNum;
-								case 1:
-									ClientPrefs.data.comboOffset[0] += addNum;
-								case 2:
-									ClientPrefs.data.comboOffset[1] += addNum;
-								case 3:
-									ClientPrefs.data.comboOffset[1] -= addNum;
-								case 4:
-									ClientPrefs.data.comboOffset[2] -= addNum;
-								case 5:
-									ClientPrefs.data.comboOffset[2] += addNum;
-								case 6:
-									ClientPrefs.data.comboOffset[3] += addNum;
-								case 7:
-									ClientPrefs.data.comboOffset[3] -= addNum;
-								case 8:
-									ClientPrefs.data.comboOffset[4] -= addNum;
-								case 9:
-									ClientPrefs.data.comboOffset[4] += addNum;
-								case 10:
-									ClientPrefs.data.comboOffset[5] += addNum;
-								case 11:
-									ClientPrefs.data.comboOffset[5] -= addNum;
+								case 0: ClientPrefs.data.comboOffset[0] -= addNum;
+								case 1: ClientPrefs.data.comboOffset[0] += addNum;
+								case 2: ClientPrefs.data.comboOffset[1] += addNum;
+								case 3: ClientPrefs.data.comboOffset[1] -= addNum;
+								case 4: ClientPrefs.data.comboOffset[2] -= addNum;
+								case 5: ClientPrefs.data.comboOffset[2] += addNum;
+								case 6: ClientPrefs.data.comboOffset[3] += addNum;
+								case 7: ClientPrefs.data.comboOffset[3] -= addNum;
+								case 8: ClientPrefs.data.comboOffset[4] -= addNum;
+								case 9: ClientPrefs.data.comboOffset[4] += addNum;
+								case 10: ClientPrefs.data.comboOffset[5] += addNum;
+								case 11: ClientPrefs.data.comboOffset[5] -= addNum;
 							}
 						}
 					}
