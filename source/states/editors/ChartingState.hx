@@ -691,8 +691,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var lastBeatHit:Float = 0;
 
 	// --- convert temp variables to fields from inside update method ---
-	// --- convert temp variables to fields from inside update method ---
-	// --- convert temp variables to fields from inside update method ---
 
 	var chartName:String;
 	var songCopy:SwagSong;
@@ -800,8 +798,22 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var ePress:Bool;
 	var addSus:Float;
 
+	// Declaration Other Variables
+
+	var mouseX:Float = 0;
+	var mouseY:Float = 0;
+
 	override function update(elapsed:Float)
 	{
+		// support latest flixel like git
+		#if (flixel <= "5.8.0")
+		mouseX = FlxG.mouse.screenX;
+		mouseY = FlxG.mouse.screenY;
+		#else
+		mouseX = FlxG.mouse.viewX;
+		mouseY = FlxG.mouse.viewY;
+		#end
+
 		if(!fileDialog.completed)
 		{
 			lastFocus = PsychUIInputText.focusOn;
@@ -1304,8 +1316,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		}
 		else if(FlxG.mouse.pressedRight && (FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0))
 		{
-			selectionBox.setPosition(FlxG.mouse.viewX, FlxG.mouse.viewY);
-			if (!selectionBox.visible) selectionStart.set(FlxG.mouse.viewX, FlxG.mouse.viewY);
+			selectionBox.setPosition(mouseX, mouseY);
+			if (!selectionBox.visible) selectionStart.set(mouseX, mouseY);
 			selectionBox.visible = true;
 			updateSelectionBox();
 		}
@@ -1727,8 +1739,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	function updateSelectionBox()
 	{
-		diffX = FlxG.mouse.viewX - selectionStart.x; // screenX is deprecated wtf
-		diffY = FlxG.mouse.viewY - selectionStart.y; // screenY is ALSO deprecated wtftf
+		diffX = mouseX - selectionStart.x;
+		diffY = mouseY - selectionStart.y;
 		selectionBox.setPosition(selectionStart.x, selectionStart.y);
 
 		if(diffX < 0) //Fixes negative X scale
@@ -1742,7 +1754,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			selectionBox.y -= diffY;
 		}
 		selectionBox.scale.set(diffX, diffY);
-		// trace(FlxG.mouse.viewX, selectionStart.x, FlxG.mouse.viewY, selectionStart.y);
+		// trace(mouseX, selectionStart.x, mouseY, selectionStart.y);
 		selectionBox.updateHitbox();
 	}
 
