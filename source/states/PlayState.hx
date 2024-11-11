@@ -2332,7 +2332,7 @@ class PlayState extends MusicBeatState
 		}
 		doDeathCheck();
 
-		if (started) {
+		if (started && !paused && canResync) {
 			checkSync();
 		}
 
@@ -2954,6 +2954,7 @@ class PlayState extends MusicBeatState
 		canResync = false;
 		FlxG.camera.followLerp = 0;
 		persistentUpdate = false;
+		persistentDraw = true;
 		chartingMode = true;
 		paused = true;
 

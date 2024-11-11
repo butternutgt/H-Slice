@@ -114,6 +114,7 @@ class MasterEditorMenu extends MusicBeatState
 			switch (options[curSelected])
 			{
 				case 'Chart Editor': // felt it would be cool maybe
+					PlayState.chartingMode = true; // don't forget
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
@@ -130,7 +131,7 @@ class MasterEditorMenu extends MusicBeatState
 				case 'Note Splash Editor':
 					MusicBeatState.switchState(new NoteSplashEditorState());
 				case 'Test stickers':
-						MusicBeatState.switchState(new StickerTest());
+					MusicBeatState.switchState(new StickerTest());
 				case 'Preview results (perfect)':
 					runResults(200);
 				case 'Preview results (excellent)':
