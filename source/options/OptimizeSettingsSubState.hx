@@ -43,6 +43,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 				'After Note Spawned',
 				'After Note Processed',
 				'After Note Finalized',
+				'Reversed',
 				'Chaostic',
 				'Randomized Order',
 				'Shuffle',

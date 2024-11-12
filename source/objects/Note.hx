@@ -152,7 +152,7 @@ class Note extends FlxSprite
 		return value;
 	}
 
-	public function resizeByRatio(ratio:Float) //haha funny twitter shit
+	inline public function resizeByRatio(ratio:Float) //haha funny twitter shit
 	{
 		if(isSustainNote && animation.curAnim != null && !animation.curAnim.name.endsWith('end'))
 		{
@@ -298,7 +298,7 @@ class Note extends FlxSprite
 
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
 				if(createdFrom != null && createdFrom.songSpeed != null) {
-					trace(createdFrom.songSpeed);
+					// trace(createdFrom.songSpeed);
 					prevNote.scale.y *= createdFrom.songSpeed;
 				}
 

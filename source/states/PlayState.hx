@@ -826,9 +826,10 @@ class PlayState extends MusicBeatState
 			case "After Note Spawned": whenSortNotes = 1;
 			case "After Note Processed": whenSortNotes = 2;
 			case "After Note Finalized": whenSortNotes = 3;
-			case "Chaostic": whenSortNotes = 4;
-			case "Randomized Order": whenSortNotes = 5;
-			case "Shuffle": whenSortNotes = 6;
+			case "Reversed": whenSortNotes = 4;
+			case "Chaostic": whenSortNotes = 5;
+			case "Randomized Order": whenSortNotes = 6;
+			case "Shuffle": whenSortNotes = 7;
 		}
 
 		cacheCountdown();
@@ -2619,6 +2620,7 @@ class PlayState extends MusicBeatState
 	
 					strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
 					dunceNote.strum = strumGroup.members[dunceNote.noteData];
+					if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
 					notes.add(dunceNote);
 					
 					if (spawnNoteScript) {
@@ -2755,22 +2757,31 @@ class PlayState extends MusicBeatState
 	}
 
 	var skipResult:Dynamic = null;
-	var skipNotes:Note = null;
+	var skipDaNote:Note = null;
 	var skipArray:Array<Dynamic> = [];
+	var skipAnim:Array<Bool> = [];
 	inline public function noteFinalize() {
-		skipNotes = skipNote;
+		skipDaNote = skipNote;
 		opCombo += skipOp;
 		combo += skipBf;
 		skipCnt = skipOp + skipBf;
-		if (skipNoteScript && skipCnt > 0) {
-			skipArray = [0,Math.abs(skipNotes.noteData),skipNotes.noteType,skipNotes.isSustainNote];
+
+		skipAnim.push(skipCnt > 0);
+		skipAnim.push(skipOp > 0);
+		skipAnim.push(skipBf > 0);
+
+		if (skipAnim[0])
+			doAnim(skipDaNote, skipAnim[1], skipAnim[2]);
+
+		if (skipNoteScript && skipAnim[0]) {
+			skipArray = [0,Math.abs(skipDaNote.noteData), skipDaNote.noteType, skipDaNote.isSustainNote];
 			for (i in 0...skipOp) {
 				if (noteHitPreEvent) {
 					skipResult = callOnLuas('opponentNoteHitPre', skipArray);
 		
 					if (skipResult != LuaUtils.Function_Stop) {
 						if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-							skipResult = callOnHScript('opponentNoteHitPre', [skipNotes]);
+							skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
 					}
 				}
 				if (noteHitEvent) {
@@ -2778,7 +2789,7 @@ class PlayState extends MusicBeatState
 		
 					if (skipResult != LuaUtils.Function_Stop) {
 						if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-							skipResult = callOnHScript('opponentNoteHitPre', [skipNotes]);
+							skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
 					}
 				}
 			}
@@ -2788,7 +2799,7 @@ class PlayState extends MusicBeatState
 		
 					if (skipResult != LuaUtils.Function_Stop) {
 						if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-							skipResult = callOnHScript('opponentNoteHitPre', [skipNotes]);
+							skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
 					}
 				}
 				if (noteHitEvent) {
@@ -2796,7 +2807,7 @@ class PlayState extends MusicBeatState
 		
 					if (skipResult != LuaUtils.Function_Stop) {
 						if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-							skipResult = callOnHScript('opponentNoteHitPre', [skipNotes]);
+							skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
 					}
 				}
 			}
@@ -2811,18 +2822,20 @@ class PlayState extends MusicBeatState
 	inline private function noteSort() {
 		switch (whenSortNotes) {
 			case 4:
+				notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
+			case 5:
 				if (frameCount & 1 == 1) {
 					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
 				} else {
 					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 				}
-			case 5:
+			case 6:
 				if (randomize.bool(50)) {
 					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
 				} else {
 					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 				}
-			case 6:
+			case 7:
 				randomize.shuffle(notes.members);
 		}
 	}
@@ -2865,6 +2878,7 @@ class PlayState extends MusicBeatState
 				char = boyfriend;
 				bfHit = true;
 			}
+			char = daddy && !bf ? !daddy && bf ? boyfriend : dad : null;
 		}
 
 		if (char != null)
