@@ -9,6 +9,10 @@ Credit isn't required, but I'm glad if u did.
 Discord: hrk.exex  
 X(Twitter): @Hrek_Hexex  
 Bluesky: @hrekexexex.bsky.social  
+
+This project powered with linc_luajit by Lily/mcagabe19  
+For more information, It's here a link.  
+https://github.com/mcagabe19/linc_luajit-rewriten/  
   
 <details>
 <summary>Original description is here</summary>
