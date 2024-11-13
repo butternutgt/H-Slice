@@ -2015,9 +2015,9 @@ class FreeplayState extends MusicBeatSubstate
 			return cap.alive && cap.songData != null;
 		});
 
-		trace('Available songs: ${availableSongCapsules.map(function(cap) {
+		#if debug trace('Available songs: ${availableSongCapsules.map(function(cap) {
 			return cap?.songData?.songName;
-		})}');
+		})}'); #end
 
 		if (availableSongCapsules.length == 0)
 		{

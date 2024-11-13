@@ -2601,6 +2601,7 @@ class PlayState extends MusicBeatState
 	var skipNote:Note = new Note(0, 0);
 	var isCanPass:Bool = false;
 	var isDisplay:Bool = false;
+	var timeLimit:Bool = false;
 	public function noteSpawn()
 	{
 		timeout = nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp();
@@ -2615,11 +2616,11 @@ class PlayState extends MusicBeatState
 			{
 				canBeHit = Conductor.songPosition > targetNote.strumTime;
 				tooLate = Conductor.songPosition > targetNote.strumTime + noteKillOffset;
-				noteSpawnJudge = !cpuControlled || !targetNote.isSustainNote ? !canBeHit : !tooLate;
+				timeLimit = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) > timeout;
 
 				if (keepNotes) 
-					 isCanPass = !skipSpawnNote || (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) > timeout || isDisplay;
-				else isCanPass = !skipSpawnNote || (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) > timeout;
+					 isCanPass = !skipSpawnNote || !timeLimit || !tooLate;
+				else isCanPass = !skipSpawnNote || !timeLimit;
 
 				if (isCanPass) {
 					dunceNote = targetNote;
@@ -2643,7 +2644,7 @@ class PlayState extends MusicBeatState
 					
 					if (optimizeSpawnNote) {
 						if (!canBeHit && dunceNote.strum != null) dunceNote.followStrumNote(songSpeed / playbackRate);
-						else if (noteSpawnJudge) {
+						else {
 							if (dunceNote.mustPress)
 							{
 								if (cpuControlled && !dunceNote.blockHit && dunceNote.canBeHit || dunceNote.isSustainNote)
@@ -2656,15 +2657,6 @@ class PlayState extends MusicBeatState
 								dunceNote.clipToStrumNote();
 							
 							invalidateNote(dunceNote);
-						} else {
-							// Kill extremely late notes and cause misses
-							if (dunceNote.mustPress)
-							{
-								if (cpuControlled) goodNoteHit(dunceNote);
-							} else if (!dunceNote.hitByOpponent)
-								opponentNoteHit(dunceNote);
-
-							invalidateNote(dunceNote);
 						}
 					}
 				} else {
@@ -2673,12 +2665,8 @@ class PlayState extends MusicBeatState
 					skipNote = targetNote;
 				}
 				
-				unspawnNotes[totalCnt] = null;
-				++totalCnt;
-				if (unspawnNotes.length > totalCnt)
-					targetNote = unspawnNotes[totalCnt];
-				else
-					break;
+				unspawnNotes[totalCnt] = null; ++totalCnt;
+				if (unspawnNotes.length > totalCnt) targetNote = unspawnNotes[totalCnt]; else break;
 				isDisplay = targetNote.strumTime - Conductor.songPosition < shownTime;
 			}
 		}
