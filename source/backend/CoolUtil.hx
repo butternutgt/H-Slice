@@ -167,9 +167,9 @@ class CoolUtil
 			case 0: // floor
 				value = Math.ffloor(mod);
 			case 2: // ceil
-				value = Math.fround(mod);
-			case 1 | _: // round
 				value = Math.fceil(mod);
+			case 1 | _: // round
+				value = Math.fround(mod);
 		}
 
 		return value * down;

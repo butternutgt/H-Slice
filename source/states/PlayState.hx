@@ -350,8 +350,8 @@ class PlayState extends MusicBeatState
 	var showInfoType = ClientPrefs.data.showInfoType;
 
 	// songTime but it's based in nano second lmfao.
-	public var nanoTime:Float = 0;
-	public var elapsedNano:Float = 0;
+	public static var nanoTime:Float = 0;
+	public static var elapsedNano:Float = 0;
 	
 	public static var nextReloadAll:Bool = false;
 
@@ -1575,8 +1575,8 @@ class PlayState extends MusicBeatState
 	private var eventsPushed:Array<String> = [];
 	private var totalColumns:Int = 4;
 
-	var bfVocal:Bool = false; // a.k.a. legacy voices
-	var opVocal:Bool = false;
+	public var bfVocal:Bool = false; // a.k.a. legacy voices
+	public var opVocal:Bool = false;
 
 	private function generateSong():Void
 	{
@@ -2215,13 +2215,12 @@ class PlayState extends MusicBeatState
 		splashMoment.fill(0);
 
 		if (nanoPosition) {
-			// elapsedNano = Math.min(CoolUtil.getNanoTime() - nanoTime, FlxG.maxElapsed);
-			elapsedNano = CoolUtil.getNanoTime() - nanoTime;
+			elapsedNano = started ? CoolUtil.getNanoTime() - nanoTime : Math.min(CoolUtil.getNanoTime() - nanoTime, FlxG.maxElapsed);
 			globalElapsed = elapsedNano * playbackRate;
+			nanoTime = CoolUtil.getNanoTime();
 		} else {
 			globalElapsed = elapsed * playbackRate;
 		}
-		if (nanoPosition) nanoTime = CoolUtil.getNanoTime();
 		
 		if (startedCountdown && !paused) {
 			Conductor.songPosition += globalElapsed * 1000;
@@ -2600,6 +2599,8 @@ class PlayState extends MusicBeatState
 	}
 
 	var skipNote:Note = new Note(0, 0);
+	var isCanPass:Bool = false;
+	var isDisplay:Bool = false;
 	public function noteSpawn()
 	{
 		timeout = nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp();
@@ -2608,13 +2609,19 @@ class PlayState extends MusicBeatState
 			targetNote = unspawnNotes[totalCnt];
 			shownTime = showNotes ? targetNote.isSustainNote ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
 			shownRealTime = shownTime * 0.001;
-			while (targetNote.strumTime - Conductor.songPosition < shownTime)
+			isDisplay = targetNote.strumTime - Conductor.songPosition < shownTime;
+
+			while (isDisplay)
 			{
 				canBeHit = Conductor.songPosition > targetNote.strumTime;
 				tooLate = Conductor.songPosition > targetNote.strumTime + noteKillOffset;
-				noteSpawnJudge = !skipSpawnNote || !cpuControlled || !targetNote.isSustainNote ? !canBeHit : !tooLate;
+				noteSpawnJudge = !cpuControlled || !targetNote.isSustainNote ? !canBeHit : !tooLate;
 
-				if (noteSpawnJudge) {
+				if (keepNotes) 
+					 isCanPass = !skipSpawnNote || (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) > timeout || isDisplay;
+				else isCanPass = !skipSpawnNote || (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) > timeout;
+
+				if (isCanPass) {
 					dunceNote = targetNote;
 					dunceNote.spawned = true;
 	
@@ -2672,6 +2679,7 @@ class PlayState extends MusicBeatState
 					targetNote = unspawnNotes[totalCnt];
 				else
 					break;
+				isDisplay = targetNote.strumTime - Conductor.songPosition < shownTime;
 			}
 		}
 		safeTime = ((nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout) / shownRealTime * 100;
@@ -2765,6 +2773,7 @@ class PlayState extends MusicBeatState
 		opCombo += skipOp;
 		combo += skipBf;
 		skipCnt = skipOp + skipBf;
+		skipTotalCnt += skipCnt;
 
 		skipAnim.push(skipCnt > 0);
 		skipAnim.push(skipOp > 0);

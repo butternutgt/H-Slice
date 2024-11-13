@@ -433,7 +433,7 @@ class FreeplayState extends MusicBeatSubstate
 		add(grpCapsules);
 
 		grpFallbackDifficulty = new FlxText(70, 90, 250, "AAAAAAAAAAAAAA");
-		grpFallbackDifficulty.setFormat("VCR OSD Mono", 60, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		grpFallbackDifficulty.setFormat(Paths.font("vcr.ttf"), 60, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		grpFallbackDifficulty.borderSize = 2;
 		add(grpFallbackDifficulty);
 
@@ -500,7 +500,7 @@ class FreeplayState extends MusicBeatSubstate
 		fnfFreeplay.font = Paths.font("vcr.ttf");
 		fnfFreeplay.visible = false;
 
-		ostName.font = 'VCR OSD Mono';
+		ostName.font = Paths.font("vcr.ttf");
 		ostName.alignment = RIGHT;
 		ostName.visible = false;
 

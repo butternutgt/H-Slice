@@ -42,6 +42,7 @@ class PauseSubState extends MusicBeatSubstate
 	var cutscene_skipTxt:String = 'lol';
 
 	public static var songName:String = null;
+	var pSte:PlayState;
 
 	public function new(inCutscene:Bool = false,type:PauseType = PauseType.CUTSCENE) {
 		super();
@@ -56,6 +57,7 @@ class PauseSubState extends MusicBeatSubstate
 	}
 	override function create()
 	{
+		pSte = PlayState.instance;
 		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
 
 		if(PlayState.chartingMode)
@@ -63,7 +65,7 @@ class PauseSubState extends MusicBeatSubstate
 			menuItemsOG.insert(2, 'Leave Charting Mode');
 			
 			var num:Int = 0;
-			if(!PlayState.instance.startingSong)
+			if(!pSte.startingSong)
 			{
 				num = 1;
 				menuItemsOG.insert(3, 'Skip Time');
@@ -131,7 +133,7 @@ class PauseSubState extends MusicBeatSubstate
 		practiceText.setFormat(Paths.font('vcr.ttf'), 32);
 		practiceText.x = FlxG.width - (practiceText.width + 20);
 		practiceText.updateHitbox();
-		practiceText.visible = PlayState.instance.practiceMode;
+		practiceText.visible = pSte.practiceMode;
 		add(practiceText);
 
 		var chartingText:FlxText = new FlxText(20, 15 + 101, 0, Language.getPhrase("Charting Mode").toUpperCase(), 32);
@@ -305,9 +307,9 @@ class PauseSubState extends MusicBeatSubstate
 					deleteSkipTimeText();
 					regenMenu();
 				case 'Toggle Practice Mode':
-					PlayState.instance.practiceMode = !PlayState.instance.practiceMode;
+					pSte.practiceMode = !pSte.practiceMode;
 					PlayState.changedDifficulty = true;
-					practiceText.visible = PlayState.instance.practiceMode;
+					practiceText.visible = pSte.practiceMode;
 				case "Restart Song":
 					restartSong();
 				case "Leave Charting Mode":
@@ -323,26 +325,29 @@ class PauseSubState extends MusicBeatSubstate
 					{
 						if (curTime != Conductor.songPosition)
 						{
-							PlayState.instance.clearNotesBefore(curTime);
-							PlayState.instance.setSongTime(curTime);
+							pSte.clearNotesBefore(curTime);
+							pSte.setSongTime(curTime);
 						}
 						close();
 					}
 				case 'End Song':
 					close();
-					PlayState.instance.notes.clear();
-					PlayState.instance.unspawnNotes = [];
-					PlayState.instance.finishSong(true);
+					pSte.notes.clear();
+					pSte.unspawnNotes = [];
+					pSte.finishSong(true);
 				case 'Toggle Botplay':
-					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
+					pSte.cpuControlled = !pSte.cpuControlled;
 					PlayState.changedDifficulty = true;
-					PlayState.instance.botplayTxt.visible = PlayState.instance.cpuControlled;
-					PlayState.instance.botplayTxt.alpha = 1;
-					PlayState.instance.botplaySine = 0;
+					pSte.botplayTxt.visible = pSte.cpuControlled;
+					pSte.botplayTxt.alpha = 1;
+					pSte.botplaySine = 0;
 				case 'Options':
-					PlayState.instance.paused = true; // For lua
-					PlayState.instance.vocals.volume = 0;
-					PlayState.instance.canResync = false;
+					pSte.paused = true; // For lua
+					
+					if (pSte.bfVocal) pSte.vocals.volume = 0;
+					if (pSte.opVocal) pSte.opponentVocals.volume = 0;
+
+					pSte.canResync = false;
 					MusicBeatState.switchState(new OptionsState());
 					if(ClientPrefs.data.pauseMusic != 'None')
 					{
@@ -356,7 +361,7 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.deathCounter = 0;
 					PlayState.seenCutscene = false;
 
-					PlayState.instance.canResync = false;
+					pSte.canResync = false;
 					//! not yet
 					Mods.loadTopMod();
 					if (PlayState.isStoryMode)
@@ -409,9 +414,11 @@ class PauseSubState extends MusicBeatSubstate
 
 	public static function restartSong(noTrans:Bool = false)
 	{
-		PlayState.instance.paused = true; // For lua
+		var pSte = PlayState.instance;
+		pSte.paused = true; // For lua
 		FlxG.sound.music.volume = 0;
-		PlayState.instance.vocals.volume = 0;
+		if (pSte.bfVocal) pSte.vocals.volume = 0;
+		if (pSte.opVocal) pSte.opponentVocals.volume = 0;
 
 		if(noTrans)
 		{
@@ -493,7 +500,10 @@ class PauseSubState extends MusicBeatSubstate
 	function updateSkipTimeText()
 		skipTimeText.text = FlxStringUtil.formatTime(Math.max(0, Math.floor(curTime / 1000)), false) + ' / ' + FlxStringUtil.formatTime(Math.max(0, Math.floor(FlxG.sound.music.length / 1000)), false);
 
-	
+	override function close() {
+		PlayState.nanoTime = CoolUtil.getNanoTime();
+		super.close();
+	}
 }
 enum PauseSpecialAction {
 	NOTHING;
