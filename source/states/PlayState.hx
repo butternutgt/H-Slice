@@ -2616,7 +2616,7 @@ class PlayState extends MusicBeatState
 			{
 				canBeHit = Conductor.songPosition > targetNote.strumTime;
 				tooLate = Conductor.songPosition > targetNote.strumTime + noteKillOffset;
-				timeLimit = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) > timeout;
+				timeLimit = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout > shownRealTime;
 
 				if (keepNotes) 
 					 isCanPass = !skipSpawnNote || !timeLimit || !tooLate;

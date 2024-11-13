@@ -15,7 +15,7 @@ class BPMCache {
         }
         bpmMap[sngDataPath] = 0;
         if(!FileSystem.exists(sngDataPath)){
-            trace('Missing data folder for $fileSngName in $sngDataPath for BPM scrapping!!'); //TODO
+            #if debug trace('Missing data folder for $fileSngName in $sngDataPath for BPM scrapping!!'); #end //TODO
             return 0;
         }
         var chartFiles = FileSystem.readDirectory(sngDataPath)
@@ -29,10 +29,10 @@ class BPMCache {
                 bpmMap[sngDataPath] = Std.parseInt(bpmFinder.matched(1));
             } 
                 
-			else trace('failed to scrap initial BPM for $fileSngName');
+			#if debug else trace('failed to scrap initial BPM for $fileSngName'); #end
 		}
 		else{
-			trace('Missing chart of $fileSngName in $chosenChartToScrap for BPM scrapping!!'); //TODO
+			#if debug trace('Missing chart of $fileSngName in $chosenChartToScrap for BPM scrapping!!'); #end //TODO
 			
 		}
         return bpmMap[sngDataPath];
