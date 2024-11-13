@@ -1,4 +1,4 @@
-# FNF - H-Slice (HRK ENgine Redux)
+# FNF - H-Slice (HRK Engine Redux)
 This engine will implement some features inherited from my old Engine.  
 And add some new things.....?.....in the future.
 
