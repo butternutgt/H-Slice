@@ -138,6 +138,7 @@ class TitleState extends MusicBeatState
 		#else
 		if (FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
+			controls.isInSubstate = false;
 			FlxTransitionableState.skipNextTransIn = false;
 			FlxTransitionableState.skipNextTransOut = false;
 			MusicBeatState.switchState(new FlashingState());
