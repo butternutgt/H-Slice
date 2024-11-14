@@ -5,7 +5,8 @@ import cpp.vm.Gc;
 import flixel.FlxG;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
-import openfl.system.System;
+import openfl.system.System as OpenFlSystem;
+import lime.system.System as LimeSystem;
 
 #if flash
 import openfl.Lib;
@@ -16,6 +17,15 @@ import external.memory.Memory;
 	The FPS class provides an easy-to-use monitor to display
 	the current frame rate of an OpenFL project
 **/
+#if cpp
+#if windows
+@:cppFileCode('#include <windows.h>')
+#elseif (ios || mac)
+@:cppFileCode('#include <mach-o/arch.h>')
+#else
+@:headerInclude('sys/utsname.h')
+#end
+#end
 class FPSCounter extends TextField
 {
 	/**
@@ -41,12 +51,18 @@ class FPSCounter extends TextField
 	@:noCompletion private var cacheCount:Float;
 	@:noCompletion private var times:Array<Int>;
 
+	public var os:String = '';
+
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
 
-		this.x = x;
-		this.y = y;
+		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
+			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
+		else
+			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
+
+		positionFPS(x, y);
 
 		currentFPS = 0;
 		selectable = false;
@@ -85,7 +101,8 @@ class FPSCounter extends TextField
 		text = "FPS: " + currentFPS
 		+ "\nRAM: " + CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)
 		+ (" / " + CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true))
-		+ (" / " + CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true));
+		+ (" / " + CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true))
+		+ os;
 
 		textColor = Std.int(
 			0xFFFF0000 + 
@@ -97,4 +114,52 @@ class FPSCounter extends TextField
 		fpsTextLength = text.length;
 		cacheCount = times.length;
 	}
+
+	public inline function positionFPS(X:Float, Y:Float, ?scale:Float = 1){
+		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
+		x = FlxG.game.x + X;
+		y = FlxG.game.y + Y;
+	}
+
+	#if cpp
+	#if windows
+	@:functionCode('
+		SYSTEM_INFO osInfo;
+
+		GetSystemInfo(&osInfo);
+
+		switch(osInfo.wProcessorArchitecture)
+		{
+			case 9:
+				return ::String("x86_64");
+			case 5:
+				return ::String("ARM");
+			case 12:
+				return ::String("ARM64");
+			case 6:
+				return ::String("IA-64");
+			case 0:
+				return ::String("x86");
+			default:
+				return ::String("Unknown");
+		}
+	')
+	#elseif (ios || mac)
+	@:functionCode('
+		const NXArchInfo *archInfo = NXGetLocalArchInfo();
+    	return ::String(archInfo == NULL ? "Unknown" : archInfo->name);
+	')
+	#else
+	@:functionCode('
+		struct utsname osInfo{};
+		uname(&osInfo);
+		return ::String(osInfo.machine);
+	')
+	#end
+	@:noCompletion
+	private function getArch():String
+	{
+		return "Unknown";
+	}
+	#end
 }

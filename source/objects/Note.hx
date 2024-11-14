@@ -106,6 +106,7 @@ class Note extends FlxSprite
 		useRGBShader: (PlayState.SONG != null) ? !(PlayState.SONG.disableNoteRGB == true) : true,
 		a: ClientPrefs.data.splashAlpha
 	};
+	public var noteHoldSplash:SustainSplash;
 
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;

@@ -43,7 +43,7 @@ import flixel.input.gamepad.FlxGamepadInputID;
 
 import haxe.Json;
 import shaders.WiggleEffect;
-
+import mobile.psychlua.Functions;
 import mikolka.vslice.freeplay.FreeplayState;
 
 class FunkinLua {
@@ -1596,6 +1596,11 @@ class FunkinLua {
 		CustomSubstate.implement(this);
 		ShaderFunctions.implement(this);
 		DeprecatedFunctions.implement(this);
+		#if TOUCH_CONTROLS_ALLOWED
+		MobileFunctions.implement(this);
+		MobileDeprecatedFunctions.implement(this);
+		#end
+		#if android AndroidFunctions.implement(this); #end
 
 		for (name => func in customFunctions)
 		{
@@ -1614,8 +1619,8 @@ class FunkinLua {
 			var resultStr:String = Lua.tostring(lua, result);
 			if(resultStr != null && result != 0) {
 				trace(resultStr);
-				#if windows
-				lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
+				#if (desktop || mobile)
+				CoolUtil.showPopUp(resultStr, 'Error on lua script!');
 				#else
 				luaTrace('$scriptName\n$resultStr', true, false, FlxColor.RED);
 				#end
@@ -1680,6 +1685,11 @@ class FunkinLua {
 
 	public function set(variable:String, data:Dynamic) {
 		if(lua == null) {
+			return;
+		}
+
+		if (Reflect.isFunction(data)) {
+			Lua_helper.add_callback(lua, variable, data);
 			return;
 		}
 

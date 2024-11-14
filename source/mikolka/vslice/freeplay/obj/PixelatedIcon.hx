@@ -43,8 +43,37 @@ class PixelatedIcon extends FlxFilteredSprite
 				charPath += "icon-";
 				charPath += '${char}';
 
-				var image = Paths.image(charPath);
-				var healthIcon:Bool = false;
+        if (image == null) //TODO
+        {
+          trace('[WARN] Character ${char} has no freeplay icon.');
+          image = Paths.image("icons/icon-face");
+        }
+        this.loadGraphic(image,true,Math.floor(image.width / 2), Math.floor(image.height));
+        animation.add("idle",[0]);
+        animation.add("confirm",[1]);
+        this.scale.x = this.scale.y = 0.58;
+        this.updateHitbox();
+        this.origin.x = 100;
+        //animation.play("idle");
+      case PIXEL:
+        // legacy P-Slice freeplay icons
+        var image = Paths.image('freeplay/icons/${char}pixel');
+        this.loadGraphic(image);
+        this.scale.x = this.scale.y = 2;
+        this.updateHitbox();
+        animation.add("idle",[0]);
+        animation.add("confirm",[0]);
+        this.origin.x = 25;
+        if(char == "parents") this.origin.x = 55;
+      case ANIMATED:
+        // NEW freeplay animated icon
+        frames = FunkinPath.getSparrowAtlas('freeplay/icons/${char}pixel');
+        this.active = true;
+        this.scale.x = this.scale.y = 2;
+        this.updateHitbox();
+        this.animation.addByPrefix('idle', 'idle0', 10, true);
+        this.animation.addByPrefix('confirm', 'confirm0', 10, false);
+        this.animation.addByPrefix('confirm-hold', 'confirm-hold0', 10, true);
 
 				if (image == null) // TODO
 				{
