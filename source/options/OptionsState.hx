@@ -31,6 +31,7 @@ class OptionsState extends MusicBeatState
 	private var mainCam:FlxCamera;
 	private var camFollow:FlxObject;
 	private var camFollowPos:FlxObject;
+	public static var funnyCam:FlxCamera;
 
 	function openSelectedSubstate(label:String) {
 		if (label != "Adjust Delay and Combo")

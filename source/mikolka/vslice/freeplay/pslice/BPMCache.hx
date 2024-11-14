@@ -15,7 +15,7 @@ class BPMCache {
         }
         bpmMap[sngDataPath] = 0;
         if(!exists(sngDataPath)){
-            trace('Missing data folder for $fileSngName in $sngDataPath for BPM scrapping!!'); //TODO
+            #if debug trace('Missing data folder for $fileSngName in $sngDataPath for BPM scrapping!!'); #end //TODO
             return 0;
         }
         var chartFiles = Paths.readDirectory(sngDataPath);

@@ -2477,7 +2477,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	
 			if(section.changeBPM) bpm = section.bpm;
 			var beat:Float = Conductor.calculateCrochet(bpm);
-			#if debug trace(secBPM, beat); #end
+			#if debug trace(bpm, beat); #end
 			
 			cachedSectionRow.push(row);
 			cachedSectionTimes.push(time);
@@ -2776,7 +2776,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		for (i in 0...GRID_PLAYERS)
 		{
 			healthIcon = icons[i];
-			#if debug trace('changing iconP${icon.ID}'); #end
+			#if debug trace('changing iconP${healthIcon.ID}'); #end
 			healthIcon.changeIcon(Reflect.field(characterData, 'iconP${healthIcon.ID}'));
 		}
 

@@ -39,7 +39,7 @@ class FPSCounter extends TextField
 	var curTime:Float = 0;
 	var frameTime:Float = 0;
 	var multipleRate:Float = 1.0;
-	var updateRate:Float = 50;
+	public var updateRate:Float = 50;
 
 	/**
 		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
@@ -53,9 +53,16 @@ class FPSCounter extends TextField
 
 	public var os:String = '';
 
+	var deltaTimeout:Float = 0.0;
+	var delta:Int = 0;
+	var sliceCnt:Int = 0;
+	var sum:Int = 0;
+	var avg:Float = 0;
+
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
+		instance = this;
 
 		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
 			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
@@ -76,23 +83,33 @@ class FPSCounter extends TextField
 
 		cacheCount = 0;
 		times = [];
+		
+		deltaTimeout = avg = 0.0;
+		delta = sliceCnt = sum = 0;
 	}
-
-	var deltaTimeout:Float = 0.0;
 
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		updateRate = ClientPrefs.data.fpsRate;
-		final now:Int = Std.int(Timer.stamp() * 1000);
-		times.push(now);
-		while (times[0] < now - 1000) times.shift();
+		sliceCnt = 0;
+		delta = Math.round(deltaTime);
+		times.push(delta);
+		sum += delta;
+
+		while (sum > 1000) {
+			sum -= times[sliceCnt];
+			++sliceCnt;
+		}
+		if (sliceCnt > 0) times.splice(0, sliceCnt);
+
+		avg = times.length > 0 ? 1000 / (sum / times.length) : 0.0;
+		// trace(times.length, avg);
 
 		// prevents the overlay from updating every frame, why would you need to anyways @crowplexus
 		deltaTimeout += deltaTime;
-		if (deltaTimeout < 1 / updateRate) return;
+		if (deltaTimeout < 1000 / updateRate) return;
 		// Literally the stupidest thing i've done for the FPS counter but it allows it to update correctly when on 60 FPS??
-		currentFPS = Math.round((times.length + cacheCount) / 2) - 1;
+		currentFPS = Math.round(avg); //Math.round((times.length + cacheCount) * 0.5) - 1;
 		updateText();
 		deltaTimeout = 0.0;
 	}

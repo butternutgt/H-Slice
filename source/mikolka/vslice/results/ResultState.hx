@@ -811,7 +811,7 @@ class ResultState extends MusicBeatSubState
 
           shouldTween = true;
           controls.isInSubstate = FlxTransitionableState.skipNextTransOut = true;
-          targetState = FreeplayState.build(
+          targetState = NewFreeplayState.build(
             {
               {
                 fromResults:
@@ -830,7 +830,7 @@ class ResultState extends MusicBeatSubState
           FlxG.sound.pause(); //? fix sound
           shouldTween = false;
           controls.isInSubstate = shouldUseSubstate = true;
-          targetState = new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker));
+          targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
         }
       }
 

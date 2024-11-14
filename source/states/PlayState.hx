@@ -184,6 +184,7 @@ class PlayState extends MusicBeatState
 	var splashCount:Int = ClientPrefs.data.splashCount != 0 ? ClientPrefs.data.splashCount : 2147483647;
 	var splashOpponent:Bool = ClientPrefs.data.splashOpponent;
 	var enableSplash:Bool = ClientPrefs.data.splashAlpha != 0;
+	var enableHoldSplash:Bool = ClientPrefs.data.holdSplashAlpha != 0;
 
 	public var camZooming:Bool = false;
 	public var camZoomingMult:Float = 1;
@@ -642,8 +643,8 @@ class PlayState extends MusicBeatState
 
 		generateSong();
 
-		noteGroup.add(grpNoteSplashes);
-		noteGroup.add(grpHoldSplashes);
+		notesGroup.add(grpNoteSplashes);
+		notesGroup.add(grpHoldSplashes);
 
 		camFollow = new FlxObject();
 		camFollow.setPosition(camPos.x, camPos.y);
@@ -2777,8 +2778,13 @@ class PlayState extends MusicBeatState
 		skipAnim.push(skipOp > 0);
 		skipAnim.push(skipBf > 0);
 
-		if (skipAnim[0])
+		if (skipAnim[0]) {
 			doAnim(skipDaNote, skipAnim[1], skipAnim[2]);
+			if (showPopups) {
+				if (!changePopup && skipAnim[2]) popUpHitNote = skipDaNote;
+				else if (changePopup && skipAnim[0]) popUpHitNote = skipDaNote;
+			}
+		}
 
 		if (skipNoteScript && skipAnim[0]) {
 			skipArray = [0,Math.abs(skipDaNote.noteData), skipDaNote.noteType, skipDaNote.isSustainNote];
@@ -4000,102 +4006,45 @@ class PlayState extends MusicBeatState
 			popUpGroup.add(ratingPop);
 		}
 
-		if (ClientPrefs.data.popUpRating)
-		{
-			rating.loadGraphic(Paths.image(uiPrefix + daRating.image + uiPostfix));
-			rating.screenCenter();
-			rating.x = placement - 40;
-			rating.y -= 60;
-			rating.acceleration.y = 550 * playbackRate * playbackRate;
-			rating.velocity.y -= FlxG.random.int(140, 175) * playbackRate;
-			rating.velocity.x -= FlxG.random.int(0, 10) * playbackRate;
-			rating.visible = (!ClientPrefs.data.hideHud && showRating);
-			rating.x += ClientPrefs.data.comboOffset[0];
-			rating.y -= ClientPrefs.data.comboOffset[1];
-			rating.antialiasing = antialias;
-
-			var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'combo' + uiPostfix));
-			comboSpr.screenCenter();
-			comboSpr.x = placement;
-			comboSpr.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
-			comboSpr.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
-			comboSpr.visible = (!ClientPrefs.data.hideHud && showCombo);
-			comboSpr.x += ClientPrefs.data.comboOffset[0];
-			comboSpr.y -= ClientPrefs.data.comboOffset[1];
-			comboSpr.antialiasing = antialias;
-			comboSpr.y += 60;
-			comboSpr.velocity.x += FlxG.random.int(1, 10) * playbackRate;
-			comboGroup.add(rating);
-
-			if (!PlayState.isPixelStage)
-			{
-				rating.setGraphicSize(Std.int(rating.width * 0.7));
-				comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
-			}
-			else
-			{
-				rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
-				comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.85));
-			}
-
-			comboSpr.updateHitbox();
-			rating.updateHitbox();
-
-			var daLoop:Int = 0;
-			var xThing:Float = 0;
-			if (showCombo)
-				comboGroup.add(comboSpr);
-
-			var separatedScore:String = Std.string(combo).lpad('0', 3);
-			for (i in 0...separatedScore.length)
-			{
-				var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiPrefix + 'num' + Std.parseInt(separatedScore.charAt(i)) + uiPostfix));
-				numScore.screenCenter();
-				numScore.x = placement + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
-				numScore.y += 80 - ClientPrefs.data.comboOffset[3];
-
-				if (!PlayState.isPixelStage)
-					numScore.setGraphicSize(Std.int(numScore.width * 0.5));
-				else
-					numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
-				numScore.updateHitbox();
-
-				numScore.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
-				numScore.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
-				numScore.velocity.x = FlxG.random.float(-5, 5) * playbackRate;
-				numScore.visible = !ClientPrefs.data.hideHud;
-				numScore.antialiasing = antialias;
-
-				// if (combo >= 10 || combo == 0)
-				if (showComboNum)
-					comboGroup.add(numScore);
-
-				FlxTween.tween(numScore, {alpha: 0}, 0.2 / playbackRate, {
-					onComplete: function(tween:FlxTween)
-					{
-						numScore.destroy();
-					},
-					startDelay: Conductor.crochet * 0.002 / playbackRate
-				});
-
-				daLoop++;
-				if (numScore.x > xThing)
-					xThing = numScore.x;
-			}
-			comboSpr.x = xThing + 50;
-			FlxTween.tween(rating, {alpha: 0}, 0.2 / playbackRate, {
-				startDelay: Conductor.crochet * 0.001 / playbackRate
-			});
-
-			FlxTween.tween(comboSpr, {alpha: 0}, 0.2 / playbackRate, {
-				onComplete: function(tween:FlxTween)
-				{
-					comboSpr.destroy();
-					rating.destroy();
-				},
-				startDelay: Conductor.crochet * 0.002 / playbackRate
-			});
+		if (showCombo && combo >= 10) {
+			comboPop = popUpGroup.recycle(Popup);
+			comboPop.setupComboData(uiPrefix + 'combo' + uiPostfix);
+			comboPop.comboOtherStuff();
+			popUpGroup.add(comboPop);
 		}
+
+		if (showComboNum) {
+			while(tempCombo >= 10) {
+				seperatedScore.unshift(Std.int(tempCombo / 10) % 10);
+				tempCombo = Std.int(tempCombo / 10);
+			}
+			seperatedScore.push(tempNotes % 10);
+
+			for (i in seperatedScore)
+			{	
+				if (changePopup || combo >= 10 || combo == 0) {
+					numScore = popUpGroup.recycle(Popup);
+					numScore.setupNumberData(uiPrefix + 'num' + Std.int(i) + uiPostfix, daloop, tempNotes);
+
+					if (showComboNum) popUpGroup.add(numScore);
+
+					numScore.numberOtherStuff();
+
+					if (numScore.x > xThing) xThing = numScore.x;
+					++daloop;
+				}
+			}
+		}
+
+		// sorting shits
+		popUpGroup.sort((order, p1, p2) -> 
+			{
+				return FlxSort.byValues(FlxSort.ASCENDING, p1.popUpTime, p2.popUpTime);
+			}
+		);
+
+		for (i in seperatedScore) i = null;
+		daloop = null; tempCombo = xThing = null;
 	}
 
 	public var strumsBlocked:Array<Bool> = [];
@@ -4480,7 +4429,7 @@ class PlayState extends MusicBeatState
 
 				if (char != null)
 				{
-					canPlay = !note.isSustainNote || !sustainAnim;
+					canPlay = !note.isSustainNote || sustainAnim;
 					if (note.isSustainNote)
 					{
 						holdAnim = animToPlay + '-hold';
@@ -4501,9 +4450,32 @@ class PlayState extends MusicBeatState
 		if (opVocal) opponentVocals.volume = ClientPrefs.data.bgmVolume;
 		strumPlayAnim(true, note.noteData);
 
-		spawnHoldSplashOnNote(note);
+		note.hitByOpponent = true;
 
-		if (!note.isSustainNote) invalidateNote(note);
+		stagesFunc(stage -> stage.goodNoteHit(note));
+
+		if (noteHitEvent) {
+			result = callOnLuas('opponentNoteHit', [
+				notes.members.indexOf(note),
+				Math.abs(note.noteData),
+				note.noteType,
+				note.isSustainNote
+			]);
+			if (result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll)
+				callOnHScript('opponentNoteHit', [note]);
+			result = null;
+		}
+
+		if (enableSplash && splashOpponent && !note.noteSplashData.disabled) 
+			spawnHoldSplashOnNote(note);
+
+		if (!note.isSustainNote) {
+			if (enableSplash && splashOpponent && !note.noteSplashData.disabled && !note.isSustainNote) spawnNoteSplashOnNote(note);
+			
+			++opCombo; ++opSideHit; daHit = true;
+			if (showPopups && changePopup) popUpHitNote = note;
+			invalidateNote(note);
+		}
 	}
 
 	var animCheck:String;
@@ -4553,7 +4525,7 @@ class PlayState extends MusicBeatState
 
 				if (char != null)
 				{
-					canPlay = !note.isSustainNote || !sustainAnim;
+					canPlay = !note.isSustainNote || sustainAnim;
 					if (note.isSustainNote)
 					{
 						holdAnim = animToPlay + '-hold';
@@ -4589,9 +4561,7 @@ class PlayState extends MusicBeatState
 
 			if (!note.isSustainNote)
 			{
-				++combo;
-				++bfSideHit;
-				globalNoteHit = true;
+				++combo; ++bfSideHit; globalNoteHit = true;
 				maxCombo = Math.max(maxCombo, combo);
 				if (showPopups) popUpHitNote = note;
 				addScore(note);
@@ -4620,12 +4590,29 @@ class PlayState extends MusicBeatState
 
 			noteMiss(note);
 		}
+		if (enableSplash && !note.noteSplashData.disabled) {
+			spawnHoldSplashOnNote(note);
+			if (!note.isSustainNote) spawnNoteSplashOnNote(note);
+		}
 
-		stagesFunc(function(stage:BaseStage) stage.goodNoteHit(note));
-		var result:Dynamic = callOnLuas('goodNoteHit', [notes.members.indexOf(note), leData, leType, isSus]);
-		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('goodNoteHit', [note]);
-		spawnHoldSplashOnNote(note);
-		if(!note.isSustainNote) invalidateNote(note);
+		stagesFunc(stage -> stage.goodNoteHit(note));
+
+		if (noteHitEvent) {
+			result = callOnLuas('goodNoteHit', 
+				[
+					notes.members.indexOf(note),
+					Math.round(Math.abs(note.noteData)),
+					note.noteType,
+					note.isSustainNote
+				]
+			);
+
+			if (result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll)
+				callOnHScript('goodNoteHit', [note]);
+			result = null;
+		}
+		
+		if (!note.isSustainNote) invalidateNote(note);
 	}
 
 	public function invalidateNote(note:Note):Void {
@@ -4635,29 +4622,58 @@ class PlayState extends MusicBeatState
 	}
 
 	public function spawnHoldSplashOnNote(note:Note) {
-		if (ClientPrefs.data.holdSplashAlpha <= 0)
-			return;
+		if (ClientPrefs.data.holdSplashAlpha <= 0) return;
 
-		if (note != null) {
-			var strum:StrumNote = (note.mustPress ? playerStrums : opponentStrums).members[note.noteData];
-
-			if(strum != null && note.tail.length != 0)
-				spawnHoldSplash(note);
-		}
+		if (note != null)
+			if(note.strum != null) 
+				if(note.tail.length != 0)
+					spawnHoldSplash(note);
 	}
+
+	var sustainEnd:Note = null;
+	var susplash:SustainSplash = null;
+	var cnt:Int = 0;
 
 	public function spawnHoldSplash(note:Note) {
-		var end:Note = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
-		var splash:SustainSplash = grpHoldSplashes.recycle(SustainSplash);
-		splash.setupSusSplash((note.mustPress ? playerStrums : opponentStrums).members[note.noteData], note, playbackRate);
-		grpHoldSplashes.add(end.noteHoldSplash = splash);
+		sustainEnd = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
+		susplash = grpHoldSplashes.recycle(SustainSplash);
+		susplash.setupSusSplash(note.strum, note, playbackRate);
+		grpHoldSplashes.add(sustainEnd.noteHoldSplash = susplash);
 	}
+	
+	var splashNoteData:Int = 0;
+	var frames:Int = -1;
+	var frameId:Int = -1;
+	var targetSplash:NoteSplash = null;
+	var splashStrum:StrumNote;
 
-	public function spawnNoteSplashOnNote(note:Note) {
-		if(note != null) {
-			var strum:StrumNote = playerStrums.members[note.noteData];
-			if(strum != null)
-				spawnNoteSplash(note, strum);
+	public function spawnNoteSplashOnNote(note:Note)
+	{
+		if (!note.mustPress && !splashOpponent)
+			return;
+		splashNoteData = note.noteData + (note.mustPress ? 4 : 0);
+		if (splashMoment[splashNoteData] < splashCount)
+		{
+			frameId = frames = -1;
+			splashStrum = note.mustPress ? playerStrums.members[note.noteData] : opponentStrums.members[note.noteData];
+			if (note.strum != splashStrum) note.strum = splashStrum;
+			
+			if (splashUsing[splashNoteData].length >= splashCount)
+			{
+				for (index => splash in splashUsing[splashNoteData])
+				{
+					if (splash.alive && frames < splash.animation.curAnim.curFrame)
+					{
+						frames = splash.animation.curAnim.curFrame;
+						frameId = index;
+						targetSplash = splash;
+					}
+				}
+				// trace(splashNoteData, splashUsing[splashNoteData].length, frameId);
+				if (frameId != -1) targetSplash.killLimit(frameId);
+			}
+			spawnNoteSplash(note, splashNoteData);
+			++splashMoment[splashNoteData];
 		}
 	}
 

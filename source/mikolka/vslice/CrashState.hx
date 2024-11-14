@@ -1,5 +1,6 @@
 package mikolka.vslice;
 
+import flixel.FlxGame;
 import mikolka.compatibility.VsliceOptions;
 import mikolka.compatibility.ModsHelper;
 import flixel.FlxState;
@@ -34,8 +35,7 @@ class CrashState extends FlxState
 	{
 		if (Main.fpsVar != null)
 			Main.fpsVar.visible = false;
-		if (Main.memoryCounter != null)
-			Main.memoryCounter.visible = false;
+		
 		super.create();
 		var previousScreen = new FlxSprite(0, 0, screenBelow);
 		previousScreen.setGraphicSize(FlxG.width,FlxG.height);
@@ -53,6 +53,8 @@ class CrashState extends FlxState
 		#if DISCORD_ALLOWED
 		DiscordClient.shutdown();
 		#end
+
+		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
 	function collectErrorData():CrashData
@@ -105,16 +107,19 @@ class CrashState extends FlxState
 		{
 			TitleState.initialized = false;
 			TitleState.closedState = false;
-			#if LEGACY_PSYCH
-			if (Main.fpsVar != null) Main.fpsVar.visible = ClientPrefs.showFPS;
-			if (Main.memoryCounter != null) Main.memoryCounter.visible = ClientPrefs.showFPS;
-			#else
+			// #if LEGACY_PSYCH
+			// if (Main.fpsVar != null) Main.fpsVar.visible = ClientPrefs.showFPS;
+			// if (Main.fpsBg != null) Main.fpsBg.visible = ClientPrefs.showFPS;
+			// #else
 			if (Main.fpsVar != null) Main.fpsVar.visible = ClientPrefs.data.showFPS;
-			if (Main.memoryCounter != null) Main.memoryCounter.visible = ClientPrefs.data.showFPS;
-			#end
+			if (Main.fpsBg != null) Main.fpsBg.visible = ClientPrefs.data.showFPS;
+			// #end
 			FlxG.sound.pause();
 			FlxTween.globalManager.clear();
 			FlxG.resetGame();
+		}
+		if (FlxG.keys.justPressed.ESCAPE) {
+			Sys.exit(1);
 		}
 	}
 
@@ -154,7 +159,7 @@ class CrashState extends FlxState
 			printToTrace('MOD:${error.activeMod.rpad(" ",10)} PE:${MainMenuState.psychEngineVersion.rpad(" ", 5)} SYS:${error.systemName}');
 			printSpaceToTrace();
 			printToTrace('REPORT TO GITHUB.COM/MIKOLKA9144/P-SLICE');
-			printToTrace('PRESS ENTER TO RESTART');
+			printToTrace('PRESS ENTER TO RESTART / ESC TO EXIT');
 		});
 	}
 

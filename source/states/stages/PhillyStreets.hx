@@ -576,7 +576,7 @@ class PhillyStreets extends PicoCapableStage
 			changeLights(curBeat);
 	}
 
-	function changeLights(beat:Int):Void
+	function changeLights(beat:Float):Void
 	{
 		lastChange = beat;
 		lightsStop = !lightsStop;

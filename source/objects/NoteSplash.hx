@@ -6,6 +6,8 @@ import shaders.RGBPalette;
 
 import states.editors.NoteSplashEditorState;
 
+
+
 private typedef RGB = {
 	r:Null<Int>,
 	g:Null<Int>,

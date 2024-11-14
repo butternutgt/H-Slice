@@ -1303,6 +1303,7 @@ class FreeplayState extends MusicBeatSubstate
 	override function closeSubState()
 	{
 		super.closeSubState();
+		persistentUpdate = true;
 		controls.isInSubstate = true;
 
 		#if TOUCH_CONTROLS_ALLOWED
@@ -1848,11 +1849,6 @@ class FreeplayState extends MusicBeatSubstate
 			persistentUpdate = false;
 			openSubState(new GameplayChangersSubstate());
 		}
-	}
-
-	override function closeSubState() {
-		persistentUpdate = true;
-		super.closeSubState();
 	}
 
 	override function beatHit()

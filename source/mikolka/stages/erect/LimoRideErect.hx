@@ -38,7 +38,7 @@ class LimoRideErect extends BaseStage
 	var mist4:FlxBackdrop;
 	var mist5:FlxBackdrop;
 
-	var shootingStarBeat:Int = 0;
+	var shootingStarBeat:Float = 0;
 	var shootingStarOffset:Int = 2;
 	var star:BGSprite;
 
@@ -348,7 +348,7 @@ class LimoRideErect extends BaseStage
 		}
 	}
 
-	function doShootingStar(beat:Int):Void
+	function doShootingStar(beat:Float):Void
 	{
 		star.x = FlxG.random.int(50, 900);
 		star.y = FlxG.random.int(-10, 20);

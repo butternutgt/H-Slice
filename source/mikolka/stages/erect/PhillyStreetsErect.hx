@@ -304,7 +304,7 @@ class PhillyStreetsErect extends BaseStage
         }
     
         var lightsStop:Bool = false;
-        var lastChange:Int = 0;
+        var lastChange:Float = 0;
         var changeInterval:Int = 8;
     
         var carWaiting:Bool = false;
@@ -334,7 +334,7 @@ class PhillyStreetsErect extends BaseStage
                 changeLights(curBeat);
         }
     
-        function changeLights(beat:Int):Void
+        function changeLights(beat:Float):Void
         {
             lastChange = beat;
             lightsStop = !lightsStop;

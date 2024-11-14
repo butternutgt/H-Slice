@@ -118,19 +118,26 @@ class AttractState extends MusicBeatSubstate
 	}
 	#end
 
-    // If the user presses any button, skip the video.
-    #if LEGACY_PSYCH
-    if (TouchUtil.justPressed || FlxG.keys.justPressed.ANY && 
-      !FlxG.keys.anyJustPressed(TitleState.muteKeys) && 
-      !FlxG.keys.anyJustPressed(TitleState.volumeDownKeys) && 
-      !FlxG.keys.anyJustPressed(TitleState.volumeUpKeys))
-    #else
-    if (TouchUtil.justPressed || FlxG.keys.justPressed.ANY && !controls.justPressed("volume_up") && !controls.justPressed("volume_down") && !controls.justPressed("volume_mute"))
-    #end
-    {
-      onAttractEnd();
-    }
-  }
+	public override function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
+		// If the user presses any button, skip the video.
+		#if LEGACY_PSYCH
+		if (TouchUtil.justPressed
+			|| FlxG.keys.justPressed.ANY
+			&& !FlxG.keys.anyJustPressed(TitleState.muteKeys)
+			&& !FlxG.keys.anyJustPressed(TitleState.volumeDownKeys)
+			&& !FlxG.keys.anyJustPressed(TitleState.volumeUpKeys))
+		#else
+		if (TouchUtil.justPressed
+			|| FlxG.keys.justPressed.ANY
+			&& !controls.justPressed("volume_up")
+			&& !controls.justPressed("volume_down")
+			&& !controls.justPressed("volume_mute"))
+		#end
+		{
+			onAttractEnd();
+		}
 
 		// If the user presses any button, skip the video.
 		#if LEGACY_PSYCH

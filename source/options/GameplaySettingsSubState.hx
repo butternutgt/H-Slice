@@ -214,6 +214,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		if(pastValue != sfxVolume.getValue()) {
 			if(holdTime - rateHold > 0.05 || holdTime <= 0.5) {
 				rateHold = holdTime;
+				FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.hitsoundVolume);
 			}
 			pastValue = sfxVolume.getValue();
 		}

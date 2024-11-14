@@ -33,6 +33,7 @@ class SustainSplash extends FlxSprite
 
 			if (animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static")
 			{
+				trace("bye");
 				x = -50000;
 				kill();
 			}
@@ -44,6 +45,8 @@ class SustainSplash extends FlxSprite
 		final lengthToGet:Int = !daNote.isSustainNote ? daNote.tail.length : daNote.parent.tail.length;
 		final timeToGet:Float = !daNote.isSustainNote ? daNote.strumTime : daNote.parent.strumTime;
 		final timeThingy:Float = (startCrochet * lengthToGet + (timeToGet - Conductor.songPosition + ClientPrefs.data.ratingOffset)) / playbackRate * .001;
+
+		// trace(lengthToGet, timeToGet, timeThingy);
 
 		var tailEnd:Note = !daNote.isSustainNote ? daNote.tail[daNote.tail.length - 1] : daNote.parent.tail[daNote.parent.tail.length - 1];
 
@@ -69,7 +72,7 @@ class SustainSplash extends FlxSprite
 		if (timer != null)
 			timer.cancel();
 
-		if (!daNote.hitByOpponent && ClientPrefs.data.holdSplashAlpha != 0)
+		// if (!daNote.hitByOpponent && !daNote.wasGoodHit && ClientPrefs.data.holdSplashAlpha != 0)
 			timer = new FlxTimer().start(timeThingy, (idk:FlxTimer) ->
 			{
 				if (!(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && animation != null)
@@ -79,12 +82,16 @@ class SustainSplash extends FlxSprite
 					animation.curAnim.looped = false;
 					animation.curAnim.frameRate = 24;
 					clipRect = null;
-					animation.finishCallback = (idkEither:Dynamic) -> {
-						kill();
-					}
+					animation.finishCallback = idkEither -> kill();
+					trace("hi");
 					return;
 				}
+				trace("what");
 				kill();
 			});
+	}
+
+	override function kill() {
+		super.kill();
 	}
 }
