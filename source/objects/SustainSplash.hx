@@ -31,9 +31,11 @@ class SustainSplash extends FlxSprite
 			visible = strumNote.visible;
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 
+			// trace(animation.curAnim.name, strumNote.animation.curAnim.name);
+
 			if (animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static")
 			{
-				trace("bye");
+				// trace("bye");
 				x = -50000;
 				kill();
 			}
@@ -83,10 +85,10 @@ class SustainSplash extends FlxSprite
 					animation.curAnim.frameRate = 24;
 					clipRect = null;
 					animation.finishCallback = idkEither -> kill();
-					trace("hi");
+					// trace("hi");
 					return;
 				}
-				trace("what");
+				// trace("what");
 				kill();
 			});
 	}

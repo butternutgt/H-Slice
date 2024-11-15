@@ -2517,6 +2517,19 @@ class PlayState extends MusicBeatState
 				// case 'Note Info':
 				// 	info = CoolUtil.hex2bin(noteDataInfo.hex(4));
 				// 	if (dunceNote != null) info += '\nX:${fillNum(dunceNote.x, 5, 32)}, W:${fillNum(dunceNote.width, 5, 32)}, Offset:${fillNum(dunceNote.offset.x, 5, 32)}';
+				case 'Strums Info':
+					var additional:Int = 0;
+					for (strums in [opponentStrums, playerStrums]) {
+						for (strum in strums) {
+							switch(strum.animation.curAnim.name) {
+								case "static": additional = 0;
+								case "press": additional = 1;
+								case "confirm": additional = 2;
+							}
+							info += ', $additional';
+						}
+					}
+					info = info.substr(2);
 				case 'Song Info':
 					info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat+1,0)}/${Math.max(curStep+1,0)}, Update Cnt: ${updateMaxSteps}';
 				case 'Music Sync Info':
@@ -2557,7 +2570,7 @@ class PlayState extends MusicBeatState
 		} else {
 			infoTxt.text = null;
 		}
-		
+
 		updateScoreText();
 
 		#if debug
@@ -4611,7 +4624,7 @@ class PlayState extends MusicBeatState
 				callOnHScript('goodNoteHit', [note]);
 			result = null;
 		}
-		
+
 		if (!note.isSustainNote) invalidateNote(note);
 	}
 
@@ -4633,11 +4646,17 @@ class PlayState extends MusicBeatState
 	var sustainEnd:Note = null;
 	var susplash:SustainSplash = null;
 	var cnt:Int = 0;
+	var holdSplashStrum:StrumNote = null;
 
 	public function spawnHoldSplash(note:Note) {
 		sustainEnd = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
 		susplash = grpHoldSplashes.recycle(SustainSplash);
+
+		holdSplashStrum = note.mustPress ? playerStrums.members[note.noteData] : opponentStrums.members[note.noteData];
+		if (note.strum != splashStrum) note.strum = holdSplashStrum;
+
 		susplash.setupSusSplash(note.strum, note, playbackRate);
+		susplash.strumNote = note.strum;
 		grpHoldSplashes.add(sustainEnd.noteHoldSplash = susplash);
 	}
 	

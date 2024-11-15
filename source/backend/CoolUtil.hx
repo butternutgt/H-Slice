@@ -8,14 +8,19 @@ import lime.utils.Assets as LimeAssets;
 @:cppFileCode('
 	#include <stdlib.h>
 	#include <stdio.h>
-	#include <iostream>
 	#include <string>
 	#include <windows.h>
+	
+	#include <iostream>
+	#include <chrono>
+	
+	using namespace std::chrono;
 ')
 #else
 @:cppFileCode('
 	#include <stdlib.h>
 	#include <string>
+	#include <chrono>
 ')
 #end
 
@@ -227,21 +232,33 @@ class CoolUtil
 		return list;
 	}
 
-	@:functionCode('
-		LARGE_INTEGER freq;
-		LARGE_INTEGER time;
+	// @:functionCode('
+	// 	LARGE_INTEGER freq;
+	// 	LARGE_INTEGER time;
 
-		QueryPerformanceFrequency(&freq);
-		QueryPerformanceCounter(&time);
+	// 	QueryPerformanceFrequency(&freq);
+	// 	QueryPerformanceCounter(&time);
 
-		if (freq.QuadPart == 0L || time.QuadPart == 0L) return 0;
-		double get = static_cast<double>(time.QuadPart) / freq.QuadPart;
+	// 	if (freq.QuadPart == 0L || time.QuadPart == 0L) return 0;
+	// 	double get = static_cast<double>(time.QuadPart) / freq.QuadPart;
 
-		return get;
+	// 	return get;
+	// ')
+
+	@:functionCode('		
+		// 現在時刻を取得
+		auto now = std::chrono::high_resolution_clock::now();
+		
+		// エポックからの経過時間をdurationとして取得（秒単位に変換）
+		auto duration = now.time_since_epoch();
+		auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(duration);
+		
+		// 秒数をdoubleとして返す
+		return seconds.count();
 	')
 	static public function getNanoTime():Float64
 	{
-		return 0;
+		return -1;
 	}
 	
 	// stolen and modded from FlxStringUtil
