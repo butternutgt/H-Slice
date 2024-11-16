@@ -198,6 +198,10 @@ class FreeplayState extends MusicBeatState
 		changeSelection();
 		updateTexts();
 		super.create();
+		
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('LEFT_FULL', 'A_B_X_Y');
+		#end
 	}
 
 	override function closeSubState()
@@ -205,6 +209,11 @@ class FreeplayState extends MusicBeatState
 		changeSelection(0, false);
 		persistentUpdate = true;
 		super.closeSubState();
+		
+		#if TOUCH_CONTROLS_ALLOWED
+		removeTouchPad();
+		addTouchPad('LEFT_FULL', 'A_B_X_Y');
+		#end
 	}
 
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int)
