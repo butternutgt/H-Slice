@@ -2751,7 +2751,7 @@ class PlayState extends MusicBeatState
 									if (cpuControlled)
 										goodNoteHit(daNote);
 									else if (!daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit)) {
-										trace(noteKillOffset, Conductor.stepCrochet);
+										// trace(noteKillOffset, Conductor.stepCrochet);
 										noteMiss(daNote);
 									}
 								} else if (!daNote.hitByOpponent)
@@ -4055,11 +4055,15 @@ class PlayState extends MusicBeatState
 		}
 
 		// sorting shits
-		popUpGroup.sort((order, p1, p2) -> 
-			{
-				return FlxSort.byValues(FlxSort.ASCENDING, p1.popUpTime, p2.popUpTime);
+		// try {
+		popUpGroup.sort(
+			(order, p1, p2) -> {
+				if (p1 != null && p2 != null) {
+					return FlxSort.byValues(FlxSort.ASCENDING, p1.popUpTime, p2.popUpTime);
+				} else return 0;
 			}
 		);
+		// } catch (e:haxe.Exception) { trace(popUpGroup.length); } // idk why but popUpGroup became null some cases
 
 		for (i in seperatedScore) i = null;
 		daloop = null; tempCombo = xThing = null;
