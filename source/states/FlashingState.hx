@@ -30,6 +30,7 @@ class FlashingState extends MusicBeatState
 			32);
 		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
+		warnText.antialiasing = ClientPrefs.data.antialiasing;
 		add(warnText);
 		#if TOUCH_CONTROLS_ALLOWED
 		addTouchPad('NONE', 'A_B');

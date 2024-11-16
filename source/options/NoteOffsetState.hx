@@ -76,6 +76,7 @@ class NoteOffsetState extends MusicBeatState
 		coolText = new FlxText(0, 0, 0, '', 32);
 		coolText.screenCenter();
 		coolText.x = FlxG.width * 0.35;
+		coolText.antialiasing = ClientPrefs.data.antialiasing;
 
 		rating = new FlxSprite().loadGraphic(Paths.image('sick'));
 		rating.cameras = [camHUD];
@@ -135,6 +136,7 @@ class NoteOffsetState extends MusicBeatState
 		timeTxt.borderSize = 2;
 		timeTxt.visible = false;
 		timeTxt.cameras = [camHUD];
+		timeTxt.antialiasing = ClientPrefs.data.antialiasing;
 
 		barPercent = ClientPrefs.data.noteOffset;
 		updateNoteDelay();
@@ -161,6 +163,7 @@ class NoteOffsetState extends MusicBeatState
 		changeModeText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		changeModeText.scrollFactor.set();
 		changeModeText.cameras = [camHUD];
+		changeModeText.antialiasing = ClientPrefs.data.antialiasing;
 		add(changeModeText);
 		
 		controllerPointer = new FlxShapeCircle(0, 0, 20, {thickness: 0}, FlxColor.WHITE);
@@ -514,6 +517,7 @@ class NoteOffsetState extends MusicBeatState
 			text.borderSize = 2;
 			dumbTexts.add(text);
 			text.cameras = [camHUD];
+			text.antialiasing = ClientPrefs.data.antialiasing;
 
 			if(i%2 == 1)
 			{

@@ -576,6 +576,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			"Ctrl + S - Quicksave",
 		].join('\n');
 		fullTipText.screenCenter();
+		fullTipText.antialiasing = ClientPrefs.data.antialiasing;
 		add(fullTipText);
 
 		#if TOUCH_CONTROLS_ALLOWED

@@ -295,6 +295,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		posTxt.cameras = [camHUD];
 		posTxt.screenCenter(X);
 		posTxt.visible = false;
+		posTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(posTxt);
 
 		outputTxt = new FlxText(0, 0, 800, '', 24);

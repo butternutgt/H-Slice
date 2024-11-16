@@ -450,6 +450,7 @@ class FreeplayState extends MusicBeatSubstate
 		grpFallbackDifficulty = new FlxText(70, 90, 250, "AAAAAAAAAAAAAA");
 		grpFallbackDifficulty.setFormat(Paths.font("vcr.ttf"), 60, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		grpFallbackDifficulty.borderSize = 2;
+		grpFallbackDifficulty.antialiasing = ClientPrefs.data.antialiasing;
 		add(grpFallbackDifficulty);
 
 		grpDifficulties = new FlxTypedSpriteGroup<DifficultySprite>(-300, 80);
@@ -514,16 +515,19 @@ class FreeplayState extends MusicBeatSubstate
 		var fnfFreeplay:FlxText = new FlxText(8, 8, 0, 'FREEPLAY', 48);
 		fnfFreeplay.font = Paths.font("vcr.ttf");
 		fnfFreeplay.visible = false;
+		fnfFreeplay.antialiasing = ClientPrefs.data.antialiasing;
 
 		ostName.font = Paths.font("vcr.ttf");
 		ostName.alignment = RIGHT;
 		ostName.visible = false;
+		ostName.antialiasing = ClientPrefs.data.antialiasing;
 
 		charSelectHint.alignment = CENTER;
 		charSelectHint.font = "5by7";
 		charSelectHint.color = 0xFF5F5F5F;
 		charSelectHint.text = controls.mobileC ? 'Touch on the DJ to change characters' : 'Press [ TAB ] to change characters'; // ?! ${controls.getDialogueNameFromControl(FREEPLAY_CHAR_SELECT, true)}
 		charSelectHint.y -= 100;
+		charSelectHint.antialiasing = ClientPrefs.data.antialiasing;
 		FlxTween.tween(charSelectHint, {y: charSelectHint.y + 100}, 0.8, {ease: FlxEase.quartOut});
 
 		exitMovers.set([overhangStuff, fnfFreeplay, ostName, charSelectHint], {
@@ -645,6 +649,7 @@ class FreeplayState extends MusicBeatSubstate
 		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		missingText.scrollFactor.set();
 		missingText.visible = false;
+		missingText.antialiasing = ClientPrefs.data.antialiasing;
 
 		// be careful not to "add()" things in here unless it's to a group that's already added to the state
 		// otherwise it won't be properly attatched to funnyCamera (relavent code should be at the bottom of create())

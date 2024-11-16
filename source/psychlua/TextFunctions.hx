@@ -14,6 +14,7 @@ class TextFunctions
 			if(PlayState.instance != null) leText.cameras = [PlayState.instance.camHUD];
 			leText.scrollFactor.set();
 			leText.borderSize = 2;
+			leText.antialiasing = ClientPrefs.data.antialiasing;
 			MusicBeatState.getVariables().set(tag, leText);
 		});
 

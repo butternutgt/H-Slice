@@ -109,11 +109,14 @@ class MainMenuState extends MusicBeatState
 		hrkVer.scrollFactor.set();
 		psychVer.scrollFactor.set();
 		fnfVer.scrollFactor.set();
+		
+		hrkVer.antialiasing = ClientPrefs.data.antialiasing;
+		psychVer.antialiasing = ClientPrefs.data.antialiasing;
+		fnfVer.antialiasing = ClientPrefs.data.antialiasing;
 
 		add(hrkVer);
 		add(psychVer);
 		add(fnfVer);
-		//var fnfVer:FlxText = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' ", 12);
 	
 		changeItem();
 

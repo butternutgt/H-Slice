@@ -69,6 +69,7 @@ class MasterEditorMenu extends MusicBeatState
 		directoryTxt = new FlxText(textBG.x, textBG.y + 4, FlxG.width, '', 32);
 		directoryTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		directoryTxt.scrollFactor.set();
+		directoryTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(directoryTxt);
 
 		for (folder in Mods.getModDirectories())

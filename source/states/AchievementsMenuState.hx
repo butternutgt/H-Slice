@@ -100,10 +100,12 @@ class AchievementsMenuState extends MusicBeatState
 		nameText = new FlxText(50, box.y + 10, FlxG.width - 100, "", 32);
 		nameText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		nameText.scrollFactor.set();
+		nameText.antialiasing = ClientPrefs.data.antialiasing;
 
 		descText = new FlxText(50, nameText.y + 38, FlxG.width - 100, "", 24);
 		descText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER);
 		descText.scrollFactor.set();
+		descText.antialiasing = ClientPrefs.data.antialiasing;
 
 		progressBar = new Bar(0, descText.y + 52);
 		progressBar.screenCenter(X);
@@ -114,6 +116,7 @@ class AchievementsMenuState extends MusicBeatState
 		progressTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		progressTxt.scrollFactor.set();
 		progressTxt.borderSize = 2;
+		progressTxt.antialiasing = ClientPrefs.data.antialiasing;
 
 		add(progressBar);
 		add(progressTxt);
@@ -297,6 +300,7 @@ class ResetAchievementSubstate extends MusicBeatSubstate
 		text.setFormat(Paths.font("vcr.ttf"), 40, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		text.scrollFactor.set();
 		text.borderSize = 2;
+		text.antialiasing = ClientPrefs.data.antialiasing;
 		add(text);
 		
 		yesText = new Alphabet(0, text.y + 120, Language.getPhrase('Yes'), true);

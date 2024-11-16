@@ -125,16 +125,19 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 		offsetsText = new FlxText(300, 150, 680, '', 16);
 		offsetsText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		offsetsText.scrollFactor.set();
+		offsetsText.antialiasing = ClientPrefs.data.antialiasing;
 		add(offsetsText);
 
 		curFrameText = new FlxText(300, 100, 680, '', 16);
 		curFrameText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		curFrameText.scrollFactor.set();
+		curFrameText.antialiasing = ClientPrefs.data.antialiasing;
 		add(curFrameText);
 
 		curAnimText = new FlxText(300, 50, 680, '', 16);
 		curAnimText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		curAnimText.scrollFactor.set();
+		curAnimText.antialiasing = ClientPrefs.data.antialiasing;
 		add(curAnimText);
 
                 var sillyText:String;
@@ -154,11 +157,13 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 		var text:FlxText = new FlxText(0, 520, FlxG.width, sillyText, 16);
 		text.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		text.scrollFactor.set();
+		text.antialiasing = ClientPrefs.data.antialiasing;
 		add(text);
 
 		savedText = new FlxText(0, 340, FlxG.width, '', 24);
 		savedText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		savedText.scrollFactor.set();
+		savedText.antialiasing = ClientPrefs.data.antialiasing;
 		add(savedText);
 
 		missingTextBG = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -170,6 +175,7 @@ class NoteSplashDebugState extends MusicBeatState implements PsychUIEventHandler
 		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		missingText.scrollFactor.set();
 		missingText.visible = false;
+		missingText.antialiasing = ClientPrefs.data.antialiasing;
 		add(missingText);
 
 		loadFrames();

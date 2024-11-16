@@ -132,12 +132,14 @@ class EditorPlayState extends MusicBeatSubstate
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
+		scoreTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(scoreTxt);
 		
 		dataTxt = new FlxText(10, 580, FlxG.width - 20, "Section: 0", 20);
 		dataTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		dataTxt.scrollFactor.set();
 		dataTxt.borderSize = 1.25;
+		dataTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(dataTxt);
 
         var daButton:String;
@@ -150,6 +152,7 @@ class EditorPlayState extends MusicBeatSubstate
 		tipText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		tipText.borderSize = 2;
 		tipText.scrollFactor.set();
+		tipText.antialiasing = ClientPrefs.data.antialiasing;
 		add(tipText);
 		FlxG.mouse.visible = false;
 		

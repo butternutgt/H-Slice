@@ -52,10 +52,12 @@ class MusicPlayer extends FlxGroup
 
 		songTxt = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
 		songTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		songTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(songTxt);
 
 		timeTxt = new FlxText(xPos, songTxt.y + 60, 0, "", 32);
 		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		timeTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(timeTxt);
 
 		for (i in 0...2)
@@ -66,6 +68,7 @@ class MusicPlayer extends FlxGroup
 			if (i == 1)
 				text.flipY = true;
 			text.visible = false;
+			text.antialiasing = ClientPrefs.data.antialiasing;
 			playbackSymbols.push(text);
 			add(text);
 		}
@@ -76,6 +79,7 @@ class MusicPlayer extends FlxGroup
 
 		playbackTxt = new FlxText(FlxG.width * 0.6, 20, 0, "", 32);
 		playbackTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE);
+		playbackTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(playbackTxt);
 
 		switchPlayMusic();

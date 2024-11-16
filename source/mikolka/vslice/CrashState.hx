@@ -200,6 +200,7 @@ class CrashState extends FlxState
 		var test_text = new FlxText(180, textNextY, 920, text.toUpperCase());
 		test_text.setFormat(Paths.font('vcr.ttf'), 35, FlxColor.WHITE, LEFT);
 		test_text.updateHitbox();
+		test_text.antialiasing = ClientPrefs.data.antialiasing;
 		add(test_text);
 		textNextY += 35;
 		return test_text;

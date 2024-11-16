@@ -617,6 +617,7 @@ class PlayState extends MusicBeatState
 		timeTxt.scrollFactor.set();
 		timeTxt.alpha = 0;
 		timeTxt.borderSize = 2;
+		timeTxt.antialiasing = ClientPrefs.data.antialiasing;
 		timeTxt.visible = updateTime = showTime;
 		if (ClientPrefs.data.downScroll)
 			timeTxt.y = FlxG.height - 44;
@@ -696,6 +697,7 @@ class PlayState extends MusicBeatState
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
+		scoreTxt.antialiasing = ClientPrefs.data.antialiasing;
 		updateScore(false);
 		uiGroup.add(scoreTxt);
 		
@@ -730,6 +732,7 @@ class PlayState extends MusicBeatState
 		botplayTxt.scrollFactor.set();
 		botplayTxt.borderSize = 1.25;
 		botplayTxt.visible = cpuControlled;
+		botplayTxt.antialiasing = ClientPrefs.data.antialiasing;
 		uiGroup.add(botplayTxt);
 
 		uiGroup.cameras = [camHUD];

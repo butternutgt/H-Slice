@@ -67,6 +67,7 @@ class AchievementPopup extends openfl.display.Sprite {
 
 		var text:FlxText = new FlxText(0, 0, 270, 'TEST!!!', 16);
 		text.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
+		text.antialiasing = ClientPrefs.data.antialiasing;
 		drawTextAt(text, name, textX, textY);
 		drawTextAt(text, desc, textX, textY + 30);
 		graphics.endFill();

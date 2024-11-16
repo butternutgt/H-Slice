@@ -184,11 +184,13 @@ class ModsMenuState extends MusicBeatState
 				noModsTxt.text += '\nBITCH.'; // meanie
 			noModsTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			noModsTxt.borderSize = 2;
+			noModsTxt.antialiasing = ClientPrefs.data.antialiasing;
 			add(noModsTxt);
 			noModsTxt.screenCenter(Y);
 
 			var txt = new FlxText(bgList.x + 15, bgList.y + 15, bgList.width - 30, Language.getPhrase('no_mods_found', "No Mods found."), 16);
 			txt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE);
+			txt.antialiasing = ClientPrefs.data.antialiasing;
 			add(txt);
 
 			FlxG.autoPause = false;
@@ -222,12 +224,14 @@ class ModsMenuState extends MusicBeatState
 
 		modDesc = new FlxText(bgDescription.x + 15, bgDescription.y + 15, bgDescription.width - 30, "", 24);
 		modDesc.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, LEFT);
+		modDesc.antialiasing = ClientPrefs.data.antialiasing;
 		add(modDesc);
 
 		var myHeight = 100;
 		modRestartText = new FlxText(bgDescription.x + 15, bgDescription.y + bgDescription.height - myHeight - 25, bgDescription.width - 30,
 			Language.getPhrase('mod_restart', '* Moving or Toggling On/Off this Mod will restart the game.'), 16);
 		modRestartText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT);
+		modRestartText.antialiasing = ClientPrefs.data.antialiasing;
 		add(modRestartText);
 
 		bgButtons = FlxSpriteUtil.drawRoundRectComplex(new FlxSprite(bgDescription.x,
@@ -336,6 +340,7 @@ class ModsMenuState extends MusicBeatState
 		var bottomText = new FlxText(bottomBG.x, bottomBG.y + 4, FlxG.width, Language.getPhrase('mods_leave', "Press " + daButton + " To Leave"), 16);
 		bottomText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		bottomText.scrollFactor.set();
+		bottomText.antialiasing = ClientPrefs.data.antialiasing;
 		add(bottomText);
 
 		#if TOUCH_CONTROLS_ALLOWED
@@ -932,6 +937,7 @@ class ModItem extends FlxSpriteGroup
 		text.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		text.borderSize = 2;
 		text.y -= Std.int(text.height / 2);
+		text.antialiasing = ClientPrefs.data.antialiasing;
 		add(text);
 
 		var isPixel = false;

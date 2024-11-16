@@ -30,6 +30,7 @@ class ErrorState extends MusicBeatState
 		errorText.scrollFactor.set();
 		errorText.borderSize = 2;
 		errorText.screenCenter();
+		errorText.antialiasing = ClientPrefs.data.antialiasing;
 		add(errorText);
 		super.create();
 		

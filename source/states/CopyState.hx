@@ -62,6 +62,7 @@ class CopyState extends MusicBeatState
 
 		loadedText = new FlxText(loadingBar.x, loadingBar.y + 4, FlxG.width, '', 16);
 		loadedText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
+		loadedText.antialiasing = ClientPrefs.data.antialiasing;
 		add(loadedText);
 
 		var ticks:Int = 15;

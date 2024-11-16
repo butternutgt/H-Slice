@@ -42,6 +42,7 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, "", 32);
 		txtWeekTitle.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 		txtWeekTitle.alpha = 0.7;
+		txtWeekTitle.antialiasing = ClientPrefs.data.antialiasing;
 		
 		var ui_tex = Paths.getSparrowAtlas('campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
@@ -69,6 +70,7 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		missingFileText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		missingFileText.borderSize = 2;
 		missingFileText.visible = false;
+		missingFileText.antialiasing = ClientPrefs.data.antialiasing;
 		add(missingFileText); 
 		
 		var charArray:Array<String> = weekFile.weekCharacters;
@@ -91,6 +93,7 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 		txtTracklist.alignment = CENTER;
 		txtTracklist.font = Paths.font("vcr.ttf");
 		txtTracklist.color = 0xFFe55777;
+		txtTracklist.antialiasing = ClientPrefs.data.antialiasing;
 		add(txtTracklist);
 		add(txtWeekTitle);
 

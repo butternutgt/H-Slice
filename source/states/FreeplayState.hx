@@ -146,6 +146,7 @@ class FreeplayState extends MusicBeatState
 
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		scoreText.antialiasing = ClientPrefs.data.antialiasing;
 
 		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
 		scoreBG.alpha = 0.6;
@@ -153,6 +154,7 @@ class FreeplayState extends MusicBeatState
 
 		diffText = new FlxText(scoreText.x, scoreText.y + 36, 0, "", 24);
 		diffText.font = scoreText.font;
+		diffText.antialiasing = ClientPrefs.data.antialiasing;
 		add(diffText);
 
 		add(scoreText);
@@ -167,6 +169,7 @@ class FreeplayState extends MusicBeatState
 		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		missingText.scrollFactor.set();
 		missingText.visible = false;
+		missingText.antialiasing = ClientPrefs.data.antialiasing;
 		add(missingText);
 
 		if(curSelected >= songs.length) curSelected = 0;
@@ -186,6 +189,7 @@ class FreeplayState extends MusicBeatState
 		bottomText = new FlxText(bottomBG.x, bottomBG.y + 4, FlxG.width, leText, size);
 		bottomText.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, CENTER);
 		bottomText.scrollFactor.set();
+		bottomText.antialiasing = ClientPrefs.data.antialiasing;
 		add(bottomText);
 		
 		player = new MusicPlayer(this);
