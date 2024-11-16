@@ -477,9 +477,10 @@ class CoolUtil
 	{
 		#if android
 		AndroidTools.showAlertDialog(title, message, {name: "OK", func: null}, null);
-		#else
-		// FlxG.stage.window.alert(message, title);
+		#elseif windows
 		sendMsgBox(message, title);
+		#else
+		FlxG.stage.window.alert(message, title);
 		#end
 	}
 }

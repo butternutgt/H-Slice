@@ -235,7 +235,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		if (timerMethod.getValue() == true) {
 			var check:Float = CoolUtil.getNanoTime();
 			if (check == 0) {
-				CoolUtil.sendMsgBox("This device doesn't support this feature.", 0);
+				CoolUtil.showPopUp("This device doesn't support this feature.", "Error");
 				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 				timerMethod.setValue(false);
 			}
