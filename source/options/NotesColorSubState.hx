@@ -169,6 +169,17 @@ class NotesColorSubState extends MusicBeatSubstate
 		FlxG.mouse.visible = !controls.controllerMode;
 		controllerPointer.visible = controls.controllerMode;
 		_lastControllerMode = controls.controllerMode;
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('NONE','B_C');
+		#end
+	}
+
+	override function closeSubState() {
+		#if TOUCH_CONTROLS_ALLOWED
+		removeTouchPad();
+		#end
+		super.closeSubState();
 	}
 
 	function updateTip()
@@ -186,7 +197,7 @@ class NotesColorSubState extends MusicBeatSubstate
 		NUMPADSEVEN => '7', NUMPADEIGHT => '8', NUMPADNINE => '9', A => 'A', B => 'B', C => 'C', D => 'D', E => 'E', F => 'F'];
 
 	override function update(elapsed:Float) {
-		if (controls.BACK) {
+		if (controls.BACK #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonB.justPressed #end) {
 			FlxG.mouse.visible = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 			close();
@@ -469,7 +480,7 @@ class NotesColorSubState extends MusicBeatSubstate
 				}
 			} 
 		}
-		else if(controls.RESET && hexTypeNum < 0)
+		else if(controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonC.justPressed #end && hexTypeNum < 0)
 		{
 			if(FlxG.keys.pressed.SHIFT || FlxG.gamepads.anyPressed(LEFT_SHOULDER))
 			{
