@@ -5,13 +5,17 @@ import objects.StrumNote;
 import objects.NoteSplash;
 import objects.Alphabet;
 
+import debug.FPSCounter;
+
 class VisualsSettingsSubState extends BaseOptionsMenu
 {
+	public static var pauseMusics:Array<String> = ['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)'];
 	var noteOptionID:Int = -1;
 	var notes:FlxTypedGroup<StrumNote>;
 	var splashes:FlxTypedGroup<NoteSplash>;
 	var noteY:Float = 90;
 	var fpsRateOption:Option;
+	var splashOption:Option;
 
 	public function new()
 	{
@@ -35,7 +39,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			splash.loadSplash();
 			splash.visible = false;
 			splash.alpha = ClientPrefs.data.splashAlpha;
-			splash.animation.finishCallback = function(name:String) splash.visible = false;
+			splash.animation.finishCallback = name -> splash.visible = false;
 			splashes.add(splash);
 			
 			Note.initializeGlobalRGBShader(i % Note.colArray.length);
@@ -51,12 +55,13 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
 			noteSkins.insert(0, ClientPrefs.defaultData.noteSkin); //Default skin always comes first
 			var option:Option = new Option('Note Skins:',
-				"Select your prefered Note skin.",
+				"Select your preferred Note skin.",
 				'noteSkin',
 				STRING,
 				noteSkins);
 			addOption(option);
 			option.onChange = onChangeNoteSkin;
+			splashOption = option;
 			noteOptionID = optionsArray.length - 1;
 		}
 		
@@ -68,7 +73,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
 			noteSplashes.insert(0, ClientPrefs.defaultData.splashSkin); //Default skin always comes first
 			var option:Option = new Option('Note Splashes:',
-				"Select your prefered Note Splash variation or turn it off.",
+				"Select your preferred Note Splash variation or turn it off.",
 				'splashSkin',
 				STRING,
 				noteSplashes);
@@ -99,6 +104,32 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = playNoteSplashes;
 
+		var holdSkins:Array<String> = Mods.mergeAllTextsNamed('images/holdCovers/list.txt');
+		if(holdSkins.length > 0)
+		{
+			if(!holdSkins.contains(ClientPrefs.data.holdSkin))
+				ClientPrefs.data.holdSkin = ClientPrefs.defaultData.holdSkin; //Reset to default if saved splashskin couldnt be found
+			holdSkins.remove(ClientPrefs.defaultData.holdSkin);
+			holdSkins.insert(0, ClientPrefs.defaultData.holdSkin); //Default skin always comes first
+			var option:Option = new Option('Hold Splashes:',
+				"Select your preferred Hold Splash variation or turn it off.",
+				'holdSkin',
+				STRING,
+				holdSkins);
+			addOption(option);
+		}
+
+		var option:Option = new Option('Note Hold Splash Opacity',
+			'How much transparent should the Note Hold Splash be.\n0% disables it.',
+			'holdSplashAlpha',
+			PERCENT);
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+		addOption(option);
+
 		var option:Option = new Option('Opponent Note Splash',
 			'If checked, Note Splash appears in Opponent Strum.',
 			'splashOpponent',
@@ -114,7 +145,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Play Animation on Sustain Hit',
 			"If unchecked, ignores hit animaiton when hits sustain notes.",
 			'holdAnim',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Hide HUD',
@@ -126,7 +157,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('3 digits Separator',
 			'If checked, Increases the visibility of large numbers, such as 1000 or more.',
 			'numberFormat',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Show Info:',
@@ -140,7 +171,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 				'Note Splash Counter',
 				'Note Appear Time',
 				'Video Info',
-				'Note Info',
+				// 'Note Info',
+				'Strums Info',
 				'Song Info',
 				'Music Sync Info',
 				'Debug Info',
@@ -183,7 +215,6 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.decimals = 1;
 		addOption(option);
 		
-		#if !mobile
 		var option:Option = new Option('FPS Counter',
 			'If unchecked, hides FPS Counter.',
 			'showFPS',
@@ -204,13 +235,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.onChange = onChangeFPSRate;
 		addOption(option);
 		fpsRateOption = option;
-		#end
-		
+
 		var option:Option = new Option('Pause Music:',
 			"What song do you prefer for the Pause Screen?",
 			'pauseMusic',
 			STRING,
-			['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)']);
+			pauseMusics);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
 		
@@ -239,7 +269,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Combo <-> Notes',
 			"If checked, The popup become a note counter instead combo.\nIt appears opponent hits too, and bf and opponent combo are combined.",
 			'changeNotes',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		super();
@@ -346,17 +376,17 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		super.destroy();
 	}
 
-
-	#if !mobile
 	function onChangeFPSCounter()
 	{
-		if(Main.fpsVar != null)
-			Main.fpsVar.visible = ClientPrefs.data.showFPS;
+		if (Main.fpsVar != null) Main.fpsVar.visible = ClientPrefs.data.showFPS;
+		if (Main.fpsBg != null) Main.fpsBg.visible = ClientPrefs.data.showFPS;
 	}
 
 	function onChangeFPSRate()
 	{
+		var rate:Null<Float> = fpsRateOption.getValue();
 		fpsRateOption.scrollSpeed = interpolate(30, 50000, (holdTime - 0.5) / 10, 3);
+		if (rate != null) FPSCounter.instance.updateRate = rate;
+		else FPSCounter.instance.updateRate = 1;
 	}
-	#end
 }

@@ -100,6 +100,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		skipText = new FlxText(FlxG.width - 320, FlxG.height - 30, 300, Language.getPhrase('dialogue_skip', 'Press BACK to Skip'), 16);
 		skipText.setFormat(null, 16, FlxColor.WHITE, RIGHT, OUTLINE_FAST, FlxColor.BLACK);
 		skipText.borderSize = 2;
+		skipText.antialiasing = ClientPrefs.data.antialiasing;
 		add(skipText);
 
 		startNextDialog();
@@ -171,8 +172,8 @@ class DialogueBoxPsych extends FlxSpriteGroup
 			bgFade.alpha += 0.5 * elapsed;
 			if(bgFade.alpha > 0.5) bgFade.alpha = 0.5;
 
-			var back:Bool = Controls.instance.BACK;
-			if(Controls.instance.ACCEPT || back) {
+			var back:Bool = #if android FlxG.android.justReleased.BACK || #end Controls.instance.BACK;
+			if((TouchUtil.justPressed || Controls.instance.ACCEPT )|| back) {
 				if(!daText.finishedText && !back)
 				{
 					daText.finishText();

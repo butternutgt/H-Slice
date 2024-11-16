@@ -228,7 +228,7 @@ class ResultState extends MusicBeatSubState
 						{
 							// Animation is not looped.
 							animation.onAnimationComplete.add((_name:String) -> {
-								trace("AHAHAH 2");
+								#if debug trace("AHAHAH 2"); #end
 								if (animation != null)
 								{
 									animation.anim.pause();
@@ -238,7 +238,7 @@ class ResultState extends MusicBeatSubState
 						else if (animData.loopFrameLabel != null)
 						{
 							animation.onAnimationComplete.add((_name:String) -> {
-								trace("AHAHAH 2");
+								#if debug trace("AHAHAH 2"); #end
 								if (animation != null)
 								{
 									animation.playAnimation(animData.loopFrameLabel ?? '', true, false, true); // unpauses this anim, since it's on PlayOnce!
@@ -448,10 +448,10 @@ class ResultState extends MusicBeatSubState
 			if (Paths.exists('music/$introMusic.ogg'))
 			{
 				// Play the intro music.
-				FunkinSound.load(Paths.music(introMusic), ClientPrefs.data.bgmVolume, false, true, true, () -> {
+				FunkinSound.load(Paths.music(introMusic), 1.0, false, true, true, () -> {
 					FunkinSound.playMusic(getMusicPath(playerCharacter, rank),
 						{
-							startingVolume: ClientPrefs.data.bgmVolume,
+							startingVolume: 1.0,
 							overrideExisting: true,
 							restartTrack: true
 						});
@@ -461,7 +461,7 @@ class ResultState extends MusicBeatSubState
 			{
 				FunkinSound.playMusic(getMusicPath(playerCharacter, rank),
 					{
-						startingVolume: ClientPrefs.data.bgmVolume,
+						startingVolume: 1.0,
 						overrideExisting: true,
 						restartTrack: true
 					});
@@ -500,7 +500,7 @@ class ResultState extends MusicBeatSubState
 
 		clearPercentLerp = Std.int(Math.max(0, clearPercentTarget - 36));
 
-		trace('Clear percent target: ' + clearPercentFloat + ', floor: ' + clearPercentTarget);
+		trace('Clear percent target: ' + clearPercentFloat + ', round: ' + clearPercentTarget);
 
 		var clearPercentCounter:ClearPercentCounter = new ClearPercentCounter(FlxG.width / 2 + 190, FlxG.height / 2 - 70, clearPercentLerp);
 		FlxTween.tween(clearPercentCounter, {curNumber: clearPercentTarget}, 58 / 24,
@@ -511,12 +511,12 @@ class ResultState extends MusicBeatSubState
 					if (clearPercentLerp != clearPercentCounter.curNumber)
 					{
 						clearPercentLerp = clearPercentCounter.curNumber;
-						FunkinSound.playOnce(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
+						FunkinSound.playOnce(Paths.sound('scrollMenu'));
 					}
 				},
 				onComplete: _ -> {
 					// Play confirm sound.
-					FunkinSound.playOnce(Paths.sound('confirmMenu'), ClientPrefs.data.sfxVolume);
+					FunkinSound.playOnce(Paths.sound('confirmMenu'));
 
 					// Just to be sure that the lerp didn't mess things up.
 					clearPercentCounter.curNumber = clearPercentTarget;
@@ -758,17 +758,17 @@ class ResultState extends MusicBeatSubState
 			speedOfTween.x -= 0.1;
 		}
 
-		if (controls.PAUSE)
+		if (TouchUtil.justPressed || controls.PAUSE)
 		{
-			if (FlxG.sound.music != null)
+			if (FlxG.sound.music != null && ClientPrefs.data.vsliceFreeplay)
 			{
-				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8 * ClientPrefs.data.sfxVolume);
+				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8);
 				FlxTween.tween(FlxG.sound.music, {pitch: 3}, 0.1,
-					{
-						onComplete: _ -> {
-							FlxTween.tween(FlxG.sound.music, {pitch: 0.5}, 0.4 * ClientPrefs.data.sfxVolume);
-						}
-					});
+				{
+					onComplete: _ -> {
+						FlxTween.tween(FlxG.sound.music, {pitch: 0.5}, 0.4);
+					}
+				});
 			}
 
 			// Determining the target state(s) to go to.
@@ -810,8 +810,9 @@ class ResultState extends MusicBeatSubState
 					trace('THE RANK IS Higher.....');
 
 					shouldTween = true;
+					controls.isInSubstate = FlxTransitionableState.skipNextTransOut = true;
+
 					if (ClientPrefs.data.vsliceFreeplay) {
-						FlxTransitionableState.skipNextTransOut = true;
 						targetState = NewFreeplayState.build(
 						{
 							{
@@ -826,27 +827,19 @@ class ResultState extends MusicBeatSubState
 							}
 						});
 					} else {
+						FlxG.sound.music.stop();
 						FlxTransitionableState.skipNextTransIn = false;
 						FlxTransitionableState.skipNextTransOut = false;
 						MusicBeatState.switchState(new FreeplayState());
-						FlxG.sound.music.stop();
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 					}
 				}
 				else
 				{
-					if (!ClientPrefs.data.vsliceFreeplay) {
-						FlxG.sound.pause(); //? fix sound
-						shouldTween = false;
-						shouldUseSubstate = true;
-						targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
-					} else {
-						FlxTransitionableState.skipNextTransIn = false;
-						FlxTransitionableState.skipNextTransOut = false;
-						MusicBeatState.switchState(new FreeplayState());
-						FlxG.sound.music.stop();
-						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
-					}
+					FlxG.sound.pause(); //? fix sound
+					shouldTween = false;
+					controls.isInSubstate = shouldUseSubstate = true;
+					targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
 				}
 			}
 

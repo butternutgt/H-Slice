@@ -8,14 +8,19 @@ import lime.utils.Assets as LimeAssets;
 @:cppFileCode('
 	#include <stdlib.h>
 	#include <stdio.h>
-	#include <iostream>
 	#include <string>
 	#include <windows.h>
+	
+	#include <iostream>
+	#include <chrono>
+	
+	using namespace std::chrono;
 ')
 #else
 @:cppFileCode('
 	#include <stdlib.h>
 	#include <string>
+	#include <chrono>
 ')
 #end
 
@@ -227,21 +232,33 @@ class CoolUtil
 		return list;
 	}
 
-	@:functionCode('
-		LARGE_INTEGER freq;
-		LARGE_INTEGER time;
+	// @:functionCode('
+	// 	LARGE_INTEGER freq;
+	// 	LARGE_INTEGER time;
 
-		QueryPerformanceFrequency(&freq);
-		QueryPerformanceCounter(&time);
+	// 	QueryPerformanceFrequency(&freq);
+	// 	QueryPerformanceCounter(&time);
 
-		if (freq.QuadPart == 0L || time.QuadPart == 0L) return 0;
-		double get = static_cast<double>(time.QuadPart) / freq.QuadPart;
+	// 	if (freq.QuadPart == 0L || time.QuadPart == 0L) return 0;
+	// 	double get = static_cast<double>(time.QuadPart) / freq.QuadPart;
 
-		return get;
+	// 	return get;
+	// ')
+
+	@:functionCode('		
+		// Get the current time
+		auto now = std::chrono::high_resolution_clock::now();
+		
+		// Time elapsed since the epoch is obtained as DURATION (converted to seconds)
+		auto duration = now.time_since_epoch();
+		auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(duration);
+		
+		// Returns the second as double
+		return seconds.count();
 	')
 	static public function getNanoTime():Float64
 	{
-		return 0;
+		return -1;
 	}
 	
 	// stolen and modded from FlxStringUtil
@@ -418,7 +435,7 @@ class CoolUtil
 	inline public static function getSavePath():String {
 		final company:String = FlxG.stage.application.meta.get('company');
 		// #if (flixel < "5.0.0") return company; #else
-		return '${company}/${flixel.util.FlxSave.validate(FlxG.stage.application.meta.get('file'))}';
+		return '${company}/${flixel.util.FlxSave.validate("PsychEngine")}'; //! hardcoding for backwards compatibility
 		// #end
 	}
 
@@ -455,4 +472,15 @@ class CoolUtil
 		return res;
 	}
 	#end
+
+	public static function showPopUp(message:String, title:String):Void
+	{
+		#if android
+		AndroidTools.showAlertDialog(title, message, {name: "OK", func: null}, null);
+		#elseif windows
+		sendMsgBox(message, title);
+		#else
+		FlxG.stage.window.alert(message, title);
+		#end
+	}
 }

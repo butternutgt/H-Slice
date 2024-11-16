@@ -1,5 +1,6 @@
 package options;
 
+import openfl.system.System;
 import objects.Character;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
@@ -36,7 +37,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		antialiasingOption = optionsArray.length-1;
 
 		var option:Option = new Option('Shaders', //Name
-			"If unchecked, disables shaders.\nIt's used for some visual effects, and also CPU intensive for weaker PCs.", //Description
+			"If unchecked, disables shaders.\nIt's used for some visual effects, and also CPU intensive for weaker " + Main.platform + ").", //Description
 			'shaders',
 			BOOL);
 		addOption(option);
@@ -46,6 +47,15 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			'cacheOnGPU',
 			BOOL);
 		addOption(option);
+
+		#if sys
+		var option:Option = new Option('VSync',
+			'If checked, Enables VSync fixing any screen tearing\nat the cost of capping the FPS to screen refresh rate.\n(Must restart the game to have an effect)',
+			'vsync',
+			BOOL);
+		option.onChange = onChangeVSync;
+		addOption(option);
+		#end
 
 		#if !html5 //Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
 		var option:Option = new Option('Framerate',
@@ -61,14 +71,6 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
 		fpsOption = option;
-
-		// var option:Option = new Option('Enable V-Sync', //Name
-		// 	"If checked, Tearing disappears perfectly. but the delay may occurs", //Description
-		// 	'vsync',
-		// 	BOOL);
-		// option.onChange = onChangeVsync;
-		// addOption(option);
-		// syncOption = option;
 		#end
 
 		super();
@@ -80,7 +82,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		for (sprite in members)
 		{
 			var sprite:FlxSprite = cast sprite;
-			if(sprite != null && (sprite is FlxSprite) && !(sprite is FlxText)) {
+			if(sprite != null && (sprite is FlxSprite)) {
 				sprite.antialiasing = ClientPrefs.data.antialiasing;
 			}
 		}
@@ -100,10 +102,16 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			FlxG.updateFramerate = ClientPrefs.data.framerate;
 		}
 	}
-
-	function onChangeVsync() {
-		
+	
+	#if sys
+	function onChangeVSync()
+	{
+		var file:String = StorageUtil.rootDir + "vsync.txt";
+		if(FileSystem.exists(file))
+			FileSystem.deleteFile(file);
+		File.saveContent(file, Std.string(ClientPrefs.data.vsync));
 	}
+	#end
 
 	override function changeSelection(change:Int = 0)
 	{

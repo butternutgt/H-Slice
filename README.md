@@ -31,7 +31,7 @@ https://github.com/mcagabe19/linc_luajit-rewriten/
 
 <!-- PROJECT SHIELDS -->
 [![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][https://github.com/Psych-Slice/P-Slice/forks]
+[![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
@@ -158,9 +158,11 @@ Run
 ### Branches
 `master` is the repository's main branch. It contains a PE 1.0 flavor of P-Slice and is the most maintained version.
 
-`pe-1.0` is the older branch, which is no longer supposed. I don't recommend using it.
+`master-dev` same as `master`, but used for development so might contain less stable builds.
 
 `pe-0.6.3` works the same way, but built on Psych 0.6.3. Note that it may contain some bugs not present in the master version.
+
+`pe-0.6.3-dev` same as `pe-0.6.3`, but used for development so might contain less stable builds.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -179,6 +181,7 @@ Distributed under the Apache License 2.0. See [Licence](https://github.com/Psych
 [contributors-shield]: https://img.shields.io/github/contributors/Psych-Slice/P-Slice.svg?style=for-the-badge
 [contributors-url]: https://github.com/Psych-Slice/P-Slice/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/Psych-Slice/P-Slice.svg?style=for-the-badge
+[forks-url]: https://github.com/Psych-Slice/P-Slice/forks
 [https://github.com/Psych-Slice/P-Slice/forks]: https://github.com/Psych-Slice/P-Slice/network/members
 [stars-shield]: https://img.shields.io/github/stars/Psych-Slice/P-Slice.svg?style=for-the-badge
 [stars-url]: https://github.com/Psych-Slice/P-Slice/stargazers

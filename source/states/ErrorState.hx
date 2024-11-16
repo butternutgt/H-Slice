@@ -30,8 +30,14 @@ class ErrorState extends MusicBeatState
 		errorText.scrollFactor.set();
 		errorText.borderSize = 2;
 		errorText.screenCenter();
+		errorText.antialiasing = ClientPrefs.data.antialiasing;
 		add(errorText);
 		super.create();
+		
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('NONE', 'A_B');
+		addTouchPadCamera();
+		#end
 	}
 
 	override function update(elapsed:Float)

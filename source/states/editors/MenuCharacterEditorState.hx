@@ -3,7 +3,7 @@ package states.editors;
 import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
-import flash.net.FileFilter;
+import openfl.net.FileFilter;
 import haxe.Json;
 
 import objects.MenuCharacter;
@@ -51,6 +51,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		txtOffsets = new FlxText(20, 10, 0, "[0, 0]", 32);
 		txtOffsets.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		txtOffsets.alpha = 0.7;
+		txtOffsets.antialiasing = ClientPrefs.data.antialiasing;
 		add(txtOffsets);
 
 		var tipText:FlxText = new FlxText(0, 540, FlxG.width,
@@ -58,11 +59,16 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 			\nSpace - Play \"Start Press\" animation (Boyfriend Character Type)", 16);
 		tipText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		tipText.scrollFactor.set();
+		tipText.antialiasing = ClientPrefs.data.antialiasing;
 		add(tipText);
 
 		addEditorBox();
 		FlxG.mouse.visible = true;
 		updateCharacters();
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('MENU_CHARACTER', 'MENU_CHARACTER');
+		#end
 
 		super.create();
 	}
@@ -81,18 +87,22 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		addCharacterUI();
 		add(UI_mainbox);
 
+		#if !mobile
 		var loadButton:PsychUIButton = new PsychUIButton(0, 480, "Load Character", function() {
 			loadCharacter();
 		});
 		loadButton.screenCenter(X);
 		loadButton.x -= 60;
 		add(loadButton);
+		#end
 	
 		var saveButton:PsychUIButton = new PsychUIButton(0, 480, "Save Character", function() {
 			saveCharacter();
 		});
 		saveButton.screenCenter(X);
+		#if !mobile
 		saveButton.x += 60;
+		#end
 		add(saveButton);
 	}
 
@@ -209,10 +219,37 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 	}
 
 	override function update(elapsed:Float) {
+		//?
+
+		var justPressed_LEFT = FlxG.keys.justPressed.LEFT;
+		var justPressed_RIGHT = FlxG.keys.justPressed.RIGHT;
+		var justPressed_UP = FlxG.keys.justPressed.UP;
+		var justPressed_DOWN = FlxG.keys.justPressed.DOWN;
+
+		var justPressed_SPACE = FlxG.keys.justPressed.SPACE;
+
+		var pressed_SHIFT = FlxG.keys.pressed.SHIFT;
+
+		#if TOUCH_CONTROLS_ALLOWED
+ 
+		justPressed_LEFT = justPressed_LEFT || touchPad.buttonLeft.justPressed;
+		justPressed_RIGHT = justPressed_RIGHT || touchPad.buttonRight.justPressed;
+		justPressed_UP = justPressed_UP || touchPad.buttonUp.justPressed;
+		justPressed_DOWN = justPressed_DOWN || touchPad.buttonDown.justPressed;
+
+		justPressed_SPACE = justPressed_SPACE || touchPad.buttonC.justPressed;
+
+
+		pressed_SHIFT = pressed_SHIFT || touchPad.buttonA.pressed;
+
+		#end
+
 		if(PsychUIInputText.focusOn == null)
 		{
 			ClientPrefs.toggleVolumeKeys(true);
-			if(FlxG.keys.justPressed.ESCAPE) {
+			if(FlxG.keys.justPressed.ESCAPE 
+				#if android || FlxG.android.justPressed.BACK #end 
+				#if TOUCH_CONTROLS_ALLOWED || touchPad.buttonB.justPressed #end) {
 				if(!unsavedProgress)
 				{
 					MusicBeatState.switchState(new states.editors.MasterEditorMenu());
@@ -222,26 +259,26 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 			}
 
 			var shiftMult:Int = 1;
-			if(FlxG.keys.pressed.SHIFT) shiftMult = 10;
+			if(pressed_SHIFT) shiftMult = 10;
 
-			if(FlxG.keys.justPressed.LEFT) {
+			if(justPressed_LEFT) {
 				characterFile.position[0] += shiftMult;
 				updateOffset();
 			}
-			if(FlxG.keys.justPressed.RIGHT) {
+			if(justPressed_RIGHT) {
 				characterFile.position[0] -= shiftMult;
 				updateOffset();
 			}
-			if(FlxG.keys.justPressed.UP) {
+			if(justPressed_UP) {
 				characterFile.position[1] += shiftMult;
 				updateOffset();
 			}
-			if(FlxG.keys.justPressed.DOWN) {
+			if(justPressed_DOWN) {
 				characterFile.position[1] -= shiftMult;
 				updateOffset();
 			}
 
-			if(FlxG.keys.justPressed.SPACE && characterTypeRadio.checked == 1) {
+			if((justPressed_SPACE) && characterTypeRadio.checked == 1) {
 				grpWeekCharacters.members[characterTypeRadio.checked].animation.play('confirm', true);
 			}
 		}
@@ -339,11 +376,16 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 			var splittedImage:Array<String> = imageInputText.text.trim().split('_');
 			var characterName:String = splittedImage[splittedImage.length-1].toLowerCase().replace(' ', '');
 
+			#if mobile
+			unsavedProgress = false;
+			StorageUtil.saveContent('$characterName.json', data);
+			#else
 			_file = new FileReference();
 			_file.addEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 			_file.save(data, characterName + ".json");
+			#end
 		}
 	}
 

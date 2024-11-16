@@ -28,6 +28,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	public static var instance:GameOverSubstate;
 	public function new(?playStateBoyfriend:Character = null)
 	{
+		controls.isInSubstate = true;
 		if(playStateBoyfriend != null && playStateBoyfriend.curCharacter == characterName) //Avoids spawning a second boyfriend cuz animate atlas is laggy
 		{
 			this.boyfriend = playStateBoyfriend;
@@ -61,6 +62,9 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		instance = this;
 
+		if (ClientPrefs.data.vibrating)
+			lime.ui.Haptic.vibrate(0, 500);
+
 		Conductor.songPosition = 0;
 
 		if(boyfriend == null)
@@ -90,6 +94,11 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		//? pico code
 		PicoCapableStage.playPicoDeath(this);
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('NONE', 'A_B');
+		addTouchPadCamera();
+		#end
 
 		super.create();
 	}
@@ -197,6 +206,9 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.play(Paths.music(endSoundName));
 			new FlxTimer().start(0.7, function(tmr:FlxTimer)
 			{
+				#if TOUCH_CONTROLS_ALLOWED
+				FlxTween.tween(touchPad, {alpha: 0}, 2.7, {ease: FlxEase.smootherStepOut});
+				#end
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{
 					MusicBeatState.resetState();
@@ -208,6 +220,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	override function destroy()
 	{
+		controls.isInSubstate = false;
 		instance = null;
 		super.destroy();
 	}

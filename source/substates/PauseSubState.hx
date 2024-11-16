@@ -18,7 +18,14 @@ class PauseSubState extends MusicBeatSubstate
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
-	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
+	var menuItemsOG:Array<String> = [
+		'Resume', 
+		'Restart Song',
+		#if TOUCH_CONTROLS_ALLOWED 'Chart Editor', #end
+	 	'Change Difficulty', 
+		'Options', 
+		'Exit to menu'
+	];
 	var difficultyChoices = [];
 	var curSelected:Int = 0;
 
@@ -58,6 +65,7 @@ class PauseSubState extends MusicBeatSubstate
 	override function create()
 	{
 		pSte = PlayState.instance;
+		controls.isInSubstate = true;
 		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
 
 		if(PlayState.chartingMode)
@@ -112,20 +120,22 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.scrollFactor.set();
 		levelInfo.setFormat(Paths.font("vcr.ttf"), 32);
 		levelInfo.updateHitbox();
+		levelInfo.antialiasing = ClientPrefs.data.antialiasing;
 		add(levelInfo);
 
 		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "Difficulty: "+CoolUtil.FUL(Difficulty.getString()), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
+		levelDifficulty.antialiasing = ClientPrefs.data.antialiasing;
 		add(levelDifficulty);
-
 		
 		var ballsTxt = inVid ? '$cutscene_branding Paused' : Language.getPhrase("blueballed", "{1} Blue Balls", [PlayState.deathCounter]);
 		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, ballsTxt , 32);
 		blueballedTxt.scrollFactor.set();
 		blueballedTxt.setFormat(Paths.font('vcr.ttf'), 32);
 		blueballedTxt.updateHitbox();
+		blueballedTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(blueballedTxt);
 
 		practiceText = new FlxText(20, 15 + 101, 0, Language.getPhrase("Practice Mode").toUpperCase(), 32);
@@ -134,6 +144,7 @@ class PauseSubState extends MusicBeatSubstate
 		practiceText.x = FlxG.width - (practiceText.width + 20);
 		practiceText.updateHitbox();
 		practiceText.visible = pSte.practiceMode;
+		practiceText.antialiasing = ClientPrefs.data.antialiasing;
 		add(practiceText);
 
 		var chartingText:FlxText = new FlxText(20, 15 + 101, 0, Language.getPhrase("Charting Mode").toUpperCase(), 32);
@@ -143,6 +154,7 @@ class PauseSubState extends MusicBeatSubstate
 		chartingText.y = FlxG.height - (chartingText.height + 20);
 		chartingText.updateHitbox();
 		chartingText.visible = PlayState.chartingMode;
+		chartingText.antialiasing = ClientPrefs.data.antialiasing;
 		add(chartingText);
 
 		blueballedTxt.alpha = 0;
@@ -172,10 +184,16 @@ class PauseSubState extends MusicBeatSubstate
 		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		missingText.scrollFactor.set();
 		missingText.visible = false;
+		missingText.antialiasing = ClientPrefs.data.antialiasing;
 		add(missingText);
 
 		regenMenu();
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad(PlayState.chartingMode ? 'LEFT_FULL' : 'UP_DOWN', 'A');
+		addTouchPadCamera();
+		#end
 
 		super.create();
 	}
@@ -300,6 +318,7 @@ class PauseSubState extends MusicBeatSubstate
 			switch (daSelected)
 			{
 				case "Resume":
+					Paths.clearUnusedMemory();
 					specialAction = RESUME;
 					close();
 				case 'Change Difficulty':
@@ -312,6 +331,8 @@ class PauseSubState extends MusicBeatSubstate
 					practiceText.visible = pSte.practiceMode;
 				case "Restart Song":
 					restartSong();
+				case 'Chart Editor':
+					PlayState.instance.openChartEditor();
 				case "Leave Charting Mode":
 					restartSong();
 					PlayState.chartingMode = false;
@@ -398,6 +419,16 @@ class PauseSubState extends MusicBeatSubstate
 					}
 			}
 		}
+		
+		if (ClientPrefs.data.nanoPosition) PlayState.nanoTime = CoolUtil.getNanoTime();
+		
+		#if TOUCH_CONTROLS_ALLOWED
+		if (touchPad == null) //sometimes it dosent add the tpad, hopefully this fixes it
+		{
+			addTouchPad(PlayState.chartingMode ? 'LEFT_FULL' : 'UP_DOWN', 'A');
+			addTouchPadCamera();
+		}
+		#end
 	}
 
 	function deleteSkipTimeText()
@@ -430,6 +461,7 @@ class PauseSubState extends MusicBeatSubstate
 
 	override function destroy()
 	{
+		controls.isInSubstate = false;
 		pauseMusic.destroy();
 		super.destroy();
 	}
@@ -477,6 +509,7 @@ class PauseSubState extends MusicBeatSubstate
 				skipTimeText.setFormat(Paths.font("vcr.ttf"), 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 				skipTimeText.scrollFactor.set();
 				skipTimeText.borderSize = 2;
+				skipTimeText.antialiasing = ClientPrefs.data.antialiasing;
 				skipTimeTracker = item;
 				add(skipTimeText);
 
@@ -501,7 +534,6 @@ class PauseSubState extends MusicBeatSubstate
 		skipTimeText.text = FlxStringUtil.formatTime(Math.max(0, Math.floor(curTime / 1000)), false) + ' / ' + FlxStringUtil.formatTime(Math.max(0, Math.floor(FlxG.sound.music.length / 1000)), false);
 
 	override function close() {
-		PlayState.nanoTime = CoolUtil.getNanoTime();
 		super.close();
 	}
 }

@@ -12,7 +12,7 @@ import options.OptionsState;
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '1.0'; // This is also used for Discord RPC
-	public static var pSliceVersion:String = '2.0'; 
+	public static var pSliceVersion:String = '2.1'; 
 	public static var funkinVersion:String = '0.5.1'; // Version of funkin' we are emulationg
 	public static var hrkVersion:String = '0.0.1'; // Version of funkin' we are emulationg
 	public static var curSelected:Int = 0;
@@ -109,11 +109,14 @@ class MainMenuState extends MusicBeatState
 		hrkVer.scrollFactor.set();
 		psychVer.scrollFactor.set();
 		fnfVer.scrollFactor.set();
+		
+		hrkVer.antialiasing = ClientPrefs.data.antialiasing;
+		psychVer.antialiasing = ClientPrefs.data.antialiasing;
+		fnfVer.antialiasing = ClientPrefs.data.antialiasing;
 
 		add(hrkVer);
 		add(psychVer);
 		add(fnfVer);
-		//var fnfVer:FlxText = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' ", 12);
 	
 		changeItem();
 
@@ -126,6 +129,10 @@ class MainMenuState extends MusicBeatState
 		#if MODS_ALLOWED
 		Achievements.reloadList();
 		#end
+		#end
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('LEFT_FULL', 'A_B_E');
 		#end
 
 		super.create();
@@ -166,7 +173,7 @@ class MainMenuState extends MusicBeatState
 				FlxTransitionableState.skipNextTransOut = false;
 				if (optionShit[curSelected] == 'donate')
 				{
-					CoolUtil.browserLoad('https://needlejuicerecords.com/pages/friday-night-funkin');
+					CoolUtil.browserLoad('https://www.makeship.com/shop/creator/friday-night-funkin');
 				}
 				else
 				{
@@ -241,15 +248,13 @@ class MainMenuState extends MusicBeatState
 					}
 				}
 			}
-			#if desktop
-			if (controls.justPressed('debug_1'))
+			if (#if TOUCH_CONTROLS_ALLOWED touchPad.buttonE.justPressed || #end controls.justPressed('debug_1'))
 			{
 				selectedSomethin = true;
 				FlxTransitionableState.skipNextTransIn = false;
 				FlxTransitionableState.skipNextTransOut = false;
 				MusicBeatState.switchState(new MasterEditorMenu());
 			}
-			#end
 		}
 
 		super.update(elapsed);

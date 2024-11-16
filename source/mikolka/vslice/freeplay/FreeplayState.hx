@@ -181,6 +181,7 @@ class FreeplayState extends MusicBeatSubstate
 	var curPlaying:Bool = false;
 
 	var dj:Null<FreeplayDJ> = null;
+	var djTouchHitbox:FlxSprite = new FlxSprite(108, 408);
 
 	var ostName:FlxText;
 	var albumRoll:AlbumRoll;
@@ -191,6 +192,9 @@ class FreeplayState extends MusicBeatSubstate
 	var exitMovers:ExitMoverData = new Map();
 
 	var exitMoversCharSel:ExitMoverData = new Map();
+
+	var diffSelLeft:DifficultySelector;
+	var diffSelRight:DifficultySelector;
 
 	var stickerSubState:Null<StickerSubState> = null;
 
@@ -223,13 +227,15 @@ class FreeplayState extends MusicBeatSubstate
 
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
+		controls.isInSubstate = true;
 		super();
 		inNewFreeplayState = true;
 		var saveBox = VsliceOptions.LAST_MOD;
 		currentCharacterId = saveBox.char_name;
-
+		// switch to the character's mod to load her registry
 		if (ModsHelper.isModDirEnabled(saveBox.mod_dir))
 			ModsHelper.loadModDir(saveBox.mod_dir);
+
 		var result = PlayerRegistry.instance.fetchEntry(currentCharacterId);
 		if (result == null)
 		{
@@ -264,6 +270,10 @@ class FreeplayState extends MusicBeatSubstate
 
 	override function create():Void
 	{
+		//? Psych might've reloaded the mod list. Make sure we select current character's mod for the style
+		var saveBox = VsliceOptions.LAST_MOD;
+		if (ModsHelper.isModDirEnabled(saveBox.mod_dir))
+			ModsHelper.loadModDir(saveBox.mod_dir);
 		// We build a bunch of sprites BEFORE create() so we can guarantee they aren't null later on.
 		//? but doing it here, because psych 0.6.3 can destroy graphics created in the constructor
 		if(VsliceOptions.FP_CARDS){
@@ -393,6 +403,11 @@ class FreeplayState extends MusicBeatSubstate
 			});
 		}
 
+		djTouchHitbox = djTouchHitbox.makeGraphic(250, 250, FlxColor.TRANSPARENT);
+		djTouchHitbox.cameras = dj.cameras;
+		djTouchHitbox.active = false;
+		add(djTouchHitbox);
+
 		bgDad.shader = angleMaskShader;
 		bgDad.visible = false;
 
@@ -435,6 +450,7 @@ class FreeplayState extends MusicBeatSubstate
 		grpFallbackDifficulty = new FlxText(70, 90, 250, "AAAAAAAAAAAAAA");
 		grpFallbackDifficulty.setFormat(Paths.font("vcr.ttf"), 60, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		grpFallbackDifficulty.borderSize = 2;
+		grpFallbackDifficulty.antialiasing = ClientPrefs.data.antialiasing;
 		add(grpFallbackDifficulty);
 
 		grpDifficulties = new FlxTypedSpriteGroup<DifficultySprite>(-300, 80);
@@ -499,16 +515,19 @@ class FreeplayState extends MusicBeatSubstate
 		var fnfFreeplay:FlxText = new FlxText(8, 8, 0, 'FREEPLAY', 48);
 		fnfFreeplay.font = Paths.font("vcr.ttf");
 		fnfFreeplay.visible = false;
+		fnfFreeplay.antialiasing = ClientPrefs.data.antialiasing;
 
 		ostName.font = Paths.font("vcr.ttf");
 		ostName.alignment = RIGHT;
 		ostName.visible = false;
+		ostName.antialiasing = ClientPrefs.data.antialiasing;
 
 		charSelectHint.alignment = CENTER;
 		charSelectHint.font = "5by7";
 		charSelectHint.color = 0xFF5F5F5F;
-		charSelectHint.text = 'Press [ TAB ] to change characters'; // ?! ${controls.getDialogueNameFromControl(FREEPLAY_CHAR_SELECT, true)}
+		charSelectHint.text = controls.mobileC ? 'Touch on the DJ to change characters' : 'Press [ TAB ] to change characters'; // ?! ${controls.getDialogueNameFromControl(FREEPLAY_CHAR_SELECT, true)}
 		charSelectHint.y -= 100;
+		charSelectHint.antialiasing = ClientPrefs.data.antialiasing;
 		FlxTween.tween(charSelectHint, {y: charSelectHint.y + 100}, 0.8, {ease: FlxEase.quartOut});
 
 		exitMovers.set([overhangStuff, fnfFreeplay, ostName, charSelectHint], {
@@ -605,8 +624,8 @@ class FreeplayState extends MusicBeatSubstate
 			wait: 0.1
 		});
 
-		var diffSelLeft:DifficultySelector = new DifficultySelector(this, 20, grpDifficulties.y - 10, false, controls, styleData);
-		var diffSelRight:DifficultySelector = new DifficultySelector(this, 325, grpDifficulties.y - 10, true, controls, styleData);
+		diffSelLeft = new DifficultySelector(this, 20, grpDifficulties.y - 10, false, controls, styleData);
+		diffSelRight = new DifficultySelector(this, 325, grpDifficulties.y - 10, true, controls, styleData);
 		diffSelLeft.visible = false;
 		diffSelRight.visible = false;
 		add(diffSelLeft);
@@ -630,6 +649,7 @@ class FreeplayState extends MusicBeatSubstate
 		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		missingText.scrollFactor.set();
 		missingText.visible = false;
+		missingText.antialiasing = ClientPrefs.data.antialiasing;
 
 		// be careful not to "add()" things in here unless it's to a group that's already added to the state
 		// otherwise it won't be properly attatched to funnyCamera (relavent code should be at the bottom of create())
@@ -746,6 +766,33 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			rankCamera.fade(0xFF000000, 0, false, null, true);
 		}
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('UP_DOWN', 'A_B_F');
+		addTouchPadCamera();
+		if (prepForNewRank)
+		{
+			final lastAlpha:Float = touchPad.alpha;
+			touchPad.alpha = 0;
+			FlxTween.tween(touchPad, {alpha: lastAlpha}, 1.6, {ease: FlxEase.circOut});
+		}
+		else if (!fromCharSelect)
+		{
+			touchPad.forEachAlive(function(button:TouchButton)
+			{
+				if (button.tag == 'UP' || button.tag == 'DOWN')
+				{
+					button.x -= 350;
+					FlxTween.tween(button, {x: button.x + 350}, 0.6, {ease: FlxEase.backInOut});
+				}
+				else
+				{
+					button.x += 450;
+					FlxTween.tween(button, {x: button.x - 450}, 0.6, {ease: FlxEase.backInOut});
+				}
+			});
+		}
+		#end
 
 		if (fromCharSelect == true)
 		{
@@ -1168,6 +1215,9 @@ class FreeplayState extends MusicBeatSubstate
 
 			rankCamera.zoom = 0.8;
 			funnyCam.zoom = 0.8;
+			#if TOUCH_CONTROLS_ALLOWED
+			IntervalShake.shake(touchPad, 0.6, 1 / 24, 0.24, 0, FlxEase.quadOut);
+			#end
 			FlxTween.tween(rankCamera, {"zoom": 1}, 1, {ease: FlxEase.elasticOut});
 			FlxTween.tween(funnyCam, {"zoom": 1}, 0.8, {ease: FlxEase.elasticOut});
 
@@ -1253,6 +1303,19 @@ class FreeplayState extends MusicBeatSubstate
 			// dj.fistPump();
 			prepForNewRank = false;
 		});
+	}
+
+	override function closeSubState()
+	{
+		super.closeSubState();
+		persistentUpdate = true;
+		controls.isInSubstate = true;
+
+		#if TOUCH_CONTROLS_ALLOWED
+		removeTouchPad();
+		addTouchPad('UP_DOWN', 'A_B_F');
+		addTouchPadCamera();
+		#end
 	}
 
 	function tryOpenCharSelect():Void
@@ -1341,6 +1404,9 @@ class FreeplayState extends MusicBeatSubstate
 				FlxTween.tween(spr, {y: moveDataY + spr.y}, moveDataSpeed, {ease: FlxEase.backIn});
 			}
 		}
+		#if TOUCH_CONTROLS_ALLOWED
+		FlxTween.tween(touchPad, {alpha: 0}, 0.6, {ease: FlxEase.backIn});
+		#end
 		backingCard?.enterCharSel();
 	}
 
@@ -1409,6 +1475,10 @@ class FreeplayState extends MusicBeatSubstate
 					}
 				});
 			}
+			#if TOUCH_CONTROLS_ALLOWED
+			touchPad.alpha = 0;
+			FlxTween.tween(touchPad, {alpha: ClientPrefs.data.controlsAlpha}, 0.8, {ease: FlxEase.backIn});
+			#end
 		}
 	}
 
@@ -1478,7 +1548,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		#end // ^<-- FEATURE_DEBUG_FUNCTIONS
 
-		if (FunkinControls.FREEPLAY_CHAR && !busy) 
+		if (FunkinControls.FREEPLAY_CHAR || (TouchUtil.overlaps(djTouchHitbox) && TouchUtil.justReleased && !SwipeUtil.swipeAny) && !busy) 
 		{
 			tryOpenCharSelect();
 		}
@@ -1587,81 +1657,6 @@ class FreeplayState extends MusicBeatSubstate
 		var last:Bool = FlxG.keys.justPressed.END;
 		var accepted:Bool = controls.ACCEPT;
 
-		if (FlxG.onMobile)
-		{
-			for (touch in FlxG.touches.list)
-			{
-				if (touch.justPressed)
-				{
-					initTouchPos.set(touch.screenX, touch.screenY);
-				}
-				if (touch.pressed)
-				{
-					var dx:Float = initTouchPos.x - touch.screenX;
-					var dy:Float = initTouchPos.y - touch.screenY;
-
-					var angle:Float = Math.atan2(dy, dx);
-					var length:Float = Math.sqrt(dx * dx + dy * dy);
-
-					FlxG.watch.addQuick('LENGTH', length);
-					FlxG.watch.addQuick('ANGLE', Math.round(FlxAngle.asDegrees(angle)));
-				}
-			}
-
-			if (FlxG.touches.getFirst() != null)
-			{
-				if (touchTimer >= 1.5)
-					accepted = true;
-
-				touchTimer += elapsed;
-				var touch:FlxTouch = FlxG.touches.getFirst();
-
-				velTouch = Math.abs((touch.screenY - dyTouch)) / 50;
-
-				dyTouch = touch.screenY - touchY;
-				dxTouch = touch.screenX - touchX;
-
-				if (touch.justPressed)
-				{
-					touchY = touch.screenY;
-					dyTouch = 0;
-					velTouch = 0;
-
-					touchX = touch.screenX;
-					dxTouch = 0;
-				}
-
-				if (Math.abs(dxTouch) >= 100)
-				{
-					touchX = touch.screenX;
-					if (dxTouch != 0)
-						dxTouch < 0 ? changeDiff(1) : changeDiff(-1);
-				}
-
-				if (Math.abs(dyTouch) >= 100)
-				{
-					touchY = touch.screenY;
-
-					if (dyTouch != 0)
-						dyTouch < 0 ? changeSelection(1) : changeSelection(-1);
-				}
-			}
-			else
-			{
-				touchTimer = 0;
-			}
-		}
-
-		#if mobile
-		for (touch in FlxG.touches.list)
-		{
-			if (touch.justPressed)
-			{
-				// accepted = true;
-			}
-		}
-		#end
-
 		if ((controls.UI_UP || controls.UI_DOWN))
 		{
 			missingText.visible = false;
@@ -1741,21 +1736,29 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		#end
 
-		if (controls.UI_LEFT_P)
+		if (controls.UI_LEFT_P || (TouchUtil.overlapsComplex(diffSelLeft) && TouchUtil.justPressed))
 		{
 			if (dj != null)
 				dj.resetAFKTimer();
 			changeDiff(-1);
 			rememberedDifficulty = currentDifficulty; // ? make sure to remember it, because otherwise we'll forget about it
 			generateSongList(currentFilter, true);
+			if (diffSelLeft != null) diffSelLeft.setPress(true);
 		}
-		if (controls.UI_RIGHT_P)
+		if (controls.UI_RIGHT_P || (TouchUtil.overlapsComplex(diffSelRight) && TouchUtil.justPressed))
 		{
 			if (dj != null)
 				dj.resetAFKTimer();
 			changeDiff(1);
 			rememberedDifficulty = currentDifficulty; // ? make sure to remember it, because otherwise we'll forget about it
 			generateSongList(currentFilter, true);
+			if (diffSelLeft != null) diffSelRight.setPress(true);
+		}
+
+		if (diffSelLeft != null && diffSelRight != null && TouchUtil.justReleased)
+		{
+			diffSelRight.setPress(false);
+			diffSelLeft.setPress(false);
 		}
 
 		if (controls.BACK && !busy)
@@ -1775,6 +1778,16 @@ class FreeplayState extends MusicBeatSubstate
 			// FlxTween.color(pinkBack, 0.25, pinkBack.color, 0xFFFFD0D5, {ease: FlxEase.quadOut});
 			// FlxTween.color(bgDad, 0.33, 0xFFFFFFFF, 0xFF555555, {ease: FlxEase.quadOut});
 			backingCard?.disappear();
+
+			#if TOUCH_CONTROLS_ALLOWED
+			touchPad.forEachAlive(function(button:TouchButton)
+			{
+				if (button.tag == 'UP' || button.tag == 'DOWN')
+					FlxTween.tween(button, {x: button.x - 350}, 1.2, {ease: FlxEase.backOut});
+				else
+					FlxTween.tween(button, {x: button.x + 450}, 1.2, {ease: FlxEase.backOut});
+			});
+			#end
 
 			for (grpSpr in exitMovers.keys())
 			{
@@ -1843,11 +1856,6 @@ class FreeplayState extends MusicBeatSubstate
 		}
 	}
 
-	override function closeSubState() {
-		persistentUpdate = true;
-		super.closeSubState();
-	}
-
 	override function beatHit()
 	{
 		backingCard?.beatHit(curBeat);
@@ -1857,6 +1865,7 @@ class FreeplayState extends MusicBeatSubstate
 
 	public override function destroy():Void
 	{
+		controls.isInSubstate = false;
 		super.destroy();
 		var daSong:Null<FreeplaySongData> = currentFilteredSongs[curSelected];
 		if (daSong != null)
@@ -2370,6 +2379,22 @@ class DifficultySelector extends FlxSprite
 			moveShitDown();
 
 		super.update(elapsed);
+	}
+
+	public function setPress(press:Bool):Void
+	{
+		if (!press)
+		{
+			scale.x = scale.y = 1;
+			whiteShader.colorSet = false;
+			updateHitbox();
+		}
+		else
+		{
+			offset.y -= 5;
+			whiteShader.colorSet = true;
+			scale.x = scale.y = 0.5;
+		}
 	}
 
 	function moveShitDown():Void

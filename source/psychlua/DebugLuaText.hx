@@ -8,6 +8,7 @@ class DebugLuaText extends FlxText
 
 		setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scrollFactor.set();
+		antialiasing = ClientPrefs.data.antialiasing;
 		borderSize = 1;
 	}
 

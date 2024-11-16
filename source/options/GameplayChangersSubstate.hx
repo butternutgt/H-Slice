@@ -92,6 +92,8 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 	public function new()
 	{
+		controls.isInSubstate = true;
+
 		super();
 		
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -142,7 +144,10 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			}
 			updateTextFrom(optionsArray[i]);
 		}
-
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('LEFT_FULL', 'A_B_C');
+		addTouchPadCamera(false);
+		#end
 		changeSelection();
 		reloadCheckboxes();
 
@@ -164,6 +169,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		{
 			close();
 			ClientPrefs.saveSettings();
+			controls.isInSubstate = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 		}
 
@@ -281,8 +287,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 				else if(controls.UI_LEFT_R || controls.UI_RIGHT_R)
 					clearHold();
 			}
-
+			#if TOUCH_CONTROLS_ALLOWED
+			if(controls.RESET || touchPad.buttonC.justPressed)
+			#else
 			if(controls.RESET)
+			#end
 			{
 				for (i in 0...optionsArray.length)
 				{
@@ -315,6 +324,14 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		if(nextAccept > 0) {
 			nextAccept -= 1;
 		}
+
+		#if TOUCH_CONTROLS_ALLOWED
+		if (touchPad == null) { //sometimes it dosent add the vpad, hopefully this fixes it
+			addTouchPad('LEFT_FULL', 'A_B_C');
+			addTouchPadCamera(false);
+		}
+		#end
+		
 		super.update(elapsed);
 	}
 

@@ -44,13 +44,11 @@ class PixelatedIcon extends FlxFilteredSprite
 				charPath += '${char}';
 
 				var image = Paths.image(charPath);
-				var healthIcon:Bool = false;
-
 				if (image == null) // TODO
 				{
 					#if debug trace('[WARN] Character ${char} has no freeplay icon.'); #end
 					image = Paths.image("icons/icon-face");
-					healthIcon = true;
+					// healthIcon = true;
 				}
 				this.loadGraphic(image, true, Math.floor(image.width / 2), Math.floor(image.height));
 				animation.add("idle", [0]);
@@ -58,7 +56,6 @@ class PixelatedIcon extends FlxFilteredSprite
 				this.scale.x = this.scale.y = 0.58;
 				this.updateHitbox();
 				this.origin.x = 100;
-				if (healthIcon) this.antialiasing = true;
 			// animation.play("idle");
 			case PIXEL:
 				// legacy P-Slice freeplay icons

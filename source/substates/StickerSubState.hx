@@ -1,5 +1,6 @@
 package substates;
 
+import mikolka.compatibility.VsliceOptions;
 import states.MainMenuState;
 import flixel.FlxSprite;
 import haxe.Json;
@@ -44,9 +45,10 @@ class StickerSubState extends MusicBeatSubstate
 	var soundSelection:String = "";
 	var sounds:Array<String> = [];
 
-	public function new(?oldStickers:Array<StickerSprite>, ?targetState:StickerSubState->FlxState):Void
-	{
-		super();
+  public function new(?oldStickers:Array<StickerSprite>, ?targetState:StickerSubState->FlxState):Void
+  {
+    //controls.isInSubstate = true;
+    super();
 
 		this.targetState = (targetState == null) ? ((sticker) -> new MainMenuState()) : targetState;
 
@@ -341,11 +343,12 @@ class StickerSubState extends MusicBeatSubstate
 		super.close();
 	}
 
-	override public function destroy():Void
-	{
-		if (switchingState) return;
-		super.destroy();
-	}
+  override public function destroy():Void
+  {
+    //controls.isInSubstate = false;
+    if (switchingState) return;
+    super.destroy();
+  }
 }
 
 class StickerSprite extends FlxSprite
@@ -358,13 +361,14 @@ class StickerSprite extends FlxSprite
 		scrollFactor.set();
 	}
 
-	public function new(x:Float, y:Float, stickerSet:String, stickerName:String):Void
-	{
-		super(x, y);
-		stickerPath = stickerSet == null ? stickerName : 'transitionSwag/$stickerSet/$stickerName';
-		loadSticker();
-		
-	}
+  public function new(x:Float, y:Float, stickerSet:String, stickerName:String):Void
+  {
+    super(x, y);
+    stickerPath = stickerSet == null ? stickerName : 'transitionSwag/$stickerSet/$stickerName';
+    antialiasing = VsliceOptions.ANTIALIASING;
+    loadSticker();
+    
+  }
 }
 
 class StickerInfo

@@ -1,5 +1,6 @@
 package states.editors;
 
+import openfl.events.UncaughtErrorEvent;
 import mikolka.compatibility.VsliceOptions;
 import flixel.math.FlxRandom;
 import backend.WeekData;
@@ -18,6 +19,9 @@ class MasterEditorMenu extends MusicBeatState
 		'Menu Character Editor', 
 		'Dialogue Editor', 
 		'Dialogue Portrait Editor',
+		#if debug
+		'Crash the game',
+		#end
 		'Note Splash Editor', 
 		'Preview results (perfect)', 
 		'Preview results (excellent)', 
@@ -65,6 +69,7 @@ class MasterEditorMenu extends MusicBeatState
 		directoryTxt = new FlxText(textBG.x, textBG.y + 4, FlxG.width, '', 32);
 		directoryTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		directoryTxt.scrollFactor.set();
+		directoryTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(directoryTxt);
 
 		for (folder in Mods.getModDirectories())
@@ -80,6 +85,11 @@ class MasterEditorMenu extends MusicBeatState
 		changeSelection();
 
 		FlxG.mouse.visible = false;
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad(#if MODS_ALLOWED 'LEFT_FULL' #else 'UP_DOWN' #end, 'A_B');
+		#end
+		
 		super.create();
 	}
 
@@ -132,6 +142,15 @@ class MasterEditorMenu extends MusicBeatState
 					MusicBeatState.switchState(new NoteSplashEditorState());
 				case 'Test stickers':
 					MusicBeatState.switchState(new StickerTest());
+				#if debug
+				case 'Crash the game':{
+					@:privateAccess
+					openfl.Lib.current.loaderInfo.uncaughtErrorEvents.dispatchEvent(
+						new UncaughtErrorEvent(
+							openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR,
+							true,true,new openfl.errors.Error("The devs are too stupid and they write way too long errors")));
+				}
+				#end
 				case 'Preview results (perfect)':
 					runResults(200);
 				case 'Preview results (excellent)':

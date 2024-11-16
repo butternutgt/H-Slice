@@ -76,6 +76,7 @@ class NoteOffsetState extends MusicBeatState
 		coolText = new FlxText(0, 0, 0, '', 32);
 		coolText.screenCenter();
 		coolText.x = FlxG.width * 0.35;
+		coolText.antialiasing = ClientPrefs.data.antialiasing;
 
 		rating = new FlxSprite().loadGraphic(Paths.image('sick'));
 		rating.cameras = [camHUD];
@@ -135,6 +136,7 @@ class NoteOffsetState extends MusicBeatState
 		timeTxt.borderSize = 2;
 		timeTxt.visible = false;
 		timeTxt.cameras = [camHUD];
+		timeTxt.antialiasing = ClientPrefs.data.antialiasing;
 
 		barPercent = ClientPrefs.data.noteOffset;
 		updateNoteDelay();
@@ -161,6 +163,7 @@ class NoteOffsetState extends MusicBeatState
 		changeModeText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		changeModeText.scrollFactor.set();
 		changeModeText.cameras = [camHUD];
+		changeModeText.antialiasing = ClientPrefs.data.antialiasing;
 		add(changeModeText);
 		
 		controllerPointer = new FlxShapeCircle(0, 0, 20, {thickness: 0}, FlxColor.WHITE);
@@ -183,8 +186,8 @@ class NoteOffsetState extends MusicBeatState
 	var onComboMenu:Bool = true;
 	var holdingObjectType:Null<Int> = null;
 
-	var startMousePos:FlxPoint = new FlxPoint();
-	var startComboOffset:FlxPoint = new FlxPoint();
+	var startMousePos:FlxPoint = FlxPoint.get();
+	var startComboOffset:FlxPoint = FlxPoint.get();
 
 	override public function update(elapsed:Float)
 	{
@@ -365,7 +368,7 @@ class NoteOffsetState extends MusicBeatState
 				}
 			}
 
-			if(controls.RESET)
+			if(controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonC.justPressed #end)
 			{
 				for (i in 0...ClientPrefs.data.comboOffset.length)
 				{
@@ -403,7 +406,7 @@ class NoteOffsetState extends MusicBeatState
 				updateNoteDelay();
 			}
 
-			if(controls.RESET)
+			if(controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonC.justPressed #end)
 			{
 				holdTime = 0;
 				barPercent = 0;
@@ -514,6 +517,7 @@ class NoteOffsetState extends MusicBeatState
 			text.borderSize = 2;
 			dumbTexts.add(text);
 			text.cameras = [camHUD];
+			text.antialiasing = ClientPrefs.data.antialiasing;
 
 			if(i%2 == 1)
 			{
@@ -563,18 +567,39 @@ class NoteOffsetState extends MusicBeatState
 			controllerPointer.visible = controls.controllerMode;
 		}
 
+		#if TOUCH_CONTROLS_ALLOWED
+        removeTouchPad();
+		#end
+
 		var str:String;
 		var str2:String;
-		if(onComboMenu)
+		if(onComboMenu){
 			str = Language.getPhrase('combo_offset', 'Combo Offset');
-		else
+			#if TOUCH_CONTROLS_ALLOWED
+			addTouchPad('NONE', 'A_B_C');
+			addTouchPadCamera(false);
+			#end
+		} else {
 			str = Language.getPhrase('note_delay', 'Note/Beat Delay');
+			#if TOUCH_CONTROLS_ALLOWED
+			addTouchPad('LEFT_FULL', 'A_B_C');
+			addTouchPadCamera(false);
+			#end
+		}
 
-		if(!controls.controllerMode)
+		if(controls.mobileC)
+			str2 = '(Press A to Switch)';
+		else if(!controls.controllerMode)
 			str2 = Language.getPhrase('switch_on_accept', '(Press Accept to Switch)');
 		else
 			str2 = Language.getPhrase('switch_on_start', '(Press Start to Switch)');
 
 		changeModeText.text = '< ${str.toUpperCase()} ${str2.toUpperCase()} >';
+	}
+
+	override function destroy(){
+		startMousePos.put();
+		startComboOffset.put();
+		super.destroy();
 	}
 }

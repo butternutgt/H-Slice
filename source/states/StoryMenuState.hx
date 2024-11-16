@@ -81,11 +81,14 @@ class StoryMenuState extends MusicBeatState
 		DiscordClient.changePresence("In the Story Menus", null);
 		#end
 
+		final accept:String = controls.mobileC ? "A" : "ACCEPT";
+		final reject:String = controls.mobileC ? "B" : "BACK";
+
 		if(WeekData.weeksList.length < 1)
 		{
 			FlxTransitionableState.skipNextTransIn = true;
 			persistentUpdate = false;
-			MusicBeatState.switchState(new states.ErrorState("NO LEVELS ADDED FOR STORY MODE\n\nPress ACCEPT to go to the Week Editor Menu.\nPress BACK to return to Main Menu.",
+			MusicBeatState.switchState(new states.ErrorState("NO LEVELS ADDED FOR STORY MODE\n\nPress " + accept + " to go to the Week Editor Menu.\nPress " + reject + " to return to Main Menu.",
 				function() MusicBeatState.switchState(new states.editors.WeekEditorState()),
 				function() MusicBeatState.switchState(new states.MainMenuState())));
 			return;
@@ -95,10 +98,12 @@ class StoryMenuState extends MusicBeatState
 
 		scoreText = new FlxText(10, 10, 0, Language.getPhrase('week_score', 'LEVEL SCORE: {1}', [lerpScore]), 36);
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32);
+		scoreText.antialiasing = ClientPrefs.data.antialiasing;
 
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, "", 32);
 		txtWeekTitle.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 		txtWeekTitle.alpha = 0.7;
+		txtWeekTitle.antialiasing = ClientPrefs.data.antialiasing;
 
 		var ui_tex = Paths.getSparrowAtlas('campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
@@ -202,12 +207,17 @@ class StoryMenuState extends MusicBeatState
 		txtTracklist.alignment = CENTER;
 		txtTracklist.font = Paths.font("vcr.ttf");
 		txtTracklist.color = 0xFFe55777;
+		txtTracklist.antialiasing = ClientPrefs.data.antialiasing;
 		add(txtTracklist);
 		add(scoreText);
 		add(txtWeekTitle);
 
 		changeWeek();
 		changeDifficulty();
+
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('LEFT_FULL', 'A_B_X_Y');
+		#end
 
 		super.create();
 	}
@@ -216,6 +226,11 @@ class StoryMenuState extends MusicBeatState
 		persistentUpdate = true;
 		changeWeek();
 		super.closeSubState();
+
+		#if TOUCH_CONTROLS_ALLOWED
+		removeTouchPad();
+		addTouchPad('LEFT_FULL', 'A_B_X_Y');
+		#end
 	}
 
 	override function update(elapsed:Float)
@@ -284,15 +299,21 @@ class StoryMenuState extends MusicBeatState
 			else if (changeDiff)
 				changeDifficulty();
 
-			if(FlxG.keys.justPressed.CONTROL)
+			if(FlxG.keys.justPressed.CONTROL #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonX.justPressed #end)
 			{
 				persistentUpdate = false;
 				openSubState(new GameplayChangersSubstate());
+				#if TOUCH_CONTROLS_ALLOWED
+				removeTouchPad();
+				#end
 			}
-			else if(controls.RESET)
+			else if(controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonY.justPressed #end)
 			{
 				persistentUpdate = false;
 				openSubState(new ResetScoreSubState('', curDifficulty, '', curWeek));
+				#if TOUCH_CONTROLS_ALLOWED
+				removeTouchPad();
+				#end
 				//FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
 			}
 			else if (controls.ACCEPT)

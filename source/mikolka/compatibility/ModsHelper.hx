@@ -20,7 +20,11 @@ class ModsHelper {
 		return Mods.currentModDirectory;
 	}
 	public static function getModsWithPlayersRegistry():Array<String> {
+		#if MODS_ALLOWED
 		return Mods.parseList().enabled.filter(s ->FileSystem.exists(Paths.mods(s)+'/registry/players'));
+		#else
+		return [];
+		#end
 	}
 	public inline static function loadabsoluteGraphic(path:String):FlxGraphic {
 		if(!Paths.currentTrackedAssets.exists(path)) {
@@ -41,7 +45,10 @@ class ModsHelper {
 		var cache = FlxG.bitmap._cache;
 		Paths.currentTrackedAssets.clear();
 		for (key => val in cache){
-		if(key.toLowerCase().contains("transitionswag") || key.contains("bg_graphic_")) Paths.currentTrackedAssets.set(key,val);
+		if(	key.toLowerCase().contains("transitionswag") || 
+			key.contains("bg_graphic_") ||
+			key == "images/justBf.png"
+		) Paths.currentTrackedAssets.set(key,val);
 		}
 		Paths.clearStoredMemory();
 	}

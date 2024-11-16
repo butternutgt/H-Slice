@@ -36,6 +36,7 @@ class BGScrollingText extends FlxSpriteGroup
     testText.font = "5by7";
     testText.bold = bold;
     testText.updateHitbox();
+    testText.antialiasing = ClientPrefs.data.antialiasing;
     grpTexts.add(testText);
 
     var needed:Int = Math.ceil(widthShit / testText.frameWidth) + 1;
@@ -49,6 +50,7 @@ class BGScrollingText extends FlxSpriteGroup
       coolText.font = "5by7";
       coolText.bold = bold;
       coolText.updateHitbox();
+      coolText.antialiasing = ClientPrefs.data.antialiasing;
       grpTexts.add(coolText);
     }
   }

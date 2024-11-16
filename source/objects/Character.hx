@@ -3,7 +3,6 @@ package objects;
 import backend.animation.PsychAnimationController;
 
 import flixel.util.FlxSort;
-import flixel.util.FlxDestroyUtil;
 
 import openfl.utils.AssetType;
 import openfl.utils.Assets;
@@ -128,6 +127,7 @@ class Character extends FlxSprite
 			missingCharacter = true;
 			missingText = new FlxText(0, 0, 300, 'ERROR:\n$character.json', 16);
 			missingText.alignment = CENTER;
+			missingText.antialiasing = ClientPrefs.data.antialiasing;
 		}
 
 		try

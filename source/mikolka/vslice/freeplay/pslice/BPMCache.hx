@@ -14,17 +14,25 @@ class BPMCache {
             return bpmMap[sngDataPath];
         }
         bpmMap[sngDataPath] = 0;
-        if(!FileSystem.exists(sngDataPath)){
+        if(!exists(sngDataPath)){
             #if debug trace('Missing data folder for $fileSngName in $sngDataPath for BPM scrapping!!'); #end //TODO
             return 0;
         }
-        var chartFiles = FileSystem.readDirectory(sngDataPath)
-				.filter(s -> s.toLowerCase().startsWith(fileSngName) && s.endsWith(".json"));
-        var chosenChartToScrap = '$sngDataPath/${chartFiles[0]}';
+        var chartFiles = Paths.readDirectory(sngDataPath);
+        #if MODS_ALLOWED
+        chartFiles = chartFiles.filter(s -> s.toLowerCase().startsWith(fileSngName) && s.endsWith(".json"));
+        var chosenChartToScrap = sngDataPath+"/"+chartFiles[0];
+        #else
+        var regexSongName = fileSngName.replace("(","\\(").replace(")","\\)");
+        chartFiles = chartFiles.filter(s -> new EReg('\\/$regexSongName\\/$regexSongName.*\\.json',"").match(s));
+        var chosenChartToScrap = chartFiles[0];
+        #end
+        
+        
 		
-		if(FileSystem.exists(chosenChartToScrap)){
+		if(exists(chosenChartToScrap)){
 			var bpmFinder = ~/"bpm": *([0-9]+)/g; //TODO fix this regex
-			var cleanChart = ~/"notes": *\[.*\]/gs.replace(File.getContent(chosenChartToScrap),"");
+			var cleanChart = ~/"notes": *\[.*\]/gs.replace(getContent(chosenChartToScrap),"");
 			if(bpmFinder.match(cleanChart)){
                 bpmMap[sngDataPath] = Std.parseInt(bpmFinder.matched(1));
             } 
@@ -39,5 +47,23 @@ class BPMCache {
     }
     public function clearCache() {
         bpmMap.clear();
+    }
+    private function exists(path:String) {
+        #if MODS_ALLOWED
+        return FileSystem.exists(path);
+        #else
+        @:privateAccess
+        for (entry in lime.utils.Assets.libraries.get("default").types.keys()){
+            if(entry.startsWith(path)) return true;
+        }
+        return false;
+        #end
+    }
+    function getContent(path:String) {
+        #if MODS_ALLOWED
+        return File.getContent(path);
+        #else
+        return lime.utils.Assets.getText("default:"+path);
+        #end
     }
 }
