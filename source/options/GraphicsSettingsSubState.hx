@@ -1,5 +1,6 @@
 package options;
 
+import openfl.system.System;
 import objects.Character;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
@@ -81,7 +82,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		for (sprite in members)
 		{
 			var sprite:FlxSprite = cast sprite;
-			if(sprite != null && (sprite is FlxSprite) && !(sprite is FlxText)) {
+			if(sprite != null && (sprite is FlxSprite)) {
 				sprite.antialiasing = ClientPrefs.data.antialiasing;
 			}
 		}

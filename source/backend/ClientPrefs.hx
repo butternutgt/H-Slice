@@ -19,7 +19,7 @@ import states.TitleState;
 	public var storageType:String = "EXTERNAL_DATA";
 	#end
 	public var hitboxType:String = "Gradient";
-	public var popUpRating:Bool = true;
+	// public var popUpRating:Bool = true;
 	public var vsync:Bool = false;
 	public var vibrating:Bool = false;
 

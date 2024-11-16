@@ -246,14 +246,14 @@ class CoolUtil
 	// ')
 
 	@:functionCode('		
-		// 現在時刻を取得
+		// Get the current time
 		auto now = std::chrono::high_resolution_clock::now();
 		
-		// エポックからの経過時間をdurationとして取得（秒単位に変換）
+		// Time elapsed since the epoch is obtained as DURATION (converted to seconds)
 		auto duration = now.time_since_epoch();
 		auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(duration);
 		
-		// 秒数をdoubleとして返す
+		// Returns the second as double
 		return seconds.count();
 	')
 	static public function getNanoTime():Float64

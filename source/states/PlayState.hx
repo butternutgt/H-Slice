@@ -207,9 +207,7 @@ class PlayState extends MusicBeatState
 
 	var songPercent:Float = 0;
 	public var nanoPosition:Bool = ClientPrefs.data.nanoPosition;
-
 	public var ratingsData:Array<Rating> = Rating.loadDefault();
-
 	private var generatedMusic:Bool = false;
 
 	public var endingSong:Bool = false;
@@ -854,8 +852,6 @@ class PlayState extends MusicBeatState
 			MemoryUtil.collect(true);
 			MemoryUtil.disable();
 		}
-
-		if (nanoPosition) nanoTime = CoolUtil.getNanoTime();
 	}
 
 	function set_songSpeed(value:Float):Float
@@ -1225,7 +1221,7 @@ class PlayState extends MusicBeatState
 			}
 
 			startedCountdown = true;
-			Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
+			// Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 			botplaySine = Conductor.songPosition * 0.18;
 			setOnScripts('startedCountdown', true);
 			callOnScripts('onCountdownStarted');
@@ -1356,7 +1352,7 @@ class PlayState extends MusicBeatState
 				daNote.visible = false;
 				daNote.ignoreNote = true;
 
-				if(!ClientPrefs.data.lowQuality || !ClientPrefs.data.popUpRating || !cpuControlled) daNote.kill();
+				if(!ClientPrefs.data.lowQuality || !showPopups || !cpuControlled) daNote.kill();
 				unspawnNotes.remove(daNote);
 				daNote.destroy();
 			}
@@ -2070,6 +2066,7 @@ class PlayState extends MusicBeatState
 	{
 		if (health > 0 && !paused)
 			resetRPC(Conductor.songPosition > 0.0);
+		if (FlxG.autoPause && nanoPosition) nanoTime = CoolUtil.getNanoTime();
 		super.onFocus();
 	}
 
@@ -2079,6 +2076,9 @@ class PlayState extends MusicBeatState
 		if (health > 0 && !paused && autoUpdateRPC)
 			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 		#end
+
+		if (FlxG.autoPause && nanoPosition) nanoTime = CoolUtil.getNanoTime();
+		trace(nanoTime);
 
 		super.onFocusLost();
 	}
@@ -2226,11 +2226,13 @@ class PlayState extends MusicBeatState
 		splashMoment.fill(0);
 
 		if (nanoPosition) {
-			elapsedNano = started ? CoolUtil.getNanoTime() - nanoTime : Math.min(CoolUtil.getNanoTime() - nanoTime, FlxG.maxElapsed);
+			if (frameCount <= 2) elapsedNano = FlxG.elapsed; // Sync the timing
+			else elapsedNano = CoolUtil.getNanoTime() - nanoTime;
+			
 			globalElapsed = elapsedNano * playbackRate;
 			nanoTime = CoolUtil.getNanoTime();
 		} else {
-			globalElapsed = elapsed * playbackRate;
+			globalElapsed = FlxG.elapsed * playbackRate;
 		}
 		
 		if (startedCountdown && !paused) {
@@ -3948,7 +3950,7 @@ class PlayState extends MusicBeatState
 				uiPostfix = '-pixel';
 		}
 
-		if (ClientPrefs.data.popUpRating)
+		if (showPopups)
 		{
 			for (rating in ratingsData)
 				Paths.image(uiPrefix + rating.image + uiPostfix);
@@ -4629,7 +4631,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public function invalidateNote(note:Note):Void {
-		if(!ClientPrefs.data.lowQuality || !ClientPrefs.data.popUpRating || !cpuControlled) note.kill();
+		if(!ClientPrefs.data.lowQuality || !showPopups || !cpuControlled) note.kill();
 		notes.remove(note, true);
 		note.destroy();
 	}
@@ -4655,7 +4657,7 @@ class PlayState extends MusicBeatState
 		holdSplashStrum = note.mustPress ? playerStrums.members[note.noteData] : opponentStrums.members[note.noteData];
 		if (note.strum != splashStrum) note.strum = holdSplashStrum;
 
-		susplash.setupSusSplash(note.strum, note, playbackRate);
+		susplash.setupSusSplash(note, playbackRate);
 		susplash.strumNote = note.strum;
 		grpHoldSplashes.add(sustainEnd.noteHoldSplash = susplash);
 	}

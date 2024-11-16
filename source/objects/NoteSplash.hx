@@ -50,7 +50,6 @@ class NoteSplash extends FlxSprite
 		super();
 
         animation = new PsychAnimationController(this);
-
 		rgbShader = new PixelSplashShaderRef();
 		shader = rgbShader.shader;
 
@@ -63,19 +62,22 @@ class NoteSplash extends FlxSprite
 		skin = null;
 
 		var skin:String = splash;
-		if (skin == null || skin.length < 1)
-			skin =  PlayState.SONG?.splashSkin;
+		if (skin == null || skin.length < 1) {
+			skin = PlayState.SONG?.splashSkin;
+		}
 
-		if (skin == null || skin.length < 1)
+		if (skin == null || skin.length == 0) {
 			skin = DEFAULT_SKIN + getSplashSkinPostfix();
+		} else if (skin.indexOf("/") < 0) skin = "noteSplashes/" + skin;
 
 		this.skin = skin;
 
 		try frames = Paths.getSparrowAtlas(skin) catch (e) {
+			trace("splash skin not found");
 			skin = DEFAULT_SKIN; // The splash skin was not found, return to the default
 			this.skin = skin;
 			try frames = Paths.getSparrowAtlas(skin) catch (e) {
-				active = visible = false;
+				active = visible = false; kill();
 			}
 		}
 

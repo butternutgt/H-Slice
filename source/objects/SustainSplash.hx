@@ -1,5 +1,7 @@
 package objects;
 
+import flixel.math.FlxRandom;
+
 class SustainSplash extends FlxSprite
 {
 	public static var startCrochet:Float;
@@ -7,13 +9,16 @@ class SustainSplash extends FlxSprite
 
 	public var strumNote:StrumNote;
 
+	var rnd:FlxRandom;
 	var timer:FlxTimer;
+	var killing:Bool = false;
 
 	public function new():Void
 	{
 		super();
 
 		x = -50000;
+		rnd = new FlxRandom();
 
 		frames = Paths.getSparrowAtlas('holdCovers/holdCover-' + ClientPrefs.data.holdSkin);
 
@@ -21,6 +26,7 @@ class SustainSplash extends FlxSprite
 		animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
 	}
 
+	var killCnt:Int = 0;
 	override function update(elapsed)
 	{
 		super.update(elapsed);
@@ -30,20 +36,24 @@ class SustainSplash extends FlxSprite
 			setPosition(strumNote.x, strumNote.y);
 			visible = strumNote.visible;
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
-
 			// trace(animation.curAnim.name, strumNote.animation.curAnim.name);
 
-			if (animation.curAnim.name == "hold" && strumNote.animation.curAnim.name == "static")
+			// why do i need this stupid function
+			if (strumNote.animation.curAnim.name == "static")
 			{
-				// trace("bye");
-				x = -50000;
-				kill();
-			}
+				if (animation.curAnim.name == "hold") ++killCnt;
+				if (!killing && (killCnt > 2 || animation.curAnim.name == "end")) {
+					// trace("bye");
+					x = -50000;
+					showEndSplash();
+				}
+			} else killCnt = 0;
 		}
 	}
 
-	public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void
+	public function setupSusSplash(daNote:Note, ?playbackRate:Float = 1):Void
 	{
+		killing = false;
 		final lengthToGet:Int = !daNote.isSustainNote ? daNote.tail.length : daNote.parent.tail.length;
 		final timeToGet:Float = !daNote.isSustainNote ? daNote.strumTime : daNote.parent.strumTime;
 		final timeThingy:Float = (startCrochet * lengthToGet + (timeToGet - Conductor.songPosition + ClientPrefs.data.ratingOffset)) / playbackRate * .001;
@@ -67,33 +77,46 @@ class SustainSplash extends FlxSprite
 			shader.data.mult.value = daNote.shader.data.mult.value;
 		}
 
-		strumNote = strum;
+		strumNote = daNote.strum;
 		alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 		offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
 
 		if (timer != null)
 			timer.cancel();
 
-		// if (!daNote.hitByOpponent && !daNote.wasGoodHit && ClientPrefs.data.holdSplashAlpha != 0)
+		if (ClientPrefs.data.holdSplashAlpha != 0) {
 			timer = new FlxTimer().start(timeThingy, (idk:FlxTimer) ->
 			{
-				if (!(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && animation != null)
+				if (
+					!(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && 
+					(daNote.isSustainNote ? daNote.parent.sustainLength : daNote.sustainLength) > 150 && 
+					animation != null)
 				{
 					alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 					animation.play('end', true, false, 0);
 					animation.curAnim.looped = false;
 					animation.curAnim.frameRate = 24;
 					clipRect = null;
-					animation.finishCallback = idkEither -> kill();
-					// trace("hi");
+					animation.finishCallback = idkEither -> kill();					
 					return;
 				}
-				// trace("what");
 				kill();
 			});
+		}
 	}
 
-	override function kill() {
-		super.kill();
+	function showEndSplash() {
+		killing = true;
+		if (animation != null)
+		{
+			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
+			animation.play('end', true, false, 0);
+			animation.curAnim.looped = false;
+			animation.curAnim.frameRate = rnd.int(22, 26);
+			clipRect = null;
+			animation.finishCallback = idkEither -> kill();
+			// trace("hi");
+			return;
+		} else kill();
 	}
 }
