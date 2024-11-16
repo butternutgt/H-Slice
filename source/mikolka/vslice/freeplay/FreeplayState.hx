@@ -1849,7 +1849,7 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			grpCapsules.members[curSelected].onConfirm();
 		}
-		else if(FlxG.keys.justPressed.CONTROL)
+		else if(FlxG.keys.justPressed.CONTROL #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonX.justPressed #end)
 		{
 			persistentUpdate = false;
 			openSubState(new GameplayChangersSubstate());
