@@ -134,7 +134,7 @@ class StorageUtil
 enum abstract StorageType(String) from String to String
 {
 	final forcedPath = '/storage/emulated/0/';
-	final packageNameLocal = 'com.hrek-hexex.hslice';
+	final packageNameLocal = 'com.hrek.hexex.hslice';
 	final fileLocal = 'H-Slice';
 
 	var EXTERNAL_DATA = "EXTERNAL_DATA";
