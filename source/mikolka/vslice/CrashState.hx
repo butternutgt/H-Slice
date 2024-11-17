@@ -117,7 +117,7 @@ class CrashState extends FlxState
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (FlxG.keys.justPressed.ENTER #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonA.justPressed #end)
+		if (FlxG.keys.justPressed.ENTER #if TOUCH_CONTROLS_ALLOWED || musicState.touchPad.buttonA.justPressed #end)
 		{
 			TitleState.initialized = false;
 			TitleState.closedState = false;
@@ -132,7 +132,7 @@ class CrashState extends FlxState
 			FlxTween.globalManager.clear();
 			FlxG.resetGame();
 		}
-		if (FlxG.keys.justPressed.ESCAPE #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonB.justPressed #end) {
+		if (FlxG.keys.justPressed.ESCAPE #if TOUCH_CONTROLS_ALLOWED || musicState.touchPad.buttonB.justPressed #end) {
 			Sys.exit(1);
 		}
 	}
