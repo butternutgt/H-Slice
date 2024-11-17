@@ -28,36 +28,6 @@ class CrashState extends FlxState
 	#if TOUCH_CONTROLS_ALLOWED
 	var musicState:MusicBeatState;
 	var isTouchable:Bool = true;
-	var touchPad:TouchPad;
-
-	public function addTouchPad(DPad:String, Action:String)
-	{
-		touchPad = new TouchPad(DPad, Action);
-		add(touchPad);
-	}
-
-	public function removeTouchPad()
-	{
-		if (touchPad != null)
-		{
-			remove(touchPad);
-			touchPad = FlxDestroyUtil.destroy(touchPad);
-		}
-
-		if(tpadCam != null)
-		{
-			FlxG.cameras.remove(tpadCam);
-			tpadCam = FlxDestroyUtil.destroy(tpadCam);
-		}
-	}
-	
-	override function destroy()
-	{
-		removeTouchPad();
-		removeHitbox();
-		
-		super.destroy();
-	}
 	#else
 	var isTouchable:Bool = false;
 	#end
@@ -95,7 +65,7 @@ class CrashState extends FlxState
 		#if TOUCH_CONTROLS_ALLOWED
 		musicState = new MusicBeatState();
 		musicState.removeTouchPad();
-		addTouchPad('NONE', 'A_B');
+		musicState.addTouchPad('NONE', 'A_B');
 		#end
 
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
