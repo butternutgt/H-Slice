@@ -91,7 +91,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		#if android
-		option = storageTypeOption;
+		option = BaseOptionsMenu.storageTypeOption;
 		addOption(option);
 		#end
 
