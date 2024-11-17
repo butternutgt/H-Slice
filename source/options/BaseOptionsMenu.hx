@@ -28,22 +28,10 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	public var title:String;
 	public var rpcTitle:String;
 
-	#if android
-	public static var storageTypeOption:Option = null;
-	#end
-
 	public var bg:FlxSprite;
 	public function new()
 	{
 		controls.isInSubstate = true;
-		#if android
-		storageTypeOption = new Option('Storage Type',
-			'Which folder Psych Engine should use?\n(CHANGING THIS MAKES DELETE YOUR OLD FOLDER!!)',
-			'storageType',
-			STRING,
-			MobileOptionsSubState.storageTypes
-		);
-		#end
 
 		super();
 
@@ -163,7 +151,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		if (controls.BACK) {
 			#if android
 			// P-Slice moment
-			if (storageTypeOption.getValue() != MobileOptionsSubState.lastStorageType)
+			if (ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
 			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				MobileOptionsSubState.onStorageChange();
