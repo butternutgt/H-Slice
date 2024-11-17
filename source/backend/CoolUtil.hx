@@ -10,20 +10,12 @@ import lime.utils.Assets as LimeAssets;
 	#include <string>
 	#include <chrono>
 	#include <thread>
-')
-
-#if desktop
-@:cppFileCode('
+	
 	#include <stdio.h>
 	#include <iostream>
-')
-#end
-
-#if windows
-@:cppFileCode('
+	
 	#include <windows.h>
 ')
-#end
 
 class CoolUtil
 {
