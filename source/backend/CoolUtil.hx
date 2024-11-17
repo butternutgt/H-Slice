@@ -4,25 +4,33 @@ import cpp.Float64;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
 
-
+#if windows
 @:cppFileCode('
 	#include <stdlib.h>
 	#include <string>
 	#include <chrono>
 	#include <thread>
-	'
-	
-	#if desktop
-	+ '
 	#include <stdio.h>
-	#include <iostream>'
-	#end
-
-	#if windows
-	+ '
-	#include <windows.h>'
-	#end
-)
+	#include <iostream>
+	#include <windows.h>
+')
+#elseif desktop
+@:cppFileCode('
+	#include <stdlib.h>
+	#include <string>
+	#include <chrono>
+	#include <thread>
+	#include <stdio.h>
+	#include <iostream>
+')
+#else
+@:cppFileCode('
+	#include <stdlib.h>
+	#include <string>
+	#include <chrono>
+	#include <thread>
+')
+#end
 
 class CoolUtil
 {
