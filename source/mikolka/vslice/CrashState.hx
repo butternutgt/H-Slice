@@ -25,7 +25,34 @@ class CrashState extends FlxState
 	var EMessage:String;
 	var callstack:Array<StackItem>;
 
-	var isTouchable:Bool = #if TOUCH_CONTROLS_ALLOWED true #else false #end;
+	#if TOUCH_CONTROLS_ALLOWED
+	var musicState:MusicBeatState;
+	var isTouchable:Bool = true;
+	var touchPad:TouchPad;
+
+	public function addTouchPad(DPad:String, Action:String)
+	{
+		touchPad = new TouchPad(DPad, Action);
+		add(touchPad);
+	}
+
+	public function removeTouchPad()
+	{
+		if (touchPad != null)
+		{
+			remove(touchPad);
+			touchPad = FlxDestroyUtil.destroy(touchPad);
+		}
+
+		if(tpadCam != null)
+		{
+			FlxG.cameras.remove(tpadCam);
+			tpadCam = FlxDestroyUtil.destroy(tpadCam);
+		}
+	}
+	#else
+	var isTouchable:Bool = false;
+	#end
 
 	public function new(EMessage:String,callstack:Array<StackItem>)
 	{
@@ -58,7 +85,8 @@ class CrashState extends FlxState
 		#end
 
 		#if TOUCH_CONTROLS_ALLOWED
-		removeTouchPad();
+		musicState = new MusicBeatState();
+		musicState.removeTouchPad();
 		addTouchPad('NONE', 'A_B');
 		#end
 
