@@ -1,5 +1,6 @@
 package mikolka.vslice;
 
+import haxe.macro.PlatformConfig.ExceptionsConfig;
 import flixel.FlxGame;
 import mikolka.compatibility.VsliceOptions;
 import mikolka.compatibility.ModsHelper;
@@ -23,6 +24,8 @@ class CrashState extends FlxState
 
 	var EMessage:String;
 	var callstack:Array<StackItem>;
+
+	var isTouchable:Bool = #if TOUCH_CONTROLS_ALLOWED true #else false #end;
 
 	public function new(EMessage:String,callstack:Array<StackItem>)
 	{
@@ -108,7 +111,7 @@ class CrashState extends FlxState
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (TouchUtil.justReleased || FlxG.keys.justPressed.ENTER)
+		if (FlxG.keys.justPressed.ENTER #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonA.justPressed #end)
 		{
 			TitleState.initialized = false;
 			TitleState.closedState = false;
@@ -123,7 +126,7 @@ class CrashState extends FlxState
 			FlxTween.globalManager.clear();
 			FlxG.resetGame();
 		}
-		if (FlxG.keys.justPressed.ESCAPE) {
+		if (FlxG.keys.justPressed.ESCAPE #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonB.justPressed #end) {
 			Sys.exit(1);
 		}
 	}
@@ -132,6 +135,10 @@ class CrashState extends FlxState
 	{
 		printToTrace('H-SLICE ${MainMenuState.pSliceVersion}  (${error.message})');
 		textNextY += 35;
+		
+		final enter:String = isTouchable ? 'A' : 'ENTER';
+		final escape:String = isTouchable ? 'B' : 'ESCAPE';
+
 		FlxTimer.wait(1 / 24, () ->
 		{
 			printSpaceToTrace();
@@ -164,7 +171,7 @@ class CrashState extends FlxState
 			printToTrace('MOD:${error.activeMod.rpad(" ",10)} PE:${MainMenuState.psychEngineVersion.rpad(" ", 5)} SYS:${error.systemName}');
 			printSpaceToTrace();
 			printToTrace('REPORT TO GITHUB.COM/HRK-EXEX/H-SLICE');
-			printToTrace('PRESS ENTER TO RESTART / ESC TO EXIT');
+			printToTrace('PRESS $enter TO RESTART / $escape TO EXIT');
 		});
 	}
 
