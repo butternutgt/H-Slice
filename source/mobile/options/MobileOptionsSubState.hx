@@ -30,7 +30,7 @@ import options.Option;
 class MobileOptionsSubState extends BaseOptionsMenu
 {
 	#if android
-	var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL"];
+	public static var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL"];
 	var externalPaths:Array<String> = StorageUtil.checkExternalPaths(true);
 	public static final lastStorageType:String = ClientPrefs.data.storageType;
 	#end

@@ -41,7 +41,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			'Which folder Psych Engine should use?\n(CHANGING THIS MAKES DELETE YOUR OLD FOLDER!!)',
 			'storageType',
 			STRING,
-			storageTypes
+			MobileOptionsSubState.storageTypes
 		);
 		#end
 
