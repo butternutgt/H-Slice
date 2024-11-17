@@ -54,6 +54,11 @@ class CrashState extends FlxState
 		DiscordClient.shutdown();
 		#end
 
+		#if TOUCH_CONTROLS_ALLOWED
+		removeTouchPad();
+		addTouchPad('NONE', 'A_B');
+		#end
+
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
@@ -125,7 +130,7 @@ class CrashState extends FlxState
 
 	function printError(error:CrashData)
 	{
-		printToTrace('P-SLICE ${MainMenuState.pSliceVersion}  (${error.message})');
+		printToTrace('H-SLICE ${MainMenuState.pSliceVersion}  (${error.message})');
 		textNextY += 35;
 		FlxTimer.wait(1 / 24, () ->
 		{
@@ -158,14 +163,14 @@ class CrashState extends FlxState
 			printToTrace('TIME:${date_split[1].rpad(" ",9)} DATE:${date_split[0]}');
 			printToTrace('MOD:${error.activeMod.rpad(" ",10)} PE:${MainMenuState.psychEngineVersion.rpad(" ", 5)} SYS:${error.systemName}');
 			printSpaceToTrace();
-			printToTrace('REPORT TO GITHUB.COM/MIKOLKA9144/P-SLICE');
+			printToTrace('REPORT TO GITHUB.COM/HRK-EXEX/H-SLICE');
 			printToTrace('PRESS ENTER TO RESTART / ESC TO EXIT');
 		});
 	}
 
 	static function saveError(error:CrashData)
 	{
-		var errMsg = "";
+		var errMsg = "H-Slice CRASHED!\n";
 		var dateNow:String = error.date;
 
 		dateNow = dateNow.replace(' ', '_');
@@ -180,13 +185,13 @@ class CrashState extends FlxState
 		errMsg += 'Active mod: ${error.activeMod}\n';
 		errMsg += 'Platform: ${error.systemName}\n';
 		errMsg += '\n';
-		errMsg += '\nPlease report this error to the GitHub page: https://github.com/Psych-Slice/P-Slice\n\n> Crash Handler written by: sqirra-rng';
+		errMsg += '\nPlease report this error to the GitHub page: https://github.com/HRK-EXEX/H-Slice\n\n> Crash Handler written by: sqirra-rng';
 
 		#if !LEGACY_PSYCH
 		@:privateAccess // lazy
         backend.CrashHandler.saveErrorMessage(errMsg + '\n');
 		#else
-		var path = './crash/' + 'PSlice_' + dateNow + '.txt';
+		var path = './crash/' + 'HSlice_' + dateNow + '.txt';
 		File.saveContent(path, errMsg + '\n');
 		Sys.println(errMsg);
 		#end
