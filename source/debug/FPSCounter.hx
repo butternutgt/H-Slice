@@ -59,17 +59,22 @@ class FPSCounter extends TextField
 	var sum:Int = 0;
 	var avg:Float = 0;
 
+	var defineX:Float = 0;
+	var defineY:Float = 0;
+
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
 		instance = this;
+
+		defineX = x; defineY = y;
 
 		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
 			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
 		else
 			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
 
-		positionFPS(x, y);
+		positionFPS(defineX, defineY);
 
 		currentFPS = 0;
 		selectable = false;
@@ -135,10 +140,10 @@ class FPSCounter extends TextField
 	public inline function positionFPS(X:Float, Y:Float, isWide:Bool = false, ?scale:Float = 1){
 		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
 		if (isWide) {
-			x = 0; y = 0;
+			x = X; y = Y;
 		} else {
-			x = FlxG.game.x;
-			y = FlxG.game.y;
+			x = FlxG.game.x + X;
+			y = FlxG.game.y + Y;
 		}
 	}
 
