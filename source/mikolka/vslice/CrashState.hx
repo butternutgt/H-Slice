@@ -50,6 +50,14 @@ class CrashState extends FlxState
 			tpadCam = FlxDestroyUtil.destroy(tpadCam);
 		}
 	}
+	
+	override function destroy()
+	{
+		removeTouchPad();
+		removeHitbox();
+		
+		super.destroy();
+	}
 	#else
 	var isTouchable:Bool = false;
 	#end
