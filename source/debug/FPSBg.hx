@@ -1,5 +1,6 @@
 package debug;
 
+import openfl.events.EventType;
 import openfl.display.Sprite;
 
 class FPSBg extends Sprite
@@ -16,4 +17,13 @@ class FPSBg extends Sprite
 		bgCard.graphics.endFill();
 		addChild(bgCard);
     }
+
+	public inline function relocate(X:Float, Y:Float, isWide:Bool = false) {
+		if (isWide) {
+			x = X; y = Y;
+		} else {
+			x = FlxG.game.x + X;
+			y = FlxG.game.y + Y;
+		}
+	}
 }

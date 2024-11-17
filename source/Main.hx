@@ -152,13 +152,13 @@ class Main extends Sprite
 
 		fpsBg = new FPSBg();
 		fpsVar = new FPSCounter(6, 1, 0xFFFFFF);
-		#if mobile
-		FlxG.game.addChild(fpsBg);
-		addChild(fpsVar);
-		#else
+		// #if mobile
+		// FlxG.game.addChild(fpsBg);
+		// FlxG.game.addChild(fpsVar);
+		// #else
 		addChild(fpsBg);
 		addChild(fpsVar);
-		#end
+		// #end
 		
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
