@@ -4,23 +4,24 @@ import cpp.Float64;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
 
+
+@:cppFileCode('
+	#include <stdlib.h>
+	#include <string>
+	#include <chrono>
+	#include <thread>
+')
+
+#if desktop
+@:cppFileCode('
+	#include <stdio.h>
+	#include <iostream>
+')
+#end
+
 #if windows
 @:cppFileCode('
-	#include <stdlib.h>
-	#include <stdio.h>
-	#include <string>
 	#include <windows.h>
-	
-	#include <iostream>
-	#include <chrono>
-	
-	using namespace std::chrono;
-')
-#else
-@:cppFileCode('
-	#include <stdlib.h>
-	#include <string>
-	#include <chrono>
 ')
 #end
 
@@ -437,6 +438,14 @@ class CoolUtil
 		// #if (flixel < "5.0.0") return company; #else
 		return '${company}/${flixel.util.FlxSave.validate("PsychEngine")}'; //! hardcoding for backwards compatibility
 		// #end
+	}
+
+	@:functionCode('
+		unsigned int cnt = std::thread::hardware_concurrency();
+		return cnt;
+	')
+	public static function getThreadCount():Int {
+		return 0;
 	}
 
 	public static function setTextBorderFromString(text:FlxText, border:String)
