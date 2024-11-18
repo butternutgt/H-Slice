@@ -760,7 +760,7 @@ class ResultState extends MusicBeatSubState
 
 		if (TouchUtil.justPressed || controls.PAUSE)
 		{
-			if (FlxG.sound.music != null && ClientPrefs.data.vsliceFreeplay)
+			if (FlxG.sound.music != null)
 			{
 				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8);
 				FlxTween.tween(FlxG.sound.music, {pitch: 3}, 0.1,
@@ -827,11 +827,9 @@ class ResultState extends MusicBeatSubState
 							}
 						});
 					} else {
-						FlxG.sound.music.stop();
 						FlxTransitionableState.skipNextTransIn = false;
 						FlxTransitionableState.skipNextTransOut = false;
 						MusicBeatState.switchState(new FreeplayState());
-						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 					}
 				}
 				else
@@ -875,6 +873,13 @@ class ResultState extends MusicBeatSubState
 		}
 
 		super.update(elapsed);
+	}
+	
+	override function destroy() {
+		if (!ClientPrefs.data.vsliceFreeplay) {
+			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+		}
+		super.destroy();
 	}
 }
 

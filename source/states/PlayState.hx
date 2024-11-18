@@ -1661,10 +1661,7 @@ class PlayState extends MusicBeatState
 				for (event in eventsChart.events) // Event Notes
 					for (i in 0...event[1].length)
 						makeEvent(event, i);
-		}
-		catch (e:Dynamic)
-		{
-		}
+		} catch (e:Dynamic) {}
 
 		var oldNote:Note = null;
 		var sectionsData:Array<SwagSection> = PlayState.SONG.notes;
@@ -1704,8 +1701,6 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-
-		var threadCount:Int = CoolUtil.getThreadCount();
 
 		for (section in sectionsData)
 		{
