@@ -16,14 +16,14 @@ class OutdatedState extends MusicBeatState
 
 		if (controls.mobileC) {
 			guh = "Sup kiddo, looks like you're running an   \n
-			outdated version of P-Slice Engine (" + MainMenuState.pSliceVersion + "),\n
+			outdated version of H-Slice Engine (" + MainMenuState.hrkVersion + "),\n
 			please update to " + TitleState.updateVersion + "!\n
 			Press B to proceed anyway.\n
 			\n
 			Thank you for using the Port!";
 		} else {
 			guh = "Sup bro, looks like you're running an   \n
-			outdated version of P-Slice Engine (" + MainMenuState.pSliceVersion + "),\n
+			outdated version of H-Slice Engine (" + MainMenuState.hrkVersion + "),\n
 			please update to " + TitleState.updateVersion + "!\n
 			Press ESCAPE to proceed anyway.\n
 			\n

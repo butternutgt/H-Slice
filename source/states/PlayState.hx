@@ -1,6 +1,5 @@
 package states;
 
-import cpp.vm.Gc;
 import flixel.math.FlxRandom;
 import haxe.ds.IntMap;
 import haxe.Timer;
@@ -1705,6 +1704,8 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+
+		var threadCount:Int = CoolUtil.getThreadCount();
 
 		for (section in sectionsData)
 		{
