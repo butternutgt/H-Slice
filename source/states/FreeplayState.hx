@@ -22,6 +22,8 @@ class FreeplayState extends MusicBeatState
 {
 	var songs:Array<SongMetadata> = [];
 
+	public static var fromResultState:Bool = false;
+
 	var selector:FlxText;
 	private static var curSelected:Int = 0;
 	var lerpSelected:Float = 0;
@@ -67,6 +69,10 @@ class FreeplayState extends MusicBeatState
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Old Freeplay Menus", null);
 		#end
+
+		if (fromResultState && !ClientPrefs.data.vsliceFreeplay && (!FlxG.sound.music.playing || FlxG.sound.music.volume == 0)) {
+			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+		}
 
 		if(WeekData.weeksList.length < 1)
 		{

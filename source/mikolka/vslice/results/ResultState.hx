@@ -827,8 +827,9 @@ class ResultState extends MusicBeatSubState
 							}
 						});
 					} else {
-						FlxTransitionableState.skipNextTransIn = false;
+						FlxTransitionableState.skipNextTransIn = true;
 						FlxTransitionableState.skipNextTransOut = false;
+						FreeplayState.fromResultState = true;
 						MusicBeatState.switchState(new FreeplayState());
 					}
 				}
@@ -873,13 +874,6 @@ class ResultState extends MusicBeatSubState
 		}
 
 		super.update(elapsed);
-	}
-	
-	override function destroy() {
-		if (!ClientPrefs.data.vsliceFreeplay) {
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
-		}
-		super.destroy();
 	}
 }
 
