@@ -84,6 +84,8 @@ class ResultState extends MusicBeatSubState
 	final cameraScroll:FunkinCamera;
 	final cameraEverything:FunkinCamera;
 
+	var busy:Bool = true;
+
 	public function new(params:ResultsStateParams)
 	{
 		super();
@@ -324,8 +326,10 @@ class ResultState extends MusicBeatSubState
 		resultsAnim.zIndex = 1200;
 		add(resultsAnim);
 		new FlxTimer().start(6 / 24, _ -> {
-			resultsAnim.visible = true;
-			resultsAnim.animation.play("result");
+			if (resultsAnim != null) {
+				resultsAnim.visible = true;
+				resultsAnim.animation.play("result");
+			}
 		});
 
 		ratingsPopin.animation.addByPrefix("idle", "Categories", 24, false);
@@ -333,8 +337,10 @@ class ResultState extends MusicBeatSubState
 		ratingsPopin.zIndex = 1200;
 		add(ratingsPopin);
 		new FlxTimer().start(21 / 24, _ -> {
-			ratingsPopin.visible = true;
-			ratingsPopin.animation.play("idle");
+			if (ratingsPopin != null) {
+				ratingsPopin.visible = true;
+				ratingsPopin.animation.play("idle");
+			}
 		});
 
 		scorePopin.animation.addByPrefix("score", "tally score", 24, false);
@@ -342,23 +348,27 @@ class ResultState extends MusicBeatSubState
 		scorePopin.zIndex = 1200;
 		add(scorePopin);
 		new FlxTimer().start(36 / 24, _ -> {
-			scorePopin.visible = true;
-			scorePopin.animation.play("score");
-			scorePopin.animation.finishCallback = anim -> {};
+			if (scorePopin != null) {
+				scorePopin.visible = true;
+				scorePopin.animation.play("score");
+				scorePopin.animation.finishCallback = anim -> {};
+			}
 		});
 
 		new FlxTimer().start(37 / 24, _ -> {
-			score.visible = true;
-			score.animateNumbers();
-			startRankTallySequence();
+			try {
+				score.visible = true;
+				score.animateNumbers();
+				startRankTallySequence();
+			} catch (e:Dynamic) {}
 		});
 
 		new FlxTimer().start(rank.getBFDelay(), _ -> {
-			afterRankTallySequence();
+			try { afterRankTallySequence(); } catch (e:Dynamic) {}
 		});
 
 		new FlxTimer().start(rank.getFlashDelay(), _ -> {
-			displayRankText();
+			try { displayRankText(); } catch (e:Dynamic) {}
 		});
 
 		highscoreNew.frames = Paths.getSparrowAtlas("resultScreen/highscoreNew");
@@ -517,6 +527,8 @@ class ResultState extends MusicBeatSubState
 				onComplete: _ -> {
 					// Play confirm sound.
 					FunkinSound.playOnce(Paths.sound('confirmMenu'));
+
+					busy = false;
 
 					// Just to be sure that the lerp didn't mess things up.
 					clearPercentCounter.curNumber = clearPercentTarget;
@@ -758,7 +770,7 @@ class ResultState extends MusicBeatSubState
 			speedOfTween.x -= 0.1;
 		}
 
-		if (TouchUtil.justPressed || controls.PAUSE)
+		if ((TouchUtil.justPressed || controls.PAUSE) && !busy)
 		{
 			if (FlxG.sound.music != null)
 			{
