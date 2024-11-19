@@ -16,6 +16,7 @@ class FPSBg extends Sprite
 		bgCard.graphics.drawRect(0, 0, 300, 55);
 		bgCard.graphics.endFill();
 		addChild(bgCard);
+		relocate(0, 0, ClientPrefs.data.wideScreen);
     }
 
 	public inline function relocate(X:Float, Y:Float, isWide:Bool = false) {

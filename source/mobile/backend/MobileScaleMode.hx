@@ -72,7 +72,7 @@ class MobileScaleMode extends BaseScaleMode
 		allowWideScreen = value;
 		FlxG.scaleMode = new MobileScaleMode();
 		Main.fpsVar.positionFPS(6, 1, allowWideScreen);
-		Main.fpsBg.relocate(6, 1, allowWideScreen);
+		Main.fpsBg.relocate(0, 0, allowWideScreen);
 		return value;
 	}
 }

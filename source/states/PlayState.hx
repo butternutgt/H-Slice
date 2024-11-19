@@ -719,10 +719,10 @@ class PlayState extends MusicBeatState
 		uiGroup.add(infoTxt);
 
 		// Default Value has inherited from HRK Engine
-		var botplayTxtY:Float = timeBar.y + (ClientPrefs.data.downScroll ? -90 : 60);
+		var botplayTxtY:Float = timeBar.y + (ClientPrefs.data.downScroll ? -80 : 55);
 		switch (ClientPrefs.data.vsliceBotPlayPlace) {
 			case "Near the Health Bar":
-				botplayTxtY = healthBar.y + (ClientPrefs.data.downScroll ? -90 : 70);
+				botplayTxtY = healthBar.y + (ClientPrefs.data.downScroll ? -80 : 70);
 			case "Near the Time Bar": // Omitted because nothing has changed.
 		}
 

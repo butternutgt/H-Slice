@@ -5,7 +5,7 @@ class BaseGameSubState extends BaseOptionsMenu {
         title = "V-Slice settings";
         rpcTitle = "V-Slice settings menu";
         var option:Option = new Option('Use New Freeplay State',
-			'If unchecked, it uses older freeplay state as usual.',
+			'If disabled it uses older freeplay state as usual.',
 			'vsliceFreeplay',
 			BOOL);
 		addOption(option);
@@ -16,20 +16,26 @@ class BaseGameSubState extends BaseOptionsMenu {
 			BOOL);
 		addOption(option);
 
+        var option:Option = new Option('Freeplay Auto Preview Song',
+			"If disabled won't preview on selected song automatically.\nYou can play preview anytime space key instead.",
+			'vsliceFreePreview',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Use results screen',
-			'If disabled will skip showing the result screen',
+			'If disabled will skip showing the result screen.',
 			'vsliceResults',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Smooth health bar',
-			'If enabled makes health bar move more smoothly',
+			'If enabled makes health bar move more smoothly.',
 			'vsliceSmoothBar',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Special freeplay cards',
-			'If disabled will force every character to use BF\'s card (including pico)',
+			"If disabled will force every character to use BF's card. (including pico)",
 			'vsliceSpecialCards',
 			BOOL);
 		addOption(option);

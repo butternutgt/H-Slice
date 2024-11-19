@@ -12,6 +12,7 @@ class SustainSplash extends FlxSprite
 	var rnd:FlxRandom;
 	var timer:FlxTimer;
 	var killing:Bool = false;
+	var endAnim:Bool = false;
 
 	public function new():Void
 	{
@@ -53,7 +54,7 @@ class SustainSplash extends FlxSprite
 
 	public function setupSusSplash(daNote:Note, ?playbackRate:Float = 1):Void
 	{
-		killing = false;
+		killing = endAnim = false;
 		final lengthToGet:Int = !daNote.isSustainNote ? daNote.tail.length : daNote.parent.tail.length;
 		final timeToGet:Float = !daNote.isSustainNote ? daNote.strumTime : daNote.parent.strumTime;
 		final timeThingy:Float = (startCrochet * lengthToGet + (timeToGet - Conductor.songPosition + ClientPrefs.data.ratingOffset)) / playbackRate * .001;
@@ -106,11 +107,13 @@ class SustainSplash extends FlxSprite
 	}
 
 	function showEndSplash() {
+		if (endAnim) return;
 		killing = true;
 		if (animation != null)
 		{
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
 			animation.play('end', true, false, 0);
+			endAnim = true;
 			animation.curAnim.looped = false;
 			animation.curAnim.frameRate = rnd.int(22, 26);
 			clipRect = null;
