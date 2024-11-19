@@ -165,15 +165,14 @@ class Alphabet extends FlxSpriteGroup
 		}
 	}
 
+	var lerpVal:Float;
 	override function update(elapsed:Float)
 	{
 		if (isMenuItem)
 		{
-			var lerpVal:Float = Math.exp(-elapsed * 9.6);
-			if(changeX)
-				x = FlxMath.lerp((targetY * distancePerItem.x) + startPosition.x, x, lerpVal);
-			if(changeY)
-				y = FlxMath.lerp((targetY * 1.3 * distancePerItem.y) + startPosition.y, y, lerpVal);
+			lerpVal = Math.exp(-elapsed * 9.6);
+			if(changeX) x = FlxMath.lerp((targetY * distancePerItem.x) + startPosition.x, x, lerpVal);
+			if(changeY) y = FlxMath.lerp((targetY * 1.3 * distancePerItem.y) + startPosition.y, y, lerpVal);
 		}
 		super.update(elapsed);
 	}

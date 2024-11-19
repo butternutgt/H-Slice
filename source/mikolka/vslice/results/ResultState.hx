@@ -774,7 +774,16 @@ class ResultState extends MusicBeatSubState
 		{
 			if (FlxG.sound.music != null)
 			{
-				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8);
+				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8, {
+					onComplete: _ -> {
+						if (!ClientPrefs.data.vsliceFreeplay) {
+							FlxTransitionableState.skipNextTransIn = true;
+							FlxTransitionableState.skipNextTransOut = false;
+							FreeplayState.fromResultState = true;
+							MusicBeatState.switchState(new FreeplayState());
+						}
+					}
+				});
 				FlxTween.tween(FlxG.sound.music, {pitch: 3}, 0.1,
 				{
 					onComplete: _ -> {
@@ -838,11 +847,6 @@ class ResultState extends MusicBeatSubState
 									}
 							}
 						});
-					} else {
-						FlxTransitionableState.skipNextTransIn = true;
-						FlxTransitionableState.skipNextTransOut = false;
-						FreeplayState.fromResultState = true;
-						MusicBeatState.switchState(new FreeplayState());
 					}
 				}
 				else
