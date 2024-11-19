@@ -20,7 +20,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var interpolate = CoolUtil.interpolate;
 
 	private var curOption(get, never):GameplayOption;
-	public static var fromOtherState:Bool = false;
+	public static var fromNewFreeplayState:Bool = false;
 	function get_curOption() return optionsArray[curSelected]; //shorter lol
 
 	function getOptions()
@@ -170,6 +170,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			close();
 			ClientPrefs.saveSettings();
 			controls.isInSubstate = false;
+			fromNewFreeplayState = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 		}
 

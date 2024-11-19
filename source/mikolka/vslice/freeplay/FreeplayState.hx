@@ -108,7 +108,6 @@ class FreeplayState extends MusicBeatSubstate
 	 * You can't change this without transitioning to a new FreeplayState.
 	 */
 	final currentCharacterId:String;
-
 	final currentCharacter:PlayableCharacter;
 
 	/**
@@ -1852,6 +1851,7 @@ class FreeplayState extends MusicBeatSubstate
 		else if(FlxG.keys.justPressed.CONTROL #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonX.justPressed #end)
 		{
 			persistentUpdate = false;
+			GameplayChangersSubstate.fromNewFreeplayState = true;
 			openSubState(new GameplayChangersSubstate());
 		}
 	}
