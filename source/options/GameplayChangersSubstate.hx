@@ -288,11 +288,8 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 				else if(controls.UI_LEFT_R || controls.UI_RIGHT_R)
 					clearHold();
 			}
-			#if TOUCH_CONTROLS_ALLOWED
-			if(controls.RESET || touchPad.buttonC.justPressed)
-			#else
-			if(controls.RESET)
-			#end
+			
+			if(controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonC.justPressed #end)			
 			{
 				for (i in 0...optionsArray.length)
 				{
