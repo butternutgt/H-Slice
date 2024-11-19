@@ -358,8 +358,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			}
 			else if(FlxG.gamepads.anyJustPressed(ANY) || FlxG.gamepads.anyJustPressed(LEFT_TRIGGER) || FlxG.gamepads.anyJustPressed(RIGHT_TRIGGER) || FlxG.gamepads.anyJustReleased(ANY))
 			{
-				var keyPressed:FlxGamepadInputID = NONE;
-				var keyReleased:FlxGamepadInputID = NONE;
+				var keyPressed:Null<FlxGamepadInputID> = NONE;
+				var keyReleased:Null<FlxGamepadInputID> = NONE;
 				if(FlxG.gamepads.anyJustPressed(LEFT_TRIGGER))
 					keyPressed = LEFT_TRIGGER; //it wasnt working for some reason
 				else if(FlxG.gamepads.anyJustPressed(RIGHT_TRIGGER))
