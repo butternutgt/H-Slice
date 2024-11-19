@@ -99,7 +99,7 @@ class InputFormatter {
 				return arr.join(' ');
 		}
 	}
-
+	
 	public static function getGamepadName(key:FlxGamepadInputID)
 	{
 		var gamepad:FlxGamepad = FlxG.gamepads.firstActive;
@@ -223,5 +223,7 @@ class InputFormatter {
 				for (i in 0...arr.length) arr[i] = CoolUtil.capitalize(arr[i]);
 				return arr.join(' ');
 		}
+
+		gamepad = null; model = null;
 	}
 }

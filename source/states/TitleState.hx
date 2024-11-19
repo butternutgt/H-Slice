@@ -398,6 +398,9 @@ class TitleState extends MusicBeatState
 	var newTitle:Bool = false;
 	var titleTimer:Float = 0;
 
+	var pressedEnter:Bool;
+	var gamepad:FlxGamepad;
+
 	override function update(elapsed:Float)
 	{
 		#if debug
@@ -411,9 +414,9 @@ class TitleState extends MusicBeatState
 			Conductor.songPosition = FlxG.sound.music.time;
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
 
-		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT || (TouchUtil.justReleased && !SwipeUtil.swipeAny);
+		pressedEnter = FlxG.keys.justPressed.ENTER || controls.ACCEPT || (TouchUtil.justReleased && !SwipeUtil.swipeAny);
 
-		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
+		gamepad = FlxG.gamepads.lastActive;
 
 		if (gamepad != null)
 		{

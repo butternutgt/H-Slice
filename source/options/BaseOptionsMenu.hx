@@ -375,6 +375,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 							keyReleased = gamepad.firstJustReleasedID();
 							if(keyPressed != NONE || keyReleased != NONE) break;
 						}
+						gamepad = null;
 					}
 				}
 
@@ -388,6 +389,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					changed = true;
 					curOption.keys.gamepad = keyReleased;
 				}
+				keyPressed = keyReleased = null;
 			}
 
 			if(changed)
@@ -462,6 +464,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					letter.offset.y -= 5;
 			}
 		}
+		gamepad = null; model = null; letter = null;
 	}
 
 	function closeBinding()

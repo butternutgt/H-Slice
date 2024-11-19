@@ -246,6 +246,7 @@ class ControlsSubState extends MusicBeatSubstate
 					letter.offset.y -= 5;
 			}
 		}
+		gamepad = null; model = null; letter = null;
 	}
 
 	function updateBind(num:Int, text:String)
@@ -412,6 +413,7 @@ class ControlsSubState extends MusicBeatSubstate
 								if(keyReleased == null) keyReleased = NONE;
 								if(keyPressed != NONE || keyReleased != NONE) break;
 							}
+							gamepad = null;
 						}
 					}
 

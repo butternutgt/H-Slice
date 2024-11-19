@@ -244,6 +244,8 @@ class Character extends FlxSprite
 		//trace('Loaded file to character ' + curCharacter);
 	}
 
+	var rate:Float;
+	var anim:String;
 	override function update(elapsed:Float)
 	{
 		if(isAnimateAtlas) atlas.update(elapsed);
@@ -256,11 +258,11 @@ class Character extends FlxSprite
 
 		if(heyTimer > 0)
 		{
-			var rate:Float = (PlayState.instance != null ? PlayState.instance.playbackRate : 1.0);
+			rate = (PlayState.instance != null ? PlayState.instance.playbackRate : 1.0);
 			heyTimer -= elapsed * rate;
 			if(heyTimer <= 0)
 			{
-				var anim:String = getAnimationName();
+				anim = getAnimationName();
 				if(specialAnim && (anim == 'hey' || anim == 'cheer'))
 				{
 					specialAnim = false;
@@ -314,9 +316,9 @@ class Character extends FlxSprite
 			holdTimer = 0;
 		}
 
-		var name:String = getAnimationName();
-		if(isAnimationFinished() && hasAnimation('$name-loop'))
-			playAnim('$name-loop');
+		anim = getAnimationName();
+		if(isAnimationFinished() && hasAnimation('$anim-loop'))
+			playAnim('$anim-loop');
 
 		super.update(elapsed);
 	}

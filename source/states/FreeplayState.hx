@@ -70,10 +70,6 @@ class FreeplayState extends MusicBeatState
 		DiscordClient.changePresence("In the Old Freeplay Menus", null);
 		#end
 
-		if (fromResultState && !ClientPrefs.data.vsliceFreeplay && (!FlxG.sound.music.playing || FlxG.sound.music.volume == 0)) {
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
-		}
-
 		if(WeekData.weeksList.length < 1)
 		{
 			FlxTransitionableState.skipNextTransIn = true;
@@ -204,6 +200,10 @@ class FreeplayState extends MusicBeatState
 		changeSelection();
 		updateTexts();
 		super.create();
+		
+		if (fromResultState && !ClientPrefs.data.vsliceFreeplay && (!FlxG.sound.music.playing || FlxG.sound.music.volume == 0)) {
+			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+		}
 		
 		#if TOUCH_CONTROLS_ALLOWED
 		addTouchPad('LEFT_FULL', 'A_B_X_Y');
@@ -631,6 +631,12 @@ class FreeplayState extends MusicBeatState
 
 	var _drawDistance:Int = 4;
 	var _lastVisibles:Array<Int> = [];
+
+	var min:Int = 0;
+	var max:Int = 0;
+	var item:Alphabet;
+	var icon:HealthIcon;
+
 	public function updateTexts(elapsed:Float = 0.0)
 	{
 		lerpSelected = FlxMath.lerp(curSelected, lerpSelected, Math.exp(-elapsed * 9.6));
@@ -641,16 +647,16 @@ class FreeplayState extends MusicBeatState
 		}
 		_lastVisibles = [];
 
-		var min:Int = Math.round(Math.max(0, Math.min(songs.length, lerpSelected - _drawDistance)));
-		var max:Int = Math.round(Math.max(0, Math.min(songs.length, lerpSelected + _drawDistance)));
+		min = Math.round(Math.max(0, Math.min(songs.length, lerpSelected - _drawDistance)));
+		max = Math.round(Math.max(0, Math.min(songs.length, lerpSelected + _drawDistance)));
 		for (i in min...max)
 		{
-			var item:Alphabet = grpSongs.members[i];
+			item = grpSongs.members[i];
 			item.visible = item.active = true;
 			item.x = ((item.targetY - lerpSelected) * item.distancePerItem.x) + item.startPosition.x;
 			item.y = ((item.targetY - lerpSelected) * 1.3 * item.distancePerItem.y) + item.startPosition.y;
 
-			var icon:HealthIcon = iconArray[i];
+			icon = iconArray[i];
 			icon.visible = icon.active = true;
 			_lastVisibles.push(i);
 		}
