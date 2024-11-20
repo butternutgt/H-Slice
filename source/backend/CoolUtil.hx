@@ -190,12 +190,10 @@ class CoolUtil
 	
 	inline public static function floatToStringPrecision(number:Float, prec:Int, exponent:Bool = false){
 		var str:String;
-		var abs:Float = Math.abs(number);
+		var abs:Null<Float> = Math.abs(number);
 		var len:Null<Int>;
 		var result:String;
-		var negative:Bool = false;
 		if(!exponent || (abs >= Math.pow(0.1, prec) && abs < Math.pow(10, 6))) {
-			negative = number < 0;
 			str = Std.string(Math.fround(abs * Math.pow(10, prec)));
 			len = str.length;
 			if(len <= prec){
@@ -216,8 +214,8 @@ class CoolUtil
 			);
 			result = (number > MIN_VALUE_DOUBLE ? str.substr(0,1) + '.' + str.substr(1) : '0') + 'e' + Math.floor(logX(abs, 10));
 		}
-		str = null; len = null;
-		return (negative ? "-" : "") + result;
+		str = null; len = null; abs = null;
+		return (number < 0 ? "-" : "") + result;
 	}
 
 	public static function sortAlphabetically(list:Array<String>):Array<String> {
@@ -293,19 +291,23 @@ class CoolUtil
 	// stolen and modded from FlxStringUtil
 	public static function formatMoney(amount:Float, showDecimal:Int = 0, englishStyle:Bool = true):String
 	{
-		var isNegative = amount < 0;
+		var isNegative:Null<Bool> = amount < 0;
 		amount = Math.abs(amount);
 
 		var string:String = "";
 		var comma:String = "";
-		var amount:Float = Math.ffloor(amount);
+		var amount:Null<Float> = Math.ffloor(amount);
+		var zeroes:String = "";
+		var helper:Null<Float>;
+		var power:Null<Float>;
+
 		while (amount > 0)
 		{
 			if (string.length > 0 && comma.length <= 0)
 				comma = (englishStyle ? "," : ".");
 
-			var zeroes = "";
-			var helper = amount - Math.ffloor(amount / 1000) * 1000;
+			zeroes = "";
+			helper = amount - Math.ffloor(amount / 1000) * 1000;
 			amount = Math.ffloor(amount / 1000);
 			if (amount > 0)
 			{
@@ -322,7 +324,7 @@ class CoolUtil
 
 		if (showDecimal > 0)
 		{
-			var power = Math.pow(10, showDecimal);
+			power = Math.pow(10, showDecimal);
 			amount = Math.ffloor(amount * power) - (Math.ffloor(amount) * power);
 			string += (englishStyle ? "." : ",");
 			if (amount < 10)
@@ -332,35 +334,40 @@ class CoolUtil
 
 		if (isNegative)
 			string = "-" + string;
+
+		comma = zeroes = null;
+		amount = helper = power = null; isNegative = null;
+
 		return string;
 	}
 
 	// stolen and modded from FlxStringUtil
-	public static function formatBytes(Bytes:Float, Precision:Int = 2, keepPrec:Bool = false, fixedSI:Int = -1):String
+	static final byteUnits:Array<String> = ["Bytes", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+	static var curUnit:Int;
+	public static function formatBytes(bytes:Float, precision:Int = 2, keepPrec:Bool = false, fixedSI:Int = -1):String
 	{
-		var units:Array<String> = ["Bytes", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-		var curUnit = 0;
+		curUnit = 0;
 		if(fixedSI < 0) {
-			while (Bytes >= 1024 && curUnit < units.length - 1)
+			while (bytes >= 1024 && curUnit < byteUnits.length - 1)
 			{
-				Bytes /= 1024;
+				bytes /= 1024;
 				curUnit++;
 			}
 		} else {
-			while (curUnit < fixedSI && curUnit < units.length - 1)
+			while (curUnit < fixedSI && curUnit < byteUnits.length - 1)
 			{
-				Bytes /= 1024;
+				bytes /= 1024;
 				curUnit++;
 			}
 		}
 		if(keepPrec) {
 			if(fixedSI < 0) {
-				Precision = 5 - Std.int(logX(Bytes, 10) + 1);
+				precision = 5 - Std.int(logX(bytes, 10) + 1);
 			}
-			return CoolUtil.floatToStringPrecision(Bytes, Precision) + units[curUnit];
+			return CoolUtil.floatToStringPrecision(bytes, precision) + byteUnits[curUnit];
 		}
 		else
-			return CoolUtil.floorDecimal(Bytes, Precision) + units[curUnit];
+			return CoolUtil.floorDecimal(bytes, precision) + byteUnits[curUnit];
 	}
 
 	inline public static function dominantColor(sprite:flixel.FlxSprite):Int

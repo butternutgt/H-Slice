@@ -1,5 +1,6 @@
 package debug;
 
+import lime.ui.Window;
 import haxe.Timer;
 import cpp.vm.Gc;
 import flixel.FlxG;
@@ -35,6 +36,9 @@ class FPSCounter extends TextField
 	public var currentFPS(default, null):Int;
 	public var fpsFontSize:Int = 16;
 	public var fpsTextLength:Int = 0;
+
+	var curWindow:Window;
+
 	var fps:Int = 0;
 	var curTime:Float = 0;
 	var frameTime:Float = 0;
@@ -61,6 +65,9 @@ class FPSCounter extends TextField
 
 	var defineX:Float = 0;
 	var defineY:Float = 0;
+
+	var active:Bool = true;
+	var updated:Bool = false;
 
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
@@ -96,10 +103,10 @@ class FPSCounter extends TextField
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		sliceCnt = 0;
-		delta = Math.round(deltaTime);
-		times.push(delta);
-		sum += delta;
+		if (!visible || FlxG.autoPause && !stage.nativeWindow.active) return;
+		sliceCnt = 0; delta = Math.round(deltaTime);
+		times.push(delta); sum += delta; updated = false;
+		fps = ClientPrefs.data.framerate;
 
 		while (sum > 1000) {
 			sum -= times[sliceCnt];
@@ -119,12 +126,13 @@ class FPSCounter extends TextField
 		deltaTimeout = 0.0;
 	}
 
-	public dynamic function updateText():Void { // so people can override it in hscript
-		text = "FPS: " + currentFPS
-		+ "\nRAM: " + CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)
-		+ (" / " + CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true))
-		+ (" / " + CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true))
-		+ os;
+	// so people can override it in hscript
+	public dynamic function updateText():Void {
+		text = 
+'FPS: $currentFPS
+RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)}
+ / ${CoolUtil.formatBytes(gcRam, 2, true)}
+ / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)} $os';
 
 		textColor = Std.int(
 			0xFFFF0000 + 
@@ -132,9 +140,8 @@ class FPSCounter extends TextField
 			Std.int(CoolUtil.normalize(currentFPS, fps >> 1, fps, true) * 255)
 		);
 
-		text += "\n";
-		fpsTextLength = text.length;
-		cacheCount = times.length;
+		// fpsTextLength = text.length;
+		// cacheCount = times.length;
 	}
 
 	public inline function positionFPS(X:Float, Y:Float, isWide:Bool = false, ?scale:Float = 1){

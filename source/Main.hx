@@ -162,11 +162,8 @@ class Main extends Sprite
 		
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
-		if(fpsVar != null)
-			fpsVar.visible = ClientPrefs.data.showFPS;
-		if(fpsBg != null) 
-			fpsBg.visible = ClientPrefs.data.showFPS;
-
+		if(fpsVar != null) fpsVar.visible = ClientPrefs.data.showFPS;
+		if(fpsBg != null) fpsBg.visible = ClientPrefs.data.showFPS;
 
 		// #if debug
 		// flixel.addons.studio.FlxStudio.create();
