@@ -764,11 +764,7 @@ class ResultState extends MusicBeatSubState
 		}
 
 		if (FlxG.keys.justPressed.RIGHT) speedOfTween.x += 0.1;
-
-		if (FlxG.keys.justPressed.LEFT)
-		{
-			speedOfTween.x -= 0.1;
-		}
+		if (FlxG.keys.justPressed.LEFT)	speedOfTween.x -= 0.1;
 
 		if ((TouchUtil.justPressed || controls.PAUSE) && !busy)
 		{
@@ -777,7 +773,7 @@ class ResultState extends MusicBeatSubState
 				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8, {
 					onComplete: _ -> {
 						if (!ClientPrefs.data.vsliceFreeplay) {
-							FlxTransitionableState.skipNextTransIn = true;
+							FlxTransitionableState.skipNextTransIn = false;
 							FlxTransitionableState.skipNextTransOut = false;
 							FreeplayState.fromResultState = true;
 							MusicBeatState.switchState(new FreeplayState());
@@ -838,13 +834,13 @@ class ResultState extends MusicBeatSubState
 						{
 							{
 								fromResults:
-									{
-										oldRank: params.prevScoreRank,
-										newRank: rank,
-										songId: params.songId,
-										difficultyId: params.difficultyId,
-										playRankAnim: true
-									}
+								{
+									oldRank: params.prevScoreRank,
+									newRank: rank,
+									songId: params.songId,
+									difficultyId: params.difficultyId,
+									playRankAnim: true
+								}
 							}
 						});
 					}

@@ -267,7 +267,7 @@ class StickerSubState extends MusicBeatSubstate
 			sticker.timing = FlxMath.remapToRange(ind, 0, grpStickers.members.length, 0, 0.9);
 
 			new FlxTimer().start(sticker.timing, _ -> {
-				if (grpStickers == null) return;
+				if (grpStickers == null || grpStickers.members == null) return;
 
 				sticker.visible = true;
 				var daSound:String = FlxG.random.getObject(sounds);
