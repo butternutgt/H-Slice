@@ -32,7 +32,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 	#if android
 	public var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL"];
 	var externalPaths:Array<String> = StorageUtil.checkExternalPaths(true);
-	public static final lastStorageType:String = ClientPrefs.data.storageType;
+	public static var lastStorageType:String = ClientPrefs.data.storageType; // It might not work because it'll be get before initialized
 	#end
 	final exControlTypes:Array<String> = ["NONE", "SINGLE", "DOUBLE"];
 	final hintOptions:Array<String> = ["No Gradient", "No Gradient (Old)", "Gradient", "Hidden"];
@@ -44,6 +44,9 @@ class MobileOptionsSubState extends BaseOptionsMenu
 			storageTypes = storageTypes.concat(externalPaths); #end
 		title = 'Mobile Options';
 		rpcTitle = 'Mobile Options Menu'; // for Discord Rich Presence, fuck it
+ 		
+		// That's why get this setting in this timing
+		#if android lastStorageType = ClientPrefs.data.storageType; #end
 
 		option = new Option('Extra Hints', 'Select how many extra hints you prefer to have on hitbox?\nThey can be used for mechanics with LUA or HScript.',
 			'extraHints', STRING, exControlTypes);
