@@ -44,9 +44,6 @@ class MobileOptionsSubState extends BaseOptionsMenu
 			storageTypes = storageTypes.concat(externalPaths); #end
 		title = 'Mobile Options';
 		rpcTitle = 'Mobile Options Menu'; // for Discord Rich Presence, fuck it
- 		
-		// That's why get this setting in this timing
-		#if android lastStorageType = ClientPrefs.data.storageType; #end
 
 		option = new Option('Extra Hints', 'Select how many extra hints you prefer to have on hitbox?\nThey can be used for mechanics with LUA or HScript.',
 			'extraHints', STRING, exControlTypes);

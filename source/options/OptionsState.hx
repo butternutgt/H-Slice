@@ -28,6 +28,9 @@ class OptionsState extends MusicBeatState
 	public static var onPlayState:Bool = false;
 	#if (target.threaded) var mutex:Mutex = new Mutex(); #end
 
+	// Get this setting in this timing
+	#if android MobileOptionsSubState.lastStorageType = ClientPrefs.data.storageType; #end
+
 	private var mainCam:FlxCamera;
 	private var camFollow:FlxObject;
 	private var camFollowPos:FlxObject;
