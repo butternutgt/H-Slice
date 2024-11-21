@@ -69,6 +69,8 @@ class FPSCounter extends TextField
 	var active:Bool = true;
 	var updated:Bool = false;
 
+	var f = CoolUtil.formatBytes;
+
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
@@ -122,17 +124,15 @@ class FPSCounter extends TextField
 		if (deltaTimeout < 1000 / updateRate) return;
 		// Literally the stupidest thing i've done for the FPS counter but it allows it to update correctly when on 60 FPS??
 		currentFPS = Math.round(avg); //Math.round((times.length + cacheCount) * 0.5) - 1;
-		updateText();
+		updateText(Memory.getCurrentUsage(), Memory.getPeakUsage());
 		deltaTimeout = 0.0;
 	}
 
 	// so people can override it in hscript
-	public dynamic function updateText():Void {
-		text = 
-'FPS: $currentFPS
-RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)}
- / ${CoolUtil.formatBytes(gcRam, 2, true)}
- / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)} $os';
+	public dynamic function updateText(cu, pu):Void {
+		text = 'FPS: $currentFPS\n' + 
+			   'RAM: ${f(cu, 2, true)} / ${f(gcRam, 2, true)} / ${f(pu, 2, true)}\n' + 
+			   '$os';
 
 		textColor = Std.int(
 			0xFFFF0000 + 

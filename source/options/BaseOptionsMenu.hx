@@ -151,11 +151,12 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		if (controls.BACK) {
 			#if android
 			// P-Slice moment
-			if (FlxG.state is MobileOptionsSubState && ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
+			CoolUtil.showPopUp('${ClientPrefs.data.storageType} / ${MobileOptionsSubState.lastStorageType} / ${Type.getClassName(Type.getClass(FlxG.state))}', 'tests');
+			if (Type.getClass(FlxG.state) is MobileOptionsSubState && ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
 			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				MobileOptionsSubState.onStorageChange();
-				CoolUtil.showPopUp('${ClientPrefs.data.storageType} / ${MobileOptionsSubState.lastStorageType}\nStorage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
+				CoolUtil.showPopUp('Storage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
 				ClientPrefs.saveSettings();
 				lime.system.System.exit(0);
 			}
