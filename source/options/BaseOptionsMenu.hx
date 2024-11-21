@@ -146,13 +146,14 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		if (controls.UI_DOWN_P)
 		{
 			changeSelection(1);
+			
 		}
 
 		if (controls.BACK) {
 			#if android
 			// P-Slice moment
-			CoolUtil.showPopUp('${ClientPrefs.data.storageType} / ${MobileOptionsSubState.lastStorageType} / ${Type.getClassName(Type.getClass(FlxG.state))}', 'tests');
-			if (Type.getClass(FlxG.state) is MobileOptionsSubState && ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
+			CoolUtil.showPopUp('${ClientPrefs.data.storageType} / ${MobileOptionsSubState.lastStorageType} / ${Type.getClassName(Type.getClass(subState))}', 'tests');
+			if (Type.getClass(subState) is Type.getClass(MobileOptionsSubState) && ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
 			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				MobileOptionsSubState.onStorageChange();
