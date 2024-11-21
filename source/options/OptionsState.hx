@@ -8,6 +8,10 @@ import sys.thread.Mutex;
 import sys.thread.Thread;
 #end
 
+#if android
+import mobile.options.MobileOptionsSubState;
+#end
+
 class OptionsState extends MusicBeatState
 {
 	var options:Array<String> = [
