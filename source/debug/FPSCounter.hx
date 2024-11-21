@@ -124,7 +124,9 @@ class FPSCounter extends TextField
 		text = 'FPS: $currentFPS\n' + 
 			   'RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)}' + 
 			   ' / ${CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true)}' + 
-			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)}\n' + os;
+			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)}\n' + os +
+			   '\nState: ${Type.getClassName(Type.getClass(FlxG.state))}' + 
+			   '\nSubState: ${Type.getClassName(Type.getClass(FlxG.state.subState))}';
 
 		textColor = Std.int(
 			0xFFFF0000 + 
