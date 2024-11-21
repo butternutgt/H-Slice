@@ -28,9 +28,6 @@ class OptionsState extends MusicBeatState
 	public static var onPlayState:Bool = false;
 	#if (target.threaded) var mutex:Mutex = new Mutex(); #end
 
-	// Get this setting in this timing
-	#if android MobileOptionsSubState.lastStorageType = ClientPrefs.data.storageType; #end
-
 	private var mainCam:FlxCamera;
 	private var camFollow:FlxObject;
 	private var camFollowPos:FlxObject;
@@ -98,7 +95,6 @@ class OptionsState extends MusicBeatState
 		bg.color = 0xFFea71fd;
 		bg.updateHitbox();
 
-
 		bg.screenCenter();
 		add(bg);
 
@@ -124,6 +120,9 @@ class OptionsState extends MusicBeatState
 
 		changeSelection();
 		ClientPrefs.saveSettings();
+		
+		// Get this setting in this timing
+		#if android MobileOptionsSubState.lastStorageType = ClientPrefs.data.storageType; #end
 
 		#if (target.threaded)
 		Thread.create(()->{
