@@ -2672,7 +2672,7 @@ class PlayState extends MusicBeatState
 						else {
 							if (dunceNote.mustPress)
 							{
-								if (cpuControlled && !dunceNote.blockHit && dunceNote.canBeHit || dunceNote.isSustainNote)
+								if (cpuControlled && (!dunceNote.blockHit || dunceNote.isSustainNote))
 									goodNoteHit(dunceNote);
 							}
 							else if (!dunceNote.hitByOpponent && !dunceNote.ignoreNote)
@@ -2680,8 +2680,6 @@ class PlayState extends MusicBeatState
 		
 							if (dunceNote.isSustainNote && dunceNote.strum.sustainReduce)
 								dunceNote.clipToStrumNote();
-							
-							invalidateNote(dunceNote);
 						}
 					}
 				} else {

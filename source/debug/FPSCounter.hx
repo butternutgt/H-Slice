@@ -45,13 +45,6 @@ class FPSCounter extends TextField
 	var multipleRate:Float = 1.0;
 	public var updateRate:Float = 50;
 
-	/**
-		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
-	**/
-	public var gcRam(get, never):Float;
-	inline function get_gcRam():Float
-		return Gc.memInfo64(Gc.MEM_INFO_USAGE);
-
 	@:noCompletion private var cacheCount:Float;
 	@:noCompletion private var times:Array<Int>;
 
@@ -69,8 +62,6 @@ class FPSCounter extends TextField
 	var active:Bool = true;
 	var updated:Bool = false;
 
-	var f = CoolUtil.formatBytes;
-
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
@@ -79,9 +70,9 @@ class FPSCounter extends TextField
 		defineX = x; defineY = y;
 
 		if (LimeSystem.platformName == LimeSystem.platformVersion || LimeSystem.platformVersion == null)
-			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
+			os = 'OS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end;
 		else
-			os = '\nOS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
+			os = 'OS: ${LimeSystem.platformName}' #if cpp + ' ${getArch() != 'Unknown' ? getArch() : ''}' #end + ' - ${LimeSystem.platformVersion}';
 
 		positionFPS(defineX, defineY, ClientPrefs.data.wideScreen);
 
@@ -124,15 +115,16 @@ class FPSCounter extends TextField
 		if (deltaTimeout < 1000 / updateRate) return;
 		// Literally the stupidest thing i've done for the FPS counter but it allows it to update correctly when on 60 FPS??
 		currentFPS = Math.round(avg); //Math.round((times.length + cacheCount) * 0.5) - 1;
-		updateText(Memory.getCurrentUsage(), Memory.getPeakUsage());
+		updateText();
 		deltaTimeout = 0.0;
 	}
 
 	// so people can override it in hscript
-	public dynamic function updateText(cu:Float, pu:Float):Void {
+	public dynamic function updateText() {
 		text = 'FPS: $currentFPS\n' + 
-			   'RAM: ${f(cu, 2, true)} / ${f(gcRam, 2, true)} / ${f(pu, 2, true)}\n' + 
-			   '$os';
+			   'RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)}' + 
+			   ' / ${CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true)}' + 
+			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)}\n' + os;
 
 		textColor = Std.int(
 			0xFFFF0000 + 
