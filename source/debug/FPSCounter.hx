@@ -129,7 +129,7 @@ class FPSCounter extends TextField
 	}
 
 	// so people can override it in hscript
-	public dynamic function updateText(cu, pu):Void {
+	public dynamic function updateText(cu:Float, pu:Float):Void {
 		text = 'FPS: $currentFPS\n' + 
 			   'RAM: ${f(cu, 2, true)} / ${f(gcRam, 2, true)} / ${f(pu, 2, true)}\n' + 
 			   '$os';
