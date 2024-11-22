@@ -153,7 +153,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			// P-Slice moment
 			var currentSubState = Type.getClassName(Type.getClass(FlxG.state.subState));
 			var targetSubState = "mobile.options.MobileOptionsSubState"; // there is no way to get specific substate, feel free to change if you have idea
-			CoolUtil.showPopUp('${ClientPrefs.data.storageType} / ${MobileOptionsSubState.lastStorageType} / ${currentSubState}', 'tests');
+			// CoolUtil.showPopUp('${ClientPrefs.data.storageType} / ${MobileOptionsSubState.lastStorageType} / ${currentSubState}', 'tests');
 			if (currentSubState == targetSubState && ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
 			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));
