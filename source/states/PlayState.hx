@@ -2744,7 +2744,7 @@ class PlayState extends MusicBeatState
 								{
 									if (cpuControlled)
 										goodNoteHit(daNote);
-									else if (!daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit)) {
+									else if (!daNote.ignoreNote && !endingSong && daNote.tooLate || !daNote.wasGoodHit) {
 										// trace(noteKillOffset, Conductor.stepCrochet);
 										noteMiss(daNote);
 									}
