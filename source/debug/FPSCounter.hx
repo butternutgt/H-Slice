@@ -123,7 +123,7 @@ class FPSCounter extends TextField
 	public dynamic function updateText() {
 		text = 'FPS: $currentFPS\n' + 
 			   'RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)}' + 
-			   ' / ${CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true)}' + 
+			   ' / ${MemoryUtil.isGcEnabled ? CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true) : "GC disabled"}' + 
 			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)}\n' + os;
 
 		textColor = Std.int(
