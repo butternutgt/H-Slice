@@ -1401,21 +1401,31 @@ class PlayState extends MusicBeatState
 	var comboStr:String;
 	var notesStr:String;
 	public dynamic function updateScoreText()
-	{
-		updateScoreStr = Language.getPhrase('rating_$ratingName', ratingName);
-		if (totalPlayed != 0)
-			updateScoreStr += ' (${CoolUtil.floorDecimal(ratingPercent * 100, 2)}%) - ' + Language.getPhrase(ratingFC);
+	{	
+		if (!practiceMode) {
+			updateScoreStr = Language.getPhrase('rating_$ratingName', ratingName);
+			if (totalPlayed != 0)
+				updateScoreStr += ' (${CoolUtil.floorDecimal(ratingPercent * 100, 2)}%) - ' + Language.getPhrase(ratingFC);
+		}
 		
 		hpShowStr = numFormat(health*50, 4 - Std.string(Math.floor(health*50)).length);
 
 		if (!cpuControlled) {
-			if (!instakillOnMiss)
-				tempScoreStr = Language.getPhrase(
-					'score_text',
-					'Score: {1} | Misses: {2} | Rating: {3} | HP: {4} %',
-					[songScore, songMisses, updateScoreStr, hpShowStr]
-				);
-			else
+			if (!instakillOnMiss) {
+				if (!practiceMode) {
+					tempScoreStr = Language.getPhrase(
+						'score_text',
+						'Score: {1} | Misses: {2} | Rating: {3} | HP: {4} %',
+						[songScore, songMisses, updateScoreStr, hpShowStr]
+					);
+				} else {
+					tempScoreStr = Language.getPhrase(
+						'score_text',
+						'Score: {1} | Misses: {2} | Practice Mode | HP: {3} %',
+						[songScore, songMisses, hpShowStr]
+					);
+				}
+			} else
 				tempScoreStr = Language.getPhrase(
 					'score_text_instakill',
 					'Score: {1} | Instant Kill Mode - Good Luck! | Rating: {2}',
@@ -2716,11 +2726,16 @@ class PlayState extends MusicBeatState
 				{
 					if (startedCountdown)
 					{
-						index = notes.length - 1;
+						index = Std.int(Math.min(notes.length - 1, notes.members.length - 1));
 						var daNote:Note;
 
 						while(index >= 0) {
 							daNote = notes.members[index];
+							if (daNote == null) {
+								// trace("null found");
+								invalidateNote(daNote);
+								--index; continue;
+							}
 							canBeHit = Conductor.songPosition - daNote.strumTime > 0;
 							tooLate = Conductor.songPosition - daNote.strumTime > noteKillOffset;
 
@@ -3761,7 +3776,7 @@ class PlayState extends MusicBeatState
 	 */
 	function zoomIntoResultsScreen(isNewHighscore:Bool, scoreData:SaveScoreData, prevScoreRank:ScoringRank):Void
 	{
-		if (!ClientPrefs.data.vsliceResults || cpuControlled)
+		if (!ClientPrefs.data.vsliceResults || cpuControlled || practiceMode)
 		{
 			var resultingAccuracy = Math.min(1, scoreData.accPoints / scoreData.totalNotesHit);
 			var fpRank = Scoring.calculateRankFromData(scoreData.score, resultingAccuracy, scoreData.missed == 0) ?? SHIT;
@@ -4274,7 +4289,7 @@ class PlayState extends MusicBeatState
 				invalidateNote(note);
 		});
 
-		final end:Note = daNote.isSustainNote ? daNote.parent.tail[daNote.parent.tail.length - 1] : daNote.tail[daNote.tail.length - 1];
+		var end:Note = daNote.isSustainNote ? daNote.parent.tail[daNote.parent.tail.length - 1] : daNote.tail[daNote.tail.length - 1];
 		if (end != null && end.extraData['holdSplash'] != null) {
 			end.extraData['holdSplash'].visible = false;
 		}
@@ -4289,10 +4304,12 @@ class PlayState extends MusicBeatState
 		]);
 		if (result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll)
 			callOnHScript('noteMiss', [daNote]);
-		result = null;
+		result = null; end = null;
 	}
-
-	function noteMissPress(direction:Int = 1):Void // You pressed a key when there was no notes to press for this key
+	
+	// You pressed a key when there was no notes to press for this key
+	// It's only works when ghost tapping disabled
+	function noteMissPress(direction:Int = 1):Void 
 	{
 		if (ClientPrefs.data.ghostTapping)
 			return; // fuck it
@@ -4311,47 +4328,45 @@ class PlayState extends MusicBeatState
 			subtract = note.missHealth;
 
 		// GUITAR HERO SUSTAIN CHECK LOL!!!!
-		if (note != null && guitarHeroSustains && note.parent == null)
-		{
-			if (note.tail.length > 0)
-			{
-				note.alpha = 0.35;
-				for (childNote in note.tail)
+		if (guitarHeroSustains && note != null) {
+			if (note.parent == null) {
+				if (note.tail.length > 0)
 				{
-					childNote.alpha = note.alpha;
-					childNote.missed = true;
-					childNote.canBeHit = false;
-					childNote.ignoreNote = true;
-					childNote.tooLate = true;
-				}
-				note.missed = true;
-				note.canBeHit = false;
-
-				// subtract += 0.385; // you take more damage if playing with this gameplay changer enabled.
-				// i mean its fair :p -Crow
-				subtract *= note.tail.length + 1;
-				// i think it would be fair if damage multiplied based on how long the sustain is -Tahir
-			}
-
-			if (note.missed)
-				return;
-		}
-		if (note != null && guitarHeroSustains && note.parent != null && note.isSustainNote)
-		{
-			if (note.missed)
-				return;
-
-			var parentNote:Note = note.parent;
-			if (parentNote.wasGoodHit && parentNote.tail.length > 0)
-			{
-				for (child in parentNote.tail)
-					if (child != note)
+					note.alpha = 0.35;
+					for (childNote in note.tail)
 					{
-						child.missed = true;
-						child.canBeHit = false;
-						child.ignoreNote = true;
-						child.tooLate = true;
+						childNote.alpha = note.alpha;
+						childNote.missed = true;
+						childNote.canBeHit = false;
+						childNote.ignoreNote = true;
+						childNote.tooLate = true;
 					}
+					note.missed = true;
+					note.canBeHit = false;
+
+					// subtract += 0.385; // you take more damage if playing with this gameplay changer enabled.
+					// i mean its fair :p -Crow
+					subtract *= note.tail.length + 1;
+					// i think it would be fair if damage multiplied based on how long the sustain is -Tahir
+				}
+
+				if (note.missed) return;
+			} else if (note.isSustainNote) {
+				if (note.missed) return;
+
+				var parentNote:Note = note.parent;
+				if (parentNote.wasGoodHit && parentNote.tail.length > 0)
+				{
+					for (child in parentNote.tail) {
+						if (child != note) {
+							child.missed = true;
+							child.canBeHit = false;
+							child.ignoreNote = true;
+							child.tooLate = true;
+						}
+					}
+				}
+				parentNote = null;
 			}
 		}
 
@@ -4371,6 +4386,7 @@ class PlayState extends MusicBeatState
 		if (!endingSong)
 			songMisses++;
 		totalPlayed++;
+		// trace(health, subtract, healthLoss);
 		recalculateRating(true);
 
 		// play character anims
@@ -4632,9 +4648,12 @@ class PlayState extends MusicBeatState
 	}
 
 	public function invalidateNote(note:Note):Void {
-		if(!ClientPrefs.data.lowQuality || !showPopups || !cpuControlled) note.kill();
-		notes.remove(note, true);
-		note.destroy();
+		if (note != null) {
+			// if (!ClientPrefs.data.lowQuality || !showPopups || !cpuControlled)
+			note.kill();
+			notes.remove(note, true);
+			note.destroy();
+		}
 	}
 
 	public function spawnHoldSplashOnNote(note:Note) {
@@ -5127,27 +5146,29 @@ class PlayState extends MusicBeatState
 		setOnScripts('hits', songHits);
 		setOnScripts('combo', combo);
 
-		recalcRate = callOnScripts('onRecalculateRating', null, true);
-		if (recalcRate != LuaUtils.Function_Stop)
-		{
-			ratingName = '?';
-			if (totalPlayed != 0) // Prevent divide by 0
+		if (!cpuControlled && !practiceMode) {
+			recalcRate = callOnScripts('onRecalculateRating', null, true);
+			if (recalcRate != LuaUtils.Function_Stop)
 			{
-				// Rating Percent
-				ratingPercent = Math.min(1, Math.max(0, totalNotesHit / totalPlayed));
-				// trace((totalNotesHit / totalPlayed) + ', Total: ' + totalPlayed + ', notes hit: ' + totalNotesHit);
+				ratingName = '?';
+				if (totalPlayed != 0) // Prevent divide by 0
+				{
+					// Rating Percent
+					ratingPercent = Math.min(1, Math.max(0, totalNotesHit / totalPlayed));
+					// trace((totalNotesHit / totalPlayed) + ', Total: ' + totalPlayed + ', notes hit: ' + totalNotesHit);
 
-				// Rating Name
-				ratingName = ratingStuff[ratingStuff.length - 1][0]; // Uses last string
-				if (ratingPercent < 1)
-					for (i in 0...ratingStuff.length - 1)
-						if (ratingPercent < ratingStuff[i][1])
-						{
-							ratingName = ratingStuff[i][0];
-							break;
-						}
+					// Rating Name
+					ratingName = ratingStuff[ratingStuff.length - 1][0]; // Uses last string
+					if (ratingPercent < 1)
+						for (i in 0...ratingStuff.length - 1)
+							if (ratingPercent < ratingStuff[i][1])
+							{
+								ratingName = ratingStuff[i][0];
+								break;
+							}
+				}
+				fullComboFunction();
 			}
-			fullComboFunction();
 		}
 
 		setOnScripts('rating', ratingPercent);

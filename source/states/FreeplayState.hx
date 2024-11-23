@@ -201,8 +201,10 @@ class FreeplayState extends MusicBeatState
 		updateTexts();
 		super.create();
 		
+		#if debug trace(fromResultState); #end
 		if (fromResultState && !ClientPrefs.data.vsliceFreeplay && (!FlxG.sound.music.playing || FlxG.sound.music.volume == 0)) {
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+			fromResultState = false;
 		}
 		
 		#if TOUCH_CONTROLS_ALLOWED

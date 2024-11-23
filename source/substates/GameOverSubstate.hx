@@ -1,7 +1,8 @@
 package substates;
 
 import mikolka.stages.PicoCapableStage;
-import mikolka.vslice.freeplay.FreeplayState;
+import states.FreeplayState;
+import mikolka.vslice.freeplay.FreeplayState as NewFreeplayState;
 import backend.WeekData;
 
 import objects.Character;
@@ -137,15 +138,28 @@ class GameOverSubstate extends MusicBeatSubstate
 				PlayState.chartingMode = false;
 	
 				//! not yet
-			//Mods.loadTopMod();
-			if (PlayState.isStoryMode)
+				//Mods.loadTopMod();
+				if (PlayState.isStoryMode)
 				{
 					PlayState.storyPlaylist = [];
-					openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
+					
+					if (ClientPrefs.data.vsliceFreeplay)
+						openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
+					else {
+						FlxTransitionableState.skipNextTransIn = false;
+						FlxTransitionableState.skipNextTransOut = false;
+						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+						MusicBeatState.switchState(new StoryMenuState());
+					}
 				}
 				else
 				{
-					openSubState(new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker)));
+					if (ClientPrefs.data.vsliceFreeplay)
+						openSubState(new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker)));
+					else {
+						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+						MusicBeatState.switchState(new FreeplayState());
+					}
 				}
 				PlayState.instance.callOnScripts('onGameOverConfirm', [false]);
 			}

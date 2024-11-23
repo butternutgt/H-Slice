@@ -773,10 +773,7 @@ class ResultState extends MusicBeatSubState
 				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8, {
 					onComplete: _ -> {
 						if (!ClientPrefs.data.vsliceFreeplay) {
-							FlxTransitionableState.skipNextTransIn = false;
-							FlxTransitionableState.skipNextTransOut = false;
-							FreeplayState.fromResultState = true;
-							MusicBeatState.switchState(new FreeplayState());
+							destroy();
 						}
 					}
 				});
@@ -822,7 +819,8 @@ class ResultState extends MusicBeatSubState
 			}
 			else
 			{
-				if (rank > params.prevScoreRank) //? refactor this???
+				isHighRank = rank > params.prevScoreRank;
+				if (isHighRank) //? refactor this???
 				{
 					trace('THE RANK IS Higher.....');
 
@@ -850,27 +848,31 @@ class ResultState extends MusicBeatSubState
 					FlxG.sound.pause(); //? fix sound
 					shouldTween = false;
 					controls.isInSubstate = shouldUseSubstate = true;
-					targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
+					if (ClientPrefs.data.vsliceFreeplay) {
+						targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
+					} else {
+						destroy();
+					}
 				}
 			}
 
 			if (shouldTween)
 			{
 				FlxTween.tween(rankBg, {alpha: 1}, 0.5,
-					{
-						ease: FlxEase.expoOut,
-						onComplete: function(_) {
-							if (shouldUseSubstate && targetState is FlxSubState)
-							{
-								openSubState(cast targetState);
-							}
-							else
-							{
-								FlxG.sound.pause(); //? fix sound
-								FlxG.switchState(targetState);
-							}
+				{
+					ease: FlxEase.expoOut,
+					onComplete: function(_) {
+						if (shouldUseSubstate && targetState is FlxSubState)
+						{
+							openSubState(cast targetState);
 						}
-					});
+						else
+						{
+							FlxG.sound.pause(); //? fix sound
+							FlxG.switchState(targetState);
+						}
+					}
+				});
 			}
 			else
 			{
@@ -886,6 +888,24 @@ class ResultState extends MusicBeatSubState
 		}
 
 		super.update(elapsed);
+	}
+
+	var isHighRank:Bool = false;
+	override function destroy() {
+		if (!ClientPrefs.data.vsliceFreeplay) {
+			if (isHighRank) {
+				FlxTransitionableState.skipNextTransIn = false;
+				FlxTransitionableState.skipNextTransOut = true;
+				FreeplayState.fromResultState = true;
+			} else {
+				FlxTransitionableState.skipNextTransIn = false;
+				FlxTransitionableState.skipNextTransOut = false;
+				FreeplayState.fromResultState = false;
+				FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+			}
+			MusicBeatState.switchState(new FreeplayState());
+		}
+		super.destroy();
 	}
 }
 
