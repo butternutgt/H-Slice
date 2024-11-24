@@ -146,7 +146,7 @@ class GameOverSubstate extends MusicBeatSubstate
 					if (ClientPrefs.data.vsliceFreeplay)
 						openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
 					else {
-						FlxTransitionableState.skipNextTransIn = false;
+						FlxTransitionableState.skipNextTransIn = true;
 						FlxTransitionableState.skipNextTransOut = false;
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 						MusicBeatState.switchState(new StoryMenuState());
@@ -157,6 +157,8 @@ class GameOverSubstate extends MusicBeatSubstate
 					if (ClientPrefs.data.vsliceFreeplay)
 						openSubState(new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker)));
 					else {
+						FlxTransitionableState.skipNextTransIn = true;
+						FlxTransitionableState.skipNextTransOut = false;
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 						MusicBeatState.switchState(new FreeplayState());
 					}

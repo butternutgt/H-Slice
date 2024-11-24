@@ -121,6 +121,7 @@ import states.TitleState;
 	public var loadingScreen:Bool = true;
 	public var language:String = 'en-US';
 	public var changeNotes:Bool = false;
+	public var f11Shortcut:Bool = false;
 
 	// Optimizer
 	public var openDoor:String = "!";

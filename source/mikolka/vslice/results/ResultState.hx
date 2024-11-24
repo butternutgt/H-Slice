@@ -715,6 +715,7 @@ class ResultState extends MusicBeatSubState
 		// maskShaderSongName.frameUV = songName.frame.uv;
 	}
 
+	var isHighRank:Bool = false;
 	override function update(elapsed:Float):Void
 	{
 		// if(FlxG.keys.justPressed.R){
@@ -841,6 +842,9 @@ class ResultState extends MusicBeatSubState
 								}
 							}
 						});
+					} else {
+						FreeplayState.fromResultState = true;
+						targetState = new FreeplayState();
 					}
 				}
 				else
@@ -848,10 +852,13 @@ class ResultState extends MusicBeatSubState
 					FlxG.sound.pause(); //? fix sound
 					shouldTween = false;
 					controls.isInSubstate = shouldUseSubstate = true;
-					if (ClientPrefs.data.vsliceFreeplay) {
+					if (ClientPrefs.data.vsliceFreeplay)
 						targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
-					} else {
-						destroy();
+					else
+					{
+						FreeplayState.fromResultState = false;
+						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+						targetState = new FreeplayState();
 					}
 				}
 			}
@@ -869,7 +876,9 @@ class ResultState extends MusicBeatSubState
 						else
 						{
 							FlxG.sound.pause(); //? fix sound
-							FlxG.switchState(targetState);
+							if (!ClientPrefs.data.vsliceFreeplay)
+								MusicBeatState.switchState(targetState);
+							else FlxG.switchState(targetState);
 						}
 					}
 				});
@@ -882,30 +891,16 @@ class ResultState extends MusicBeatSubState
 				}
 				else
 				{
-					FlxG.switchState(targetState);
+					if (!ClientPrefs.data.vsliceFreeplay) {
+						FlxTransitionableState.skipNextTransIn = isHighRank;
+						FlxTransitionableState.skipNextTransOut = false;
+						MusicBeatState.switchState(targetState);
+					} else FlxG.switchState(targetState);
 				}
 			}
 		}
 
 		super.update(elapsed);
-	}
-
-	var isHighRank:Bool = false;
-	override function destroy() {
-		if (!ClientPrefs.data.vsliceFreeplay) {
-			if (isHighRank) {
-				FlxTransitionableState.skipNextTransIn = false;
-				FlxTransitionableState.skipNextTransOut = true;
-				FreeplayState.fromResultState = true;
-			} else {
-				FlxTransitionableState.skipNextTransIn = false;
-				FlxTransitionableState.skipNextTransOut = false;
-				FreeplayState.fromResultState = false;
-				FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
-			}
-			MusicBeatState.switchState(new FreeplayState());
-		}
-		super.destroy();
 	}
 }
 

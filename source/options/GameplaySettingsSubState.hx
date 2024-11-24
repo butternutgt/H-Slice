@@ -116,14 +116,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.decimals = 2;
 		option.onChange = onChangeSfxVolume;
 		sfxVolume = option;
-
-		var option:Option = new Option('Vibrations',
-			"If checked, your device will vibrate at some cases.",
-			'vibrating',
-			BOOL);
-		addOption(option);
-		option.onChange = onChangeVibration;
-
+		
 		var option:Option = new Option('Hitsound Volume',
 			'Funny notes does \"Tick!\" when you hit them.',
 			'hitsoundVolume',
@@ -136,6 +129,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.decimals = 1;
 		option.onChange = onChangeHitsoundVolume;
 		hitVolume = option;
+
+		var option:Option = new Option('Vibrations',
+			"If checked, your device will vibrate at some cases.",
+			'vibrating',
+			BOOL);
+		addOption(option);
+		option.onChange = onChangeVibration;
 
 		var option:Option = new Option('Rating Offset',
 			'Changes how late/early you have to hit for a "Sick!"\nHigher values mean you have to hit later.',
@@ -185,6 +185,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.minValue = 2;
 		option.maxValue = 10;
 		option.changeValue = 0.1;
+		addOption(option);
+
+		var option:Option = new Option('Full Screen shortcut on F11',
+			"If checked, F11 key can use to set fullscreen besides Alt+Enter.\nIt's for avoid other processing interrupt.",
+			'f11Shortcut',
+			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Sustains as One Note',

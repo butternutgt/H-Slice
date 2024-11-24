@@ -1,5 +1,7 @@
 package debug;
 
+import flixel.input.keyboard.FlxKey;
+import openfl.events.KeyboardEvent;
 import lime.ui.Window;
 import haxe.Timer;
 import cpp.vm.Gc;
@@ -91,6 +93,8 @@ class FPSCounter extends TextField
 		
 		deltaTimeout = avg = 0.0;
 		delta = sliceCnt = sum = 0;
+		
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 	}
 
 	// Event Handlers
@@ -144,6 +148,11 @@ class FPSCounter extends TextField
 			x = FlxG.game.x + X;
 			y = FlxG.game.y + Y;
 		}
+	}
+	
+	private function onKeyPress(event:KeyboardEvent):Void {
+		var eventKey:FlxKey = event.keyCode;
+		if (eventKey == FlxKey.F11 && ClientPrefs.data.f11Shortcut) FlxG.fullscreen = !FlxG.fullscreen;
 	}
 
 	#if cpp
