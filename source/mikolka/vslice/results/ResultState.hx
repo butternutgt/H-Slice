@@ -843,6 +843,8 @@ class ResultState extends MusicBeatSubState
 							}
 						});
 					} else {
+						FlxTransitionableState.skipNextTransIn = false;
+						FlxTransitionableState.skipNextTransOut = true;
 						FreeplayState.fromResultState = true;
 						targetState = new FreeplayState();
 					}
@@ -892,7 +894,7 @@ class ResultState extends MusicBeatSubState
 				else
 				{
 					if (!ClientPrefs.data.vsliceFreeplay) {
-						FlxTransitionableState.skipNextTransIn = isHighRank;
+						FlxTransitionableState.skipNextTransIn = false;
 						FlxTransitionableState.skipNextTransOut = false;
 						MusicBeatState.switchState(targetState);
 					} else FlxG.switchState(targetState);
