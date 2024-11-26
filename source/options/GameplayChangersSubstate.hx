@@ -1,5 +1,6 @@
 package options;
 
+import mikolka.vslice.freeplay.FreeplayState; // It has used on mobile build
 import objects.AttachedText;
 import objects.CheckboxThingie;
 
@@ -375,6 +376,14 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		for (checkbox in checkboxGroup) {
 			checkbox.daValue = (optionsArray[checkbox.ID].getValue() == true);
 		}
+	}
+
+	override function closeSubState() {
+		super.closeSubState();
+		
+		#if TOUCH_CONTROLS_ALLOWED
+		FreeplayState.configReturned = true;
+		#end
 	}
 }
 

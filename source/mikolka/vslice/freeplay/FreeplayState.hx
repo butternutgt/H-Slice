@@ -224,6 +224,10 @@ class FreeplayState extends MusicBeatSubstate
 
 	public static var inNewFreeplayState:Bool = false;
 
+	#if TOUCH_CONTROLS_ALLOWED
+	public static var configReturned:Bool = false;
+	#end
+
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
 		controls.isInSubstate = true;
@@ -1313,6 +1317,7 @@ class FreeplayState extends MusicBeatSubstate
 		#if TOUCH_CONTROLS_ALLOWED
 		removeTouchPad();
 		addTouchPad('UP_DOWN', 'A_B_X_F');
+		addTouchPadCamera();
 		#end
 	}
 
@@ -1507,6 +1512,14 @@ class FreeplayState extends MusicBeatSubstate
 	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+
+		#if TOUCH_CONTROLS_ALLOWED
+		if (configReturned) {			
+			addTouchPad('UP_DOWN', 'A_B_X_F');
+			addTouchPadCamera();
+			configReturned = false;
+		}
+		#end
 
 		if (charSelectHint != null)
 		{
