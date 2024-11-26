@@ -231,6 +231,7 @@ class FreeplayState extends MusicBeatSubstate
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
 		controls.isInSubstate = true;
+		#if TOUCH_CONTROLS_ALLOWED configReturned = false; #end
 		super();
 		inNewFreeplayState = true;
 		var saveBox = VsliceOptions.LAST_MOD;
@@ -1514,9 +1515,25 @@ class FreeplayState extends MusicBeatSubstate
 		super.update(elapsed);
 
 		#if TOUCH_CONTROLS_ALLOWED
-		if (configReturned) {			
+		if (configReturned) {
+			removeTouchPad();		
 			addTouchPad('UP_DOWN', 'A_B_X_F');
 			addTouchPadCamera();
+
+			touchPad.forEachAlive(function(button:TouchButton)
+			{
+				if (button.tag == 'UP' || button.tag == 'DOWN')
+				{
+					button.x -= 350;
+					FlxTween.tween(button, {x: button.x + 350}, 0.6, {ease: FlxEase.backInOut});
+				}
+				else
+				{
+					button.x += 450;
+					FlxTween.tween(button, {x: button.x - 450}, 0.6, {ease: FlxEase.backInOut});
+				}
+			});
+
 			configReturned = false;
 		}
 		#end
