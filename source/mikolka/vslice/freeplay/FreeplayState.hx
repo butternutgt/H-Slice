@@ -768,6 +768,7 @@ class FreeplayState extends MusicBeatSubstate
 
 		#if TOUCH_CONTROLS_ALLOWED
 		addTouchPad('UP_DOWN', 'A_B_X_F');
+		addTouchPadCamera();
 		if (prepForNewRank)
 		{
 			final lastAlpha:Float = touchPad.alpha;
