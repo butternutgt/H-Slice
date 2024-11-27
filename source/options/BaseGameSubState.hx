@@ -22,31 +22,37 @@ class BaseGameSubState extends BaseOptionsMenu {
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Use results screen',
+		var option:Option = new Option('Use Results Screen',
 			'If disabled will skip showing the result screen.',
 			'vsliceResults',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Smooth health bar',
+		var option:Option = new Option('Smooth Health Bar',
 			'If enabled makes health bar move more smoothly.',
 			'vsliceSmoothBar',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Special freeplay cards',
+		var option:Option = new Option('Show Available Updates',
+			'If disabled makes won\'t show update until turned on.',
+			'vsliceSmoothBar',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Special Freeplay Cards',
 			"If disabled will force every character to use BF's card. (including pico)",
 			'vsliceSpecialCards',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Listen whole song of freeplay',
+		var option:Option = new Option('Listen Whole Song Of Freeplay',
 			'If enabled will load of whole music file in freeplay preview,\nIt makes more loads cpu.',
 			'vsliceLoadInstAll',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Botplay Text: ',
+		var option:Option = new Option('Botplay Text Location: ',
 			'P-Slice Engine is changed the Botplay Text Place,\nSo you can make Location be like original Psych Engine.',
 			'vsliceBotPlayPlace',
 			STRING,

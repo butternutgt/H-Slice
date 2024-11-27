@@ -18,14 +18,14 @@ class OutdatedState extends MusicBeatState
 			["A", "B", "C"]
 		];
 
-		var guh:String = 'Sup kiddo, looks like you\'re running an\n
-		outdated version of H-Slice Engine (${MainMenuState.hrkVersion}),\n
-		please update to ${TitleState.updateVersion}!\n
-		Press ${operates[toInt((controls.mobileC))][0]} to go releases page.\n
-		Press ${operates[toInt((controls.mobileC))][1]} to proceed anyway.\n
-		Press ${operates[toInt((controls.mobileC))][2]} to also proceed anyway\n
-		but this message has shown NEVER again.\n\n
-		Thank you for using the Port!';
+		var guh:String = 'Sup kiddo, looks like you\'re running an\n' +
+		'outdated version of H-Slice Engine (${MainMenuState.hrkVersion}),\n' +
+		'please update to ${TitleState.updateVersion}!\n' +
+		'Press ${operates[toInt((controls.mobileC))][0]} to go releases page.\n' +
+		'Press ${operates[toInt((controls.mobileC))][1]} to proceed anyway.\n' +
+		'Press ${operates[toInt((controls.mobileC))][2]} to also proceed anyway\n' +
+		'but this message has shown NEVER again.\n\n' +
+		'Thank you for using the Port!';
 
 		warnText = new FlxText(0, 0, FlxG.width, guh, 32);
 		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
@@ -49,6 +49,7 @@ class OutdatedState extends MusicBeatState
 			}
 			else if(#if TOUCH_CONTROLS_ALLOWED touchPad.buttonC.justPressed #else FlxG.keys.justPressed.BACKSPACE #end) {
 				leftState = true;
+				ClientPrefs.data.neverShowUpdate = true;
 			}
 
 			if(leftState)
