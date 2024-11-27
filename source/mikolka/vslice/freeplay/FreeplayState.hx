@@ -252,7 +252,6 @@ class FreeplayState extends MusicBeatSubstate
 		if (styleData == null) styleData = FreeplayStyleRegistry.instance.fetchEntry("bf");
 
 		fromCharSelect = params?.fromCharSelect;
-
 		fromResultsParams = params?.fromResults;
 
 		if (fromResultsParams?.playRankAnim == true)
@@ -1516,9 +1515,10 @@ class FreeplayState extends MusicBeatSubstate
 
 		#if TOUCH_CONTROLS_ALLOWED
 		if (configReturned) {
-			removeTouchPad();		
+			removeTouchPad();
 			addTouchPad('UP_DOWN', 'A_B_X_F');
 			addTouchPadCamera();
+			controls.isInSubstate = true;
 
 			touchPad.forEachAlive(function(button:TouchButton)
 			{
