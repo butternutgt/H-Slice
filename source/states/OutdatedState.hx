@@ -3,7 +3,7 @@ package states;
 class OutdatedState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
-	var toInt = CoolUtil.int();
+	var toInt = CoolUtil.int;
 
 	var warnText:FlxText;
 	override function create()
