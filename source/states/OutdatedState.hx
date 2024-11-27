@@ -3,6 +3,7 @@ package states;
 class OutdatedState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
+	var toInt = CoolUtil.int();
 
 	var warnText:FlxText;
 	override function create()
@@ -11,24 +12,20 @@ class OutdatedState extends MusicBeatState
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
+		
+		var operates = [
+			["ENTER", "ESCAPE", "BACKSPACE"],
+			["A", "B", "C"]
+		];
 
-		var guh:String;
-
-		if (controls.mobileC) {
-			guh = "Sup kiddo, looks like you're running an   \n
-			outdated version of H-Slice Engine (" + MainMenuState.hrkVersion + "),\n
-			please update to " + TitleState.updateVersion + "!\n
-			Press B to proceed anyway.\n
-			\n
-			Thank you for using the Port!";
-		} else {
-			guh = "Sup bro, looks like you're running an   \n
-			outdated version of H-Slice Engine (" + MainMenuState.hrkVersion + "),\n
-			please update to " + TitleState.updateVersion + "!\n
-			Press ESCAPE to proceed anyway.\n
-			\n
-			Thank you for using the Engine!";
-		}
+		var guh:String = 'Sup kiddo, looks like you\'re running an\n
+		outdated version of H-Slice Engine (${MainMenuState.hrkVersion}),\n
+		please update to ${TitleState.updateVersion}!\n
+		Press ${operates[toInt((controls.mobileC))][0]} to go releases page.\n
+		Press ${operates[toInt((controls.mobileC))][1]} to proceed anyway.\n
+		Press ${operates[toInt((controls.mobileC))][2]} to also proceed anyway\n
+		but this message has shown NEVER again.\n\n
+		Thank you for using the Port!';
 
 		warnText = new FlxText(0, 0, FlxG.width, guh, 32);
 		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
@@ -36,7 +33,7 @@ class OutdatedState extends MusicBeatState
 		warnText.antialiasing = ClientPrefs.data.antialiasing;
 		add(warnText);
 		#if TOUCH_CONTROLS_ALLOWED
-		addTouchPad('NONE', 'A_B');
+		addTouchPad('NONE', 'A_B_C');
 		#end
 	}
 
@@ -45,9 +42,12 @@ class OutdatedState extends MusicBeatState
 		if(!leftState) {
 			if (controls.ACCEPT) {
 				leftState = true;
-				CoolUtil.browserLoad("https://github.com/Psych-Slice/P-Slice/releases");
+				CoolUtil.browserLoad("https://github.com/HRK-EXEX/H-Slice/releases");
 			}
-			else if(controls.BACK) {
+			else if(#if TOUCH_CONTROLS_ALLOWED touchPad.buttonB.justPressed #else FlxG.keys.justPressed.ESCAPE #end) {
+				leftState = true;
+			}
+			else if(#if TOUCH_CONTROLS_ALLOWED touchPad.buttonC.justPressed #else FlxG.keys.justPressed.BACKSPACE #end) {
 				leftState = true;
 			}
 

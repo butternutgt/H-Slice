@@ -66,6 +66,7 @@ class CrashState extends FlxState
 		musicState = new MusicBeatState();
 		musicState.removeTouchPad();
 		musicState.addTouchPad('NONE', 'A_B');
+		musicState.addTouchPadCamera();
 		#end
 
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
