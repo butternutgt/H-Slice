@@ -170,8 +170,15 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		{
 			close();
 			ClientPrefs.saveSettings();
-			controls.isInSubstate = false;
-			fromNewFreeplayState = false;
+
+			if (fromNewFreeplayState) {
+				FreeplayState.configReturned = true;
+				controls.isInSubstate = true;
+			} else {
+				fromNewFreeplayState = false;
+				controls.isInSubstate = false;
+			}
+
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 		}
 
@@ -376,14 +383,6 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		for (checkbox in checkboxGroup) {
 			checkbox.daValue = (optionsArray[checkbox.ID].getValue() == true);
 		}
-	}
-
-	override function closeSubState() {
-		super.closeSubState();
-		
-		#if TOUCH_CONTROLS_ALLOWED
-		FreeplayState.configReturned = true;
-		#end
 	}
 }
 

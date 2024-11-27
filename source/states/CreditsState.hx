@@ -38,9 +38,14 @@ class CreditsState extends MusicBeatState
 		#end
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
+			['H-Slice Engine Team'],
+			['HRK.EXEX',			'missing_icon',		'Main Developer and Founder of H-Slice Engine',				'https://www.youtube.com/@hk.3x3x2nd3',		'1890ff'],
+			['justAMZ',				'amz',				'Co-Developer mainly for Chart Editor',						'https://youtube.com/@justamz',				'408080'],
+			['mcagabe19',			'lily',             'Porter of H-slice for mobile devices and creator of linc_luajit-rewritten (used for mobile builds)',   'https://youtube.com/@mcagabe19',		'FFE7C0'],
+			[""],
 			['P-Slice Engine Team'],
-			['Mikolka9144',			'mikolka',			'Did everything for P-slice',								 'https://gamebanana.com/members/3329541',									'2ebcfa'],
-			['mcagabe19',			'lily',             'Porter of P-slice for mobile devices and creator of linc_luajit-rewritten (used for mobile builds)',                       'https://youtube.com/@mcagabe19',		'FFE7C0'],
+			['Mikolka9144',			'mikolka',			'Did everything for P-slice',								'https://gamebanana.com/members/3329541',	'2ebcfa'],
+			['mcagabe19',			'lily',             'Porter of P-slice for mobile devices and creator of linc_luajit-rewritten (used for mobile builds)',   'https://youtube.com/@mcagabe19',		'FFE7C0'],
 			[""],
 			["Psych Engine Team"],
 			["Shadow Mario",		"shadowmario",		"Main Programmer and Head of Psych Engine",					"https://ko-fi.com/shadowmario",	"444444"],

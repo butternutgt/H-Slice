@@ -223,15 +223,12 @@ class FreeplayState extends MusicBeatSubstate
 	var fromCharSelect:Null<Bool> = null;
 
 	public static var inNewFreeplayState:Bool = false;
-
-	#if TOUCH_CONTROLS_ALLOWED
 	public static var configReturned:Bool = false;
-	#end
 
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
 		controls.isInSubstate = true;
-		#if TOUCH_CONTROLS_ALLOWED configReturned = false; #end
+		configReturned = false;
 		super();
 		inNewFreeplayState = true;
 		var saveBox = VsliceOptions.LAST_MOD;
@@ -1518,7 +1515,6 @@ class FreeplayState extends MusicBeatSubstate
 			removeTouchPad();
 			addTouchPad('UP_DOWN', 'A_B_X_F');
 			addTouchPadCamera();
-			controls.isInSubstate = true;
 
 			touchPad.forEachAlive(function(button:TouchButton)
 			{
