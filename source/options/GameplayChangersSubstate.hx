@@ -175,9 +175,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 				FreeplayState.configReturned = true;
 				controls.isInSubstate = true;
 			} else {
-				fromNewFreeplayState = false;
 				controls.isInSubstate = false;
 			}
+			fromNewFreeplayState = false;
 
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 		}

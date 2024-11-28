@@ -1508,6 +1508,7 @@ class FreeplayState extends MusicBeatSubstate
 
 	override function update(elapsed:Float):Void
 	{
+		controls.isInSubstate = true;
 		super.update(elapsed);
 
 		#if TOUCH_CONTROLS_ALLOWED
