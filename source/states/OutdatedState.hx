@@ -25,7 +25,7 @@ class OutdatedState extends MusicBeatState
 		'Press ${operates[toInt((controls.mobileC))][1]} to proceed anyway.\n' +
 		'Press ${operates[toInt((controls.mobileC))][2]} to also proceed anyway,\n' +
 		"but this message hasn't shown until turn on Check for Updates option\n" +
-		'Thank you for using the ${operates[toInt((controls.mobileC))][3]}!';
+		'Thank you for using this ${operates[toInt((controls.mobileC))][3]}!';
 
 		warnText = new FlxText(0, 0, FlxG.width, guh, 32);
 		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
