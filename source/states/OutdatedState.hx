@@ -14,8 +14,8 @@ class OutdatedState extends MusicBeatState
 		add(bg);
 		
 		var operates = [
-			["ENTER", "ESCAPE", "BACKSPACE"],
-			["A", "B", "C"]
+			["ENTER", "ESCAPE", "BACKSPACE", "Engine"],
+			["A", "B", "C", "Port"]
 		];
 
 		var guh:String = 'Sup kiddo, looks like you\'re running an\n' +
@@ -23,9 +23,9 @@ class OutdatedState extends MusicBeatState
 		'please update to ${TitleState.updateVersion}!\n' +
 		'Press ${operates[toInt((controls.mobileC))][0]} to go releases page.\n' +
 		'Press ${operates[toInt((controls.mobileC))][1]} to proceed anyway.\n' +
-		'Press ${operates[toInt((controls.mobileC))][2]} to also proceed anyway\n' +
-		'but this message has shown NEVER again.\n\n' +
-		'Thank you for using the Port!';
+		'Press ${operates[toInt((controls.mobileC))][2]} to also proceed anyway,\n' +
+		"but this message hasn't shown until turn on Check for Updates option\n" +
+		'Thank you for using the ${operates[toInt((controls.mobileC))][3]}!';
 
 		warnText = new FlxText(0, 0, FlxG.width, guh, 32);
 		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
@@ -49,7 +49,7 @@ class OutdatedState extends MusicBeatState
 			}
 			else if(#if TOUCH_CONTROLS_ALLOWED touchPad.buttonC.justPressed #else FlxG.keys.justPressed.BACKSPACE #end) {
 				leftState = true;
-				ClientPrefs.data.neverShowUpdate = true;
+				ClientPrefs.data.checkForUpdates = false;
 			}
 
 			if(leftState)

@@ -98,7 +98,6 @@ class TitleState extends MusicBeatState
 				if (updateVersion != curVersion)
 				{
 					trace('versions arent matching!');
-					mustUpdate = !ClientPrefs.data.neverShowUpdate;
 					if (!mustUpdate) trace('but it will skips that screen');
 				}
 			}

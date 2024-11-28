@@ -69,6 +69,14 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 		option.onChange = onChangeAutoPause;
+		
+		#if CHECK_FOR_UPDATES
+		var option:Option = new Option('Check for Updates',
+			'On Release builds, turn this on to check for updates when you start the game.',
+			'checkForUpdates',
+			BOOL);
+		addOption(option);
+		#end
 
 		// It may conflict on my feature
 		// var option:Option = new Option('Pop Up Score',
