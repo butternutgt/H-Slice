@@ -158,7 +158,6 @@ class FreeplayState extends MusicBeatState
 		diffText.font = scoreText.font;
 		diffText.antialiasing = ClientPrefs.data.antialiasing;
 		add(diffText);
-
 		add(scoreText);
 
 

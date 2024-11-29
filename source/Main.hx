@@ -62,13 +62,15 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
-		#if desktop
+
+		// #if desktop
 		try {
 			Sys.stdout().writeString("Console Available!\n");
 		} catch (e:Dynamic) {isConsoleAvailable = false;}
-		#else
-		isConsoleAvailable = false;
-		#end
+		// #else
+		// isConsoleAvailable = false;
+		// #end
+
 		#if mobile
 		#if android
 		StorageUtil.requestPermissions();

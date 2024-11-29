@@ -11,6 +11,7 @@ export/*
 .haxelib/
 TEST.bat
 RUN.bat
+log.txt
 #.github/
 *.code-workspace
 vs_Community.exe

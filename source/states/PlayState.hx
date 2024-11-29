@@ -1701,6 +1701,8 @@ class PlayState extends MusicBeatState
 		var updateTime:Float = 0.1;
 		var syncTime:Float = Timer.stamp();
 
+		var isMobile:Bool = Main.platform == 'Phones';
+
 		function showProgress(force:Bool = false) {
 			if (Main.isConsoleAvailable)
 			{
@@ -1709,6 +1711,8 @@ class PlayState extends MusicBeatState
 					Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 					syncTime = Timer.stamp();
 				}
+			} else if (isMobile && force) {
+				Sys.println('Loading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 			}
 		}
 
@@ -1812,7 +1816,7 @@ class PlayState extends MusicBeatState
 				++sectionNoteCnt;
 			}
 
-			showProgress();
+			showProgress(isMobile);
 			notes += sectionNoteCnt;
 		}
 
@@ -2579,7 +2583,8 @@ class PlayState extends MusicBeatState
 			infoTxt.text = info;
 			info = null;
 		} else {
-			infoTxt.text = null;
+			// it's seems type of null-safety... when did this happen???
+			infoTxt.text = "";
 		}
 
 		updateScoreText();
