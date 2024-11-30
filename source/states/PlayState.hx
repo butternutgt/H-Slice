@@ -1865,9 +1865,6 @@ class PlayState extends MusicBeatState
 
 		Sys.println('\n[ --- "${SONG.song.toUpperCase()}" CHART INFO --- ]');
 		Sys.println('Loaded $notes notes!');
-		for (event in songData.events) // Event Notes
-			for (i in 0...event[1].length)
-				makeEvent(event, i);
 
 		if (skipGhostNotes) {
 			if (ghostNotesCaught > 0)
