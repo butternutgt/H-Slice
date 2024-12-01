@@ -43,9 +43,7 @@ class SustainSplash extends FlxSprite
 			if (strumNote.animation.curAnim.name == "static")
 			{
 				if (animation.curAnim.name == "hold") ++killCnt;
-				if (!killing && (killCnt > 2 || animation.curAnim.name == "end")) {
-					// trace("bye");
-					x = -50000;
+				if (!killing && (killCnt > 2 || animation.curAnim.name != "end")) {
 					showEndSplash();
 				}
 			} else killCnt = 0;

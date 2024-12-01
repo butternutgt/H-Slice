@@ -34,12 +34,6 @@ class BaseGameSubState extends BaseOptionsMenu {
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Show Available Updates',
-			'If disabled makes won\'t show update until turned on.',
-			'vsliceSmoothBar',
-			BOOL);
-		addOption(option);
-
 		var option:Option = new Option('Special Freeplay Cards',
 			"If disabled will force every character to use BF's card. (including pico)",
 			'vsliceSpecialCards',
