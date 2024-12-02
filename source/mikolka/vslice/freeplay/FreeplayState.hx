@@ -224,6 +224,8 @@ class FreeplayState extends MusicBeatSubstate
 
 	public static var inNewFreeplayState:Bool = false;
 	public static var configReturned:Bool = false;
+	
+	var interpolate = CoolUtil.interpolate;
 
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
@@ -1688,7 +1690,7 @@ class FreeplayState extends MusicBeatSubstate
 			missingTextBG.visible = false;
 			if (spamming)
 			{
-				if (spamTimer >= 0.07)
+				if (spamTimer >= interpolate(0.1, 0.03333333333333333333333333333, (spamTimer - 0.5) / 5, 2))
 				{
 					spamTimer = 0;
 
@@ -1702,7 +1704,7 @@ class FreeplayState extends MusicBeatSubstate
 					}
 				}
 			}
-			else if (spamTimer >= 0.9)
+			else if (spamTimer >= 0.5)
 			{
 				spamming = true;
 			}

@@ -54,6 +54,7 @@ class FreeplayState extends MusicBeatState
 	var bottomBG:FlxSprite;
 
 	var player:MusicPlayer;
+	var interpolate = CoolUtil.interpolate;
 
 	override function create()
 	{
@@ -298,12 +299,14 @@ class FreeplayState extends MusicBeatState
 
 				if(controls.UI_DOWN || controls.UI_UP)
 				{
-					var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
+					var checkLastHold:Null<Int> = Std.int((holdTime - 0.5) * interpolate(10, 30, (holdTime - 0.5) / 5, 2));
 					holdTime += elapsed;
-					var checkNewHold:Int = Math.floor((holdTime - 0.5) * 10);
+					var checkNewHold:Null<Int> = Std.int((holdTime - 0.5) * interpolate(10, 30, (holdTime - 0.5) / 5, 2));
 
-					if(holdTime > 0.5 && checkNewHold - checkLastHold > 0)
+					if(holdTime > 0.5 && checkNewHold - checkLastHold >= 1)
 						changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
+
+					checkLastHold = checkNewHold = null;
 				}
 
 				if(FlxG.mouse.wheel != 0)
