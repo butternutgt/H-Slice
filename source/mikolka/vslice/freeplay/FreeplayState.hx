@@ -1675,6 +1675,7 @@ class FreeplayState extends MusicBeatSubstate
 			FlxG.watch.addQuick('dj-anim', dj.getCurrentAnimation());
 	}
 
+	var holdTimer:Float = 0;
 	function handleInputs(elapsed:Float):Void
 	{
 		if (busy)
@@ -1684,13 +1685,14 @@ class FreeplayState extends MusicBeatSubstate
 		var last:Bool = FlxG.keys.justPressed.END;
 		var accepted:Bool = controls.ACCEPT;
 
-		if ((controls.UI_UP || controls.UI_DOWN))
+		if (controls.UI_UP || controls.UI_DOWN)
 		{
 			missingText.visible = false;
 			missingTextBG.visible = false;
 			if (spamming)
 			{
-				if (spamTimer >= interpolate(0.1, 0.03333333333333333333333333333, (spamTimer - 0.5) / 5, 2))
+				holdTimer += elapsed;
+				if (spamTimer >= interpolate(0.1, 0.03333333333333333333333333333, holdTimer / 5, 2))
 				{
 					spamTimer = 0;
 
@@ -1706,6 +1708,7 @@ class FreeplayState extends MusicBeatSubstate
 			}
 			else if (spamTimer >= 0.5)
 			{
+				holdTimer = 0;
 				spamming = true;
 			}
 			else if (spamTimer <= 0)
@@ -1718,6 +1721,7 @@ class FreeplayState extends MusicBeatSubstate
 				{
 					changeSelection(1);
 				}
+				holdTimer = 0;
 			}
 
 			spamTimer += elapsed;
