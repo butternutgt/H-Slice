@@ -247,16 +247,16 @@ class FreeplayDJ extends FlxAtlasSprite
 			}
 			onIntroDone.dispatch();
 		}
-		#if debug
-		else if (name == playableCharData.getAnimationPrefix('idle'))
-		{
-			trace('Finished idle');
-		}
-		else if (name == playableCharData.getAnimationPrefix('confirm'))
-		{
-			trace('Finished confirm');
-		}
-		#end
+		// #if debug
+		// else if (name == playableCharData.getAnimationPrefix('idle'))
+		// {
+		// 	trace('Finished idle');
+		// }
+		// else if (name == playableCharData.getAnimationPrefix('confirm'))
+		// {
+		// 	trace('Finished confirm');
+		// }
+		// #end
 		else if (name == playableCharData.getAnimationPrefix('fistPump'))
 		{
 			#if debug trace('Finished fist pump'); #end
@@ -301,7 +301,7 @@ class FreeplayDJ extends FlxAtlasSprite
 		}
 		else
 		{
-			#if debug trace('Finished ${name}'); #end
+			// #if debug trace('Finished ${name}'); #end
 		}
 	}
 

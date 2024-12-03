@@ -23,6 +23,8 @@ typedef WeekFile =
 class WeekData {
 	public static var weeksLoaded:Map<String, WeekData> = new Map<String, WeekData>();
 	public static var weeksList:Array<String> = [];
+	public static var songPaths:Array<String> = [];
+	public static var songPathsLower:Array<String> = [];
 	public var folder:String = '';
 
 	// JSON variables
@@ -74,6 +76,8 @@ class WeekData {
 	public static function reloadWeekFiles(isStoryMode:Null<Bool> = false)
 	{
 		weeksList = [];
+		songPaths = [];
+		songPathsLower = [];
 		weeksLoaded.clear();
 		#if MODS_ALLOWED
 		var directories:Array<String> = [Paths.mods(), Paths.getSharedPath()];
@@ -85,6 +89,37 @@ class WeekData {
 		var directories:Array<String> = [Paths.getSharedPath()];
 		var originalLength:Int = directories.length;
 		#end
+
+		
+		// cursed code
+		var mes:String;
+		var dir:String;
+		var dir2:String;
+		directories.push("assets/");
+		for (directory in directories) {
+			for (root in FileSystem.readDirectory(directory)) {
+				dir = directory + root;
+				#if debug mes = '$dir, $root'; #end
+				if (FileSystem.isDirectory(dir) && root == "songs") {
+					#if debug mes += " went list"; #end
+					for (song in FileSystem.readDirectory(dir)) {
+						dir2 = '$dir/$song';
+						// trace(dir2);
+						if (FileSystem.isDirectory(dir2)) {
+							// trace(song);
+							songPaths.push(Paths.formatToSongPlainPath(song));
+							songPathsLower.push(Paths.formatToSongPath(song));
+						}
+					}
+				}
+				#if debug trace(mes); #end
+			}
+		}
+		trace(directories.pop());
+
+		trace(songPaths);
+		trace(songPathsLower);
+		trace('Names of ${songPaths.length} songs were cached.');
 
 		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getSharedPath('weeks/weekList.txt'));
 		for (i in 0...sexList.length) {

@@ -299,9 +299,9 @@ class FreeplayState extends MusicBeatState
 
 				if(controls.UI_DOWN || controls.UI_UP)
 				{
-					var checkLastHold:Null<Int> = Std.int((holdTime - 0.5) * interpolate(10, 30, (holdTime - 0.5) / 5, 2));
+					var checkLastHold:Null<Int> = Std.int(interpolate(10, 30, (holdTime - 0.5) / 5, 2));
 					holdTime += elapsed;
-					var checkNewHold:Null<Int> = Std.int((holdTime - 0.5) * interpolate(10, 30, (holdTime - 0.5) / 5, 2));
+					var checkNewHold:Null<Int> = Std.int(interpolate(10, 30, (holdTime - 0.5) / 5, 2));
 
 					if(holdTime > 0.5 && checkNewHold - checkLastHold >= 1)
 						changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));

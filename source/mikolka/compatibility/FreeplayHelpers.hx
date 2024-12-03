@@ -24,7 +24,7 @@ class FreeplayHelpers {
 	static var sngCard:FreeplaySongData;
 	static var offset:Int;
 	static var songCount:Int;
-    public inline static function loadSongs(){
+    public static function loadSongs(){
 		songs = []; 
         songCount = offset = 0;
         WeekData.reloadWeekFiles(false);
@@ -39,7 +39,7 @@ class FreeplayHelpers {
 				continue;
 
 			leWeek = WeekData.weeksLoaded.get(week); // TODO tweak this
-
+			
 			WeekData.setDirectoryFromWeek(leWeek);
 			for (j => song in leWeek.songs)
 			{

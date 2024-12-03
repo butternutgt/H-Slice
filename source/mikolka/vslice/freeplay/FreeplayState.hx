@@ -226,6 +226,7 @@ class FreeplayState extends MusicBeatSubstate
 	public static var configReturned:Bool = false;
 	
 	var interpolate = CoolUtil.interpolate;
+	var nFormat = CoolUtil.floatToStringPrecision;
 
 	public function new(?params:FreeplayStateParams, ?stickers:StickerSubState)
 	{
@@ -1676,6 +1677,8 @@ class FreeplayState extends MusicBeatSubstate
 	}
 
 	var holdTimer:Float = 0;
+	var holdDelta:Float = 0;
+	var holdDiff:Float = 0;
 	function handleInputs(elapsed:Float):Void
 	{
 		if (busy)
@@ -1692,9 +1695,12 @@ class FreeplayState extends MusicBeatSubstate
 			if (spamming)
 			{
 				holdTimer += elapsed;
-				if (spamTimer >= interpolate(0.1, 0.03333333333333333333333333333, holdTimer / 5, 2))
+				holdDelta = interpolate(0.1, 0.03333333333333333333333333333, (spamTimer - 0.5) / 5, 2);
+				holdDiff = holdTimer - holdDelta;
+				trace('${nFormat(holdTimer, 3)}, ${nFormat(holdDelta, 3)}, ${nFormat(holdDiff, 3)}');
+				if (holdTimer - holdDelta >= 0)
 				{
-					spamTimer = 0;
+					holdTimer = holdDiff;
 
 					if (controls.UI_UP)
 					{
@@ -2306,6 +2312,7 @@ class FreeplayState extends MusicBeatSubstate
 			// ? psych dir setting
 			var songData = daSongCapsule.songData;
 			ModsHelper.loadModDir(songData.folder);
+			// trace(daSongCapsule.songData.songId);
 			var didPlay:Bool = FunkinSound.playMusic(daSongCapsule.songData.songId, {
 				startingVolume: 0.0,
 				overrideExisting: true,
@@ -2334,7 +2341,7 @@ class FreeplayState extends MusicBeatSubstate
 				#if debug Sys.println("didPlay?: "+(didPlay ? "Yes" : "No")); #end
 
 				if (!didPlay) {
-					#if debug trace("Preview Cancelled"); #end
+					#if debug trace("Preview Cancelled for not play"); #end
 					
 					FunkinSound.playMusic('freeplayRandom', {
 						startingVolume: 0.0,

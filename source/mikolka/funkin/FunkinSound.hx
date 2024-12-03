@@ -1,5 +1,6 @@
 package mikolka.funkin;
 
+import backend.WeekData;
 import lime.app.Promise;
 import sys.thread.Lock;
 import sys.thread.Thread;
@@ -81,21 +82,37 @@ class FunkinSound extends FlxSound
 
 		return sound;
 	}
+
 	public static function playMusic(key:String, params:FunkinSoundPlayMusicParams):Bool {
 		if(params.pathsFunction == INST){
 			var instPath = "";
+			var realKey = Paths.formatToSongPath(key); // converts lower case
+			var check = WeekData.songPathsLower.indexOf(realKey);
+
+			trace('$key, $realKey');
+
+			if (check >= 0) {
+				realKey = Paths.formatToSongPlainPath(WeekData.songPaths[check]);
+			} else {
+				#if debug trace('Invalid song path'); #end
+				return false;
+			}
 			
 			try {
-				//key = songData.songId
-
-				instPath = 'assets/songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}';
+				instPath = 'assets/songs/$realKey/Inst.${Paths.SOUND_EXT}';
 				#if MODS_ALLOWED
-				var modsInstPath = Paths.modFolders('songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}');
+				var modsInstPath = Paths.modFolders('songs/$realKey/Inst.${Paths.SOUND_EXT}');
 				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
 				#end
-				#if debug trace(instPath,params.partialParams.start,params.partialParams.end); #end
-				var future:Promise<Sound> = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
-
+				
+				#if debug trace('$instPath, ${params.partialParams.start}, ${params.partialParams.end}'); #end
+				var future:Promise<Sound> = FunkinPartialSound.partialLoadFromFile(instPath, params.partialParams.start, params.partialParams.end);
+				
+				#if debug 
+				trace('future: ${future != null}');
+				trace('future.future: ${future.future != null}');
+				#end
+				
 				future.future.onComplete(sound ->
 				{
 					@:privateAccess{
@@ -113,20 +130,19 @@ class FunkinSound extends FlxSound
 				if(future.future.value == null) {
 					#if debug trace('Internal failure loading instrumentals for ${key} "${instPath}"'); #end
 					return false;
-				}
-				
-				#if debug trace('Sound length: ${future.future.value.length}'); #end
-				if (future.future.value.length == 0) {
+				} else if (future.future.value.length == 0) {
 					#if debug trace('No size loaded instrumentals for ${key} "${instPath}"'); #end
 					return false;
 				}
+				#if debug trace('Sound length: ${future.future.value.length}'); #end
+				
 				return true;
 			} catch (x) {
 				var targetPath = instPath == "" ? "" : "from "+instPath;
-				#if debug 
+				// #if debug 
 				trace('Failed to parialy load instrumentals for ${key} ${targetPath}');
 				trace('Exception: ${x.message}');
-				#end
+				// #end
 				return false;
 			}
 		} else {
