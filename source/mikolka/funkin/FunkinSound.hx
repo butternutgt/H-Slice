@@ -89,7 +89,7 @@ class FunkinSound extends FlxSound
 			var realKey = Paths.formatToSongPath(key); // converts lower case
 			var check = WeekData.songPathsLower.indexOf(realKey);
 
-			trace('$key, $realKey');
+			// trace('$key, $realKey');
 
 			if (check >= 0) {
 				realKey = Paths.formatToSongPlainPath(WeekData.songPaths[check]);
@@ -99,9 +99,9 @@ class FunkinSound extends FlxSound
 			}
 			
 			try {
-				instPath = 'assets/songs/$realKey/Inst.${Paths.SOUND_EXT}';
+				instPath = 'assets/songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}';
 				#if MODS_ALLOWED
-				var modsInstPath = Paths.modFolders('songs/$realKey/Inst.${Paths.SOUND_EXT}');
+				var modsInstPath = Paths.modFolders('songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}');
 				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
 				#end
 				
@@ -123,6 +123,8 @@ class FunkinSound extends FlxSound
 						if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
 					}
 					#if debug trace(sound.bytesLoaded, sound.bytesTotal, sound.length); #end
+					FreeplayState.playedFreeplayMusic = false;
+					FlxG.sound.music.stop(); // muting previous track must be done NOW
 					FlxG.sound.playMusic(sound,0);
 					params.onLoad();
 				});
@@ -148,6 +150,7 @@ class FunkinSound extends FlxSound
 		} else {
 			var targetPath = key+"/"+key;
 			if(key == "freakyMenu") targetPath = "freakyMenu";
+			FlxG.sound.music.stop();
 			FlxG.sound.playMusic(Paths.music(targetPath),params.startingVolume * ClientPrefs.data.sfxVolume,params.loop);
 			if(params.onLoad!= null)params.onLoad();
 			return true;

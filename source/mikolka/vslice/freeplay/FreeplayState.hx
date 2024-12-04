@@ -2278,7 +2278,6 @@ class FreeplayState extends MusicBeatSubstate
 			if (daSongCapsule.songData != null)
 				FreeplayHelpers.loadDiffsFromWeek(daSongCapsule.songData);
 
-			FlxG.sound.music.pause(); // muting previous track must be done NOW
 			FlxTimer.wait(FADE_IN_DELAY, playCurSongPreview.bind(daSongCapsule)); // Wait a little before trying to pull a Inst file
 
 			tweenCurSongColor(daSongCapsule);
@@ -2289,6 +2288,7 @@ class FreeplayState extends MusicBeatSubstate
 	}
 
 	var isLoadedInst:Bool = false;
+	public static var playedFreeplayMusic:Bool = false;
 	public function playCurSongPreview(?daSongCapsule:SongMenuItem):Void
 	{
 		isLoadedInst = false;
@@ -2297,12 +2297,16 @@ class FreeplayState extends MusicBeatSubstate
 
 		if (curSelected == 0)
 		{
-			FunkinSound.playMusic('freeplayRandom', {
-				startingVolume: 0.0,
-				overrideExisting: true,
-				restartTrack: false
-			});
-			FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
+			if (!playedFreeplayMusic) {
+				FunkinSound.playMusic('freeplayRandom', {
+					startingVolume: 0.0,
+					overrideExisting: true,
+					restartTrack: false
+				});
+				FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
+
+				playedFreeplayMusic = true;
+			}
 		}
 		else
 		{
@@ -2343,12 +2347,28 @@ class FreeplayState extends MusicBeatSubstate
 				if (!didPlay) {
 					#if debug trace("Preview Cancelled for not play"); #end
 					
+					if (!playedFreeplayMusic) {
+						FlxG.sound.music.stop(); // muting previous track must be done NOW
+						FunkinSound.playMusic('freeplayRandom', {
+							startingVolume: 0.0,
+							overrideExisting: true,
+							restartTrack: false
+						});
+						FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
+						playedFreeplayMusic = true;
+					}
+				}
+			} else {
+				#if debug trace("Preview Cancelled for not loaded"); #end
+				if (!playedFreeplayMusic) {
+					FlxG.sound.music.stop(); // muting previous track must be done NOW
 					FunkinSound.playMusic('freeplayRandom', {
 						startingVolume: 0.0,
 						overrideExisting: true,
 						restartTrack: false
 					});
 					FlxG.sound.music.fadeIn(2, 0, 0.8 * ClientPrefs.data.bgmVolume);
+					playedFreeplayMusic = true;
 				}
 			}
 		} 

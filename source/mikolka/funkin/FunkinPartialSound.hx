@@ -69,7 +69,7 @@ class FunkinPartialSound extends FlxPartialSound
 	public static function partialLoadFromFile(path:String, ?rangeStart:Float = 0, ?rangeEnd:Float = 1):Promise<Sound>
     {
         var promise:Promise<Sound> = new Promise<Sound>();
-        trace(path);
+        // trace(path);
 
         if (Assets.cache.hasSound(path + ".partial-" + rangeStart + "-" + rangeEnd))
         {
