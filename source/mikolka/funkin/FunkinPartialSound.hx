@@ -343,26 +343,42 @@ class FunkinPartialSound extends FlxPartialSound
                         #if debug trace('File.getBytes: ${bytes.length}'); #end
                     } catch (e) {
                         bytes = null;
-                        trace(e.details);
+                        #if debug trace(e.details); #end
                     }
                 }
 
                 if (bytes != null)
                 {
-                    threadPool.sendProgress({
-                                path: path,
-                                promise: promise,
-                                bytesLoaded: bytes.length,
-                                bytesTotal: bytes.length
-                            });
+                    var prog = 
+                    {
+                        path: path,
+                        promise: promise,
+                        bytesLoaded: bytes.length,
+                        bytesTotal: bytes.length
+                    };
 
-                    threadPool.sendComplete({path: path, promise: promise, result: bytes});
-                    trace('sending result as complete');
+                    var comp =
+                    {
+                        path: path,
+                        promise: promise,
+                        result: bytes
+                    };
+
+                    threadPool.sendProgress(prog);
+                    threadPool.sendComplete(comp);
+                    #if debug trace('sending result as complete\nProgress Data:${prog}\nComplete Data:${comp}'); #end
+                    prog = null; comp = null;
                 }
                 else
                 {
-                    threadPool.sendError({path: path, promise: promise, error: "Cannot load file: " + path});
-                    trace('sending result as error');
+                    var eror = 
+                    {
+                        path: path,
+                        promise: promise,
+                        error: "Cannot load file: " + path
+                    }
+                    threadPool.sendError(eror);
+                    #if debug trace('sending result as error\nData: ${eror}'); #end
                 }
             }
         }
