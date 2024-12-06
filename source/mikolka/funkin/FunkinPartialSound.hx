@@ -357,12 +357,12 @@ class FunkinPartialSound extends FlxPartialSound
                             });
 
                     threadPool.sendComplete({path: path, promise: promise, result: bytes});
-                    trace('sending result as complete')
+                    trace('sending result as complete');
                 }
                 else
                 {
                     threadPool.sendError({path: path, promise: promise, error: "Cannot load file: " + path});
-                    trace('sending result as error')
+                    trace('sending result as error');
                 }
             }
         }
