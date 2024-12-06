@@ -334,10 +334,18 @@ class FunkinPartialSound extends FlxPartialSound
             if(!Assets.exists(path) && !FileSystem.exists(path) || path == null) {
                 threadPool.sendError({path: path, promise: promise, error: "ERROR: Failed to load bytes for Asset " + path + " Because it dosen't exist."});
             } else {
-                bytes = Assets.getBytes(path);
-                #if debug trace('Assets.getBytes: ${bytes.length}'); #end
-                if (bytes == null) bytes = File.getBytes(path); // trying other way... but is it correct?
-                #if debug trace('File.getBytes: ${bytes.length}'); #end
+                try {
+                    bytes = Assets.getBytes(path);
+                    #if debug trace('Assets.getBytes: ${bytes.length}'); #end
+                } catch (e) {
+                    try {
+                        bytes = File.getBytes(path);
+                        #if debug trace('File.getBytes: ${bytes.length}'); #end
+                    } catch (e) {
+                        bytes = null;
+                        trace(e.details);
+                    }
+                }
 
                 if (bytes != null)
                 {
@@ -349,10 +357,12 @@ class FunkinPartialSound extends FlxPartialSound
                             });
 
                     threadPool.sendComplete({path: path, promise: promise, result: bytes});
+                    trace('sending result as complete')
                 }
                 else
                 {
                     threadPool.sendError({path: path, promise: promise, error: "Cannot load file: " + path});
+                    trace('sending result as error')
                 }
             }
         }
