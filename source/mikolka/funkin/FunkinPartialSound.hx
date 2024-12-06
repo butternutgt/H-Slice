@@ -128,6 +128,7 @@ class FunkinPartialSound extends FlxPartialSound
 
         return promise;
         #else
+        
         if (!Assets.exists(path) && !FileSystem.exists(path))
         {
             FlxG.log.warn("Could not find audio file for partial playback: " + path);
@@ -329,27 +330,30 @@ class FunkinPartialSound extends FlxPartialSound
 
         function doWork(state:Dynamic)
         {
-            if(!Assets.exists(path) || path == null)
-            threadPool.sendError({path: path, promise: promise, error: "ERROR: Failed to load bytes for Asset " + path + " Because it dosen't exist."});
-            else
-            {
-            bytes = Assets.getBytes(path);
+            #if debug trace('$path, ${Assets.exists(path)}, ${FileSystem.exists(path)}'); #end
+            if(!Assets.exists(path) && !FileSystem.exists(path) || path == null) {
+                threadPool.sendError({path: path, promise: promise, error: "ERROR: Failed to load bytes for Asset " + path + " Because it dosen't exist."});
+            } else {
+                bytes = Assets.getBytes(path);
+                #if debug trace('Assets.getBytes: ${bytes.length}'); #end
+                if (bytes == null) bytes = File.getBytes(path); // trying other way... but is it correct?
+                #if debug trace('File.getBytes: ${bytes.length}'); #end
 
-            if(bytes != null)
-            {
-                threadPool.sendProgress({
-                            path: path,
-                            promise: promise,
-                            bytesLoaded: bytes.length,
-                            bytesTotal: bytes.length
-                        });
+                if (bytes != null)
+                {
+                    threadPool.sendProgress({
+                                path: path,
+                                promise: promise,
+                                bytesLoaded: bytes.length,
+                                bytesTotal: bytes.length
+                            });
 
-                threadPool.sendComplete({path: path, promise: promise, result: bytes});
-            }
-            else
-            {
-                threadPool.sendError({path: path, promise: promise, error: "Cannot load file: " + path});
-            }
+                    threadPool.sendComplete({path: path, promise: promise, result: bytes});
+                }
+                else
+                {
+                    threadPool.sendError({path: path, promise: promise, error: "Cannot load file: " + path});
+                }
             }
         }
 

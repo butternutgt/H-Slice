@@ -1912,6 +1912,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		// remove and destroy freeplay camera
 		FlxG.cameras.remove(funnyCam);
+		playedFreeplayMusic = false;
 		inNewFreeplayState = false;
 	}
 
@@ -2348,7 +2349,7 @@ class FreeplayState extends MusicBeatSubstate
 					#if debug trace("Preview Cancelled for not play"); #end
 					
 					if (!playedFreeplayMusic) {
-						FlxG.sound.music.stop(); // muting previous track must be done NOW
+						FlxG.sound.music.stop(); // stopping previous track must be done NOW
 						FunkinSound.playMusic('freeplayRandom', {
 							startingVolume: 0.0,
 							overrideExisting: true,

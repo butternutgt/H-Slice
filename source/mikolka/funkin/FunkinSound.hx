@@ -2,13 +2,9 @@ package mikolka.funkin;
 
 import backend.WeekData;
 import lime.app.Promise;
-import sys.thread.Lock;
-import sys.thread.Thread;
 import openfl.media.Sound;
 import mikolka.vslice.freeplay.FreeplayState;
 import funkin.util.flixel.sound.FlxPartialSound;
-import haxe.exceptions.NotImplementedException;
-import openfl.media.SoundMixer;
 import flixel.system.FlxAssets.FlxSoundAsset;
 
 class FunkinSound extends FlxSound
@@ -99,9 +95,9 @@ class FunkinSound extends FlxSound
 			}
 			
 			try {
-				instPath = 'assets/songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}';
+				instPath = 'assets/songs/$realKey/Inst.${Paths.SOUND_EXT}';
 				#if MODS_ALLOWED
-				var modsInstPath = Paths.modFolders('songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}');
+				var modsInstPath = Paths.modFolders('songs/$realKey/Inst.${Paths.SOUND_EXT}');
 				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
 				#end
 				
@@ -129,7 +125,7 @@ class FunkinSound extends FlxSound
 					params.onLoad();
 				});
 				
-				if(future.future.value == null) {
+				if (future.future.value == null) {
 					#if debug trace('Internal failure loading instrumentals for ${key} "${instPath}"'); #end
 					return false;
 				} else if (future.future.value.length == 0) {
@@ -152,7 +148,7 @@ class FunkinSound extends FlxSound
 			if(key == "freakyMenu") targetPath = "freakyMenu";
 			FlxG.sound.music.stop();
 			FlxG.sound.playMusic(Paths.music(targetPath),params.startingVolume * ClientPrefs.data.sfxVolume,params.loop);
-			if(params.onLoad!= null)params.onLoad();
+			if(params.onLoad != null) params.onLoad();
 			return true;
 		}
 	}
