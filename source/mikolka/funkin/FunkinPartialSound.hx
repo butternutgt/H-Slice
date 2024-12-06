@@ -349,48 +349,30 @@ class FunkinPartialSound extends FlxPartialSound
 
                 if (bytes != null)
                 {
-                    var prog = 
-                    {
-                        path: path,
-                        promise: promise,
-                        bytesLoaded: bytes.length,
-                        bytesTotal: bytes.length
-                    };
+                    threadPool.sendProgress({
+                                path: path,
+                                promise: promise,
+                                bytesLoaded: bytes.length,
+                                bytesTotal: bytes.length
+                            });
 
-                    var comp =
-                    {
-                        path: path,
-                        promise: promise,
-                        result: bytes
-                    };
-
-                    threadPool.sendProgress(prog);
-                    threadPool.sendComplete(comp);
-                    #if debug trace('sending result as complete\nProgress Data:${prog}\nComplete Data:${comp}'); #end
-                    prog = null; comp = null;
-                }
-                else
-                {
-                    var eror = 
-                    {
-                        path: path,
-                        promise: promise,
-                        error: "Cannot load file: " + path
-                    }
-                    threadPool.sendError(eror);
-                    #if debug trace('sending result as error\nData: ${eror}'); #end
+                    threadPool.sendComplete({path: path, promise: promise, result: bytes});
+                } else {
+                    threadPool.sendError({path: path, promise: promise, error: "Cannot load file: " + path});
                 }
             }
         }
 
         function onProgress(state:Dynamic)
         {
+            trace(Std.string(state));
             if (promise.isComplete || promise.isError) return;
             promise.progress(state.bytesLoaded, state.bytesTotal);
         }
 
         function onComplete(state:Dynamic)
         {
+            trace(Std.string(state));
             if(promise.isError) return;
             promise.complete(bytes);
         }
