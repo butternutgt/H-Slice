@@ -16,12 +16,6 @@ class BaseGameSubState extends BaseOptionsMenu {
 			BOOL);
 		addOption(option);
 
-        var option:Option = new Option('Freeplay Auto Preview Song',
-			"If disabled won't preview on selected song automatically.\nYou can play preview anytime space key instead.",
-			'vsliceFreePreview',
-			BOOL);
-		addOption(option);
-
 		var option:Option = new Option('Use Results Screen',
 			'If disabled will skip showing the result screen.',
 			'vsliceResults',

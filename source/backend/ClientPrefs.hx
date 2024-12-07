@@ -56,7 +56,6 @@ import states.TitleState;
 
 	public var vsliceFreeplay:Bool = true;
 	public var vsliceFreeplayColors:Bool = true;
-	public var vsliceFreePreview:Bool = true;
 	public var vsliceResults:Bool = true;
 	public var vsliceSpecialCards:Bool = true;
 	public var vsliceSmoothBar:Bool = true;
