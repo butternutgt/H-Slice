@@ -115,11 +115,13 @@ class WeekData {
 				#if debug trace(mes); #end
 			}
 		}
+		#if debug
 		trace(directories.pop());
 
 		trace(songPaths);
 		trace(songPathsLower);
 		trace('Names of ${songPaths.length} songs were cached.');
+		#end
 
 		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getSharedPath('weeks/weekList.txt'));
 		for (i in 0...sexList.length) {

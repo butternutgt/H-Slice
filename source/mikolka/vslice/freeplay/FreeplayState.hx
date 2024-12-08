@@ -1511,29 +1511,12 @@ class FreeplayState extends MusicBeatSubstate
 
 	override function update(elapsed:Float):Void
 	{
-		controls.isInSubstate = true;
 		super.update(elapsed);
 
 		#if TOUCH_CONTROLS_ALLOWED
 		if (configReturned) {
-			removeTouchPad();
-			addTouchPad('UP_DOWN', 'A_B_X_F');
-			addTouchPadCamera();
-
-			touchPad.forEachAlive(function(button:TouchButton)
-			{
-				if (button.tag == 'UP' || button.tag == 'DOWN')
-				{
-					button.x -= 350;
-					FlxTween.tween(button, {x: button.x + 350}, 0.6, {ease: FlxEase.backInOut});
-				}
-				else
-				{
-					button.x += 450;
-					FlxTween.tween(button, {x: button.x - 450}, 0.6, {ease: FlxEase.backInOut});
-				}
-			});
-
+			controls.isInSubstate = true;
+			touchPad.updateTrackedButtons();
 			configReturned = false;
 		}
 		#end
@@ -1548,11 +1531,9 @@ class FreeplayState extends MusicBeatSubstate
 		#if FEATURE_DEBUG_FUNCTIONS
 		if (FlxG.keys.justPressed.P)
 		{
-			FlxG.switchState(() -> FreeplayState.build({
-				{
-					character: currentCharacterId == "pico" ? Constants.DEFAULT_CHARACTER : "pico",
-				}
-			}));
+			var chara = currentCharacterId == "pico" ? Constants.DEFAULT_CHARACTER : "pico";
+			VsliceOptions.LAST_MOD = {mod_dir: "", char_name: chara};
+			FlxG.switchState(() -> FreeplayState.build());
 		}
 
 		if (FlxG.keys.justPressed.T)
@@ -1681,8 +1662,7 @@ class FreeplayState extends MusicBeatSubstate
 	var holdDiff:Float = 0;
 	function handleInputs(elapsed:Float):Void
 	{
-		if (busy)
-			return;
+		if (busy) return;
 
 		var first:Bool = FlxG.keys.justPressed.HOME;
 		var last:Bool = FlxG.keys.justPressed.END;
@@ -1697,7 +1677,7 @@ class FreeplayState extends MusicBeatSubstate
 				holdTimer += elapsed;
 				holdDelta = interpolate(0.1, 0.03333333333333333333333333333, (spamTimer - 0.5) / 5, 2);
 				holdDiff = holdTimer - holdDelta;
-				trace('${nFormat(holdTimer, 3)}, ${nFormat(holdDelta, 3)}, ${nFormat(holdDiff, 3)}');
+				// trace('${nFormat(holdTimer, 3)}, ${nFormat(holdDelta, 3)}, ${nFormat(holdDiff, 3)}');
 				if (holdTimer - holdDelta >= 0)
 				{
 					holdTimer = holdDiff;

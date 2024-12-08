@@ -7,7 +7,7 @@ class SustainSplash extends FlxSprite
 	public static var startCrochet:Float;
 	public static var frameRate:Int;
 
-	public var strumNote:StrumNote;
+	public var note:Note;
 
 	var rnd:FlxRandom;
 	var timer:FlxTimer;
@@ -32,20 +32,26 @@ class SustainSplash extends FlxSprite
 	{
 		super.update(elapsed);
 
-		if (strumNote != null)
+		if (note.strum != null)
 		{
-			setPosition(strumNote.x, strumNote.y);
-			visible = strumNote.visible;
-			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
-			// trace(animation.curAnim.name, strumNote.animation.curAnim.name);
+			setPosition(note.strum.x, note.strum.y);
+			visible = note.strum.visible;
+			alpha = ClientPrefs.data.holdSplashAlpha - (1 - note.strum.alpha);
+			// trace(animation.curAnim.name, note.strum.animation.curAnim.name);
 
 			// why do i need this stupid function
-			if (strumNote.animation.curAnim.name == "static")
+			if (note.strum.animation.curAnim.name == "static")
 			{
-				if (animation.curAnim.name == "hold") ++killCnt;
-				if (!killing && (killCnt > 2 || animation.curAnim.name != "end")) {
-					showEndSplash();
-				}
+				// if (animation.curAnim.name == "hold") ++killCnt;
+				// if (!killing && killCnt > 2 && animation.curAnim.name != "end") {
+				// 	showEndSplash();
+				// }
+
+			} else if (note.missed) {
+				// kill immediately when missed, and timer stops forcely
+				timer.cancel();
+				timer.destroy();
+				kill(); 
 			} else killCnt = 0;
 		}
 	}
@@ -76,8 +82,8 @@ class SustainSplash extends FlxSprite
 			shader.data.mult.value = daNote.shader.data.mult.value;
 		}
 
-		strumNote = daNote.strum;
-		alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
+		note = daNote;
+		alpha = ClientPrefs.data.holdSplashAlpha - (1 - note.strum.alpha);
 		offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
 
 		if (timer != null)
@@ -91,13 +97,7 @@ class SustainSplash extends FlxSprite
 					(daNote.isSustainNote ? daNote.parent.sustainLength : daNote.sustainLength) > 150 && 
 					animation != null)
 				{
-					alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
-					animation.play('end', true, false, 0);
-					animation.curAnim.looped = false;
-					animation.curAnim.frameRate = 24;
-					clipRect = null;
-					animation.finishCallback = idkEither -> kill();					
-					return;
+					showEndSplash(); return;
 				}
 				kill();
 			});
@@ -105,11 +105,11 @@ class SustainSplash extends FlxSprite
 	}
 
 	function showEndSplash() {
-		if (endAnim) return;
+		if (killing || endAnim) return;
 		killing = true;
 		if (animation != null)
 		{
-			alpha = ClientPrefs.data.holdSplashAlpha - (1 - strumNote.alpha);
+			alpha = ClientPrefs.data.holdSplashAlpha - (1 - note.strum.alpha);
 			animation.play('end', true, false, 0);
 			endAnim = true;
 			animation.curAnim.looped = false;

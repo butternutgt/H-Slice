@@ -252,11 +252,13 @@ class TitleState extends MusicBeatState
 
 		ngSpr = new FlxSprite(0, FlxG.height * 0.52);
 
-		if (FlxG.random.bool(1))
+		var grounds:Float = FlxG.random.float(0, 1);
+
+		if (grounds <= 0.01)
 		{
 			ngSpr.loadGraphic(Paths.image('newgrounds_logo_classic'));
 		}
-		else if (FlxG.random.bool(30))
+		else if (grounds <= 0.3)
 		{
 			ngSpr.loadGraphic(Paths.image('newgrounds_logo_animated'), true, 600);
 			ngSpr.animation.add('idle', [0, 1], 4);

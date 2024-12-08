@@ -365,14 +365,14 @@ class FunkinPartialSound extends FlxPartialSound
 
         function onProgress(state:Dynamic)
         {
-            trace(Std.string(state));
+            // trace(Std.string(state));
             if (promise.isComplete || promise.isError) return;
             promise.progress(state.bytesLoaded, state.bytesTotal);
         }
 
         function onComplete(state:Dynamic)
         {
-            trace(Std.string(state));
+            // trace(Std.string(state));
             if(promise.isError) return;
             promise.complete(bytes);
         }

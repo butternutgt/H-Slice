@@ -122,12 +122,13 @@ class PlayerFreeplayDJData
 		}
 	}
 
+	var anim:Null<AnimationData>;
 	public function getAnimationPrefix(name:String):Null<String>
 	{
 		if (!animationMap.iterator().hasNext())
 			mapAnimations();
 
-		var anim = animationMap.get(name);
+		anim = animationMap.get(name);
 		if (anim == null)
 			return null;
 		return anim.prefix;

@@ -4382,6 +4382,8 @@ class PlayState extends MusicBeatState
 		var lastCombo:Float = combo;
 		combo = 0;
 
+		if (note != null) note.missed = true;
+
 		health -= subtract * healthLoss;
 		if (!practiceMode)
 			songScore -= 10;
@@ -4589,8 +4591,8 @@ class PlayState extends MusicBeatState
 			if (!cpuControlled)
 			{
 				playerStrums.members[note.noteData].playAnim('confirm', true);
-			}
-			strumPlayAnim(false, note.noteData);
+			} else strumPlayAnim(false, note.noteData);
+
 			if (bfVocal) vocals.volume = ClientPrefs.data.bgmVolume;
 
 			if (!note.isSustainNote)
@@ -4680,7 +4682,7 @@ class PlayState extends MusicBeatState
 		if (note.strum != splashStrum) note.strum = holdSplashStrum;
 
 		susplash.setupSusSplash(note, playbackRate);
-		susplash.strumNote = note.strum;
+		susplash.note = note;
 		grpHoldSplashes.add(sustainEnd.noteHoldSplash = susplash);
 	}
 	

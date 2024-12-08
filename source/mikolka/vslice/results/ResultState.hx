@@ -85,6 +85,8 @@ class ResultState extends MusicBeatSubState
 	final cameraEverything:FunkinCamera;
 
 	var busy:Bool = true;
+	var isHighRank:Bool = false;
+	var isNewFreePlay:Bool = ClientPrefs.data.vsliceFreeplay;
 
 	public function new(params:ResultsStateParams)
 	{
@@ -125,19 +127,14 @@ class ResultState extends MusicBeatSubState
 		bgFlash = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [0xFFFFF1A6, 0xFFFFF1BE], 90);
 
 		resultsAnim = FunkinSprite.createSparrow(-200, -10, "resultScreen/results");
-
 		ratingsPopin = FunkinSprite.createSparrow(-135, 135, "resultScreen/ratingsPopin");
-
 		scorePopin = FunkinSprite.createSparrow(-180, 515, "resultScreen/scorePopin");
 
 		highscoreNew = new FlxSprite(44, 557);
-
 		score = new ResultScore(35, 305, 10, params.scoreData.score);
-
 		rankBg = new FunkinSprite(0, 0);
 
 		var sngMeta = FreeplayMeta.getMeta(params.songId);
-		
 		if(sngMeta.freeplayCharacter != '' ){
 			playerCharacterId = sngMeta.freeplayCharacter;
 		}
@@ -146,6 +143,9 @@ class ResultState extends MusicBeatSubState
 			playerCharacterId = mod_char.char_name;
 			ModsHelper.loadModDir(mod_char.mod_dir);
 		}
+
+		isHighRank = rank > params.prevScoreRank;
+
 		//? moved this line so we can edit it in debug options
 	}
 
@@ -715,7 +715,6 @@ class ResultState extends MusicBeatSubState
 		// maskShaderSongName.frameUV = songName.frame.uv;
 	}
 
-	var isHighRank:Bool = false;
 	override function update(elapsed:Float):Void
 	{
 		// if(FlxG.keys.justPressed.R){
@@ -769,11 +768,11 @@ class ResultState extends MusicBeatSubState
 
 		if ((TouchUtil.justPressed || controls.PAUSE) && !busy)
 		{
-			if (FlxG.sound.music != null)
+			if (FlxG.sound.music != null && isNewFreePlay)
 			{
 				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8, {
 					onComplete: _ -> {
-						if (!ClientPrefs.data.vsliceFreeplay) {
+						if (!isNewFreePlay) {
 							destroy();
 						}
 					}
@@ -820,7 +819,7 @@ class ResultState extends MusicBeatSubState
 			}
 			else
 			{
-				isHighRank = rank > params.prevScoreRank;
+				// isHighRank = rank > params.prevScoreRank;
 				if (isHighRank) //? refactor this???
 				{
 					trace('THE RANK IS Higher.....');
@@ -828,7 +827,7 @@ class ResultState extends MusicBeatSubState
 					shouldTween = true;
 					controls.isInSubstate = FlxTransitionableState.skipNextTransOut = true;
 
-					if (ClientPrefs.data.vsliceFreeplay) {
+					if (isNewFreePlay) {
 						targetState = NewFreeplayState.build(
 						{
 							{
@@ -843,8 +842,8 @@ class ResultState extends MusicBeatSubState
 							}
 						});
 					} else {
-						FlxTransitionableState.skipNextTransIn = false;
-						FlxTransitionableState.skipNextTransOut = true;
+						FlxTransitionableState.skipNextTransIn = true;
+						FlxTransitionableState.skipNextTransOut = false;
 						FreeplayState.fromResultState = true;
 						targetState = new FreeplayState();
 					}
@@ -854,10 +853,11 @@ class ResultState extends MusicBeatSubState
 					FlxG.sound.pause(); //? fix sound
 					shouldTween = false;
 					controls.isInSubstate = shouldUseSubstate = true;
-					if (ClientPrefs.data.vsliceFreeplay)
+					if (isNewFreePlay)
 						targetState = new StickerSubState(null, (sticker) -> NewFreeplayState.build(null, sticker));
 					else
 					{
+						shouldTween = true;
 						FreeplayState.fromResultState = false;
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 						targetState = new FreeplayState();
@@ -877,10 +877,8 @@ class ResultState extends MusicBeatSubState
 						}
 						else
 						{
-							FlxG.sound.pause(); //? fix sound
-							if (!ClientPrefs.data.vsliceFreeplay)
-								MusicBeatState.switchState(targetState);
-							else FlxG.switchState(targetState);
+							if (isNewFreePlay) FlxG.sound.pause(); //? fix sound
+							FlxG.switchState(targetState);
 						}
 					}
 				});
@@ -893,11 +891,9 @@ class ResultState extends MusicBeatSubState
 				}
 				else
 				{
-					if (!ClientPrefs.data.vsliceFreeplay) {
-						FlxTransitionableState.skipNextTransIn = false;
-						FlxTransitionableState.skipNextTransOut = false;
-						MusicBeatState.switchState(targetState);
-					} else FlxG.switchState(targetState);
+					FlxTransitionableState.skipNextTransIn = true;
+					FlxTransitionableState.skipNextTransOut = false;
+					FlxG.switchState(targetState);
 				}
 			}
 		}
