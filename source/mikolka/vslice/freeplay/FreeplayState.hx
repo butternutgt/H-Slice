@@ -1530,14 +1530,8 @@ class FreeplayState extends MusicBeatSubstate
 			controls.requestedInstance.touchPad = touchPad;
 			configReturned = false;
 		}
-
-		if (touchPad == null) { // idk but it erases the vpad, hopefully this fixes it
-			addTouchPad('UP_DOWN', 'A_B_X_F');
-			addTouchPadCamera();
-		}
 		#end
 		
-
 		if (charSelectHint != null)
 		{
 			hintTimer += elapsed * 2;
@@ -1893,7 +1887,19 @@ class FreeplayState extends MusicBeatSubstate
 					GameplayChangersSubstate.fromNewFreeplayState = true;
 					openSubState(new GameplayChangersSubstate());
 				}
-			#if TOUCH_CONTROLS_ALLOWED } catch (e:Exception) {trace(e.message);} #end
+			#if TOUCH_CONTROLS_ALLOWED } catch (e:haxe.Exception) {
+				// trace(e.message);
+				
+				if (touchPad != null) { // idk but it erases the vpad, hopefully this fixes it
+					// trace("touchPad is alive");
+					removeTouchPad();
+				}
+				// trace("regenerating touchPad...");
+				addTouchPad('UP_DOWN', 'A_B_X_F');
+				addTouchPadCamera();
+
+				controls.requestedInstance.touchPad = touchPad;
+			} #end
 		}
 	}
 

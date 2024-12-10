@@ -215,9 +215,10 @@ class Controls
 				controllerMode = true;
 				return true;
 			}
-		// } else {
+		} else {
 			// if (keys == null) trace('the $keys key is null');
 			// if (requestedInstance.touchPad == null) trace('the requested touchpad is null');
+			// if (requestedInstance == null) trace('the requested instance is null');
 		}
 		return false;
 	}
@@ -232,8 +233,9 @@ class Controls
 				return true;
 			}
 		} else {
-			if (keys == null) trace('the $keys key is null');
-			if (requestedInstance.touchPad == null) trace('the requested touchpad is null');
+			// if (keys == null) trace('the $keys key is null');
+			// if (requestedInstance.touchPad == null) trace('the requested touchpad is null');
+			// if (requestedInstance == null) trace('the requested instance is null');
 		}
 		return false;
 	}
