@@ -210,6 +210,11 @@ class FreeplayState extends MusicBeatState
 		#if TOUCH_CONTROLS_ALLOWED
 		addTouchPad('LEFT_FULL', 'A_B_X_Y');
 		#end
+		
+		if (ClientPrefs.data.disableGC && !MemoryUtil.isGcEnabled) {
+			MemoryUtil.enable();
+			MemoryUtil.collect(true);
+		}
 	}
 
 	override function closeSubState()

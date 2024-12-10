@@ -24,6 +24,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	public static var fromNewFreeplayState:Bool = false;
 	function get_curOption() return optionsArray[curSelected]; //shorter lol
 
+	final ConstMax:Float = 1024;
+	final MultiMax:Float = 128;
+
 	function getOptions()
 	{
 		var goption:GameplayOption = new GameplayOption('Scroll Type', 'scrolltype', STRING, 'multiplicative', ["multiplicative", "constant"]);
@@ -37,12 +40,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		if (goption.getValue() != "constant")
 		{
 			option.displayFormat = '%vX';
-			option.maxValue = 128;
+			option.maxValue = ConstMax;
 		}
 		else
 		{
 			option.displayFormat = "%v";
-			option.maxValue = 1024;
+			option.maxValue = MultiMax;
 		}
 		optionsArray.push(option);
 		scrollOption = option;
@@ -51,7 +54,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		var option:GameplayOption = new GameplayOption('Playback Rate', 'songspeed', FLOAT, 1);
 		option.scrollSpeed = 1;
 		option.minValue = 0.01;
-		option.maxValue = 128;
+		option.maxValue = MultiMax;
 		option.changeValue = 0.01;
 		option.displayFormat = '%vX';
 		option.decimals = 3;
@@ -251,12 +254,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 											if (curOption.getValue() == "constant")
 											{
 												oOption.displayFormat = "%v";
-												oOption.maxValue = 6;
+												oOption.maxValue = ConstMax;
 											}
 											else
 											{
 												oOption.displayFormat = "%vX";
-												oOption.maxValue = 3;
+												oOption.maxValue = MultiMax;
 												if(oOption.getValue() > 3) oOption.setValue(3);
 											}
 											updateTextFrom(oOption);
@@ -314,9 +317,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 					if(leOption.name == 'Scroll Speed')
 					{
 						leOption.displayFormat = "%vX";
-						leOption.maxValue = 3;
-						if(leOption.getValue() > 3)
-							leOption.setValue(3);
+						leOption.maxValue = MultiMax;
+						if(leOption.getValue() > MultiMax)
+							leOption.setValue(MultiMax);
 
 						updateTextFrom(leOption);
 					}

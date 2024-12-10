@@ -4782,10 +4782,6 @@ class PlayState extends MusicBeatState
 		Paths.popUpFramesMap.clear();
 
 		super.destroy();
-
-		if (ClientPrefs.data.disableGC) {
-			MemoryUtil.enable();
-		}
 	}
 
 	var lastStepHit:Float = -1;
