@@ -101,7 +101,7 @@ class Controls
 	public function justPressed(key:String)
 	{
 		var result:Bool = (FlxG.keys.anyJustPressed(keyboardBinds[key]) == true);
-		if(result) controllerMode = false;
+		if (result) controllerMode = false;
 
 		return result
 			|| _myGamepadJustPressed(gamepadBinds[key]) == true
@@ -194,9 +194,14 @@ class Controls
 		{
 			if (requestedInstance.touchPad.anyPressed(keys) == true)
 			{
+				if (keys == null) trace('the key is ${keys.toString()}');
 				controllerMode = true; // !!DO NOT DISABLE THIS IF YOU DONT WANT TO KILL THE INPUT FOR MOBILE!!
 				return true;
 			}
+		} else {
+			// if (keys == null) trace('the key is null');
+			// if (requestedInstance.touchPad == null) trace('the requested touchpad is null');
+			// if (requestedInstance == null) trace('the requested instance is null');
 		}
 		return false;
 	}
@@ -210,6 +215,9 @@ class Controls
 				controllerMode = true;
 				return true;
 			}
+		// } else {
+			// if (keys == null) trace('the $keys key is null');
+			// if (requestedInstance.touchPad == null) trace('the requested touchpad is null');
 		}
 		return false;
 	}
@@ -223,6 +231,9 @@ class Controls
 				controllerMode = true;
 				return true;
 			}
+		} else {
+			if (keys == null) trace('the $keys key is null');
+			if (requestedInstance.touchPad == null) trace('the requested touchpad is null');
 		}
 		return false;
 	}
@@ -296,6 +307,20 @@ class Controls
 		#else
 		return false;
 		#end
+	}
+
+	public function controlInfos():String {
+		var ctrlInfo:Int = 0;
+		var list = [
+			UI_UP, UI_DOWN, UI_LEFT, UI_RIGHT, NOTE_UP, NOTE_DOWN, NOTE_LEFT, NOTE_RIGHT,
+			ACCEPT, FAVORITE, BAR_LEFT, BAR_RIGHT, BACK, PAUSE, SCREENSHOT, RESET, CHAR_SELECT
+		];
+
+		for (int => bool in list) {
+			ctrlInfo += CoolUtil.int(bool) << int;
+		}
+
+		return '${CoolUtil.dec2bin(ctrlInfo, 32)}, $ctrlInfo';
 	}
 
 	// IGNORE THESE/ karim: no.

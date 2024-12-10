@@ -1,5 +1,6 @@
 package mikolka.vslice.freeplay;
 
+import haxe.Exception;
 import backend.WeekData;
 import backend.Song;
 import mikolka.compatibility.FunkinControls;
@@ -141,6 +142,8 @@ class FreeplayState extends MusicBeatSubstate
 	 */
 	public static final FADE_OUT_END_VOLUME:Float = 0.0;
 
+	var instance:FreeplayState;
+
 	var songs:Array<Null<FreeplaySongData>> = [];
 
 	var diffIdsCurrent:Array<String> = [];
@@ -236,6 +239,7 @@ class FreeplayState extends MusicBeatSubstate
 		inNewFreeplayState = true;
 		var saveBox = VsliceOptions.LAST_MOD;
 		currentCharacterId = saveBox.char_name;
+
 		// switch to the character's mod to load her registry
 		if (ModsHelper.isModDirEnabled(saveBox.mod_dir))
 			ModsHelper.loadModDir(saveBox.mod_dir);
@@ -294,6 +298,7 @@ class FreeplayState extends MusicBeatSubstate
 		}
 		else backingCard = new BoyfriendCard(currentCharacter);
 
+		instance = this;
 		albumRoll = new AlbumRoll();
 		fp = new FreeplayScore(460, 60, 7, 100, styleData);
 		rankCamera = new FunkinCamera('rankCamera', 0, 0, FlxG.width, FlxG.height);
@@ -1514,9 +1519,16 @@ class FreeplayState extends MusicBeatSubstate
 		super.update(elapsed);
 
 		#if TOUCH_CONTROLS_ALLOWED
+		// trace('touchPad: ${touchPad != null}');
 		if (configReturned) {
 			controls.isInSubstate = true;
-			touchPad.updateTrackedButtons();
+			
+			removeTouchPad();
+			addTouchPad('UP_DOWN', 'A_B_X_F');
+			addTouchPadCamera();
+			trace(touchPad);
+
+			controls.requestedInstance.touchPad = touchPad;
 			configReturned = false;
 		}
 		#end
@@ -1778,7 +1790,8 @@ class FreeplayState extends MusicBeatSubstate
 			diffSelLeft.setPress(false);
 		}
 
-		if (controls.BACK && !busy)
+
+		if (controls.BACK)
 		{
 			busy = true;
 			FlxTween.globalManager.clear();
@@ -1866,11 +1879,16 @@ class FreeplayState extends MusicBeatSubstate
 		{
 			grpCapsules.members[curSelected].onConfirm();
 		}
-		else if(FlxG.keys.justPressed.CONTROL #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonX.justPressed #end)
+		else
 		{
-			persistentUpdate = false;
-			GameplayChangersSubstate.fromNewFreeplayState = true;
-			openSubState(new GameplayChangersSubstate());
+			// wtf this program it's like monster
+			#if TOUCH_CONTROLS_ALLOWED try { #end
+				if (#if TOUCH_CONTROLS_ALLOWED touchPad.buttonX.justPressed #else FlxG.keys.justPressed.CONTROL #end) {
+					persistentUpdate = false;
+					GameplayChangersSubstate.fromNewFreeplayState = true;
+					openSubState(new GameplayChangersSubstate());
+				}
+			#if TOUCH_CONTROLS_ALLOWED } catch (e:Exception) {trace(e.details);} #end
 		}
 	}
 
@@ -1894,6 +1912,8 @@ class FreeplayState extends MusicBeatSubstate
 		FlxG.cameras.remove(funnyCam);
 		playedFreeplayMusic = false;
 		inNewFreeplayState = false;
+
+		instance = null;
 	}
 
 	function changeDiff(change:Int = 0, force:Bool = false):Void

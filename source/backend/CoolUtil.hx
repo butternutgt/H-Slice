@@ -138,8 +138,7 @@ class CoolUtil
 			return value ? 1 : 0;
 		} else if (value is String) {
 			return Std.parseInt(value);
-		}
-		return null;
+		} else return null;
 	}
 
 	inline public static function hex2bin(str:String) {
@@ -155,6 +154,18 @@ class CoolUtil
 			returnVal += tmpStr + " ";
 		}
 		return returnVal.substr(0, returnVal.length-1);
+	}
+
+	inline public static function dec2bin(int:Int, digits:Int) {
+		var str:String = "";
+		digits = FlxMath.minInt(digits, 32);
+
+		while (digits > 0) {
+			str = Std.string(int % 2) + str;
+			int >>= 1; digits--;
+		}
+
+		return str;
 	}
 
 	public static function floorDecimal(value:Float, decimals:Int):Float

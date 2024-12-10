@@ -109,6 +109,11 @@ class TouchPad extends MobileInputManager
 		updateTrackedButtons();
 
 		instance = this;
+
+		var str:String = "";
+		for (key => value in trackedButtons) {
+			str += '\nkey: $key, value: ${value}';
+		}
 	}
 
 	override public function destroy()
