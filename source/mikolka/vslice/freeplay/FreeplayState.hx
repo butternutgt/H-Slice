@@ -1888,7 +1888,7 @@ class FreeplayState extends MusicBeatSubstate
 					GameplayChangersSubstate.fromNewFreeplayState = true;
 					openSubState(new GameplayChangersSubstate());
 				}
-			#if TOUCH_CONTROLS_ALLOWED } catch (e:Exception) {trace(e.details);} #end
+			#if TOUCH_CONTROLS_ALLOWED } catch (e:Exception) {trace(e.message);} #end
 		}
 	}
 
