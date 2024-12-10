@@ -1523,7 +1523,6 @@ class FreeplayState extends MusicBeatSubstate
 		if (configReturned) {
 			controls.isInSubstate = true;
 			
-			removeTouchPad();
 			addTouchPad('UP_DOWN', 'A_B_X_F');
 			addTouchPadCamera();
 			trace(touchPad);
@@ -1531,7 +1530,13 @@ class FreeplayState extends MusicBeatSubstate
 			controls.requestedInstance.touchPad = touchPad;
 			configReturned = false;
 		}
+
+		if (touchPad == null) { // idk but it erases the vpad, hopefully this fixes it
+			addTouchPad('UP_DOWN', 'A_B_X_F');
+			addTouchPadCamera();
+		}
 		#end
+		
 
 		if (charSelectHint != null)
 		{
