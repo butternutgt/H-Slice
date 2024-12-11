@@ -45,7 +45,7 @@ class Main extends Sprite
 		skipSplash: true, // if the default flixel splash screen should be skipped
 		startFullscreen: false // if the game should start at fullscreen mode
 	};
-
+	// hi
 	public static var fpsBg:FPSBg;
 	public static var fpsVar:FPSCounter;
 
