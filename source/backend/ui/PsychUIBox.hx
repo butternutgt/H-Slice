@@ -74,6 +74,12 @@ class PsychUIBox extends FlxSpriteGroup
 
 	public var forceCheckNext:Bool = false;
 	public var broadcastBoxEvents:Bool = true;
+
+	var newPoint:FlxPoint;
+	var wasDragging:Bool;
+	var _ignoreTabUpdate:Bool;
+	var uiStyle:UIStyleData;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -81,12 +87,12 @@ class PsychUIBox extends FlxSpriteGroup
 		_lastClick += elapsed;
 		if(!FlxG.mouse.released && _draggingBox && canMove)
 		{
-			var newPoint:FlxPoint = FlxG.mouse.getPositionInCameraView(camera);
+			newPoint = FlxG.mouse.getPositionInCameraView(camera);
 			setPosition(_draggingPos.x - (_draggingPoint.x - newPoint.x), _draggingPos.y - (_draggingPoint.y - newPoint.y));
 		}
 		else
 		{
-			var wasDragging:Bool = _draggingBox;
+			wasDragging = _draggingBox;
 			_draggingPos = null;
 			_draggingPoint = null;
 			_draggingBox = false;
@@ -104,7 +110,7 @@ class PsychUIBox extends FlxSpriteGroup
 			tab.text.scrollFactor.set(scrollFactor.x, scrollFactor.y);
 		}
 
-		var _ignoreTabUpdate:Bool = false;
+		_ignoreTabUpdate = false;
 		if(forceCheckNext || FlxG.mouse.justMoved || FlxG.mouse.justPressed || FlxG.mouse.justReleased)
 		{
 			forceCheckNext = false;
@@ -150,10 +156,10 @@ class PsychUIBox extends FlxSpriteGroup
 					else if(selectedTab != tab) continue;
 				}
 				
-				var style:UIStyleData = (selectedTab == tab) ? selectedStyle : unselectedStyle;
-				tab.color = style.bgColor;
-				tab.alpha = style.bgAlpha;
-				tab.text.color = style.textColor;
+				uiStyle = (selectedTab == tab) ? selectedStyle : unselectedStyle;
+				tab.color = uiStyle.bgColor;
+				tab.alpha = uiStyle.bgAlpha;
+				tab.text.color = uiStyle.textColor;
 			}
 		}
 

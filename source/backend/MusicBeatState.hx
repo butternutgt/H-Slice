@@ -181,8 +181,7 @@ class MusicBeatState extends FlxState
 		while(curStep >= stepsToDo)
 		{
 			curSection++;
-			var beats:Float = getBeatsOnSection();
-			stepsToDo += Math.round(beats * 4);
+			stepsToDo += Math.round(getBeatsOnSection() * 4);
 			sectionHit();
 		}
 	}

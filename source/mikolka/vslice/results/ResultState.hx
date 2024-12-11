@@ -768,21 +768,24 @@ class ResultState extends MusicBeatSubState
 
 		if ((TouchUtil.justPressed || controls.PAUSE) && !busy)
 		{
-			if (FlxG.sound.music != null && isNewFreePlay)
+			if (FlxG.sound.music != null)
 			{
-				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8, {
-					onComplete: _ -> {
-						if (!isNewFreePlay) {
-							destroy();
+				if (isNewFreePlay) {
+					FlxTween.tween(FlxG.sound.music, {pitch: 3}, 0.1,
+					{
+						onComplete: _ -> {
+							FlxTween.tween(FlxG.sound.music, {pitch: 0.5}, 0.4);
 						}
-					}
-				});
-				FlxTween.tween(FlxG.sound.music, {pitch: 3}, 0.1,
-				{
-					onComplete: _ -> {
-						FlxTween.tween(FlxG.sound.music, {pitch: 0.5}, 0.4);
-					}
-				});
+					});
+
+					FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8, {
+						onComplete: _ -> {
+							if (!isNewFreePlay) {
+								destroy();
+							}
+						}
+					});
+				}
 			}
 
 			// Determining the target state(s) to go to.
@@ -844,7 +847,9 @@ class ResultState extends MusicBeatSubState
 					} else {
 						FlxTransitionableState.skipNextTransIn = true;
 						FlxTransitionableState.skipNextTransOut = false;
-						FreeplayState.fromResultState = true;
+						FreeplayState.fromResultState = false;
+						FlxG.sound.music.stop();
+						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 						targetState = new FreeplayState();
 					}
 				}
@@ -859,6 +864,7 @@ class ResultState extends MusicBeatSubState
 					{
 						shouldTween = true;
 						FreeplayState.fromResultState = false;
+						FlxG.sound.music.stop();
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 						targetState = new FreeplayState();
 					}

@@ -84,9 +84,11 @@ class PsychUIDropDownMenu extends PsychUIInputText
 
 	var _items:Array<PsychUIDropDownItem> = [];
 	public var curScroll:Int = 0;
+	var lastFocus:PsychUIInputText;
+	var wheel:Int;
 	override function update(elapsed:Float)
 	{
-		var lastFocus = PsychUIInputText.focusOn;
+		lastFocus = PsychUIInputText.focusOn;
 		super.update(elapsed);
 		if(FlxG.mouse.justPressed)
 		{
@@ -107,7 +109,7 @@ class PsychUIDropDownMenu extends PsychUIInputText
 		}
 		else if(PsychUIInputText.focusOn == this)
 		{
-			var wheel:Int = FlxG.mouse.wheel;
+			wheel = FlxG.mouse.wheel;
 			if(FlxG.keys.justPressed.UP) wheel++;
 			if(FlxG.keys.justPressed.DOWN) wheel--;
 			/*#if FLX_TOUCH

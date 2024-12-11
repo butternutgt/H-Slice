@@ -52,6 +52,10 @@ class PsychUIButton extends FlxSpriteGroup
 	public var forceCheckNext:Bool = false;
 	public var broadcastButtonEvent:Bool = true;
 	var _firstFrame:Bool = true;
+
+	var overlapped:Bool;
+	var uiStyle:UIStyleData;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -72,16 +76,16 @@ class PsychUIButton extends FlxSpriteGroup
 
 		if(forceCheckNext || FlxG.mouse.justMoved || FlxG.mouse.justPressed)
 		{
-			var overlapped:Bool = (FlxG.mouse.overlaps(bg, camera));
+			overlapped = (FlxG.mouse.overlaps(bg, camera));
 
 			forceCheckNext = false;
 
 			if(!isClicked)
 			{
-				var style:UIStyleData = (overlapped) ? hoverStyle : normalStyle;
-				bg.color = style.bgColor;
-				bg.alpha = style.bgAlpha;
-				text.color = style.textColor;
+				uiStyle = (overlapped) ? hoverStyle : normalStyle;
+				bg.color = uiStyle.bgColor;
+				bg.alpha = uiStyle.bgAlpha;
+				text.color = uiStyle.textColor;
 			}
 
 			if(overlapped && FlxG.mouse.justPressed)

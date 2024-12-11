@@ -246,6 +246,8 @@ class FreeplayState extends MusicBeatState
 	var holdTime:Float = 0;
 
 	var stopMusicPlay:Bool = false;
+	var ratingSplit:Array<String> = [];
+	var shiftMult:Int;
 	override function update(elapsed:Float)
 	{
 		if(WeekData.weeksList.length < 1)
@@ -262,15 +264,14 @@ class FreeplayState extends MusicBeatState
 		if (Math.abs(lerpRating - intendedRating) <= 0.01)
 			lerpRating = intendedRating;
 
-		var ratingSplit:Array<String> = Std.string(CoolUtil.floorDecimal(lerpRating * 100, 2)).split('.');
+		ratingSplit = Std.string(CoolUtil.floorDecimal(lerpRating * 100, 2)).split('.');
 		if(ratingSplit.length < 2) //No decimals, add an empty space
 			ratingSplit.push('');
 		
 		while(ratingSplit[1].length < 2) //Less than 2 decimals in it, add decimals then
 			ratingSplit[1] += '0';
 
-		var shiftMult:Int = 1;
-		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
+		shiftMult = FlxG.keys.pressed.SHIFT ? 3 : 1;
 
 		if (!player.playingMusic)
 		{
