@@ -164,7 +164,7 @@ class PhillyStreets extends PicoCapableStage
 
 	override function createPost()
 	{
-		var unspawnNotes:Array<Note> = cast game.unspawnNotes;
+		var unspawnNotes:Array<CastNote> = cast game.unspawnNotes;
 		for (note in unspawnNotes)
 		{
 			if (note == null)
@@ -174,7 +174,7 @@ class PhillyStreets extends PicoCapableStage
 			switch (note.noteType)
 			{
 				case 'weekend-1-firegun':
-					note.blockHit = true;
+					note.noteData |= 1<<15; // blockHit
 			}
 			if (!noteTypes.contains(note.noteType))
 				noteTypes.push(note.noteType);

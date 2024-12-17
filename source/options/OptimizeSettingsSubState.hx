@@ -33,7 +33,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		 	'keepNotes',
 		 	BOOL);
 		addOption(option);
-
+		
         var option:Option = new Option('Sort Notes:',
 			"If checked, notes array sorts every frame which notes added.\nUncheck It improves performance especially if a lot of notes displayed.\nIf you couldn't understand well, set \"After Note Finalized\".",
 			'sortNotes',
@@ -90,12 +90,6 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
         var option:Option = new Option('Do Note Process before Spawning',
 			"Well, It's literally, yes.\nIt boosts game perfomance vastly, It works anytime yeah.\nIf you don't get it, enable this.",
 			'processFirst',
-			BOOL);
-		addOption(option);
-
-		var option:Option = new Option('Separate Process for Too Slow Note',
-			"If checked, Separate note hit processes for too slow one and not.\nIt boosts game perfomance vastly, but it effects at limited scene.\nIf you don't get it, enable this.",
-			'separateHitProcess',
 			BOOL);
 		addOption(option);
 

@@ -4,6 +4,7 @@ import objects.Note;
 import shaders.RGBPalette;
 import flixel.util.FlxDestroyUtil;
 
+// maybe this class will deprecated
 class MetaNote extends Note
 {
 	public static var noteTypeTexts:Map<Int, FlxText> = [];
@@ -15,7 +16,10 @@ class MetaNote extends Note
 
 	public function new(time:Float, data:Int, songData:Array<Dynamic>)
 	{
-		super(time, data, null, false, true);
+		super();
+		recycleNote(Note.DEFAULT_CAST);
+		inEditor = true;
+
 		this.songData = songData;
 		this.strumTime = time;
 		this.chartNoteData = data;

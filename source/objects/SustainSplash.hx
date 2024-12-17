@@ -58,7 +58,7 @@ class SustainSplash extends FlxSprite
 
 	public function setupSusSplash(daNote:Note, ?playbackRate:Float = 1):Void
 	{
-		killing = endAnim = false;
+		killing = endAnim = false; visible = true; y = -50000;
 		final lengthToGet:Int = !daNote.isSustainNote ? daNote.tail.length : daNote.parent.tail.length;
 		final timeToGet:Float = !daNote.isSustainNote ? daNote.strumTime : daNote.parent.strumTime;
 		final timeThingy:Float = (startCrochet * lengthToGet + (timeToGet - Conductor.songPosition + ClientPrefs.data.ratingOffset)) / playbackRate * .001;
@@ -119,5 +119,10 @@ class SustainSplash extends FlxSprite
 			// trace("hi");
 			return;
 		} else kill();
+	}
+
+	override function kill() {
+		visible = false;
+		super.kill();
 	}
 }

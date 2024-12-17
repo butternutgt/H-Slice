@@ -29,6 +29,26 @@ typedef NoteSplashData = {
 	a:Float
 }
 
+typedef CastNote = {
+	strumTime:Float,
+	// noteData and flags
+	// 1st-8th bits are for noteData (256keys)
+	// 9th bit is for mustHit
+	// 10th bit is for isHold
+	// 11th bit is for isHoldEnd
+	// 12th bit is for gfNote
+	// 13th bit is for altAnim
+	// 14th bit is for noAnim
+	// 15th bit is for noMissAnim
+	// 16th bit is for blockHit
+	noteData:Int,
+	noteType:String,
+	holdLength:Null<Float>,
+	noteSkin:String
+}
+
+var toBool = CoolUtil.bool;
+
 /**
  * The note object used as a data structure to spawn and manage notes during gameplay.
  * 
@@ -46,6 +66,14 @@ class Note extends FlxSprite
 		'GF Sing',
 		'No Animation'
 	];
+
+	public static final DEFAULT_CAST:CastNote = {
+		strumTime: 0,
+		noteData: 0,
+		noteType: "",
+		holdLength: 0,
+		noteSkin: ""
+	};
 
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
 
@@ -75,7 +103,9 @@ class Note extends FlxSprite
 	public var blockHit:Bool = false; // only works for player
 
 	public var sustainLength:Float = 0;
+	public var sustainScale:Float = 1.0;
 	public var isSustainNote:Bool = false;
+	public var isSustainEnds:Bool = false;
 	public var noteType(default, set):String = null;
 
 	public var eventName:String = '';
@@ -95,6 +125,8 @@ class Note extends FlxSprite
 
 	public static var SUSTAIN_SIZE:Int = 44;
 	public static var swagWidth:Float = 160 * 0.7;
+	public static var originalWidth:Float = 160 * 0.7;
+	public static var originalHeight:Float = 160 * 0.7;
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
 
@@ -155,16 +187,31 @@ class Note extends FlxSprite
 
 	inline public function resizeByRatio(ratio:Float) //haha funny twitter shit
 	{
-		if(isSustainNote && animation.curAnim != null && !animation.curAnim.name.endsWith('end'))
+		if(isSustainNote && animation != null && animation.curAnim != null && !animation.curAnim.name.endsWith('end'))
 		{
 			scale.y *= ratio;
 			updateHitbox();
 		}
 	}
 
+	// It's only used newing instances
 	private function set_texture(value:String):String {
-		if(texture != value) reloadNote(value);
+		if (value == null || value.length == 0) {
+			value = defaultNoteSkin + getNoteSkinPostfix();
+		}
+		if (!PlayState.isPixelStage) {
+			if(texture != value) {
+				if (!Paths.noteSkinFramesMap.exists(value)) inline Paths.initNote(value);
+				frames = Paths.noteSkinFramesMap.get(value);
+				animation.copyFrom(Paths.noteSkinAnimsMap.get(value));
+				antialiasing = ClientPrefs.data.antialiasing;
 
+				setGraphicSize(Std.int(width * 0.7));
+				updateHitbox();
+				originalWidth = width;
+				originalHeight = height;
+			} else return value;
+		} else reloadNote(value);
 		texture = value;
 		return value;
 	}
@@ -231,99 +278,103 @@ class Note extends FlxSprite
 		return value;
 	}
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null)
+	// strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null
+	public function new()
 	{
 		super();
-
 		animation = new PsychAnimationController(this);
-
 		antialiasing = ClientPrefs.data.antialiasing;
-		if(createdFrom == null) createdFrom = PlayState.instance;
 
-		if (prevNote == null)
-			prevNote = this;
-
-		this.prevNote = prevNote;
-		isSustainNote = sustainNote;
-		this.inEditor = inEditor;
-		this.moves = false;
-
-		x += (ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
+		x += (ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		y -= 2000;
-		this.strumTime = strumTime;
-		if(!inEditor) this.strumTime += ClientPrefs.data.noteOffset;
 
-		this.noteData = noteData;
+		rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
+		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
 
-		if(noteData > -1)
-		{
-			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
-			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
-			texture = '';
+		// if(createdFrom == null) createdFrom = PlayState.instance;
 
-			x += swagWidth * (noteData);
-			if(!isSustainNote && noteData < colArray.length) { //Doing this 'if' check to fix the warnings on Senpai songs
-				var animToPlay:String = '';
-				animToPlay = colArray[noteData % colArray.length];
-				animation.play(animToPlay + 'Scroll');
-			}
-		}
+		// if (prevNote == null)
+		// 	prevNote = this;
+
+		// this.prevNote = prevNote;
+		// isSustainNote = sustainNote;
+		// this.inEditor = inEditor;
+		// this.moves = false;
+
+		// this.strumTime = strumTime;
+		// if(!inEditor) this.strumTime += ClientPrefs.data.noteOffset;
+
+		// this.noteData = noteData;
+
+		// if(noteData > -1)
+		// {
+		// 	rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
+		// 	if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
+		// 	texture = '';
+
+		// 	x += swagWidth * (noteData);
+		// 	if(!isSustainNote && noteData < colArray.length) { //Doing this 'if' check to fix the warnings on Senpai songs
+		// 		var animToPlay:String = '';
+		// 		animToPlay = colArray[noteData % colArray.length];
+		// 		animation.play(animToPlay + 'Scroll');
+		// 	}
+		// }
 
 		// trace(prevNote);
 
-		if(prevNote != null)
-			prevNote.nextNote = this;
+		// if(prevNote != null)
+		// 	prevNote.nextNote = this;
 
-		if (isSustainNote && prevNote != null)
-		{
-			alpha = multAlpha = 0.6;
-			hitsoundDisabled = true;
-			if(ClientPrefs.data.downScroll) flipY = true;
+		// if (isSustainNote && prevNote != null)
+		// {
+		// 	alpha = multAlpha = 0.6;
+		// 	hitsoundDisabled = true;
+		// 	if(ClientPrefs.data.downScroll) flipY = true;
 
-			offsetX += width / 2;
-			copyAngle = false;
+		// 	offsetX += width / 2;
+		// 	copyAngle = false;
 
-			animation.play(colArray[noteData % colArray.length] + 'holdend');
+		// 	animation.play(colArray[noteData % colArray.length] + 'holdend');
 
-			updateHitbox();
+		// 	updateHitbox();
 
-			offsetX -= width / 2;
+		// 	offsetX -= width / 2;
 
-			if (PlayState.isPixelStage)
-				offsetX += 30;
+		// 	if (PlayState.isPixelStage)
+		// 		offsetX += 30;
 
-			if (prevNote.isSustainNote)
-			{
-				prevNote.animation.play(colArray[prevNote.noteData % colArray.length] + 'hold');
+		// 	if (prevNote.isSustainNote)
+		// 	{
+		// 		prevNote.animation.play(colArray[prevNote.noteData % colArray.length] + 'hold');
 
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
-				if(createdFrom != null && createdFrom.songSpeed != null) {
-					// trace(createdFrom.songSpeed);
-					prevNote.scale.y *= createdFrom.songSpeed;
-				}
+		// 		prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
+		// 		if(createdFrom != null && createdFrom.songSpeed != null) {
+		// 			// trace(createdFrom.songSpeed);
+		// 			prevNote.scale.y *= createdFrom.songSpeed;
+		// 		}
 
-				if(PlayState.isPixelStage) {
-					prevNote.scale.y *= 1.19;
-					prevNote.scale.y *= (6 / height); //Auto adjust note size
-				}
-				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
-			}
+		// 		if(PlayState.isPixelStage) {
+		// 			prevNote.scale.y *= 1.19;
+		// 			prevNote.scale.y *= (6 / height); //Auto adjust note size
+		// 		}
+		// 		prevNote.updateHitbox();
+		// 		// prevNote.setGraphicSize();
+		// 	}
 
-			if(PlayState.isPixelStage)
-			{
-				scale.y *= PlayState.daPixelZoom;
-				updateHitbox();
-			}
-			earlyHitMult = 0;
-		}
-		else if(!isSustainNote)
-		{
-			centerOffsets();
-			centerOrigin();
-		}
-		x += offsetX;
+		// 	if(PlayState.isPixelStage)
+		// 	{
+		// 		scale.y *= PlayState.daPixelZoom;
+		// 		updateHitbox();
+		// 	}
+		// 	earlyHitMult = 0;
+		// }
+		// else if(!isSustainNote)
+		// {
+		// 	centerOffsets();
+		// 	centerOrigin();
+		// }
+		// x += offsetX;
 	}
 
 	public static function initializeGlobalRGBShader(noteData:Int)
@@ -364,7 +415,7 @@ class Note extends FlxSprite
 	var rGraphic:FlxGraphic;
 
 	static var _lastValidChecked:String; //optimization
-	public var originalHeight:Float = 6;
+	public var pixelHeight:Float = 6;
 	public var correctionOffset:Float = 0; //dont mess with this
 	public function reloadNote(texture:String = '', postfix:String = '') {
 		if(texture == null) texture = '';
@@ -384,33 +435,33 @@ class Note extends FlxSprite
 			rAnimName = animation.curAnim.name;
 		}
 
-		rSkinPixel = rSkin;
+		rPath = PlayState.isPixelStage ? 'pixelUI/' : '';
+		rSkinPixel = rPath + rSkin;
 		rLastScaleY = scale.y;
 		rSkinPostfix = getNoteSkinPostfix();
 		rCustomSkin = rSkin + rSkinPostfix;
-		rPath = PlayState.isPixelStage ? 'pixelUI/' : '';
 
-		if(rCustomSkin == _lastValidChecked || Paths.fileExists('images/' + rPath + rCustomSkin + '.png', IMAGE))
+		if (rCustomSkin == _lastValidChecked || Paths.fileExists('images/' + rPath + rCustomSkin + '.png', IMAGE))
 		{
 			rSkin = rCustomSkin;
 			_lastValidChecked = rCustomSkin;
 		}
 		else rSkinPostfix = '';
 
-		if(PlayState.isPixelStage) {
-			if(isSustainNote) {
-				rGraphic = Paths.image('pixelUI/' + rSkinPixel + 'ENDS' + rSkinPostfix);
+		if (PlayState.isPixelStage) {
+			if (isSustainNote) {
+				rGraphic = Paths.image(rSkinPixel + 'ENDS' + rSkinPostfix);
 				loadGraphic(rGraphic, true, Math.floor(rGraphic.width / 4), Math.floor(rGraphic.height / 2));
-				originalHeight = rGraphic.height / 2;
+				pixelHeight = rGraphic.height / 2;
 			} else {
-				rGraphic = Paths.image('pixelUI/' + rSkinPixel + rSkinPostfix);
+				rGraphic = Paths.image(rSkinPixel + rSkinPostfix);
 				loadGraphic(rGraphic, true, Math.floor(rGraphic.width / 4), Math.floor(rGraphic.height / 5));
 			}
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			loadPixelNoteAnims();
 			antialiasing = false;
 
-			if(isSustainNote) {
+			if (isSustainNote) {
 				offsetX += _lastNoteOffX;
 				_lastNoteOffX = (width - 7) * (PlayState.daPixelZoom / 2);
 				offsetX -= _lastNoteOffX;
@@ -470,15 +521,15 @@ class Note extends FlxSprite
 		} else animation.add(colArray[noteData] + 'Scroll', [noteData + 4], 24, true);
 	}
 
-	var animFrames = [];
+	
 	function attemptToAddAnimationByPrefix(name:String, prefix:String, framerate:Float = 24, doLoop:Bool = true)
 	{
+		var animFrames = [];
 		@:privateAccess
 		animation.findByPrefix(animFrames, prefix); // adds valid frames to animFrames
 		if(animFrames.length < 1) return;
 
 		animation.addByPrefix(name, prefix, framerate, doLoop);
-		animFrames = [];
 	}
 
 	override function update(elapsed:Float)
@@ -533,6 +584,19 @@ class Note extends FlxSprite
 		strumAlpha = strum.alpha;
 		strumDirection = strum.direction;
 
+		if (isSustainNote)
+		{
+			flipY = ClientPrefs.data.downScroll;
+			scale.set(0.7, animation != null && animation.curAnim != null && animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * (songSpeed * multSpeed) * sustainScale);
+			if (PlayState.isPixelStage)
+			{
+				scale.x = PlayState.daPixelZoom;
+				scale.y *= PlayState.daPixelZoom * 1.19;
+			}
+
+			updateHitbox();
+		}
+
 		distance = (0.45 * (Conductor.songPosition - strumTime) * songSpeed * multSpeed);
 		if (!strum.downScroll) distance *= -1;
 
@@ -555,7 +619,7 @@ class Note extends FlxSprite
 				{
 					y -= PlayState.daPixelZoom * 9.5;
 				}
-				y -= (frameHeight * scale.y) - (Note.swagWidth / 2);
+				y -= (frameHeight * scale.y) - (Note.swagWidth * 0.5);
 			}
 		}
 		followed = true;
@@ -604,5 +668,101 @@ class Note extends FlxSprite
 	override function kill() {
 		active = visible = false;
 		super.kill();
+	}
+	
+	var initSkin:String = Note.defaultNoteSkin + getNoteSkinPostfix();
+	var colorRef:RGBPalette;
+	var correctY:Float;
+	var playbackRate:Float;
+
+	public function recycleNote(target:CastNote, ?oldNote:Note, ?parent:Note):Note {
+		wasGoodHit = hitByOpponent = tooLate = canBeHit = spawned = followed = false; // Don't make an update call of this for the note group
+		exists = true;
+
+		strumTime = target.strumTime;
+		if (!inEditor) strumTime += ClientPrefs.data.noteOffset;
+
+		mustPress = toBool(target.noteData & (1<<8));						 // mustHit
+		isSustainNote = hitsoundDisabled = toBool(target.noteData & (1<<9)); // isHold
+		isSustainEnds = toBool(target.noteData & (1<<10));					 // isHoldEnd
+		gfNote = toBool(target.noteData & (1<<11));							 // gfNote
+		animSuffix = toBool(target.noteData & (1<<12)) ? "-alt" : "";		 // altAnim
+		noAnimation = toBool(target.noteData & (1<<13));					 // noAnim
+		noMissAnimation = toBool(target.noteData & (1<<14));				 // noMissAnim
+		blockHit = toBool(target.noteData & (1<<15));				 		 // blockHit
+		noteData = target.noteData & 3;
+		noteType = target.noteType;
+
+		// Absoluty should be here, or messing pixel texture glitches...
+		if (target.noteSkin.length > 0 && target.noteSkin != texture) texture = target.noteSkin;
+		else if (target.noteSkin.length == 0 && texture != initSkin) texture = initSkin;
+		else if (PlayState.isPixelStage) reloadNote(texture);
+
+		colorRef = inline initializeGlobalRGBShader(noteData);
+		rgbShader.r = colorRef.r;
+		rgbShader.g = colorRef.g;
+		rgbShader.b = colorRef.b;
+
+		if (PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
+
+		sustainLength = target.holdLength ?? 0;
+
+		prevNote = oldNote ?? this;
+		this.parent = parent;
+		// if (this.parent != null) parent.tail = [];
+
+		copyAngle = !isSustainNote;
+		flipY = ClientPrefs.data.downScroll && isSustainNote;
+
+		animation.play(colArray[noteData % colArray.length] + 'Scroll', true);
+		correctionOffset = isSustainNote ? (flipY ? -originalHeight * 0.5 : originalHeight * 0.5) : 0;
+
+		if (PlayState.isPixelStage) offsetX = -5;
+
+		if (isSustainNote)
+		{
+			alpha = multAlpha = 0.6;
+
+			offsetX += width * 0.5;
+			animation.play(colArray[noteData % colArray.length] + (isSustainEnds ? 'holdend' : 'hold'));  // isHoldEnd
+			updateHitbox();
+			offsetX -= width * 0.5;
+			
+			scale.y *= Conductor.stepCrochet * 0.0105;
+
+			if (PlayState.isPixelStage) {
+				offsetX += 35;
+
+				if(!isSustainEnds) {
+					scale.y *= 1.05 * (6 / height); //Auto adjust note size
+				}
+			} else {
+				sustainScale = Note.SUSTAIN_SIZE / frameHeight;
+			}
+			updateHitbox();
+		} else {
+			alpha = multAlpha = sustainScale = 1;
+
+			if (!PlayState.isPixelStage) 
+			{
+				// Juuuust in case we recycle a sustain note to a regular note
+				offsetX = 0;
+				scale.set(0.7, 0.7);
+			} else {
+				scale.set(PlayState.daPixelZoom, PlayState.daPixelZoom);
+			}
+
+			width = originalWidth;
+			height = originalHeight;
+
+			centerOffsets(true);
+			centerOrigin();
+		}
+
+		if (isSustainNote && sustainScale != 1 && !isSustainEnds)
+			resizeByRatio(sustainScale);
+		clipRect = null;
+		x += offsetX;
+		return this;
 	}
 }

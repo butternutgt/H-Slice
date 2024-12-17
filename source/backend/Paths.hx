@@ -1,5 +1,9 @@
 package backend;
 
+import objects.NoteSplash;
+import flixel.animation.FlxAnimationController;
+import haxe.ds.IntMap;
+import objects.Note;
 import mikolka.vslice.freeplay.FreeplayState as NewFreeplayState;
 import cpp.vm.Gc;
 import objects.NoteSplash.NoteSplashConfig;
@@ -33,7 +37,25 @@ class Paths
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
 	inline public static var VIDEO_EXT = "mp4";
 
+	public static var defaultNoteStuff:Array<Dynamic> = [];
+
+	public static final defaultPath:String = 'noteSkins/NOTE_assets';
+	public static var defaultSkin:String = 'noteSkins/NOTE_assets';
+	public static var defaultNoteSprite:FlxSprite;
+
+	public static var noteSkinFramesMap:Map<String, FlxFramesCollection> = new Map();
+	public static var noteSkinAnimsMap:Map<String, FlxAnimationController> = new Map();
+
+	public static var splashSkinFramesMap:Map<String, FlxFramesCollection> = new Map();
+	public static var splashSkinAnimsMap:Map<String, FlxAnimationController> = new Map();
+
+	public static var holdSplashSkinFramesMap:Map<String, FlxFramesCollection> = new Map();
+	public static var holdSplashSkinAnimsMap:Map<String, FlxAnimationController> = new Map();
+
 	public static var popUpFramesMap:Map<String, FlxFramesCollection> = new Map();
+
+	static var splashFrames:FlxFramesCollection;
+	static var splashAnimation:FlxAnimationController;
 	
 	public static function excludeAsset(key:String) {
 		if (!dumpExclusions.contains(key))
@@ -89,6 +111,36 @@ class Paths
 		// flags everything to be cleared out next unused memory clear
 		localTrackedAssets = [];
 		#if !html5 openfl.Assets.cache.clear("songs"); #end
+	}
+
+	//Function that initializes the first note. This way, we can recycle the notes
+	public static function initDefaultSkin(?noteSkin:String, ?inEditor:Bool = false)
+	{
+		if (noteSkin.length > 0) defaultSkin = noteSkin;
+		else if (ClientPrefs.data.noteSkin != 'Default')
+			defaultSkin = 'noteSkins/NOTE_assets' + Note.getNoteSkinPostfix();
+		#if debug trace(defaultSkin); #end
+	}
+
+	public static function initNote(noteSkin:String = "")
+	{
+		var spr:FlxSprite = new FlxSprite();
+		
+		// Do this to be able to just copy over the note animations and not reallocate it
+		if (noteSkin == null || noteSkin.length == 0) noteSkin = defaultSkin;
+		spr.frames = getSparrowAtlas(noteSkin);
+		#if debug trace('Initalizing noteSkin: ${noteSkin}'); #end
+
+		// Use a for loop for adding all of the animations in the note spritesheet, otherwise it won't find the animations for the next recycle
+		spr.animation.addByPrefix('purpleholdend', 'pruple end hold'); // this fixes some retarded typo from the original note .FLA
+		for (d in 0...4)
+		{
+			spr.animation.addByPrefix(Note.colArray[d] + 'holdend', Note.colArray[d] + ' hold end');
+			spr.animation.addByPrefix(Note.colArray[d] + 'hold', Note.colArray[d] + ' hold piece');
+			spr.animation.addByPrefix(Note.colArray[d] + 'Scroll', Note.colArray[d] + '0');
+		}
+		noteSkinFramesMap.set(noteSkin, spr.frames);
+		noteSkinAnimsMap.set(noteSkin, spr.animation);
 	}
 
 	inline static function destroyGraphic(graphic:FlxGraphic)

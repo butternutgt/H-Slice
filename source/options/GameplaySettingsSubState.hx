@@ -9,6 +9,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	var hitVolume:Option;
 	var rateHold:Float;
 	var stepRate:Option;
+	var ghostRate:Option;
 	public static final defaultBPM:Float = 15;
 
 	public function new()
@@ -42,14 +43,15 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			} BPM.',
 			'updateStepLimit',
 			INT);
+		option.defaultValue = 0;
 		option.scrollSpeed = 20;
 		option.minValue = 0;
 		option.maxValue = 1000;
 		option.changeValue = 1;
 		option.decimals = 0;
 		option.onChange = onStepUpdateRate;
-		stepRate = option;
 		addOption(option);
+		stepRate = option;
 
 		var option:Option = new Option('Ghost Tapping',
 			"If checked, you won't get misses from pressing keys\nwhile there are no notes able to be hit.",
@@ -58,10 +60,25 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Remove Overlapped Notes',
-			"If checked, Remove notes which hidden behind other.\n(Except one which can see by multiplied scroll speed)",
+			"If checked, Remove notes which hidden behind other.\nIt can change the range in below option.",
 			'skipGhostNotes',
 			BOOL);
 		addOption(option);
+
+		var option:Option = new Option(' - Threshold',
+			"Threshold of the option above.\nYou can set it in millisecond.",
+			'ghostRange',
+			FLOAT);
+		option.defaultValue = 0.01;
+		option.displayFormat = '%v ms';
+		option.scrollSpeed = 1;
+		option.minValue = 0.001;
+		option.maxValue = 1000;
+		option.changeValue = 0.001;
+		option.decimals = 3;
+		addOption(option);
+		option.onChange = onRangeUpdateRate;
+		ghostRate = option;
 		
 		var option:Option = new Option('Auto Pause',
 			"If checked, the game automatically pauses if the screen isn't on focus.",
@@ -201,22 +218,26 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'bool');
 		addOption(option);
 
-		var option:Option = new Option('Sustains as One Note',
-			"If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System.",
-			'guitarHeroSustains',
-			BOOL);
-		addOption(option);
+		// var option:Option = new Option('Sustains as One Note',
+		// 	"If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System.",
+		// 	'guitarHeroSustains',
+		// 	BOOL);
+		// addOption(option);
 
 		super();
 	}
 
 	function onStepUpdateRate(){
-		stepRate.scrollSpeed = interpolate(20, 1000, (holdTime - 0.5) / 10, 3);
+		stepRate.scrollSpeed = interpolate(20, 1000, (holdTime - 0.5) / 3, 3);
 		descText.text = stepRate.description = 
 		'In this settings, Accurate up to ${
 			stepRate.getValue() != 0 ?
 			Std.string(stepRate.getValue() * defaultBPM * ClientPrefs.data.framerate) : "Infinite"
 		} BPM.';
+	}
+
+	function onRangeUpdateRate(){
+		ghostRate.scrollSpeed = interpolate(1, 1000, (holdTime - 0.5) / 5, 6);
 	}
 
 	function onChangebgmVolume(){

@@ -171,7 +171,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 				'Note Splash Counter',
 				'Note Appear Time',
 				'Video Info',
-				// 'Note Info',
+				'Note Info',
 				'Strums Info',
 				'Song Info',
 				'Music Sync Info',
@@ -251,6 +251,18 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 		#end
+
+		var option:Option = new Option('Time Text Precisions',
+			"You can set the decimal places to be displayed.\nMin to Second, Max to Microsecond.",
+			'timePrec',
+			INT);
+		option.defaultValue = 1;
+		option.scrollSpeed = 20;
+		option.minValue = 0;
+		option.maxValue = 6;
+		option.changeValue = 1;
+		option.decimals = 0;
+		addOption(option);
 
 		var option:Option = new Option('Popup Stacking',
 			"If unchecked, The popup won't stack. but it's using recycling system,\nso it doesn't have effects so much.",

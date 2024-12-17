@@ -281,8 +281,8 @@ class CoolUtil
 	// stolen and modded from FlxStringUtil
 	public static function formatTime(seconds:Float, precision:Int = 0):String
 	{
-		var timeString:String = Std.int(seconds / 60) + ":";
-		var timeStringHelper:Int = Std.int(seconds) % 60;
+		var timeString:String = Math.floor(seconds / 60) + ":";
+		var timeStringHelper:Int = Math.floor(seconds) % 60;
 
 		if (timeStringHelper < 10)
 		{
@@ -292,8 +292,8 @@ class CoolUtil
 		if (precision > 0)
 		{
 			timeString += ".";
-			timeStringHelper = Std.int((seconds - Std.int(seconds)) * Math.pow(10, precision));
-			timeString += timeStringHelper;
+			timeStringHelper = Math.round((seconds - Math.floor(seconds)) * Math.pow(10, precision));
+			timeString += fillNumber(timeStringHelper, ClientPrefs.data.timePrec, '0'.charCodeAt(0));
 		}
 
 		return timeString;
