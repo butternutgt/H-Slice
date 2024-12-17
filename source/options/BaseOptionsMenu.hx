@@ -264,6 +264,9 @@ class BaseOptionsMenu extends MusicBeatSubstate
 								{
 									case INT:
 										curOption.setValue(Math.round(holdValue));
+
+									case FLOAT:
+										curOption.setValue(FlxMath.roundDecimal(holdValue, curOption.decimals));
 									
 									case PERCENT:
 										curOption.setValue(FlxMath.roundDecimal(holdValue, curOption.decimals));

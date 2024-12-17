@@ -31,6 +31,7 @@ import states.TitleState;
 	public var opponentStrums:Bool = true;
 	public var updateStepLimit:Int = 1;
 	public var ghostRange:Float = 0.01;
+	public var healthDrain:Bool = true;
 	public var showFPS:Bool = true;
 	public var fpsRate:Int = 60;
 	public var timePrec:Int = 0;

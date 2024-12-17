@@ -36,6 +36,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Health Drain',
+			'If checked, opponent get rids your hp.\nIt may conflicts other drain scripts.',
+			'healthDrain',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Update Count of stepHit',
 			'In this settings, Accurate up to ${
 				ClientPrefs.data.updateStepLimit != 0 ?
@@ -43,7 +49,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			} BPM.',
 			'updateStepLimit',
 			INT);
-		option.defaultValue = 0;
 		option.scrollSpeed = 20;
 		option.minValue = 0;
 		option.maxValue = 1000;
@@ -69,9 +74,8 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			"Threshold of the option above.\nYou can set it in millisecond.",
 			'ghostRange',
 			FLOAT);
-		option.defaultValue = 0.01;
 		option.displayFormat = '%v ms';
-		option.scrollSpeed = 1;
+		option.scrollSpeed = 1.0;
 		option.minValue = 0.001;
 		option.maxValue = 1000;
 		option.changeValue = 0.001;
@@ -228,7 +232,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	}
 
 	function onStepUpdateRate(){
-		stepRate.scrollSpeed = interpolate(20, 1000, (holdTime - 0.5) / 3, 3);
+		stepRate.scrollSpeed = interpolate(20.0, 1000.0, (holdTime - 0.5) / 3.0, 3.0);
 		descText.text = stepRate.description = 
 		'In this settings, Accurate up to ${
 			stepRate.getValue() != 0 ?
@@ -237,7 +241,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	}
 
 	function onRangeUpdateRate(){
-		ghostRate.scrollSpeed = interpolate(1, 1000, (holdTime - 0.5) / 5, 6);
+		ghostRate.scrollSpeed = interpolate(1.0, 1000.0, (holdTime - 0.5) / 5.0, 6.0);
 	}
 
 	function onChangebgmVolume(){

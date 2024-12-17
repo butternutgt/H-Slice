@@ -194,6 +194,7 @@ class PlayState extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 	public var health(default, set):Float = 1;
+	public var healthDrain:Bool = ClientPrefs.data.healthDrain;
 
 	private var healthLerp:Float = 1;
 
@@ -1381,6 +1382,7 @@ class PlayState extends MusicBeatState
 		callOnScripts('onUpdateScore', [miss]);
 	}
 
+	var targetHealth:Float;
 	var updateScoreStr:String;
 	var hpShowStr:String;
 	var tempScoreStr:String;
@@ -1388,27 +1390,28 @@ class PlayState extends MusicBeatState
 	var comboStr:String;
 	var notesStr:String;
 	public dynamic function updateScoreText()
-	{	
+	{
+		targetHealth = health*50;
 		if (!practiceMode) {
 			updateScoreStr = Language.getPhrase('rating_$ratingName', ratingName);
 			if (totalPlayed != 0)
-				updateScoreStr += ' (${CoolUtil.floorDecimal(ratingPercent * 100, 2)}%) - ' + Language.getPhrase(ratingFC);
+				updateScoreStr += ' (${CoolUtil.floorDecimal(ratingPercent * 100, 3)} %) - ' + Language.getPhrase(ratingFC);
 		}
 		
-		hpShowStr = numFormat(health*50, 4 - Std.string(Math.floor(health*50)).length);
+		hpShowStr = numFormat(targetHealth, 4 - Std.string(Math.floor(targetHealth)).length, true) + (targetHealth >= 0.001 ? ' %' : '');
 
 		if (!cpuControlled) {
 			if (!instakillOnMiss) {
 				if (!practiceMode) {
 					tempScoreStr = Language.getPhrase(
 						'score_text',
-						'Score: {1} | Misses: {2} | Rating: {3} | HP: {4} %',
+						'Score: {1} | Misses: {2} | Rating: {3} | HP: {4}',
 						[songScore, songMisses, updateScoreStr, hpShowStr]
 					);
 				} else {
 					tempScoreStr = Language.getPhrase(
 						'score_text',
-						'Score: {1} | Misses: {2} | Practice Mode | HP: {3} %',
+						'Score: {1} | Misses: {2} | Practice Mode | HP: {3}',
 						[songScore, songMisses, hpShowStr]
 					);
 				}
@@ -1432,7 +1435,7 @@ class PlayState extends MusicBeatState
 
 			tempScoreStr = Language.getPhrase(
 				'score_text_bot',
-				'Score: {1} | Combo: {2} + {3} = {4} | HP: {5} %',
+				'Score: {1} | Combo: {2} + {3} = {4} | HP: {5}',
 				[ songScore, opComboStr, comboStr, notesStr, hpShowStr ]
 			);
 			
@@ -1687,6 +1690,7 @@ class PlayState extends MusicBeatState
 		var curStepCrochet:Float;
 		var sustainNote:CastNote;
 
+		var chartNoteData:Int = 0;
 		var strumTimeVector:Vector<Float> = new Vector(8, 0.0);
 		var isSustainTimeVector:Vector<Bool> = new Vector(8);
 
@@ -1721,12 +1725,13 @@ class PlayState extends MusicBeatState
 			for (songNotes in section.sectionNotes)
 			{
 				strumTime = songNotes[0];
-				noteColumn = Std.int(songNotes[1] % totalColumns);
-				gottaHitNote = (songNotes[1] < totalColumns);
+				chartNoteData = songNotes[1];
+				noteColumn = Std.int(chartNoteData % totalColumns);
+				gottaHitNote = (chartNoteData < totalColumns);
 
 				if (skipGhostNotes && sectionNoteCnt != 0) {
-					if (Math.abs(strumTimeVector[noteColumn] - strumTime) <= removeTime) {
-						if (isSustainTimeVector[noteColumn] == gottaHitNote) {
+					if (Math.abs(strumTimeVector[chartNoteData] - strumTime) <= removeTime) {
+						// if (isSustainTimeVector[noteColumn] == gottaHitNote) {
 							// trace(
 							// 	Math.abs(strumTimeVector[noteColumn] - strumTime),
 							// 	removeTime,
@@ -1735,10 +1740,10 @@ class PlayState extends MusicBeatState
 							// 	strumTimeVector
 							// );
 							ghostNotesCaught++; continue;
-						}
+						// }
 					} else {
-						strumTimeVector[noteColumn] = strumTime;
-						isSustainTimeVector[noteColumn] = gottaHitNote;
+						strumTimeVector[chartNoteData] = strumTime;
+						// isSustainTimeVector[chartNoteData] = gottaHitNote;
 					}
 				}
 
@@ -2879,6 +2884,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		combo += skipBf;
 		skipCnt = skipOp + skipBf;
 		skipTotalCnt += skipCnt;
+		
+		if (healthDrain) health = Math.max(0.1e-320, health * Math.pow(0.99, skipOp));
 
 		if (skipCnt > 0) {
 			skipDaNote = notes.recycle(Note).recycleNote(skipNote);
@@ -4569,7 +4576,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (bfVocal) vocals.volume = ClientPrefs.data.bgmVolume;
 		if (opVocal) opponentVocals.volume = ClientPrefs.data.bgmVolume;
 		strumPlayAnim(true, note.noteData);
-
+		if (healthDrain) health = Math.max(0.1e-320, health * 0.99);
 		note.hitByOpponent = true;
 
 		stagesFunc(stage -> stage.goodNoteHit(note));
