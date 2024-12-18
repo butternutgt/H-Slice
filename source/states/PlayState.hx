@@ -326,6 +326,7 @@ class PlayState extends MusicBeatState
 	// Optimizer
 	var processFirst:Bool = ClientPrefs.data.processFirst;
 	var showNotes:Bool = ClientPrefs.data.showNotes;
+	var showAfter:Bool = ClientPrefs.data.showAfter;
 	var keepNotes:Bool = ClientPrefs.data.keepNotes;
 	var sortNotes:String = ClientPrefs.data.sortNotes;
 	var whenSortNotes:Int = 0;
@@ -2291,7 +2292,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	override public function update(elapsed:Float)
 	{
-		daHit = bfHit = false;
+		daHit = bfHit = showAgain = false;
 		if (popUpHitNote != null) popUpHitNote = null;
 		hit = skipBf = skipOp = shownCnt = 0;
 
@@ -2706,6 +2707,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	var oldNote:Note = null;
 	var skipNote:CastNote;
+	var showAgain:Bool = false;
 	var isCanPass:Bool = false;
 	var isDisplay:Bool = false;
 	var timeLimit:Bool = false;
@@ -2739,45 +2741,68 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				if (keepNotes) 
 					 isCanPass = !skipSpawnNote || timeLimit || !tooLate;
 				else isCanPass = !skipSpawnNote || timeLimit;
+				
+				if (showAfter) {
+					if (!showAgain && targetNote.strumTime >= Conductor.songPosition) {
+						showAgain = true;
+						timeout = nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp();
+					}
+				}
 
 				if (isCanPass) {
-					noteDataInfo = targetNote.noteData;
-					dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
-					dunceNote.spawned = true;
-	
-					strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
-					dunceNote.strum = strumGroup.members[dunceNote.noteData];
-					// if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
-					notes.add(dunceNote);
-					
-					if (spawnNoteScript) {
-						callOnLuas('onSpawnNote', [
-							totalCnt,
-							dunceNote.noteData,
-							dunceNote.noteType,
-							dunceNote.isSustainNote,
-							dunceNote.strumTime
-						]);
-						callOnHScript('onSpawnNote', [dunceNote]);
-					}
-					
-					if (optimizeSpawnNote) {
-						if (dunceNote.strum != null) {
-							dunceNote.followStrumNote(songSpeed / playbackRate);
-							++shownCnt;
-							
-							if (noteJudge) {
-								if (dunceNote.mustPress)
-								{
-									if (cpuControlled && (!dunceNote.blockHit || dunceNote.isSustainNote))
-										goodNoteHit(dunceNote);
-								}
-								else if (!dunceNote.hitByOpponent && !dunceNote.ignoreNote)
-									opponentNoteHit(dunceNote);
+					if (!optimizeSpawnNote) {
+						noteDataInfo = targetNote.noteData;
+						dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+						dunceNote.spawned = true;
+		
+						strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
+						dunceNote.strum = strumGroup.members[dunceNote.noteData];
+						// if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
+						notes.add(dunceNote);
+						
+						if (spawnNoteScript) {
+							callOnLuas('onSpawnNote', [
+								totalCnt,
+								dunceNote.noteData,
+								dunceNote.noteType,
+								dunceNote.isSustainNote,
+								dunceNote.strumTime
+							]);
+							callOnHScript('onSpawnNote', [dunceNote]);
+						}
+					} else {
+						if (!noteJudge) {
+							noteDataInfo = targetNote.noteData;
+							dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+							dunceNote.spawned = true;
 			
-								if (dunceNote.isSustainNote && dunceNote.strum.sustainReduce)
-									dunceNote.clipToStrumNote();
+							strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
+							dunceNote.strum = strumGroup.members[dunceNote.noteData];
+							// if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
+							notes.add(dunceNote);
+							
+							if (spawnNoteScript) {
+								callOnLuas('onSpawnNote', [
+									totalCnt,
+									dunceNote.noteData,
+									dunceNote.noteType,
+									dunceNote.isSustainNote,
+									dunceNote.strumTime
+								]);
+								callOnHScript('onSpawnNote', [dunceNote]);
 							}
+
+							if (dunceNote.strum != null) {
+								dunceNote.followStrumNote(songSpeed / playbackRate);
+								++shownCnt;
+			
+								if (dunceNote.isSustainNote && dunceNote.strum.sustainReduce && !dunceNote.ignoreNote) {
+									dunceNote.mustPress ? goodNoteHit(dunceNote) : opponentNoteHit(dunceNote);
+									dunceNote.clipToStrumNote();
+								}
+							}
+						} else {
+							
 						}
 					}
 				} else {

@@ -28,6 +28,12 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+        var option:Option = new Option('Show Notes again after Skipped',
+			"If checked, it tries prevent about notes from showing only halfway through.",
+			'showAfter',
+			BOOL);
+		addOption(option);
+
         var option:Option = new Option('Keep Notes in Screen',
 		 	"If checked, notes displays from top to bottom even if skippable.\nUncheck It improves performance especially if a lot of notes displayed.",
 		 	'keepNotes',

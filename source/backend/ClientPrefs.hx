@@ -31,8 +31,8 @@ import states.TitleState;
 	public var opponentStrums:Bool = true;
 	public var updateStepLimit:Int = 1;
 	public var ghostRange:Float = 0.01;
-	public var healthDrain:Bool = true;
-	public var drainAccurated:Bool = true;
+	public var healthDrain:Bool = false;
+	public var drainAccurated:Bool = false;
 	public var showFPS:Bool = true;
 	public var fpsRate:Int = 60;
 	public var timePrec:Int = 0;
@@ -130,6 +130,7 @@ import states.TitleState;
 	// Optimizer
 	public var openDoor:String = "!";
 	public var showNotes:Bool = true;
+	public var showAfter:Bool = true;
 	public var keepNotes:Bool = false;
 	public var sortNotes:String = "After Note Finalized";
 	public var showRating:Bool = true;
