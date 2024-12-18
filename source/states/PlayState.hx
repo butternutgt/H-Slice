@@ -2795,14 +2795,19 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							if (dunceNote.strum != null) {
 								dunceNote.followStrumNote(songSpeed / playbackRate);
 								++shownCnt;
-			
-								if (dunceNote.isSustainNote && dunceNote.strum.sustainReduce && !dunceNote.ignoreNote) {
+							}
+						} else {
+							if (dunceNote.isSustainNote) {
+								if(dunceNote.strum.sustainReduce && !dunceNote.ignoreNote) {
 									dunceNote.mustPress ? goodNoteHit(dunceNote) : opponentNoteHit(dunceNote);
 									dunceNote.clipToStrumNote();
 								}
+							} else {
+								// Skip notes without spawning
+								if (cpuControlled) castMust ? ++skipBf : ++skipOp;
+								else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
+								skipNote = targetNote;	
 							}
-						} else {
-							
 						}
 					}
 				} else {
