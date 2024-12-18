@@ -195,6 +195,7 @@ class PlayState extends MusicBeatState
 	public var gfSpeed:Int = 1;
 	public var health(default, set):Float = 1;
 	public var healthDrain:Bool = ClientPrefs.data.healthDrain;
+	public var drainAccurated:Bool = ClientPrefs.data.drainAccurated;
 
 	private var healthLerp:Float = 1;
 
@@ -2885,7 +2886,17 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		skipCnt = skipOp + skipBf;
 		skipTotalCnt += skipCnt;
 		
-		if (healthDrain) health = Math.max(0.1e-320, health * Math.pow(0.99, skipOp));
+		if (healthDrain) {
+			if(!drainAccurated) {
+				health = randomize.bool() ? Math.max(0.1e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
+			} else {
+				var max:Null<Int> = FlxMath.maxInt(skipOp, skipBf);
+				for (i in 0...max) {
+					if (skipBf > i) health += 0.02;
+					if (skipOp > i) health *= 0.99;
+				} max = null;
+			}
+		} else health += 0.02 * skipBf;
 
 		if (skipCnt > 0) {
 			skipDaNote = notes.recycle(Note).recycleNote(skipNote);
@@ -2962,7 +2973,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 				}
 			case 6:
-				if (randomize.bool(50)) {
+				if (randomize.bool()) {
 					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
 				} else {
 					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
@@ -3715,24 +3726,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		#if TOUCH_CONTROLS_ALLOWED
 		hitbox.visible = #if !android touchPad.visible = #end false;
 		#end
-		//Should kill you if you tried to cheat
-		if(!startingSong)
-		{
-			notes.forEachAlive(function(daNote:Note)
-			{
-				if(daNote.strumTime < songLength - Conductor.safeZoneOffset)
-					health -= 0.05 * healthLoss;
-			});
-			for (daNote in unspawnNotes)
-			{
-				if(daNote != null && daNote.strumTime < songLength - Conductor.safeZoneOffset)
-					health -= 0.05 * healthLoss;
-			}
-
-			if(doDeathCheck()) {
-				return false;
-			}
-		}
 
 		timeBar.visible = false;
 		timeTxt.visible = false;
