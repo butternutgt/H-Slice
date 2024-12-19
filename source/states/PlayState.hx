@@ -2806,7 +2806,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								// Skip notes without spawning
 								if (cpuControlled) castMust ? ++skipBf : ++skipOp;
 								else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
-								skipNote = targetNote;	
+								skipNote = targetNote;
 							}
 						}
 					}
