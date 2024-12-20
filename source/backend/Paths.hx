@@ -46,12 +46,6 @@ class Paths
 	public static var noteSkinFramesMap:Map<String, FlxFramesCollection> = new Map();
 	public static var noteSkinAnimsMap:Map<String, FlxAnimationController> = new Map();
 
-	public static var splashSkinFramesMap:Map<String, FlxFramesCollection> = new Map();
-	public static var splashSkinAnimsMap:Map<String, FlxAnimationController> = new Map();
-
-	public static var holdSplashSkinFramesMap:Map<String, FlxFramesCollection> = new Map();
-	public static var holdSplashSkinAnimsMap:Map<String, FlxAnimationController> = new Map();
-
 	public static var popUpFramesMap:Map<String, FlxFramesCollection> = new Map();
 
 	static var splashFrames:FlxFramesCollection;

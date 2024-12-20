@@ -2743,7 +2743,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				else isCanPass = !skipSpawnNote || timeLimit;
 				
 				if (showAfter) {
-					if (!showAgain && targetNote.strumTime >= Conductor.songPosition) {
+					if (!showAgain && !canBeHit) {
 						showAgain = true;
 						timeout = nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp();
 					}
@@ -2799,7 +2799,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						} else {
 							if (dunceNote.isSustainNote) {
 								if(dunceNote.strum.sustainReduce && !dunceNote.ignoreNote) {
-									dunceNote.mustPress ? goodNoteHit(dunceNote) : opponentNoteHit(dunceNote);
+									if (cpuControlled) dunceNote.mustPress ? goodNoteHit(dunceNote) : opponentNoteHit(dunceNote);
+									else castMust ? noteMissCommon(targetNote.noteData & 255) : opponentNoteHit(dunceNote);
 									dunceNote.clipToStrumNote();
 								}
 							} else {
@@ -4893,8 +4894,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		
 		Paths.noteSkinFramesMap.clear();
 		Paths.noteSkinAnimsMap.clear();
-		Paths.splashSkinFramesMap.clear();
-		Paths.splashSkinAnimsMap.clear();
 		Paths.popUpFramesMap.clear();
 
 		super.destroy();

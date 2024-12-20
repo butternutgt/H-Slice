@@ -54,24 +54,24 @@ class Language
 		#end
 	}
 
+	static var phraseStr:String;
 	inline public static function getPhrase(key:String, ?defaultPhrase:String, values:Array<Dynamic> = null):String
 	{
 		#if TRANSLATIONS_ALLOWED
 		//trace(formatKey(key));
-		var str:String = phrases.get(formatKey(key));
-		if(str == null) str = defaultPhrase;
+		phraseStr = phrases.get(formatKey(key));
+		if(phraseStr == null) phraseStr = defaultPhrase;
 		#else
-		var str:String = defaultPhrase;
+		phraseStr = defaultPhrase;
 		#end
 
-		if(str == null)
-			str = key;
+		if(phraseStr == null) phraseStr = key;
 		
 		if(values != null)
 			for (num => value in values)
-				str = str.replace('{${num+1}}', value);
+				phraseStr = phraseStr.replace('{${num+1}}', value);
 
-		return str;
+		return phraseStr;
 	}
 
 	// More optimized for file loading
