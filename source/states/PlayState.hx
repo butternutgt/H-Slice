@@ -157,11 +157,12 @@ class PlayState extends MusicBeatState
 	public var gf:Character = null;
 	public var boyfriend:Character = null;
 
-	public var notes:FlxTypedGroup<Note>;
+	public var notes:NoteGroup;
 	public var unspawnNotes:Array<CastNote> = [];
 	public var unspawnSustainNotes:Array<CastNote> = [];
 	public var eventNotes:Array<EventNote> = [];
 	public var sustainAnim:Bool = ClientPrefs.data.holdAnim;
+	private var skipNotes:NoteGroup;
 
 	public var skipGhostNotes:Bool = ClientPrefs.data.skipGhostNotes;
 	public var ghostNotesCaught:Int = 0;
@@ -334,9 +335,9 @@ class PlayState extends MusicBeatState
 	var noteHitEvent:Bool = ClientPrefs.data.noteHitEvent;
 	var skipNoteScript:Bool = ClientPrefs.data.skipNoteScript;
 	var spawnNoteScript:Bool = ClientPrefs.data.spawnNoteScript;
-	// var betterRecycle:Bool = ClientPrefs.data.betterRecycle;
-	// var cacheNotes:Int = ClientPrefs.data.cacheNotes;
-	// var doneCache:Bool = false;
+	var betterRecycle:Bool = ClientPrefs.data.betterRecycle;
+	var cacheNotes:Int = ClientPrefs.data.cacheNotes;
+	var doneCache:Bool = false;
 	var skipSpawnNote:Bool = ClientPrefs.data.skipSpawnNote;
 	var optimizeSpawnNote:Bool = ClientPrefs.data.optimizeSpawnNote;
 
@@ -851,6 +852,43 @@ class PlayState extends MusicBeatState
 
 		if (eventNotes.length < 1)
 			checkEventNote();
+
+		if (cacheNotes > 0) {
+			Sys.println('Caching ${cacheNotes} Notes... 1/3');
+			var cacheNote:Note;
+			var cacheTargetNote:CastNote = cast {
+				strumTime: 0,
+				noteData: 0,
+				noteType: 0,
+				holdLength: 0,
+				noteSkin: SONG != null ? SONG.arrowSkin : null,
+			};
+
+			if (cacheTargetNote.noteSkin.length > 0 && !Paths.noteSkinFramesMap.exists(cacheTargetNote.noteSkin))
+				inline Paths.initNote(cacheTargetNote.noteSkin);
+
+			// Newing instances
+			for (i in 0...cacheNotes) {
+				if (betterRecycle)
+					notes.spawnNote(cacheTargetNote);
+				else
+				{
+					cacheNote = notes.recycle(Note).recycleNote(cacheTargetNote);
+					notes.add(cacheNote);
+				}
+			}
+			
+			Sys.println('Drawing ${cacheNotes} Notes... 2/3');
+			// Drawing instances for cache note texture
+			notes.forEach(note -> {
+				note.spawned = true;
+				note.x = 300 + FlxG.random.int(50, 50);
+				note.y = 300 + FlxG.random.int(50, 50);
+				note.dirty = true;
+				note.draw();
+				note.drawFrame(true);
+			});
+		} else doneCache = true;
 
 		if (ClientPrefs.data.disableGC) {
 			MemoryUtil.enable();
@@ -1655,7 +1693,8 @@ class PlayState extends MusicBeatState
 		}
 		FlxG.sound.list.add(inst);
 
-		notes = new FlxTypedGroup<Note>();
+		notes = new NoteGroup();
+		skipNotes = new NoteGroup();
 		notesGroup.add(notes);
 
 		try
@@ -2621,13 +2660,13 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					debugInfos = true;
 					switch (debugInfoType) {
 						case 0:
-							/* if (Std.isOfType(notes, NoteGroup)) {
+							if (Std.isOfType(notes, NoteGroup)) {
 								var f:Array<Float>;
 								f = notes.debugInfo();
 								info = '${f[0]}, ${f[1]}, ${f[2]}';
-							} else { */
+							} else {
 								info = 'Up/Down Key to change infomation';
-							// }
+							}
 						case 1:
 							info = '${numFormat(dad != null ? dad.holdTimer : Math.NaN, 3)}, '
 								 + '${numFormat(gf != null ? gf.holdTimer : Math.NaN, 3)}, '
@@ -2752,13 +2791,15 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				if (isCanPass) {
 					if (!optimizeSpawnNote) {
 						noteDataInfo = targetNote.noteData;
-						dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+						if (betterRecycle)
+							dunceNote = notes.spawnNote(targetNote, oldNote)
+						else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
 						dunceNote.spawned = true;
 		
 						strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
 						dunceNote.strum = strumGroup.members[dunceNote.noteData];
 						// if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
-						notes.add(dunceNote);
+						// if (!betterRecycle) notes.add(dunceNote);
 						
 						if (spawnNoteScript) {
 							callOnLuas('onSpawnNote', [
@@ -2930,7 +2971,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		} else health += 0.02 * skipBf;
 
 		if (skipCnt > 0) {
-			skipDaNote = notes.recycle(Note).recycleNote(skipNote);
+			skipDaNote = skipNotes.recycle(Note).recycleNote(skipNote);
 
 			skipAnim.push(skipCnt > 0);
 			skipAnim.push(skipOp > 0);
@@ -4768,9 +4809,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	public function invalidateNote(note:Note):Void {
 		if (!note.exists) return;
-		else {
-			note.exists = false;
-		}
+		else note.exists = false;
+		if (betterRecycle) notes.pool.push(note);
 	}
 
 	public function spawnHoldSplashOnNote(note:Note) {

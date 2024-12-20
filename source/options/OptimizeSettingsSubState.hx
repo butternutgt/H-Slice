@@ -74,7 +74,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		/* var option:Option = new Option('Better Recycling',
+		var option:Option = new Option('Better Recycling',
 			"If checked, It uses NoteGroup's recycle system.\nIt boosts game perfomance vastly, It works anytime yeah.",
 			'betterRecycle',
 			BOOL);
@@ -91,7 +91,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		option.decimals = 0;
 		option.onChange = onChangeCount;
 		cacheCount = option;
-		addOption(option); */
+		addOption(option);
 
         var option:Option = new Option('Do Note Process before Spawning',
 			"Well, It's literally, yes.\nIt boosts game perfomance vastly, It works anytime yeah.\nIf you don't get it, enable this.",

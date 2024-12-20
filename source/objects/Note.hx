@@ -675,7 +675,7 @@ class Note extends FlxSprite
 	var correctY:Float;
 	var playbackRate:Float;
 
-	public function recycleNote(target:CastNote, ?oldNote:Note, ?parent:Note):Note {
+	public function recycleNote(target:CastNote, ?oldNote:Note):Note {
 		wasGoodHit = hitByOpponent = tooLate = canBeHit = spawned = followed = false; // Don't make an update call of this for the note group
 		exists = true;
 
@@ -708,7 +708,7 @@ class Note extends FlxSprite
 		sustainLength = target.holdLength ?? 0;
 
 		prevNote = oldNote ?? this;
-		this.parent = parent;
+		// this.parent = parent;
 		// if (this.parent != null) parent.tail = [];
 
 		copyAngle = !isSustainNote;
