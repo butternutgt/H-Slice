@@ -40,12 +40,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		if (goption.getValue() != "constant")
 		{
 			option.displayFormat = '%vX';
-			option.maxValue = ConstMax;
+			option.maxValue = MultiMax;
 		}
 		else
 		{
 			option.displayFormat = "%v";
-			option.maxValue = MultiMax;
+			option.maxValue = ConstMax;
 		}
 		optionsArray.push(option);
 		scrollOption = option;
@@ -204,8 +204,8 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 					var pressed = (controls.UI_LEFT_P || controls.UI_RIGHT_P);
 					if(holdTime > 0.5 || pressed)
 					{
-						scrollOption.scrollSpeed = interpolate(1.5, 100, (holdTime - 0.5) / 5, 3);
-						playbackOption.scrollSpeed = interpolate(1, 100, (holdTime - 0.5) / 5, 3);
+						scrollOption.scrollSpeed = interpolate(1.5, 1000, (holdTime - 0.5) / 8, 3);
+						playbackOption.scrollSpeed = interpolate(1, 1000, (holdTime - 0.5) / 8, 3);
 						if(pressed)
 						{
 							var add:Dynamic = null;
@@ -254,12 +254,13 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 											{
 												oOption.displayFormat = "%v";
 												oOption.maxValue = ConstMax;
+												oOption.setValue(Math.max(oOption.getValue(), ConstMax));
 											}
 											else
 											{
 												oOption.displayFormat = "%vX";
 												oOption.maxValue = MultiMax;
-												if(oOption.getValue() > 3) oOption.setValue(3);
+												oOption.setValue(Math.max(oOption.getValue(), MultiMax));
 											}
 											updateTextFrom(oOption);
 										}
