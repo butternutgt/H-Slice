@@ -1,5 +1,6 @@
 package backend;
 
+import haxe.Json;
 import backend.SongJson;
 import lime.utils.Assets;
 
@@ -27,6 +28,7 @@ typedef SwagSong =
 	@:optional var gameOverEnd:String;
 	
 	@:optional var disableNoteRGB:Bool;
+	@:optional var screwYou:String;
 
 	@:optional var arrowSkin:String;
 	@:optional var splashSkin:String;
@@ -63,6 +65,8 @@ class Song
 	public var player2:String = 'dad';
 	public var gfVersion:String = 'gf';
 	public var format:String = 'psych_v1';
+
+	public static var olderFormat:Bool = false;
 
 	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
 	{
@@ -155,7 +159,12 @@ class Song
 
 	public static function parseJSON(rawData:String, ?nameForError:String = null, ?convertTo:String = 'psych_v1'):SwagSong
 	{
-		var songJson:SwagSong = cast SongJson.parse(rawData);
+		var songData:Dynamic = SongJson.parse(rawData);
+		var songJson:SwagSong = cast (olderFormat ? songData.song : songData);
+		songData = null; olderFormat = false;
+
+		File.saveContent("./dump.txt", Json.stringify(songJson));
+
 		if(Reflect.hasField(songJson, 'song'))
 		{
 			var subSong:SwagSong = Reflect.field(songJson, 'song');

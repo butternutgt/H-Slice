@@ -1311,6 +1311,7 @@ class PlayState extends MusicBeatState
 						tick = GO;
 					case 4:
 						tick = START;
+						FlxG.maxElapsed = nanoPosition ? 1000000 : 0.1;
 				}
 
 				if (!skipArrowStartTween)
@@ -3187,7 +3188,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	
 	inline function healthLerper():Float
 	{
-		return FlxMath.lerp(healthLerp, health, 0.15);
+		return FlxMath.lerp(healthLerp, health, 0.25);
 	}
 
 	function openPauseMenu()
@@ -4965,6 +4966,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
 		FlxG.camera.setFilters([]);
+		FlxG.maxElapsed = 0.1;
 
 		#if FLX_PITCH FlxG.sound.music.pitch = 1; #end
 		FlxG.animationTimeScale = 1;

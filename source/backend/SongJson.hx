@@ -133,6 +133,7 @@ class SongJson {
 				case ' '.code, '\r'.code, '\n'.code, '\t'.code:
 				// loop
 				case '{'.code:
+					if (field == "song") Song.olderFormat = true;
 					obj[++objLayer] = {};
 					field = null;
 					comma = null;
