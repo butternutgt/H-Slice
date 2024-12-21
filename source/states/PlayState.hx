@@ -1691,6 +1691,7 @@ class PlayState extends MusicBeatState
 		skipNotes = new NoteGroup();
 		notesGroup.add(notes);
 
+		// IT'S FOR OUTSIDE EVENTS.JSON
 		try
 		{
 			var eventsChart:SwagSong = Song.getChart('events', songName);
@@ -1895,58 +1896,6 @@ class PlayState extends MusicBeatState
 		}
 
 		showProgress(true);
-		// if (skipGhostNotes) {
-		// 	Sys.println('\nSorting for remove overlaps...');
-		// 	unspawnNotes.sort(sortByTime);
-		// 	var prev:CastNote;
-		// 	var tmpNotes:Array<CastNote> = [];
-		// 	var tmpSusNotes:Array<CastNote> = [];
-		// 	var cleanNotes:Array<CastNote> = [];
-		// 	var cleanSusNotes:Array<CastNote> = [];
-
-		// 	for (i in 0...4) {
-		// 		// CLEAR ANY POSSIBLE GHOST NOTE
-
-		// 		Sys.stdout().writeString('\x1b[0GRemoving Overlapped Notes... (Pass ${i+1}/4) Phase 1/4');
-		// 		tmpNotes = unspawnNotes.filter(
-		// 			n -> return n.noteData & 255 == i && !toBool(n.noteData & (1<<9))
-		// 		);
-		// 		Sys.stdout().writeString('\x1b[0GRemoving Overlapped Notes... (Pass ${i+1}/4) Phase 2/4');
-		// 		tmpSusNotes = unspawnSustainNotes.filter(
-		// 			n -> return n.noteData & 255 == i && toBool(n.noteData & (1<<9))
-		// 		);
-
-		// 		prev = tmpNotes[0];
-		// 		Sys.stdout().writeString('\x1b[0GRemoving Overlapped Notes... (Pass ${i+1}/4) Phase 3/4');
-		// 		for (evil in tmpNotes) {
-		// 			if (Math.abs(prev.strumTime - evil.strumTime) <= ClientPrefs.data.ghostRange) {
-		// 				if (prev.noteType == evil.noteType)
-		// 					evil = null; ghostNotesCaught++;
-		// 			} else {
-		// 				cleanNotes.push(evil);
-		// 				prev = evil;
-		// 			}
-		// 		}
-
-		// 		prev = tmpSusNotes[0];
-		// 		Sys.stdout().writeString('\x1b[0GRemoving Overlapped Notes... (Pass ${i+1}/4) Phase 4/4');
-		// 		for (evil in tmpNotes) {
-		// 			if (Math.abs(prev.strumTime - evil.strumTime) <= ClientPrefs.data.ghostRange) {
-		// 				if (prev.noteType == evil.noteType) {
-		// 					evil = null; ghostNotesCaught++;
-		// 				}
-		// 			} else {
-		// 				cleanSusNotes.push(evil);
-		// 				prev = evil;
-		// 			}
-		// 		}
-
-		// 		unspawnNotes = cleanNotes;
-		// 		unspawnSustainNotes = cleanSusNotes;
-		// 	}
-
-		// 	Sys.print('\n${unspawnNotes.length} / ${unspawnSustainNotes.length}\n');
-		// }
 
 		Sys.println('\n[ --- "${SONG.song.toUpperCase()}" CHART INFO --- ]');
 		
@@ -1965,6 +1914,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				Sys.println('WOW! There is no overlapped notes. Great charting!');
 			}
 		}
+
+		// IT'S FOR INSIDE EVENTS ON CHART JSON
+		for (event in songData.events) //Event Notes
+			for (i in 0...event[1].length)
+				makeEvent(event, i);
 
 		Sys.println('Merging Notes...');
 		for (usn in unspawnSustainNotes)

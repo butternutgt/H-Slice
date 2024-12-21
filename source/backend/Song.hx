@@ -66,8 +66,6 @@ class Song
 	public var gfVersion:String = 'gf';
 	public var format:String = 'psych_v1';
 
-	public static var olderFormat:Bool = false;
-
 	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
 	{
 		if(songJson.gfVersion == null)
@@ -159,11 +157,7 @@ class Song
 
 	public static function parseJSON(rawData:String, ?nameForError:String = null, ?convertTo:String = 'psych_v1'):SwagSong
 	{
-		var songData:Dynamic = SongJson.parse(rawData);
-		var songJson:SwagSong = cast (olderFormat ? songData.song : songData);
-		songData = null; olderFormat = false;
-
-		File.saveContent("./dump.txt", Json.stringify(songJson));
+		var songJson:SwagSong = cast SongJson.parse(rawData);
 
 		if(Reflect.hasField(songJson, 'song'))
 		{
