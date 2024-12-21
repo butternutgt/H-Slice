@@ -11,7 +11,7 @@ class BaseGameSubState extends BaseOptionsMenu {
 		addOption(option);
 
         var option:Option = new Option('Freeplay Dynamic Coloring',
-			'Enables dynamic freeplay background color. Disable this if you prefer original V-slice freeplay menu colors',
+			'Enables dynamic freeplay background color.\nDisable this if you prefer original V-slice freeplay menu colors',
 			'vsliceFreeplayColors',
 			BOOL);
 		addOption(option);
@@ -26,6 +26,17 @@ class BaseGameSubState extends BaseOptionsMenu {
 			'If enabled makes health bar move more smoothly.',
 			'vsliceSmoothBar',
 			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Smoothness Speed',
+			'Lower the Slower, Higher the Faster.\n0 is never move, 1 is teleportation.',
+			'vsliceSmoothNess',
+			PERCENT);
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1.0;
+		option.changeValue = 0.01;
+		option.decimals = 2;
 		addOption(option);
 
 		var option:Option = new Option('Special Freeplay Cards',

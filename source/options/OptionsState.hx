@@ -229,6 +229,11 @@ class OptionsState extends MusicBeatState
 	override function destroy()
 	{
 		ClientPrefs.loadPrefs();
+		if (!ClientPrefs.data.disableGC && !MemoryUtil.isGcEnabled) {
+			MemoryUtil.enable();
+			MemoryUtil.collect(true);
+			MemoryUtil.compact();
+		}
 		super.destroy();
 	}
 }

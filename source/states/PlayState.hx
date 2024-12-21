@@ -207,6 +207,8 @@ class PlayState extends MusicBeatState
 
 	public var healthBar:Bar;
 	public var timeBar:Bar;
+	public var vsliceSmoothBar = ClientPrefs.data.vsliceSmoothBar;
+	public var vsliceSmoothNess = ClientPrefs.data.vsliceSmoothNess;
 
 	var songPercent:Float = 0;
 	public var nanoPosition:Bool = ClientPrefs.data.nanoPosition;
@@ -2413,12 +2415,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (started && !paused && canResync) {
 			checkSync();
 		}
-		
-		if (overHealth) {
-			healthLerp = ClientPrefs.data.vsliceSmoothBar ? healthLerper() : health;
-			if (healthBar.bounds.max != null && health > healthBar.bounds.max)
-				health = healthBar.bounds.max;
-		}
 
 		if (cacheNotes > 0 && frameCount > 1) {
 			Sys.println('Killing ${cacheNotes} Notes... 3/3');
@@ -2450,15 +2446,17 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (whenSortNotes >= 3) {
 			noteSort();
 		}
-
-		if (!overHealth) {
-			if (healthBar.bounds.max != null && health > healthBar.bounds.max)
-				health = healthBar.bounds.max;
-			healthLerp = ClientPrefs.data.vsliceSmoothBar ? healthLerper() : health;
-		}
+		
+		if (overHealth) healthLerp = healthLerper();
+		else if (healthBar.bounds.max != null && health > healthBar.bounds.max)
+			health = healthBar.bounds.max;
 
 		updateIconsScale(globalElapsed);
 		updateIconsPosition();
+		updateScoreText();
+		
+		if (overHealth) if (healthBar.bounds.max != null && health > healthBar.bounds.max)
+			health = healthBar.bounds.max;
 
 		// Shader Update Zone
 		if (shaderEnabled) {
@@ -2665,8 +2663,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			infoTxt.text = null;
 		}
 
-		updateScoreText();
-
 		#if debug
 		if (!endingSong && !startingSong)
 		{
@@ -2716,7 +2712,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var lerpHP:Float = 0;
 	public dynamic function updateIconsPosition()
 	{
-		lerpHP = (ClientPrefs.data.vsliceSmoothBar ? healthLerp : health) * 0.5;
+		lerpHP = healthLerp * 0.5;
 		barPos = healthBar.x + healthBar.barWidth - lerpHP * healthBar.barWidth;
 		iconP1.x = barPos + (150 * iconP1.scale.x - 150) / 2 - 26;
 		iconP2.x = barPos - (150 * iconP2.scale.x) / 2 - 52;
@@ -3142,7 +3138,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	
 	inline function healthLerper():Float
 	{
-		return FlxMath.lerp(healthLerp, health, 0.25);
+		return vsliceSmoothBar ? FlxMath.lerp(healthLerp, health, vsliceSmoothNess) : health;
 	}
 
 	function openPauseMenu()

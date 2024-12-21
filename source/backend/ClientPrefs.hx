@@ -64,6 +64,7 @@ import states.TitleState;
 	public var vsliceResults:Bool = true;
 	public var vsliceSpecialCards:Bool = true;
 	public var vsliceSmoothBar:Bool = true;
+	public var vsliceSmoothNess:Float = 0.25;
 	public var vsliceLoadInstAll:Bool = false;
 	public var vsliceBotPlayPlace:String = "Near the Time Bar";
 
