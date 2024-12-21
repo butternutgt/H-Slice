@@ -875,8 +875,8 @@ class PlayState extends MusicBeatState
 			// Drawing instances for cache note texture
 			notes.forEach(note -> {
 				note.spawned = true;
-				note.x = 300 + FlxG.random.int(50, 50);
-				note.y = 300 + FlxG.random.int(50, 50);
+				note.x = FlxG.random.int(0, 1280);
+				note.y = FlxG.random.int(0, 720);
 				note.dirty = true;
 				note.draw();
 				note.drawFrame(true);
