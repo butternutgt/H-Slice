@@ -254,13 +254,13 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 											{
 												oOption.displayFormat = "%v";
 												oOption.maxValue = ConstMax;
-												oOption.setValue(Math.max(oOption.getValue(), ConstMax));
+												oOption.setValue(Math.min(oOption.getValue(), ConstMax));
 											}
 											else
 											{
 												oOption.displayFormat = "%vX";
 												oOption.maxValue = MultiMax;
-												oOption.setValue(Math.max(oOption.getValue(), MultiMax));
+												oOption.setValue(Math.min(oOption.getValue(), MultiMax));
 											}
 											updateTextFrom(oOption);
 										}

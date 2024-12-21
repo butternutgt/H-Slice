@@ -4,33 +4,36 @@ import objects.Note.CastNote;
 
 class NoteGroup extends FlxTypedGroup<Note>
 {
-    public var pool:Array<Note> = [];
-    var _ecyc_e:Note = new Note();
-    var index:Int = -1;
+    var pool:Array<Note> = [];
+    var poolAvail:Array<Bool> = [];
+    var _ecyc_e:Note;
     var living:Int = 0;
 
     public function new() {
         super();
     }
 
+    public function push(n:Note) {
+        pool.push(n);
+    }
+
     public function spawnNote(castNote:CastNote, ?oldNote:Note) {
-        index = pool.lastIndexOf(null);
-        if (index >= 0) {
-            _ecyc_e = pool[index];
-            pool[index] = null;
+        if (pool.length > 0) {
+            _ecyc_e = pool.pop();
+            _ecyc_e.exists = true;
         } else {
-            _ecyc_e.exists = false;
-            _ecyc_e.recycleNote(castNote, oldNote);
-            add(_ecyc_e);
+            _ecyc_e = null;
+            _ecyc_e = new Note();
+            members.push(_ecyc_e);
+            ++length;
         }
-        return _ecyc_e;
+        return _ecyc_e.recycleNote(castNote, oldNote);
     }
 
     public function debugInfo():Array<Float> {
         living = 0;
-        for (obj in pool) {
-            if (obj != null) ++living;
-        }
-        return [living, length, (living * 100.0 / Math.max(length, 1))];
+        for (obj in pool) if (obj != null) ++living;
+
+        return [living, length, living * 100.0 / Math.max(length, 1), poolAvail.length];
     }
 }

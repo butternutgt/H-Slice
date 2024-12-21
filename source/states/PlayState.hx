@@ -2606,9 +2606,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					skipMax = FlxMath.maxInt(skipCnt, skipMax);
 
 					if (numberSeparate)
-						info = 'Rendered/Skipped: ${formatD(notes.countLiving())}/${formatD(skipCnt)}/${formatD(notes.length)}/${formatD(skipMax)}\n';
+						info = 'Rendered/Skipped: ${formatD(Math.max(notes.countLiving(), 0))}/${formatD(skipCnt)}/${formatD(notes.length)}/${formatD(skipMax)}\n';
 					else
-						info = 'Rendered/Skipped: ${notes.countLiving()}/$skipCnt/${notes.length}/$skipMax\n';
+						info = 'Rendered/Skipped: ${Math.max(notes.countLiving(), 0)}/$skipCnt/${notes.length}/$skipMax\n';
 					// info = 'Rendered/Skipped: ${notes.length}/$shownMax\n';
 				case 'Note Splash Counter':
 					var buf:StringBuf = new StringBuf();
@@ -2660,10 +2660,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					debugInfos = true;
 					switch (debugInfoType) {
 						case 0:
-							if (Std.isOfType(notes, NoteGroup)) {
-								var f:Array<Float>;
-								f = notes.debugInfo();
-								info = '${f[0]}, ${f[1]}, ${f[2]}';
+							if (betterRecycle) {
+								var f = notes.debugInfo();
+								info = '${f[0]} / ${f[1]}, ${numFormat(f[2], 3)}';
 							} else {
 								info = 'Up/Down Key to change infomation';
 							}
@@ -2681,6 +2680,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							} else {
 								info = 'No Popups';
 							}
+						case 3:
+							info = 'Processed Real Notes: $processedReal / ${processedRealElapsed * 1000}';
 					}
 			}
 			infoTxt.text = info;
@@ -2792,7 +2793,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					if (!optimizeSpawnNote) {
 						noteDataInfo = targetNote.noteData;
 						if (betterRecycle)
-							dunceNote = notes.spawnNote(targetNote, oldNote)
+							dunceNote = notes.spawnNote(targetNote, oldNote);
 						else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
 						dunceNote.spawned = true;
 		
@@ -2814,7 +2815,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					} else {
 						if (!noteJudge) {
 							noteDataInfo = targetNote.noteData;
-							dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+							if (betterRecycle)
+								dunceNote = notes.spawnNote(targetNote, oldNote);
+							else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
 							dunceNote.spawned = true;
 			
 							strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
@@ -2878,10 +2881,18 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	var index:Int = 0;
 	var noteUpdateJudge:Bool = false;
+	var processedReal:Int = 0;
+	var processedRealTimer:Float = 0;
+	var processedRealElapsed:Float = 0;
 	public function noteUpdate()
 	{
 		if (generatedMusic)
 		{
+			if (debugInfos) {
+				processedReal = 0;
+				processedRealTimer = nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp();
+			}
+
 			if (!inCutscene)
 			{
 				if (!cpuControlled)
@@ -2895,6 +2906,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					{
 						notes.forEach(daNote -> {
 							if (daNote.exists && daNote.strum != null) {
+
+								if (debugInfos) ++processedReal;
+
 								canBeHit = Conductor.songPosition - daNote.strumTime > 0;
 								tooLate = Conductor.songPosition - daNote.strumTime > noteKillOffset;
 
@@ -2941,6 +2955,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				}
 			}
+
+			processedRealElapsed = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - processedRealTimer;
 			checkEventNote();
 		}
 
@@ -4809,8 +4825,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	public function invalidateNote(note:Note):Void {
 		if (!note.exists) return;
-		else note.exists = false;
-		if (betterRecycle) notes.pool.push(note);
+		note.exists = false;
+		if (betterRecycle) notes.push(note);
 	}
 
 	public function spawnHoldSplashOnNote(note:Note) {
