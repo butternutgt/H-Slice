@@ -36,6 +36,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Over Health',
+			'If checked, health can goes over 100%. Fixed at 100% immedietaly after 1 frame.',
+			'overHealth',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Health Drain',
 			'If checked, opponent get rids your hp.\nIt may conflicts other drain scripts.',
 			'healthDrain',

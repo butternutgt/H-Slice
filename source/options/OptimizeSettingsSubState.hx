@@ -2,7 +2,6 @@ package options;
 
 class OptimizeSettingsSubState extends BaseOptionsMenu
 {
-	var bufferCount:Option;
 	var cacheCount:Option;
 
 	public function new()
@@ -145,6 +144,6 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
     }
 
 	function onChangeCount(){
-		bufferCount.scrollSpeed = cacheCount.scrollSpeed = interpolate(30, 50000, (holdTime - 0.5) / 10, 3);
+		cacheCount.scrollSpeed = interpolate(30, 50000, (holdTime - 0.5) / 10, 3);
 	}
 }

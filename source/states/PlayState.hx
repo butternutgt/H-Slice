@@ -195,6 +195,7 @@ class PlayState extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 	public var health(default, set):Float = 1;
+	public var overHealth:Bool = ClientPrefs.data.overHealth;
 	public var healthDrain:Bool = ClientPrefs.data.healthDrain;
 	public var drainAccurated:Bool = ClientPrefs.data.drainAccurated;
 
@@ -376,7 +377,7 @@ class PlayState extends MusicBeatState
 		nextReloadAll = false;
 		noteKillOffset = NoteKillTime;
 
-		startCallback = startCountdown;
+		if (cacheNotes == 0) startCallback = startCountdown;
 		endCallback = endSong;
 
 		// for lua
@@ -666,15 +667,7 @@ class PlayState extends MusicBeatState
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 		moveCameraSection();
 
-		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function()
-		{
-			if (ClientPrefs.data.vsliceSmoothBar)
-			{
-				healthLerp = FlxMath.lerp(healthLerp, health, 0.15);
-				return healthLerp;
-			}
-			return health;
-		}, 0, 2);
+		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', () -> return healthLerp, 0, 2);
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
 		healthBar.scrollFactor.set();
@@ -795,7 +788,7 @@ class PlayState extends MusicBeatState
 		hitbox.visible = true;
 		#end
 
-		startCallback();
+		if (cacheNotes == 0) startCallback();
 		recalculateRating();
 		if (cpuControlled) ratingImage = forceSick.name;
 
@@ -2465,22 +2458,49 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (started && !paused && canResync) {
 			checkSync();
 		}
-
-		if (!processFirst) {
-			noteSpawn();
-			noteUpdate();
-		} else {
-			noteUpdate();
-			noteSpawn();
-		}
-		noteFinalize();
 		
-		if (whenSortNotes > 3) {
+		if (overHealth) {
+			healthLerp = ClientPrefs.data.vsliceSmoothBar ? healthLerper() : health;
+			if (healthBar.bounds.max != null && health > healthBar.bounds.max)
+				health = healthBar.bounds.max;
+		}
+
+		if (cacheNotes > 0 && frameCount > 1) {
+			Sys.println('Killing ${cacheNotes} Notes... 3/3');
+
+			// Killing instances
+			notes.forEach(n -> {
+				n.dirty = false;
+				invalidateNote(n);
+			});
+
+			Sys.println('${notes.length} notes cached.');
+			frameCount = cacheNotes = shownCnt = shownMax = 0;
+			startCallback = startCountdown;
+			startCallback();
+			doneCache = true;
+		} else if (cacheNotes == 0 && doneCache) {
+			/* --- main process --- */
+			if (!processFirst) {
+				noteSpawn();
+				noteUpdate();
+			} else {
+				noteUpdate();
+				noteSpawn();
+			}
+			noteFinalize();
+			/* --- main process --- */
+		}
+		
+		if (whenSortNotes >= 3) {
 			noteSort();
 		}
 
-		if (healthBar.bounds.max != null && health > healthBar.bounds.max)
-			health = healthBar.bounds.max;
+		if (!overHealth) {
+			if (healthBar.bounds.max != null && health > healthBar.bounds.max)
+				health = healthBar.bounds.max;
+			healthLerp = ClientPrefs.data.vsliceSmoothBar ? healthLerper() : health;
+		}
 
 		updateIconsScale(globalElapsed);
 		updateIconsPosition();
@@ -2562,8 +2582,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			if (FlxG.keys.justPressed.UP) ++debugInfoType;
 			if (FlxG.keys.justPressed.DOWN) --debugInfoType;
 
-			if (debugInfoType >= 3) debugInfoType -= 3;
-			if (debugInfoType < 0) debugInfoType += 3;
+			if (debugInfoType >= 4) debugInfoType -= 4;
+			if (debugInfoType < 0) debugInfoType += 4;
 
 			popUpDebug.fill(0); popUpAlive = 0;
 			if (showPopups) {
@@ -2681,7 +2701,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								info = 'No Popups';
 							}
 						case 3:
-							info = 'Processed Real Notes: $processedReal / ${processedRealElapsed * 1000}';
+							info = 'Processed Real Notes: $processedReal / ${numFormat(processedRealElapsed * 1000, 3)} ms';
 					}
 			}
 			infoTxt.text = info;
@@ -2738,9 +2758,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 
 	var barPos:Float = 0;
+	var lerpHP:Float = 0;
 	public dynamic function updateIconsPosition()
 	{
-		barPos = healthBar.x + healthBar.barWidth - (health * 0.5) * healthBar.barWidth;
+		lerpHP = (ClientPrefs.data.vsliceSmoothBar ? healthLerp : health) * 0.5;
+		barPos = healthBar.x + healthBar.barWidth - lerpHP * healthBar.barWidth;
 		iconP1.x = barPos + (150 * iconP1.scale.x - 150) / 2 - 26;
 		iconP2.x = barPos - (150 * iconP2.scale.x) / 2 - 52;
 	}
@@ -2823,7 +2845,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
 							dunceNote.strum = strumGroup.members[dunceNote.noteData];
 							// if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
-							notes.add(dunceNote);
+							if (!betterRecycle) notes.add(dunceNote);
 							
 							if (spawnNoteScript) {
 								callOnLuas('onSpawnNote', [
@@ -2857,7 +2879,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				} else {
 					// Skip notes without spawning
-					castMust ? ++skipBf : ++skipOp;
+					if (cpuControlled) castMust ? ++skipBf : ++skipOp;
 					skipNote = targetNote;
 				}
 				
@@ -3043,15 +3065,14 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 			skipAnim = [];
 		}
-
-		if (whenSortNotes == 3)
-			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 	}
 	
 	var randomize = new FlxRandom();
 	
 	inline private function noteSort() {
 		switch (whenSortNotes) {
+			case 3:
+				notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 			case 4:
 				notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
 			case 5:
@@ -3162,6 +3183,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; // If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
 		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; // If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)
 		return health;
+	}
+	
+	inline function healthLerper():Float
+	{
+		return FlxMath.lerp(healthLerp, health, 0.15);
 	}
 
 	function openPauseMenu()

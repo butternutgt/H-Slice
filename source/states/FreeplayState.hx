@@ -249,6 +249,8 @@ class FreeplayState extends MusicBeatState
 	var ratingFormat:String;
 	var ratingSplit:Array<String> = [];
 	var shiftMult:Int;
+
+	var spamTime:Float = 0;
 	override function update(elapsed:Float)
 	{
 		if(WeekData.weeksList.length < 1)
@@ -295,27 +297,24 @@ class FreeplayState extends MusicBeatState
 					changeSelection();
 					holdTime = 0;	
 				}
-				if (controls.UI_UP_P)
+				if (controls.UI_UP_P || controls.UI_DOWN_P)
 				{
-					changeSelection(-shiftMult);
-					holdTime = 0;
-				}
-				if (controls.UI_DOWN_P)
-				{
-					changeSelection(shiftMult);
+					changeSelection(controls.UI_UP ? -shiftMult : shiftMult);
 					holdTime = 0;
 				}
 
 				if(controls.UI_DOWN || controls.UI_UP)
 				{
-					var checkLastHold:Null<Int> = Std.int(interpolate(10, 30, (holdTime - 0.5) / 5, 2));
 					holdTime += elapsed;
-					var checkNewHold:Null<Int> = Std.int(interpolate(10, 30, (holdTime - 0.5) / 5, 2));
+					if (holdTime > 0.5) {
+						spamTime += elapsed;
+						var timeLimit:Float = 1 / interpolate(10, 30, (holdTime - 0.5) / 5, 2);
 
-					if(holdTime > 0.5 && checkNewHold - checkLastHold >= 1)
-						changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
-
-					checkLastHold = checkNewHold = null;
+						if (spamTime > timeLimit) {
+							changeSelection(controls.UI_UP ? -shiftMult : shiftMult);
+							spamTime -= timeLimit;
+						}
+					}
 				}
 
 				if(FlxG.mouse.wheel != 0)
