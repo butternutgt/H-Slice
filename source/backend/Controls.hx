@@ -195,7 +195,6 @@ class Controls
 			if (requestedInstance.touchPad.anyPressed(keys) == true)
 			{
 				if (keys == null) trace('the key is ${keys.toString()}');
-				controllerMode = true; // !!DO NOT DISABLE THIS IF YOU DONT WANT TO KILL THE INPUT FOR MOBILE!!
 				return true;
 			}
 		} else {
@@ -212,7 +211,6 @@ class Controls
 		{
 			if (requestedInstance.touchPad.anyJustPressed(keys) == true)
 			{
-				controllerMode = true;
 				return true;
 			}
 		} else {
@@ -229,7 +227,6 @@ class Controls
 		{
 			if (requestedInstance.touchPad.anyJustReleased(keys) == true)
 			{
-				controllerMode = true;
 				return true;
 			}
 		} else {
@@ -246,7 +243,6 @@ class Controls
 		{
 			if (requestedHitbox.anyPressed(keys))
 			{
-				controllerMode = true;
 				return true;
 			}
 		}
@@ -259,7 +255,6 @@ class Controls
 		{
 			if (requestedHitbox.anyJustPressed(keys))
 			{
-				controllerMode = true;
 				return true;
 			}
 		}
@@ -272,7 +267,6 @@ class Controls
 		{
 			if (requestedHitbox.anyJustReleased(keys))
 			{
-				controllerMode = true;
 				return true;
 			}
 		}

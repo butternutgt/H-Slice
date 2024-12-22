@@ -187,6 +187,8 @@ class NoteOffsetState extends MusicBeatState
 		Conductor.bpm = 128.0;
 		FlxG.sound.playMusic(Paths.music('offsetSong'), ClientPrefs.data.bgmVolume, true);
 
+		#if TOUCH_CONTROLS_ALLOWED controls.controllerMode = controls.mobileC; #end
+
 		super.create();
 	}
 
