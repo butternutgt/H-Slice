@@ -31,6 +31,7 @@ class NoteOffsetState extends MusicBeatState
 	var beatTween:FlxTween;
 
 	var changeModeText:FlxText;
+	var holdTimeText:FlxText;
 
 	var controllerPointer:FlxSprite;
 	var _lastControllerMode:Bool = false;
@@ -165,6 +166,13 @@ class NoteOffsetState extends MusicBeatState
 		changeModeText.cameras = [camHUD];
 		changeModeText.antialiasing = ClientPrefs.data.antialiasing;
 		add(changeModeText);
+
+		holdTimeText = new FlxText(0, 500, FlxG.width, "", 32);
+		holdTimeText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		holdTimeText.scrollFactor.set();
+		holdTimeText.cameras = [camHUD];
+		holdTimeText.antialiasing = ClientPrefs.data.antialiasing;
+		add(holdTimeText);
 		
 		controllerPointer = new FlxShapeCircle(0, 0, 20, {thickness: 0}, FlxColor.WHITE);
 		controllerPointer.offset.set(20, 20);
@@ -381,11 +389,13 @@ class NoteOffsetState extends MusicBeatState
 		{
 			if(controls.UI_LEFT_P)
 			{
+				holdTime = 0;
 				barPercent = Math.max(delayMin, Math.min(ClientPrefs.data.noteOffset - 1, delayMax));
 				updateNoteDelay();
 			}
 			else if(controls.UI_RIGHT_P)
 			{
+				holdTime = 0;
 				barPercent = Math.max(delayMin, Math.min(ClientPrefs.data.noteOffset + 1, delayMax));
 				updateNoteDelay();
 			}
@@ -395,15 +405,13 @@ class NoteOffsetState extends MusicBeatState
 			{
 				holdTime += elapsed;
 				if(controls.UI_LEFT) mult = -1;
-			}
 
-			if(controls.UI_LEFT_R || controls.UI_RIGHT_R) holdTime = 0;
-
-			if(holdTime > 0.5)
-			{
-				barPercent += 100 * addNum * elapsed * mult;
-				barPercent = Math.max(delayMin, Math.min(barPercent, delayMax));
-				updateNoteDelay();
+				if(holdTime > 0.5)
+				{
+					barPercent += 100 * addNum * elapsed * mult;
+					barPercent = Math.max(delayMin, Math.min(barPercent, delayMax));
+					updateNoteDelay();
+				}
 			}
 
 			if(controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonC.justPressed #end)
@@ -438,7 +446,8 @@ class NoteOffsetState extends MusicBeatState
 			else FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 			FlxG.mouse.visible = false;
 		}
-
+	
+		holdTimeText.text = Std.string(holdTime);
 		Conductor.songPosition = FlxG.sound.music.time;
 		super.update(elapsed);
 	}

@@ -228,11 +228,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		addOption(option);
 
+		#if desktop
 		var option:Option = new Option('Full Screen shortcut on F11',
 			"If checked, the F11 key will toggle full screen, just like Alt+Enter.\nIt's for avoiding other processing interruptions.",
 			'f11Shortcut',
 			'bool');
 		addOption(option);
+		#end
 
 		// var option:Option = new Option('Sustains as One Note',
 		// 	"If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System.",

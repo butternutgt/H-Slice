@@ -303,7 +303,7 @@ class FreeplayState extends MusicBeatState
 					holdTime = 0;
 				}
 
-				if(controls.UI_DOWN || controls.UI_UP)
+				if (controls.UI_DOWN || controls.UI_UP)
 				{
 					holdTime += elapsed;
 					if (holdTime > 0.5) {

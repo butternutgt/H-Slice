@@ -2742,7 +2742,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			
 			shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
 			shownRealTime = shownTime * 0.001;
-			isDisplay = targetNote.strumTime - Conductor.songPosition < shownTime;
+			isDisplay = targetNote.strumTime - Conductor.songPosition + ClientPrefs.data.noteOffset < shownTime;
 
 			while (isDisplay)
 			{
@@ -2843,7 +2843,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 				shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
 				shownRealTime = shownTime * 0.001;
-				isDisplay = targetNote.strumTime - Conductor.songPosition < shownTime;
+				isDisplay = targetNote.strumTime - Conductor.songPosition + ClientPrefs.data.noteOffset < shownTime;
 			}
 		}
 		safeTime = ((nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout) / shownRealTime * 100;
