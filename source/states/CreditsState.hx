@@ -40,7 +40,7 @@ class CreditsState extends MusicBeatState
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			['H-Slice Engine Team'],
 			['HRK.EXEX',			'hrk',		'Main Developer and Founder of H-Slice Engine',				'https://www.youtube.com/@hk.3x3x2nd3',		'1890ff'],
-			['justAMZ',				'amz',				'Co-Developer mainly for Chart Editor',						'https://youtube.com/@justamz',				'408080'],
+			['justAMZ',				'amz',				'Co-Developer mainly for Chart Editor, and Localizer on some UIs',						'https://youtube.com/@justamz',				'408080'],
 			['mcagabe19',			'lily',             'Porter of H-slice for mobile devices and creator of linc_luajit-rewritten (used for mobile builds)',   'https://youtube.com/@mcagabe19',		'FFE7C0'],
 			[""],
 			['P-Slice Engine Team'],
