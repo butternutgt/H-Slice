@@ -837,8 +837,8 @@ class PlayState extends MusicBeatState
 			case "After Note Processed": whenSortNotes = 2;
 			case "After Note Finalized": whenSortNotes = 3;
 			case "Reversed": whenSortNotes = 4;
-			case "Chaostic": whenSortNotes = 5;
-			case "Randomized Order": whenSortNotes = 6;
+			case "Chaotic": whenSortNotes = 5;
+			case "Random": whenSortNotes = 6;
 			case "Shuffle": whenSortNotes = 7;
 		}
 

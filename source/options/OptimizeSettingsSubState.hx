@@ -7,14 +7,14 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 	public function new()
 	{
 		#if DISCORD_ALLOWED
-		DiscordClient.changePresence("Optimizer Menu", null);
+		DiscordClient.changePresence("Optimizations Menu", null);
 		#end
 		
-		title = 'Optimizer';
-		rpcTitle = 'Optimize Settings Menu'; //for Discord Rich Presence
+		title = 'Optimizations';
+		rpcTitle = 'Optimization Settings Menu'; //for Discord Rich Presence
 
 		//Working in Progress!
-        var option:Option = new Option('Working in Progress', //Name
+        var option:Option = new Option('Work in Progress', //Name
 			"Make changes at your own risk.", //Description
 			'openDoor', //Save data variable name
 			STRING,
@@ -22,25 +22,25 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
         var option:Option = new Option('Show Notes',
-			"If unchecked, appearTime sets to 0. All notes will process by skipped notes.\nalso It forces to turn on botplay.",
+			"If unchecked, appearTime is set to 0. All notes will be processed as skipped notes.\nBotplay is force-enabled.",
 			'showNotes',
 			BOOL);
 		addOption(option);
 
-        var option:Option = new Option('Show Notes again after Skipped',
-			"If checked, it tries prevent about notes from showing only halfway through.",
+        var option:Option = new Option('Show Notes again after Skip',
+			"If checked, it tries preventing notes from showing only halfway through.",
 			'showAfter',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('Keep Notes in Screen',
-		 	"If checked, notes displays from top to bottom even if skippable.\nUncheck It improves performance especially if a lot of notes displayed.",
+		 	"If checked, notes will display from top to bottom, even if they are skippable.\nIf unchecked, it improves performance, especially if a lot of notes are displayed.",
 		 	'keepNotes',
 		 	BOOL);
 		addOption(option);
 		
         var option:Option = new Option('Sort Notes:',
-			"If checked, notes array sorts every frame which notes added.\nUncheck It improves performance especially if a lot of notes displayed.\nIf you couldn't understand well, set \"After Note Finalized\".",
+			"If checked, the notes array is sorted every frame when notes are added.\nUnchecking improves performance, especially if a lot of notes are displayed.\nDefault: \"After Note Finalized\"",
 			'sortNotes',
 			STRING,
 			[
@@ -49,38 +49,38 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 				'After Note Processed',
 				'After Note Finalized',
 				'Reversed',
-				'Chaostic',
-				'Randomized Order',
+				'Chaotic',
+				'Random',
 				'Shuffle',
 			]); //Variable type
 		addOption(option);
 
-        var option:Option = new Option('Show Rating Popup',
-			"If checked, \"Rating popup\" shows every time hit notes.\nUncheck It reduces a little bit of memory usage.",
+        var option:Option = new Option('Show Rating Pop-Pp',
+			"If checked, \"Rating Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
 			'showRating',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Show Combo Number Popup',
-			"If checked, \"Combo Number popup\" shows every time hit notes.\nUncheck It reduces a little bit of memory usage.",
+		var option:Option = new Option('Show Combo Number Pop-Up',
+			"If checked, \"Combo Number Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
 			'showComboNum',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Show Combo Popup',
-			"If checked, \"Combo popup\" shows every time hit notes.\nWell I think there is no person to check this, but I leave this.",
+		var option:Option = new Option('Show Combo Pop-Up',
+			"If checked, \"Combo Pop-Up\" shows up every time you hit notes.\n(I don't think anyone checks this option)",
 			'showCombo',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Better Recycling',
-			"If checked, It uses NoteGroup's recycle system.\nIt boosts game perfomance vastly, It works anytime yeah.",
+			"If checked, the game will use NoteGroup's recycle system.\nIt boosts game performance massively.",
 			'betterRecycle',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Cache Notes:',
-			"Enables recycling of a specified number of items before playing.\nIt cuts time of newing instances. 0 is for disabled.\nIt needs RAM depending this value.",
+			"Enables recycling of a specified number of items before playing.\nIt cuts time of newing instances. To diable, set the value to 0.\nYou need the same amount of RAM as the value chosen.",
 			'cacheNotes',
 			INT);
 		option.scrollSpeed = 30;
@@ -92,50 +92,50 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		cacheCount = option;
 		addOption(option);
 
-        var option:Option = new Option('Do Note Process before Spawning',
-			"Well, It's literally, yes.\nIt boosts game perfomance vastly, It works anytime yeah.\nIf you don't get it, enable this.",
+        var option:Option = new Option('Process Notes before Spawning',
+			"If checked, it process notes before they spawn.\nIt boosts game performance vastly.\n It is recommended to enable this option.",
 			'processFirst',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('Skip Process for Spawned Note',
-			"If checked, enables Skip Note Function.\nIt boosts game perfomance vastly, but it effects at limited scene.\nIf you don't get it, enable this.",
+			"If checked, enables Skip Note Function.\nIt boosts game performance vastly, but it only works in specific situations.\nIf you don't understand, enable this.",
 			'skipSpawnNote',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('Optimize Process for Spawned Note',
-			"If checked, It judges whether or not to do hit process\nimmediately when a note spawned. If you don't get it, enable this.",
+			"If checked, it judges whether or not to do hit process\nimmediately when a note spawned. If you don't understand, enable this.",
 			'optimizeSpawnNote',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('noteHitPreEvent',
-			"If unchecked, don't send any noteHitPreEvent on Lua/HScript.",
+			"If unchecked, the game will not send any noteHitPreEvent on Lua/HScript.",
 			'noteHitPreEvent',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('noteHitEvent',
-			"If unchecked, don't send any noteHitEvent on Lua/HScript.\nUnrecommended to disable this option.",
+			"If unchecked, the game will not send any noteHitEvent on Lua/HScript.\nNot recommended to disable this option.",
 			'noteHitEvent',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('noteHitEvents for Spawned Notes',
-			"If unchecked, don't send any event on Lua/HScript for spawned notes.\nand It improves performance.",
+			"If unchecked, the game will not send any event on Lua/HScript for spawned notes.\nImproves performance.",
 			'spawnNoteScript',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('noteHitEvents for Skipped Notes',
-			"If unchecked, don't send any event on Lua/HScript for skipped notes.\nand It improves performance.",
+			"If unchecked, the game will not send any event on Lua/HScript for skipped notes.\nImproves performance.",
 			'skipNoteScript',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('Disable Garbage Collector',
-			"If checked, You can play the main game without GC lag.\nIt's only works while load & playing chart.",
+			"If checked, You can play the main game without GC lag.\nIt only works on loading/playing charts.",
 			'disableGC',
 			BOOL);
 		addOption(option);

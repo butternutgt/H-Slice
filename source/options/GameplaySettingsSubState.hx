@@ -37,25 +37,25 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Over Health',
-			'If checked, health can goes over 100%. Fixed at 100% immedietaly after 1 frame.',
+			'If checked, health goes beyond 100%, but it returns to 100% immedietaly after 1 frame.',
 			'overHealth',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Health Drain',
-			'If checked, opponent get rids your hp.\nIt may conflicts other drain scripts.',
+			'If checked, opponent drains your health when they hit a note.\n(Conflicts with other health drain scripts)',
 			'healthDrain',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Health Drain - Accurated',
-			'If checked, it works correctly for skipped notes, but it takes high cpu loads.',
+		var option:Option = new Option('Health Drain - Accurate',
+			'If checked, health drain will work for skipped notes, but it will take high CPU loads.',
 			'drainAccurated',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Update Count of stepHit',
-			'In this settings, Accurate up to ${
+			'In this setting, you can set the stepHit to be accurate up to ${
 				ClientPrefs.data.updateStepLimit != 0 ?
 				Std.string(ClientPrefs.data.updateStepLimit * defaultBPM * ClientPrefs.data.framerate) : "Infinite"
 			} BPM.',
@@ -77,7 +77,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Remove Overlapped Notes',
-			"If checked, Remove notes which hidden behind other.\nIt can change the range in below option.",
+			"If checked, the game will remove notes which are hidden behind the others.\nRange is controlled by the option below.",
 			'skipGhostNotes',
 			BOOL);
 		addOption(option);
@@ -125,7 +125,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Accurate Song Position',
-			"If checked, songPosition supports microSeconds, but It doesn't support too old cpu.",
+			"If checked, songPosition supports microSeconds. Unsupported for very old CPUs",
 			'nanoPosition',
 			BOOL);
 		option.onChange = onChangeCounterMethod;
@@ -159,7 +159,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		sfxVolume = option;
 		
 		var option:Option = new Option('Hitsound Volume',
-			'Funny notes does \"Tick!\" when you hit them.',
+			'Funny notes do a \"Tick!\" sound when you hit them.',
 			'hitsoundVolume',
 			PERCENT);
 		addOption(option);
@@ -229,7 +229,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Full Screen shortcut on F11',
-			"If checked, F11 key can use to set fullscreen besides Alt+Enter.\nIt's for avoid other processing interrupt.",
+			"If checked, the F11 key will toggle full screen, just like Alt+Enter.\nIt's for avoiding other processing interruptions.",
 			'f11Shortcut',
 			'bool');
 		addOption(option);

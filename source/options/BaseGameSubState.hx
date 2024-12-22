@@ -5,7 +5,7 @@ class BaseGameSubState extends BaseOptionsMenu {
         title = "V-Slice settings";
         rpcTitle = "V-Slice settings menu";
         var option:Option = new Option('Use New Freeplay State',
-			'If disabled it uses older freeplay state as usual.',
+			'If disabled, it uses the original Freeplay State.',
 			'vsliceFreeplay',
 			BOOL);
 		addOption(option);
@@ -17,19 +17,19 @@ class BaseGameSubState extends BaseOptionsMenu {
 		addOption(option);
 
 		var option:Option = new Option('Use Results Screen',
-			'If disabled will skip showing the result screen.',
+			'If disabled, it will not show the result screen.',
 			'vsliceResults',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Smooth Health Bar',
-			'If enabled makes health bar move more smoothly.',
+			'If enabled, makes health bar move move smoothly.',
 			'vsliceSmoothBar',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Smoothness Speed',
-			'Lower the Slower, Higher the Faster.\n0 is never move, 1 is teleportation.',
+			'Change the speed of the Health Bar smoothness.\n0 = Disabled, 1 = No Smoothness.',
 			'vsliceSmoothNess',
 			PERCENT);
 		option.scrollSpeed = 1.6;
@@ -40,19 +40,19 @@ class BaseGameSubState extends BaseOptionsMenu {
 		addOption(option);
 
 		var option:Option = new Option('Special Freeplay Cards',
-			"If disabled will force every character to use BF's card. (including pico)",
+			"If disabled, it will force every character to use BF's card. (including pico)",
 			'vsliceSpecialCards',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Listen Whole Song Of Freeplay',
-			'If enabled will load of whole music file in freeplay preview,\nIt makes more loads cpu.',
+			'If enabled, it will load every song in Freeplay State,\nVery CPU Intensive.',
 			'vsliceLoadInstAll',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Botplay Text Location: ',
-			'P-Slice Engine is changed the Botplay Text Place,\nSo you can make Location be like original Psych Engine.',
+			'Change the Botplay Text Location.',
 			'vsliceBotPlayPlace',
 			STRING,
 			[

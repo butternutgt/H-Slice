@@ -50,7 +50,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 		#if sys
 		var option:Option = new Option('VSync',
-			'If checked, Enables VSync fixing any screen tearing\nat the cost of capping the FPS to screen refresh rate.\n(Must restart the game to have an effect)',
+			'If checked, it enables VSync, fixing any screen tearing\nat the cost of capping the FPS to screen refresh rate.\n(Restart required)',
 			'vsync',
 			BOOL);
 		option.onChange = onChangeVSync;

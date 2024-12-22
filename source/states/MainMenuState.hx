@@ -13,8 +13,8 @@ class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '1.0'; // This is also used for Discord RPC
 	public static var pSliceVersion:String = '2.1'; 
-	public static var funkinVersion:String = '0.5.1'; // Version of funkin' we are emulationg
-	public static var hrkVersion:String = '0.1.1'; // Version of funkin' we are emulationg
+	public static var funkinVersion:String = '0.5.1'; // Version of funkin' we are emulating
+	public static var hrkVersion:String = '0.1.1'; // Version of funkin' we are emulating
 	public static var curSelected:Int = 0;
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
@@ -98,23 +98,28 @@ class MainMenuState extends MusicBeatState
 		}
 
 		var padding:Float = 8;
-		var hrkVer:FlxText = new FlxText(padding, FlxG.height - 58 - padding, FlxG.width, "HRK Engine Redux " + hrkVersion, 12);
-		var psychVer:FlxText = new FlxText(padding, FlxG.height - 38 - padding, FlxG.width, "Psych Engine " + psychEngineVersion, 12);
-		var fnfVer:FlxText = new FlxText(padding, FlxG.height - 18 - padding, FlxG.width, 'Friday Night Funkin\' v${funkinVersion} (P-slice ${pSliceVersion})', 12);
+		var hrkVer:FlxText = new FlxText(padding, FlxG.height - 78 - padding, FlxG.width, 'H-Slice v' + hrkVersion, 12);
+		var psliceVer:FlxText = new FlxText(padding, FlxG.height - 58 - padding, FlxG.width, 'P-Slice v${pSliceVersion}', 12);
+		var psychVer:FlxText = new FlxText(padding, FlxG.height - 38 - padding, FlxG.width, 'Psych Engine v' + psychEngineVersion, 12);
+		var fnfVer:FlxText = new FlxText(padding, FlxG.height - 18 - padding, FlxG.width, 'Friday Night Funkin\' v${funkinVersion}', 12);
 
 		hrkVer.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		psliceVer.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		psychVer.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		fnfVer.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		
 		hrkVer.scrollFactor.set();
+		psliceVer.scrollFactor.set();
 		psychVer.scrollFactor.set();
 		fnfVer.scrollFactor.set();
 		
 		hrkVer.antialiasing = ClientPrefs.data.antialiasing;
+		psliceVer.antialiasing = ClientPrefs.data.antialiasing;
 		psychVer.antialiasing = ClientPrefs.data.antialiasing;
 		fnfVer.antialiasing = ClientPrefs.data.antialiasing;
 
 		add(hrkVer);
+		add(psliceVer);
 		add(psychVer);
 		add(fnfVer);
 	

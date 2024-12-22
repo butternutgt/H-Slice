@@ -82,7 +82,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		}
 
 		var option:Option = new Option('Note Splash Opacity',
-			'How much transparent should the Note Splashes be.',
+			'How transparent should the Note Splashes be?',
 			'splashAlpha',
 			PERCENT);
 		option.scrollSpeed = 1.6;
@@ -94,7 +94,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.onChange = playNoteSplashes;
 
 		var option:Option = new Option('Note Splash Count:',
-			'How much the Note Splashes should spawn every arrow?\n0 means no limits for appears splash.',
+			'How many Note Splashes should spawn every note hit?\n0 = No Limit.',
 			'splashCount',
 			INT);
 		option.scrollSpeed = 30;
@@ -120,7 +120,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		}
 
 		var option:Option = new Option('Note Hold Splash Opacity',
-			'How much transparent should the Note Hold Splash be.\n0% disables it.',
+			'How transparent should the Note Hold Splash be?\n0% = = Disabled.',
 			'holdSplashAlpha',
 			PERCENT);
 		option.scrollSpeed = 1.6;
@@ -137,13 +137,13 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Strum Animation',
-			'If checked, Play animation of strum arrows every note hits.',
+			'If checked, the light-up animation of the strums will play every time a note is hit.',
 			'strumAnim',
 			BOOL);
 		addOption(option);
 		
 		var option:Option = new Option('Play Animation on Sustain Hit',
-			"If unchecked, ignores hit animaiton when hits sustain notes.",
+			"If unchecked, the animaiton when sustain notes are hit will not play.",
 			'holdAnim',
 			BOOL);
 		addOption(option);
@@ -155,13 +155,13 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('3 digits Separator',
-			'If checked, Increases the visibility of large numbers, such as 1000 or more.',
+			'If checked, it will increase the visibility of large numbers, such as 1000 or more.',
 			'numberFormat',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Show Info:',
-			"If checked, shows amount of some infomation in screen.\nwell It's for Debug.",
+			"If checked, the game will show the selected infomation on screen.\nMainly for Debug.",
 			'showInfoType',
 			STRING,
 			[
@@ -205,7 +205,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Health Bar Opacity',
-			'How much transparent should the health bar and icons be.',
+			'How transparent should the Health Bar and icons be?',
 			'healthBarAlpha',
 			PERCENT);
 		option.scrollSpeed = 1.6;
@@ -223,7 +223,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.onChange = onChangeFPSCounter;
 		
 		var option:Option = new Option('FC - Update Rate',
-			"It can change updating date on FPS Counter.",
+			"How fast will the FPS Counter Update?",
 			'fpsRate',
 			INT);
 		option.defaultValue = 1;
@@ -264,14 +264,14 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.decimals = 0;
 		addOption(option);
 
-		var option:Option = new Option('Popup Stacking',
-			"If unchecked, The popup won't stack. but it's using recycling system,\nso it doesn't have effects so much.",
+		var option:Option = new Option('Pop-Up Stacking',
+			"If unchecked, score pop-ups won't stack, but the game now uses a recycling system,\nso it doesn't have a huge effect anymore.",
 			'comboStacking',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Combo <-> Notes',
-			"If checked, The popup become a note counter instead combo.\nIt appears opponent hits too, and bf and opponent combo are combined.",
+			"If checked, the score pop-up become a note counter instead combo.\nIt counts both opponent and player note hits.",
 			'changeNotes',
 			BOOL);
 		addOption(option);
