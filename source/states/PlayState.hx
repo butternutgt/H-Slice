@@ -2742,7 +2742,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			castHold = toBool(targetNote.noteData & (1<<9));
 			castMust = toBool(targetNote.noteData & (1<<8));
 			
-			shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
+			shownTime = castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed;
 			shownRealTime = shownTime * 0.001;
 			isDisplay = targetNote.strumTime - Conductor.songPosition + ClientPrefs.data.noteOffset < shownTime;
 
@@ -2754,8 +2754,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				timeLimit = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout < shownRealTime;
 
 				if (keepNotes) 
-					 isCanPass = !skipSpawnNote || timeLimit || !tooLate;
-				else isCanPass = !skipSpawnNote || timeLimit;
+					 isCanPass = showNotes && !skipSpawnNote || timeLimit || !tooLate;
+				else isCanPass = showNotes && !skipSpawnNote || timeLimit;
 				
 				if (showAfter) {
 					if (!showAgain && !canBeHit) {
@@ -2816,23 +2816,20 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								++shownCnt;
 							}
 						} else {
-							if (dunceNote.isSustainNote) {
-								if(dunceNote.strum.sustainReduce && !dunceNote.ignoreNote) {
-									if (cpuControlled) dunceNote.mustPress ? goodNoteHit(dunceNote) : opponentNoteHit(dunceNote);
-									else castMust ? noteMissCommon(targetNote.noteData & 255) : opponentNoteHit(dunceNote);
-									dunceNote.clipToStrumNote();
-								}
-							} else {
-								// Skip notes without spawning
-								if (cpuControlled) castMust ? ++skipBf : ++skipOp;
-								else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
-								skipNote = targetNote;
+							// Skip notes without spawning
+							if (cpuControlled) {
+								if (!castHold) castMust ? ++skipBf : ++skipOp;
 							}
+							else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
+							skipNote = targetNote;
 						}
 					}
 				} else {
 					// Skip notes without spawning
-					if (cpuControlled) castMust ? ++skipBf : ++skipOp;
+					if (cpuControlled) {
+						if (!castHold) castMust ? ++skipBf : ++skipOp;
+					}
+					else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
 					skipNote = targetNote;
 				}
 				
