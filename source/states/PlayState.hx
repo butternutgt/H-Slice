@@ -2753,9 +2753,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				noteJudge = castHold ? tooLate : canBeHit;
 				timeLimit = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout < shownRealTime;
 
-				if (keepNotes) 
-					 isCanPass = showNotes && !skipSpawnNote || timeLimit || !tooLate;
-				else isCanPass = showNotes && !skipSpawnNote || timeLimit;
+				if (showNotes) {
+					if (keepNotes) 
+						isCanPass = !skipSpawnNote || timeLimit || !tooLate;
+					else isCanPass = !skipSpawnNote || timeLimit;
+				} else isCanPass = false;
 				
 				if (showAfter) {
 					if (!showAgain && !canBeHit) {
@@ -2767,9 +2769,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				if (isCanPass) {
 					if (!optimizeSpawnNote) {
 						noteDataInfo = targetNote.noteData;
-						if (betterRecycle)
+						if (betterRecycle) {
 							dunceNote = notes.spawnNote(targetNote, oldNote);
-						else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+						} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
 						dunceNote.spawned = true;
 		
 						strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
@@ -2839,8 +2841,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				
 				castHold = toBool(targetNote.noteData & (1<<9));
 				castMust = toBool(targetNote.noteData & (1<<8));
-
-				shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
+				
+				shownTime = castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed;
 				shownRealTime = shownTime * 0.001;
 				isDisplay = targetNote.strumTime - Conductor.songPosition + ClientPrefs.data.noteOffset < shownTime;
 			}
