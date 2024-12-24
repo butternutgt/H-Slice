@@ -87,7 +87,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'ghostRange',
 			FLOAT);
 		option.displayFormat = '%v ms';
-		option.scrollSpeed = 1.0;
+		option.scrollSpeed = 0.1;
 		option.minValue = 0.001;
 		option.maxValue = 1000;
 		option.changeValue = 0.001;
@@ -255,7 +255,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	}
 
 	function onRangeUpdateRate(){
-		ghostRate.scrollSpeed = interpolate(1.0, 1000.0, (holdTime - 0.5) / 5.0, 6.0);
+		ghostRate.scrollSpeed = interpolate(0.1, 1000.0, (holdTime - 0.5) / 8.0, 5.0);
 	}
 
 	function onChangebgmVolume(){
