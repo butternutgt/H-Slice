@@ -1822,11 +1822,11 @@ class PlayState extends MusicBeatState
 				if (!noteTypes.contains(swagNote.noteType))
 					noteTypes.push(swagNote.noteType);
 
-				showProgress(isDesktop);
+				showProgress();
 				++sectionNoteCnt;
 			}
 
-			showProgress(isDesktop);
+			showProgress();
 			notes += sectionNoteCnt;
 		}
 

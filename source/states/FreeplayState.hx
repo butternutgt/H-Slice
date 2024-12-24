@@ -60,7 +60,11 @@ class FreeplayState extends MusicBeatState
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
-		Gc.compact();
+		
+		if (ClientPrefs.data.disableGC && !MemoryUtil.isGcEnabled) {
+			MemoryUtil.compact();
+			MemoryUtil.disable();
+		}
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
