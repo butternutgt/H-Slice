@@ -55,7 +55,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			]); //Variable type
 		addOption(option);
 
-        var option:Option = new Option('Show Rating Pop-Pp',
+        var option:Option = new Option('Show Rating Pop-Up',
 			"If checked, \"Rating Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
 			'showRating',
 			BOOL);

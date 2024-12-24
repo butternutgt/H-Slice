@@ -853,10 +853,10 @@ class PlayState extends MusicBeatState
 		if (cacheNotes > 0) {
 			Sys.println('Caching ${cacheNotes} Notes... 1/3');
 			var cacheNote:Note;
-			var cacheTargetNote:CastNote = cast {
+			var cacheTargetNote:CastNote = {
 				strumTime: 0,
 				noteData: 0,
-				noteType: 0,
+				noteType: null,
 				holdLength: 0,
 				noteSkin: SONG != null ? SONG.arrowSkin : null,
 			};
@@ -1732,13 +1732,12 @@ class PlayState extends MusicBeatState
 
 		var chartNoteData:Int = 0;
 		var strumTimeVector:Vector<Float> = new Vector(8, 0.0);
-		var isSustainTimeVector:Vector<Bool> = new Vector(8);
 
 		var updateTime:Float = 0.1;
 		var syncTime:Float = Timer.stamp();
 		var removeTime:Float = ClientPrefs.data.ghostRange;
 
-		var isMobile:Bool = Main.platform == 'Phones';
+		var isDesktop:Bool = Main.platform != 'Phones';
 		var loadNoteTime:Float = CoolUtil.getNanoTime();
 
 		function showProgress(force:Bool = false) {
@@ -1749,7 +1748,7 @@ class PlayState extends MusicBeatState
 					Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 					syncTime = Timer.stamp();
 				}
-			} else if (isMobile && force) {
+			} else if (isDesktop && force) {
 				Sys.println('Loading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 			}
 		}
@@ -1771,31 +1770,21 @@ class PlayState extends MusicBeatState
 
 				if (skipGhostNotes && sectionNoteCnt != 0) {
 					if (Math.abs(strumTimeVector[chartNoteData] - strumTime) <= removeTime) {
-						// if (isSustainTimeVector[noteColumn] == gottaHitNote) {
-							// trace(
-							// 	Math.abs(strumTimeVector[noteColumn] - strumTime),
-							// 	removeTime,
-							// 	isSustainTimeVector[noteColumn],
-							// 	gottaHitNote,
-							// 	strumTimeVector
-							// );
-							ghostNotesCaught++; continue;
-						// }
+						ghostNotesCaught++; continue;
 					} else {
 						strumTimeVector[chartNoteData] = strumTime;
-						// isSustainTimeVector[chartNoteData] = gottaHitNote;
 					}
 				}
 
 				holdLength = songNotes[2];
 				noteType = songNotes[3];
 
-				swagNote = cast {
+				swagNote = {
 					strumTime: songNotes[0],
 					noteData: noteColumn,
-					noteType: Math.isNaN(songNotes[3]) ? songNotes[3] : 0,
+					noteType: Math.isNaN(songNotes[3]) ? songNotes[3] : null,
 					holdLength: holdLength,
-					noteSkin: SONG.arrowSkin ?? ""
+					noteSkin: SONG.arrowSkin ?? null
 				};
 				
 				swagNote.noteData |= gottaHitNote ? 1<<8 : 0; // mustHit
@@ -1804,16 +1793,7 @@ class PlayState extends MusicBeatState
 				swagNote.noteData |= (songNotes[3] == 'No Animation' || songNotes[3] == 5) ? 3<<13 : 0; // noAnimation & noMissAnimaiton
 				swagNote.noteData |= (songNotes[3] == 'Hurt Note' || songNotes[3] == 3) ? 1<<15 : 0;
 				
-				// swagNote = new Note(strumTime, noteColumn, oldNote);
-				// swagNote.gfNote = (section.gfSection && gottaHitNote == section.mustHitSection);
-				// swagNote.animSuffix = section.altAnim && !gottaHitNote ? "-alt" : "";
-				// swagNote.mustPress = gottaHitNote;
-				// swagNote.sustainLength = holdLength;
-				// swagNote.noteType = noteType;
-
-				// swagNote.scrollFactor.set();
 				unspawnNotes.push(swagNote);
-				// oldNote = swagNote;
 
 				curStepCrochet = 15000 / daBpm;
 				roundSus = Math.round(swagNote.holdLength / curStepCrochet);
@@ -1821,7 +1801,7 @@ class PlayState extends MusicBeatState
 				{
 					for (susNote in 0...roundSus + 1)
 					{
-						sustainNote = cast {
+						sustainNote = {
 							strumTime: swagNote.strumTime + curStepCrochet * susNote,
 							noteData: swagNote.noteData,
 							noteType: swagNote.noteType,
@@ -1832,74 +1812,25 @@ class PlayState extends MusicBeatState
 						sustainNote.noteData |= 1<<9; // isHold
 						sustainNote.noteData |= susNote == roundSus ? 1<<10 : 0; // isHoldEnd
 
-						// sustainNote = new Note(swagNote.strumTime + (curStepCrochet * susNote), noteColumn, oldNote, true);
-						// sustainNote.animSuffix = swagNote.animSuffix;
-						// sustainNote.mustPress = swagNote.mustPress;
-						// sustainNote.gfNote = swagNote.gfNote;
-						// sustainNote.noteType = swagNote.noteType;
-						// sustainNote.scrollFactor.set();
-						// sustainNote.parent = swagNote;
 						unspawnSustainNotes.push(sustainNote);
-						// swagNote.tail.push(sustainNote);
-
-						// sustainNote.correctionOffset = swagNote.height / 2;
-						// if (!PlayState.isPixelStage)
-						// {
-						// 	if (oldNote.isSustainNote)
-						// 	{
-						// 		oldNote.scale.y *= Note.SUSTAIN_SIZE / oldNote.frameHeight;
-						// 		oldNote.scale.y /= playbackRate;
-						// 		oldNote.resizeByRatio(curStepCrochet / Conductor.stepCrochet);
-						// 	}
-
-						// 	if (ClientPrefs.data.downScroll)
-						// 		sustainNote.correctionOffset = 0;
-						// }
-						// else if (oldNote.isSustainNote)
-						// {
-						// 	oldNote.scale.y /= playbackRate;
-						// 	oldNote.resizeByRatio(curStepCrochet / Conductor.stepCrochet);
-						// }
-
-						// if (sustainNote.mustPress)
-						// 	sustainNote.x += FlxG.width / 2; // general offset
-						// else if (ClientPrefs.data.middleScroll)
-						// {
-						// 	sustainNote.x += 310;
-						// 	if (noteColumn > 1) // Up and Right
-						// 		sustainNote.x += FlxG.width / 2 + 25;
-						// }
 
 						++sustainNoteCnt;
-						// oldNote = sustainNote;
 					}
 					sustainTotalCnt += sustainNoteCnt;
 				}
-
-				// if (swagNote.mustPress)
-				// {
-				// 	swagNote.x += FlxG.width / 2; // general offset
-				// }
-				// else if (ClientPrefs.data.middleScroll)
-				// {
-				// 	swagNote.x += 310;
-				// 	if (noteColumn > 1) // Up and Right
-				// 	{
-				// 		swagNote.x += FlxG.width / 2 + 25;
-				// 	}
-				// }
+				
 				if (!noteTypes.contains(swagNote.noteType))
 					noteTypes.push(swagNote.noteType);
 
-				showProgress();
+				showProgress(isDesktop);
 				++sectionNoteCnt;
 			}
 
-			showProgress(isMobile);
+			showProgress(isDesktop);
 			notes += sectionNoteCnt;
 		}
 
-		showProgress(true);
+		showProgress(isDesktop);
 
 		Sys.println('\n[ --- "${SONG.song.toUpperCase()}" CHART INFO --- ]');
 		
@@ -1929,9 +1860,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			unspawnNotes.push(usn);
 		
 		unspawnSustainNotes.resize(0);
+
+		Sys.println('Sorting Notes...');
 		unspawnNotes.sort(sortByTime);
 
 		generatedMusic = true;
+		Sys.println('Ready to PLAY!');
 	}
 
 	// called only once per different event (Used for precaching)
@@ -2941,34 +2875,36 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var skipResult:Dynamic = null;
 	var skipDaNote:Note = null;
 	var skipArray:Array<Dynamic> = [];
-	var skipAnim:Array<Bool> = [];
+	var skipAnim:Vector<Bool> = new Vector(3, false);
 	inline public function noteFinalize() {
-		opCombo += skipOp;
-		combo += skipBf;
 		skipCnt = skipOp + skipBf;
-		skipTotalCnt += skipCnt;
-		
-		if (healthDrain) {
-			if(!drainAccurated) {
-				health = randomize.bool() ? Math.max(0.1e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
-			} else {
-				var max:Null<Int> = FlxMath.maxInt(skipOp, skipBf);
-				for (i in 0...max) {
-					if (skipBf > i) health += 0.02;
-					if (skipOp > i) health *= 0.99;
-				} max = null;
-			}
-		} else health += 0.02 * skipBf;
-
 		if (skipCnt > 0) {
+			opCombo += skipOp;
+			combo += skipBf;
+			skipTotalCnt += skipCnt;
+			
+			if (healthDrain) {
+				if(!drainAccurated) {
+					health = randomize.bool() ? Math.max(0.1e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
+				} else {
+					var max:Null<Int> = FlxMath.maxInt(skipOp, skipBf);
+					for (i in 0...max) {
+						if (skipBf > i) health += 0.02;
+						if (skipOp > i) health *= 0.99;
+					} max = null;
+				}
+			} else health += 0.02 * skipBf;
+
 			skipDaNote = skipNotes.recycle(Note).recycleNote(skipNote);
 
-			skipAnim.push(skipCnt > 0);
-			skipAnim.push(skipOp > 0);
-			skipAnim.push(skipBf > 0);
+			skipAnim[0] = skipCnt > 0;
+			skipAnim[1] = skipOp > 0;
+			skipAnim[2] = skipBf > 0;
 
 			if (skipAnim[0]) {
-				doAnim(skipDaNote, skipAnim[1], skipAnim[2]);
+				if (skipAnim[1]) doAnim(skipDaNote, true, false);
+				if (skipAnim[2]) doAnim(skipDaNote, false, true);
+				
 				if (showPopups) {
 					if (!changePopup && skipAnim[2]) popUpHitNote = skipDaNote;
 					else if (changePopup && skipAnim[0]) popUpHitNote = skipDaNote;
@@ -2991,7 +2927,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			
 						if (skipResult != LuaUtils.Function_Stop) {
 							if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-								skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
+								skipResult = callOnHScript('opponentNoteHit', [skipDaNote]);
 						}
 					}
 				}
@@ -3001,7 +2937,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			
 						if (skipResult != LuaUtils.Function_Stop) {
 							if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-								skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
+								skipResult = callOnHScript('goodNoteHitPre', [skipDaNote]);
 						}
 					}
 					if (noteHitEvent) {
@@ -3009,13 +2945,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			
 						if (skipResult != LuaUtils.Function_Stop) {
 							if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-								skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
+								skipResult = callOnHScript('goodNoteHit', [skipDaNote]);
 						}
 					}
 				}
 			}
-
-			skipAnim = [];
 		}
 	}
 	
@@ -3072,16 +3006,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			strumPlayAnim(!objectNote.mustPress, objectNote.noteData);
 			char = objectNote.gfNote ? gf : objectNote.mustPress ? boyfriend : dad;
 		} else {
-			if (daddy) {
-				if (daHit) return;
-				char = dad;
-				daHit = true;
-			}
-			if (bf) {
-				if (bfHit) return;
-				char = boyfriend;
-				bfHit = true;
-			}
 			char = daddy && !bf ? !daddy && bf ? boyfriend : dad : null;
 		}
 
