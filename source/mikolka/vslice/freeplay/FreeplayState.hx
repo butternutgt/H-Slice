@@ -277,6 +277,14 @@ class FreeplayState extends MusicBeatSubstate
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+		
+		if (ClientPrefs.data.disableGC) {
+			MemoryUtil.compact();
+			MemoryUtil.disable();
+		}
+		
 		//? Psych might've reloaded the mod list. Make sure we select current character's mod for the style
 		var saveBox = VsliceOptions.LAST_MOD;
 		if (ModsHelper.isModDirEnabled(saveBox.mod_dir))
@@ -812,6 +820,11 @@ class FreeplayState extends MusicBeatSubstate
 		add(missingText);
 		missingTextBG.cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 		missingText.cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+	
+		if (ClientPrefs.data.disableGC && !MemoryUtil.isGcEnabled) {
+			MemoryUtil.enable();
+			MemoryUtil.collect(true);
+		}
 	}
 
 	var currentFilter:SongFilter = null;
