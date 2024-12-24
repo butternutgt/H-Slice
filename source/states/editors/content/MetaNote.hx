@@ -14,10 +14,20 @@ class MetaNote extends Note
 	public var chartY:Float = 0;
 	public var chartNoteData:Int = 0;
 
+	var tempCast:CastNote = null;
 	public function new(time:Float, data:Int, songData:Array<Dynamic>)
 	{
 		super();
-		recycleNote(Note.DEFAULT_CAST);
+
+		tempCast = {
+			strumTime: time,
+			noteData: data,
+			noteType: "",
+			holdLength: 0,
+			noteSkin: "" 
+		}
+
+		recycleNote(tempCast);
 		inEditor = true;
 
 		this.songData = songData;
