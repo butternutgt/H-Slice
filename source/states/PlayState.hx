@@ -1,5 +1,6 @@
 package states;
 
+import openfl.system.Capabilities;
 import objects.Note.CastNote;
 import flixel.math.FlxRandom;
 import haxe.ds.IntMap;
@@ -300,6 +301,8 @@ class PlayState extends MusicBeatState
 
 	// Lua shit
 	public static var instance:PlayState;
+	public var displaySizeX:Float = 0;
+	public var displaySizeY:Float = 0;
 
 	#if LUA_ALLOWED
 	public var luaArray:Array<FunkinLua> = [];
@@ -384,6 +387,8 @@ class PlayState extends MusicBeatState
 
 		// for lua
 		instance = this;
+		displaySizeX = Capabilities.screenResolutionX;
+		displaySizeY = Capabilities.screenResolutionY;
 		
 		if (shaderEnabled) {
 			// Rainbow Eyesore Effect
@@ -2192,6 +2197,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	// Infomation
 	public var debugInfos:Bool = false;
 	public var debugInfoType:Int = 0;
+	public var debugInfoMax:Int = 5;
 
 	// NPS
 	var npsTime:Int;
@@ -2468,11 +2474,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		if (debugInfos) {
-			if (FlxG.keys.justPressed.UP) ++debugInfoType;
-			if (FlxG.keys.justPressed.DOWN) --debugInfoType;
+			if (FlxG.keys.justPressed.UP) --debugInfoType;
+			if (FlxG.keys.justPressed.DOWN) ++debugInfoType;
 
-			if (debugInfoType >= 4) debugInfoType -= 4;
-			if (debugInfoType < 0) debugInfoType += 4;
+			if (debugInfoType >= debugInfoMax) debugInfoType = 0;
+			if (debugInfoType < 0) debugInfoType = debugInfoMax-1;
 
 			popUpDebug.fill(0); popUpAlive = 0;
 			if (showPopups) {
@@ -2572,6 +2578,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							if (betterRecycle) {
 								var f = notes.debugInfo();
 								info = '${f[0]} / ${f[1]}, ${numFormat(f[2], 3)}';
+								f = null;
 							} else {
 								info = 'Up/Down Key to change infomation';
 							}
@@ -2591,6 +2598,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							}
 						case 3:
 							info = 'Processed Real Notes: $processedReal / ${numFormat(processedRealElapsed * 1000, 3)} ms';
+						case 4:
+							info = '${skipAnim[0]} / ${skipAnim[1]} / ${skipAnim[2]}';
 					}
 			}
 			infoTxt.text = info;
@@ -2655,7 +2664,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 
 	var oldNote:Note = null;
-	var skipNote:CastNote;
+	var skipOpCNote:CastNote;
+	var skipBfCNote:CastNote;
 	var showAgain:Bool = false;
 	var isCanPass:Bool = false;
 	var isDisplay:Bool = false;
@@ -2757,7 +2767,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								if (!castHold) castMust ? ++skipBf : ++skipOp;
 							}
 							else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
-							skipNote = targetNote;
+							if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
 						}
 					}
 				} else {
@@ -2766,7 +2776,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						if (!castHold) castMust ? ++skipBf : ++skipOp;
 					}
 					else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
-					skipNote = targetNote;
+					if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
 				}
 				
 				oldNote = dunceNote;
@@ -2873,14 +2883,15 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 
 	var skipResult:Dynamic = null;
-	var skipDaNote:Note = null;
+	var loopVector:Vector<Note> = new Vector(2, new Note());
 	var skipArray:Array<Dynamic> = [];
 	var skipAnim:Vector<Bool> = new Vector(3, false);
-	inline public function noteFinalize() {
+	
+	public function noteFinalize() {
 		skipCnt = skipOp + skipBf;
 		if (skipCnt > 0) {
-			opCombo += skipOp;
-			combo += skipBf;
+			opCombo += skipOp; opSideHit += skipOp;
+			combo += skipBf; bfSideHit += skipBf;
 			skipTotalCnt += skipCnt;
 			
 			if (healthDrain) {
@@ -2895,57 +2906,54 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				}
 			} else health += 0.02 * skipBf;
 
-			skipDaNote = skipNotes.recycle(Note).recycleNote(skipNote);
+			skipAnim.fill(false);
 
 			skipAnim[0] = skipCnt > 0;
 			skipAnim[1] = skipOp > 0;
 			skipAnim[2] = skipBf > 0;
 
 			if (skipAnim[0]) {
-				if (skipAnim[1]) doAnim(skipDaNote, true, false);
-				if (skipAnim[2]) doAnim(skipDaNote, false, true);
+				if (skipAnim[1]) {
+					if (betterRecycle) loopVector[0] = skipNotes.spawnNote(skipOpCNote);
+					else loopVector[0] = skipNotes.recycle(Note).recycleNote(skipOpCNote);
+					doAnim(loopVector[0], bfHit, daHit);
+				} 
+				if (skipAnim[2]) {
+					if (betterRecycle) loopVector[1] = skipNotes.spawnNote(skipBfCNote);
+					else loopVector[1] = skipNotes.recycle(Note).recycleNote(skipBfCNote);
+					doAnim(loopVector[1], bfHit, daHit);
+				}
 				
 				if (showPopups) {
-					if (!changePopup && skipAnim[2]) popUpHitNote = skipDaNote;
-					else if (changePopup && skipAnim[0]) popUpHitNote = skipDaNote;
+					if (!changePopup && skipAnim[2]) popUpHitNote = loopVector[1];
+					else if (changePopup && skipAnim[0]) popUpHitNote = loopVector[1];
 				}
-			}
 
-			if (skipNoteScript && skipAnim[0]) {
-				skipArray = [0,Std.int(Math.abs(skipDaNote.noteData)), skipDaNote.noteType, skipDaNote.isSustainNote];
-				for (i in 0...skipOp) {
-					if (noteHitPreEvent) {
-						skipResult = callOnLuas('opponentNoteHitPre', skipArray);
-			
-						if (skipResult != LuaUtils.Function_Stop) {
-							if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-								skipResult = callOnHScript('opponentNoteHitPre', [skipDaNote]);
-						}
-					}
-					if (noteHitEvent) {
-						skipResult = callOnLuas('opponentNoteHit', skipArray);
-			
-						if (skipResult != LuaUtils.Function_Stop) {
-							if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-								skipResult = callOnHScript('opponentNoteHit', [skipDaNote]);
-						}
-					}
-				}
-				for (i in 0...skipBf) {
-					if (noteHitPreEvent) {
-						skipResult = callOnLuas('goodNoteHitPre', skipArray);
-			
-						if (skipResult != LuaUtils.Function_Stop) {
-							if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-								skipResult = callOnHScript('goodNoteHitPre', [skipDaNote]);
-						}
-					}
-					if (noteHitEvent) {
-						skipResult = callOnLuas('goodNoteHit', skipArray);
-			
-						if (skipResult != LuaUtils.Function_Stop) {
-							if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
-								skipResult = callOnHScript('goodNoteHit', [skipDaNote]);
+				if (skipNoteScript) {
+					for (i in 0...loopVector.length) {
+						if (!skipAnim[i+1]) continue;
+						var daNote = loopVector[i];
+						var scriptTarget = [skipOp, skipBf];
+						skipArray = [0, Std.int(Math.abs(daNote.noteData)), daNote.noteType, daNote.isSustainNote];
+						
+						var targetStr = index == 0 ? 'opponent' : 'good';
+						for (shit in 0...scriptTarget[index]) {
+							if (noteHitPreEvent) {
+								skipResult = callOnLuas(targetStr + 'NoteHitPre', skipArray);
+					
+								if (skipResult != LuaUtils.Function_Stop) {
+									if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
+										skipResult = callOnHScript(targetStr + 'NoteHitPre', [daNote]);
+								}
+							}
+							if (noteHitEvent) {
+								skipResult = callOnLuas(targetStr + 'NoteHit', skipArray);
+					
+								if (skipResult != LuaUtils.Function_Stop) {
+									if(skipResult != LuaUtils.Function_StopHScript && skipResult != LuaUtils.Function_StopAll)
+										skipResult = callOnHScript(targetStr + 'NoteHit', [daNote]);
+								}
+							}
 						}
 					}
 				}

@@ -291,7 +291,7 @@ class Note extends FlxSprite
 
 		rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
-
+		
 		// if(createdFrom == null) createdFrom = PlayState.instance;
 
 		// if (prevNote == null)
@@ -675,7 +675,7 @@ class Note extends FlxSprite
 	var correctY:Float;
 	var playbackRate:Float;
 
-	public function recycleNote(target:CastNote, ?oldNote:Note):Note {
+	public function recycleNote(target:CastNote, ?oldNote:Note) {
 		wasGoodHit = hitByOpponent = tooLate = canBeHit = spawned = followed = false; // Don't make an update call of this for the note group
 		exists = true;
 
