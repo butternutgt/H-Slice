@@ -240,36 +240,28 @@ class Note extends FlxSprite
 		if (rgbShader != null && rgbShader.enabled) defaultRGB();
 
 		if(noteData > -1 && noteType != value) {
-			switch(value) {
-				case 'Hurt Note':
-					ignoreNote = mustPress;
-					//reloadNote('HURTNOTE_assets');
-					//this used to change the note texture to HURTNOTE_assets.png,
-					//but i've changed it to something more optimized with the implementation of RGBPalette:
+			if (value == 'Hurt Note') {
+				ignoreNote = mustPress;
+				//reloadNote('HURTNOTE_assets');
+				//this used to change the note texture to HURTNOTE_assets.png,
+				//but i've changed it to something more optimized with the implementation of RGBPalette:
 
-					// note colors
-					rgbShader.r = 0xFF101010;
-					rgbShader.g = 0xFFFF0000;
-					rgbShader.b = 0xFF990022;
+				// note colors
+				rgbShader.r = 0xFF101010;
+				rgbShader.g = 0xFFFF0000;
+				rgbShader.b = 0xFF990022;
 
-					// splash data and colors
-					//noteSplashData.r = 0xFFFF0000;
-					//noteSplashData.g = 0xFF101010;
-					noteSplashData.texture = 'noteSplashes-electric';
+				// splash data and colors
+				//noteSplashData.r = 0xFFFF0000;
+				//noteSplashData.g = 0xFF101010;
+				noteSplashData.texture = 'noteSplashes-electric';
 
-					// gameplay data
-					lowPriority = true;
-					missHealth = isSustainNote ? 0.25 : 0.1;
-					hitCausesMiss = true;
-					hitsound = 'cancelMenu';
-					hitsoundChartEditor = false;
-				case 'Alt Animation':
-					animSuffix = '-alt';
-				case 'No Animation':
-					noAnimation = true;
-					noMissAnimation = true;
-				case 'GF Sing':
-					gfNote = true;
+				// gameplay data
+				lowPriority = true;
+				missHealth = isSustainNote ? 0.25 : 0.1;
+				hitCausesMiss = true;
+				hitsound = 'cancelMenu';
+				hitsoundChartEditor = false;
 			}
 			if (value != null && value.length > 1) NoteTypesConfig.applyNoteTypeData(this, value);
 			if (hitsound != 'hitsound' && hitsoundVolume > 0) Paths.sound(hitsound); //precache new sound for being idiot-proof
@@ -687,11 +679,9 @@ class Note extends FlxSprite
 		isSustainEnds = toBool(target.noteData & (1<<10));					 // isHoldEnd
 		gfNote = toBool(target.noteData & (1<<11));							 // gfNote
 		animSuffix = toBool(target.noteData & (1<<12)) ? "-alt" : "";		 // altAnim
-		noAnimation = toBool(target.noteData & (1<<13));					 // noAnim
-		noMissAnimation = toBool(target.noteData & (1<<14));				 // noMissAnim
+		noAnimation = noMissAnimation = toBool(target.noteData & (1<<13));	 // noAnim
 		blockHit = toBool(target.noteData & (1<<15));				 		 // blockHit
 		noteData = target.noteData & 3;
-		noteType = target.noteType;
 
 		// Absoluty should be here, or messing pixel texture glitches...
 		if (!PlayState.isPixelStage) {
@@ -703,6 +693,9 @@ class Note extends FlxSprite
 		rgbShader.r = colorRef.r;
 		rgbShader.g = colorRef.g;
 		rgbShader.b = colorRef.b;
+
+		if (target.noteType is String) noteType = target.noteType; // applying note color on damage notes
+		else noteType = defaultNoteTypes[Std.parseInt(target.noteType)];
 
 		if (PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
 

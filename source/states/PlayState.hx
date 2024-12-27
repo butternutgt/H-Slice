@@ -1782,12 +1782,11 @@ class PlayState extends MusicBeatState
 				}
 
 				holdLength = songNotes[2];
-				noteType = songNotes[3];
 
 				swagNote = {
 					strumTime: songNotes[0],
 					noteData: noteColumn,
-					noteType: Math.isNaN(songNotes[3]) ? songNotes[3] : null,
+					noteType: songNotes[3],
 					holdLength: holdLength,
 					noteSkin: SONG.arrowSkin ?? null
 				};
@@ -1795,8 +1794,7 @@ class PlayState extends MusicBeatState
 				swagNote.noteData |= gottaHitNote ? 1<<8 : 0; // mustHit
 				swagNote.noteData |= (section.gfSection && (songNotes[1]<4) || songNotes[3] == 'GF Sing' || songNotes[3] == 4) ? 1<<11 : 0; // gfNote
 				swagNote.noteData |= (section.altAnim || (songNotes[3] == 'Alt Animation' || songNotes[3] == 1)) ? 1<<12 : 0; // altAnim
-				swagNote.noteData |= (songNotes[3] == 'No Animation' || songNotes[3] == 5) ? 3<<13 : 0; // noAnimation & noMissAnimaiton
-				swagNote.noteData |= (songNotes[3] == 'Hurt Note' || songNotes[3] == 3) ? 1<<15 : 0;
+				swagNote.noteData |= (songNotes[3] == 'No Animation' || songNotes[3] == 5) ? 1<<13 : 0; // noAnimation & noMissAnimaiton
 				
 				unspawnNotes.push(swagNote);
 

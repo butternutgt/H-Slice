@@ -93,7 +93,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
         var option:Option = new Option('Process Notes before Spawning',
-			"If checked, it process notes before they spawn.\nIt boosts game performance vastly.\n It is recommended to enable this option.",
+			"If checked, it process notes before they spawn.\nIt boosts game performance vastly.\nIt is recommended to enable this option.",
 			'processFirst',
 			BOOL);
 		addOption(option);
@@ -123,13 +123,13 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('spawnNoteEvent',
-			"If unchecked, the game will not send any event on Lua/HScript for spawned notes.\nImproves performance.",
+			"If unchecked, the game will not send spawn event\non Lua/HScript for spawned notes. Improves performance.",
 			'spawnNoteEvent',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('noteHitEvents for Skipped Notes',
-			"If unchecked, the game will not send any event on Lua/HScript for skipped notes.\nImproves performance.",
+			"If unchecked, the game will not send any hit event\non Lua/HScript for skipped notes. Improves performance.",
 			'skipNoteEvent',
 			BOOL);
 		addOption(option);
