@@ -339,8 +339,8 @@ class PlayState extends MusicBeatState
 	var whenSortNotes:Int = 0;
 	var noteHitPreEvent:Bool = ClientPrefs.data.noteHitPreEvent;
 	var noteHitEvent:Bool = ClientPrefs.data.noteHitEvent;
-	var skipNoteScript:Bool = ClientPrefs.data.skipNoteScript;
-	var spawnNoteScript:Bool = ClientPrefs.data.spawnNoteScript;
+	var skipNoteEvent:Bool = ClientPrefs.data.skipNoteEvent;
+	var spawnNoteEvent:Bool = ClientPrefs.data.spawnNoteEvent;
 	var betterRecycle:Bool = ClientPrefs.data.betterRecycle;
 	var cacheNotes:Int = ClientPrefs.data.cacheNotes;
 	var doneCache:Bool = false;
@@ -2354,9 +2354,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 		doDeathCheck();
 
-		if (started && !paused && canResync) {
+		if (started && !paused && canResync)
 			checkSync();
-		}
 
 		if (cacheNotes > 0 && frameCount > 1) {
 			Sys.println('Killing ${cacheNotes} Notes... 3/3');
@@ -2721,7 +2720,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						// if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
 						// if (!betterRecycle) notes.add(dunceNote);
 						
-						if (spawnNoteScript) {
+						if (spawnNoteEvent) {
 							callOnLuas('onSpawnNote', [
 								totalCnt,
 								dunceNote.noteData,
@@ -2744,7 +2743,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							// if (dunceNote.isSustainNote) dunceNote.resizeByRatio(songSpeedRate);
 							if (!betterRecycle) notes.add(dunceNote);
 							
-							if (spawnNoteScript) {
+							if (spawnNoteEvent) {
 								callOnLuas('onSpawnNote', [
 									totalCnt,
 									dunceNote.noteData,
@@ -2926,7 +2925,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					else if (changePopup && skipAnim[0]) popUpHitNote = loopVector[1];
 				}
 
-				if (skipNoteScript) {
+				if (skipNoteEvent) {
 					for (i in 0...loopVector.length) {
 						if (!skipAnim[i+1]) continue;
 						var daNote = loopVector[i];

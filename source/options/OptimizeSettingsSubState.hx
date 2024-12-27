@@ -122,15 +122,15 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('noteHitEvents for Spawned Notes',
+		var option:Option = new Option('spawnNoteEvent',
 			"If unchecked, the game will not send any event on Lua/HScript for spawned notes.\nImproves performance.",
-			'spawnNoteScript',
+			'spawnNoteEvent',
 			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('noteHitEvents for Skipped Notes',
 			"If unchecked, the game will not send any event on Lua/HScript for skipped notes.\nImproves performance.",
-			'skipNoteScript',
+			'skipNoteEvent',
 			BOOL);
 		addOption(option);
 
