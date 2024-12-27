@@ -2394,7 +2394,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		updateIconsPosition();
 		updateScoreText();
 		
-		if (overHealth) if (healthBar.bounds.max != null && health > healthBar.bounds.max)
+		if (!overHealth) healthLerp = healthLerper();
+		else if (healthBar.bounds.max != null && health > healthBar.bounds.max)
 			health = healthBar.bounds.max;
 
 		// Shader Update Zone
