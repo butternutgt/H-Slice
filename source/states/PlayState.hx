@@ -2424,14 +2424,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (showInfoType == "Notes Per Second" && !paused) {
 			if (npsMod) {
 				if (globalNoteHit) {
-					if (opNpsAdd > 0) {
+					if (opNpsAdd > 0) 
 						opSideHit -= bothNpsAdd ? opSideHit : Math.max(opSideHit, bfSideHit);
-						doAnim(null, true, false);
-					}
-					if (bfNpsAdd > 0) {
+					if (bfNpsAdd > 0) 
 						bfSideHit -= bothNpsAdd ? bfSideHit : Math.max(opSideHit, bfSideHit);
-						doAnim(null, false, true);
-					}
+					
+					doAnim(null, false, false);
 					npsMod = false;
 				}
 				opSideHit += opNpsAdd * globalElapsed;
@@ -2599,7 +2597,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						case 3:
 							info = 'Processed Real Notes: $processedReal / ${numFormat(processedRealElapsed * 1000, 3)} ms';
 						case 4:
-							info = '${skipAnim[0]} / ${skipAnim[1]} / ${skipAnim[2]}';
+							info = '${skipAnim[0]} / ${skipAnim[1]} / ${skipAnim[2]}\n${loopVector[0].strumTime} / ${loopVector[1].strumTime}';
 					}
 			}
 			infoTxt.text = info;
@@ -2888,6 +2886,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var skipAnim:Vector<Bool> = new Vector(3, false);
 	
 	public function noteFinalize() {
+		skipAnim.fill(false);
 		skipCnt = skipOp + skipBf;
 		if (skipCnt > 0) {
 			opCombo += skipOp; opSideHit += skipOp;
@@ -2906,8 +2905,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				}
 			} else health += 0.02 * skipBf;
 
-			skipAnim.fill(false);
-
 			skipAnim[0] = skipCnt > 0;
 			skipAnim[1] = skipOp > 0;
 			skipAnim[2] = skipBf > 0;
@@ -2916,12 +2913,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				if (skipAnim[1]) {
 					if (betterRecycle) loopVector[0] = skipNotes.spawnNote(skipOpCNote);
 					else loopVector[0] = skipNotes.recycle(Note).recycleNote(skipOpCNote);
-					doAnim(loopVector[0], bfHit, daHit);
+					doAnim(loopVector[0], daHit, bfHit);
 				} 
 				if (skipAnim[2]) {
 					if (betterRecycle) loopVector[1] = skipNotes.spawnNote(skipBfCNote);
 					else loopVector[1] = skipNotes.recycle(Note).recycleNote(skipBfCNote);
-					doAnim(loopVector[1], bfHit, daHit);
+					doAnim(loopVector[1], daHit, bfHit);
 				}
 				
 				if (showPopups) {
@@ -3004,11 +3001,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		var isNullNote = objectNote == null;
 		if (!isNullNote) {
 			if (objectNote.mustPress) {
-				if (bf) return;
-				else bf = bfHit = true;
+				if (bf) return; else bfHit = true;
 			} else if (!objectNote.mustPress) {
-				if (daddy) return;
-				else daddy = daHit = true;
+				if (daddy) return; else daHit = true;
 			}
 
 			strumPlayAnim(!objectNote.mustPress, objectNote.noteData);
