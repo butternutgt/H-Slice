@@ -2985,8 +2985,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var currNote:SwagSection;
 	var holdTime:Float = Conductor.stepCrochet / 1000;
 	var fullHit:Bool = false;
-	var isNullNote = objectNote == null;
 	var canAnim:Bool = false;
+	var isNullNote:Note = null;
 
 	/**
 	 * Force dance animation on the character.
@@ -2999,6 +2999,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	 * @param daddy 
 	 */
 	private function doAnim(objectNote:Note, daddy:Bool, bf:Bool) {
+		isNullNote = objectNote == null;
 		if (!isNullNote) {
 			if (objectNote.mustPress) {
 				if (fullHit) return;
