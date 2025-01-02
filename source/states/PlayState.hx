@@ -2221,7 +2221,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	override public function update(elapsed:Float)
 	{
-		daHit = bfHit = showAgain = false;
+		daHit = bfHit = fullHit = showAgain = false;
 		if (popUpHitNote != null) popUpHitNote = null;
 		hit = skipBf = skipOp = shownCnt = 0;
 
@@ -2984,6 +2984,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var altAnim:String;
 	var currNote:SwagSection;
 	var holdTime:Float = Conductor.stepCrochet / 1000;
+	var fullHit:Bool = false;
+	var isNullNote = objectNote == null;
+	var canAnim:Bool = false;
 
 	/**
 	 * Force dance animation on the character.
@@ -2996,21 +2999,29 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	 * @param daddy 
 	 */
 	private function doAnim(objectNote:Note, daddy:Bool, bf:Bool) {
-		var isNullNote = objectNote == null;
 		if (!isNullNote) {
 			if (objectNote.mustPress) {
-				if (bf) return; else bfHit = true;
-			} else if (!objectNote.mustPress) {
-				if (daddy) return; else daHit = true;
-			}
+				if (fullHit) return;
+				
+				strumPlayAnim(!objectNote.mustPress, objectNote.noteData);
+				char = objectNote.gfNote ? gf : objectNote.mustPress ? boyfriend : dad;
+				canAnim = !bf;
 
-			strumPlayAnim(!objectNote.mustPress, objectNote.noteData);
-			char = objectNote.gfNote ? gf : objectNote.mustPress ? boyfriend : dad;
+				bfHit = true;
+			} else if (!objectNote.mustPress) {
+				if (fullHit) return;
+				
+				strumPlayAnim(!objectNote.mustPress, objectNote.noteData);
+				char = objectNote.gfNote ? gf : objectNote.mustPress ? boyfriend : dad;
+				canAnim = !daddy;
+				
+				daHit = true;
+			}
 		} else {
 			char = daddy && !bf ? !daddy && bf ? boyfriend : dad : null;
 		}
 
-		if (char != null)
+		if (char != null && canAnim)
 		{
 			if (!isNullNote) {
 				altAnim = objectNote.animSuffix;
