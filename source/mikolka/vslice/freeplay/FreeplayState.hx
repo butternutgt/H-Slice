@@ -277,9 +277,6 @@ class FreeplayState extends MusicBeatSubstate
 
 	override function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-		
 		if (ClientPrefs.data.disableGC) {
 			MemoryUtil.compact();
 			MemoryUtil.disable();
