@@ -2986,7 +2986,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var holdTime:Float = Conductor.stepCrochet / 1000;
 	var fullHit:Bool = false;
 	var canAnim:Bool = false;
-	var isNullNote:Note = null;
+	var isNullNote:Bool = false;
 
 	/**
 	 * Force dance animation on the character.
