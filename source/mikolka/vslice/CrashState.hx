@@ -140,7 +140,7 @@ class CrashState extends FlxState
 
 	function printError(error:CrashData)
 	{
-		printToTrace('H-SLICE ${MainMenuState.pSliceVersion}  (${error.message})');
+		printToTrace('H-SLICE ${MainMenuState.hrkVersion}  (${error.message})');
 		textNextY += 35;
 		
 		final enter:String = isTouchable ? 'A' : 'ENTER';
