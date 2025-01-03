@@ -141,7 +141,7 @@ class CoolUtil
 		} else return null;
 	}
 
-	inline public static function hex2bin(str:String) {
+	inline public static function hex2bin(str:String, reversed:Bool = false) {
 		var returnVal:String = "";
 		var tmpStr:String = "";
 		var hex:Int = 0;
@@ -229,6 +229,29 @@ class CoolUtil
 		return (number < 0 ? "-" : "") + result;
 	}
 
+	public static function charAppearanceCnt(str:String, target:String):Int {
+		var cnt:Int = 0;
+		if (target == null || target.length == 0) return 0;
+		for (i in 0...str.length) {
+			if (target.length == 1) {
+				if (str.charAt(i) == target) ++cnt;
+			} else {
+				for (j in 0...target.length) {
+					if (str.charAt(i) == target.charAt(j)) ++cnt;
+				}
+			}
+		}
+		return cnt;
+	}
+
+	public static function reverseString(str:String) {
+		var reversed:String = "";
+		for (i in 0...str.length) {
+			reversed = str.charAt(i) + reversed;
+		}
+		return reversed;
+	}
+
 	public static function sortAlphabetically(list:Array<String>):Array<String> {
 		// This moster here fixes order of scrips to match the windows implementation
 		// Why? because some people use this quirk (like me)
@@ -283,6 +306,7 @@ class CoolUtil
 	{
 		var timeString:String = Math.floor(seconds / 60) + ":";
 		var timeStringHelper:Int = Math.floor(seconds) % 60;
+		var timePresition:Int = Math.round(Math.pow(10, precision));
 
 		if (timeStringHelper < 10)
 		{
@@ -292,7 +316,7 @@ class CoolUtil
 		if (precision > 0)
 		{
 			timeString += ".";
-			timeStringHelper = Math.round((seconds - Math.floor(seconds)) * Math.pow(10, precision));
+			timeStringHelper = Math.floor((seconds - Math.floor(seconds)) * timePresition);
 			timeString += fillNumber(timeStringHelper, ClientPrefs.data.timePrec, '0'.charCodeAt(0));
 		}
 

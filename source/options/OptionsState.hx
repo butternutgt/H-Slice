@@ -18,13 +18,14 @@ class OptionsState extends MusicBeatState
 		'Note Colors',
 		'Controls',
 		'Adjust Delay and Combo',
+		#if desktop 'Game Renderer', #end
 		'Optimizations',
 		'Graphics',
 		'Visuals',
 		'Gameplay',
 		'V-Slice Options',
-		#if TRANSLATIONS_ALLOWED  'Language', #end
-		#if (TOUCH_CONTROLS_ALLOWED || mobile)'Mobile Options' #end
+		#if TRANSLATIONS_ALLOWED 'Language', #end
+		#if (TOUCH_CONTROLS_ALLOWED || mobile) 'Mobile Options' #end
 	];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
@@ -53,6 +54,10 @@ class OptionsState extends MusicBeatState
 				}
 				else
 					openSubState(new options.ControlsSubState());
+			#if desktop
+			case 'Game Renderer':
+				openSubState(new options.GameRendererSettingsSubState());
+			#end
 			case 'Optimizations':
 				openSubState(new options.OptimizeSettingsSubState());
 			case 'Graphics':
@@ -108,18 +113,18 @@ class OptionsState extends MusicBeatState
 		for (num => option in options)
 		{
 			var optionText:Alphabet = new Alphabet(0, 0, Language.getPhrase('options_$option', option), true);
-			optionText.setScale(0.8);
+			optionText.setScale(0.75);
 			optionText.screenCenter();
-			optionText.y += (69 * (num - (options.length / 2))) + 35;
+			optionText.y += (60 * (num - (options.length / 2))) + 30;
 			grpOptions.add(optionText);
 		}
 
 		selectorLeft = new Alphabet(0, 0, '>>>', true);
 		selectorLeft.alignment = RIGHT;
-		selectorLeft.setScale(0.7);
+		selectorLeft.setScale(2/3);
 		add(selectorLeft);
 		selectorRight = new Alphabet(0, 0, '<<<', true);
-		selectorRight.setScale(0.7);
+		selectorRight.setScale(2/3);
 		add(selectorRight);
 
 		changeSelection();

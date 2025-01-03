@@ -105,7 +105,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
         var option:Option = new Option('Optimize Process for Spawned Note',
-			"If checked, it judges whether or not to do hit process\nimmediately when a note spawned. If you don't understand, enable this.",
+			"If checked, it judges whether or not to do hit process\nimmediately when a note spawned. It boosts game performance vastly,\nbut it only works in specific situations. If you don't understand, enable this.",
 			'optimizeSpawnNote',
 			BOOL);
 		addOption(option);

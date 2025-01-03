@@ -63,6 +63,7 @@ import states.TitleState;
 	public var vsliceFreeplayColors:Bool = true;
 	public var vsliceResults:Bool = true;
 	public var vsliceSpecialCards:Bool = true;
+	public var vsliceSongPosition:Bool = false;
 	public var vsliceSmoothBar:Bool = true;
 	public var vsliceSmoothNess:Float = 0.25;
 	public var vsliceLoadInstAll:Bool = false;
@@ -148,6 +149,21 @@ import states.TitleState;
 	public var skipNoteEvent:Bool = true;
 	public var spawnNoteEvent:Bool = true;
 	public var disableGC:Bool = false;
+
+	// Video Renderer
+	public var ffmpegMode:Bool = false;
+	public var gcRate:Int = 0;
+	public var gcMain:Bool = false;
+	public var targetFPS:Float = 60;
+	public var unlockFPS:Bool = false;
+	public var lossless:Bool = false;
+	public var quality:Int = 80;
+	public var encodeMode:String = 'VBR';
+	public var bitrate:Float = 8.0;
+	public var constantQuality:Int = 20;
+	public var codec:String = 'H.264';
+	public var preshot:Bool = false;
+	public var previewRender:Bool = false;
 }
 
 class ClientPrefs {

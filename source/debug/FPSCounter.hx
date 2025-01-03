@@ -44,6 +44,7 @@ class FPSCounter extends TextField
 	var fps:Int = 0;
 	var curTime:Float = 0;
 	var frameTime:Float = 0;
+	var timeString:String = "";
 	var multipleRate:Float = 1.0;
 	public var updateRate:Float = 50;
 
@@ -105,6 +106,12 @@ class FPSCounter extends TextField
 		times.push(delta); sum += delta; updated = false;
 		fps = ClientPrefs.data.framerate;
 
+		if (ClientPrefs.data.nanoPosition) {
+			curTime = CoolUtil.getNanoTime();
+			timeString = CoolUtil.floatToStringPrecision((curTime - frameTime) * 1000, 3);
+			frameTime = CoolUtil.getNanoTime();
+		} else timeString = CoolUtil.floatToStringPrecision(delta, 3);
+
 		while (sum > 1000) {
 			sum -= times[sliceCnt];
 			++sliceCnt;
@@ -119,22 +126,27 @@ class FPSCounter extends TextField
 		if (deltaTimeout < 1000 / updateRate) return;
 		// Literally the stupidest thing i've done for the FPS counter but it allows it to update correctly when on 60 FPS??
 		currentFPS = Math.round(avg); //Math.round((times.length + cacheCount) * 0.5) - 1;
-		updateText();
+		updateText(deltaTime);
 		deltaTimeout = 0.0;
 	}
 
 	// so people can override it in hscript
-	public dynamic function updateText() {
-		text = 'FPS: $currentFPS\n' + 
+	public dynamic function updateText(delta:Float) {
+		text = 'FPS: ${(ClientPrefs.data.ffmpegMode ? '${ClientPrefs.data.targetFPS} (Rendering Mode)' : '$currentFPS, $timeString ms')}\n' + 
 			   'RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)}' + 
 			   ' / ${MemoryUtil.isGcEnabled ? CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true) : "Disabled"}' + 
 			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)}\n' + os;
 
-		textColor = Std.int(
-			0xFFFF0000 + 
-			(Std.int(CoolUtil.normalize(currentFPS, 1, fps >> 1, true) * 255) << 8) + 
-			Std.int(CoolUtil.normalize(currentFPS, fps >> 1, fps, true) * 255)
-		);
+		if (!ClientPrefs.data.ffmpegMode)
+		{
+			textColor = Std.int(
+				0xFFFF0000 + 
+				(Std.int(CoolUtil.normalize(currentFPS, 1, fps >> 1, true) * 255) << 8) + 
+				Std.int(CoolUtil.normalize(currentFPS, fps >> 1, fps, true) * 255)
+			);
+		} else {
+			textColor = 0xFFFFFFFF;
+		}
 
 		// fpsTextLength = text.length;
 		// cacheCount = times.length;

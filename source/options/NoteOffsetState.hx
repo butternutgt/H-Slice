@@ -172,6 +172,7 @@ class NoteOffsetState extends MusicBeatState
 		holdTimeText.scrollFactor.set();
 		holdTimeText.cameras = [camHUD];
 		holdTimeText.antialiasing = ClientPrefs.data.antialiasing;
+		#if !debug holdTimeText.visible = false; #end
 		add(holdTimeText);
 		
 		controllerPointer = new FlxShapeCircle(0, 0, 20, {thickness: 0}, FlxColor.WHITE);

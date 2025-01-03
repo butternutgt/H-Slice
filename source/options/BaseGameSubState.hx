@@ -22,13 +22,19 @@ class BaseGameSubState extends BaseOptionsMenu {
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Smooth Song Position',
+			'If enabled, it reduces the stuttering whole gameplay,\nin exchange for maybe cause problems with scripts.',
+			'vsliceSongPosition',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Smooth Health Bar',
 			'If enabled, makes health bar move move smoothly.',
 			'vsliceSmoothBar',
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Smoothness Speed',
+		var option:Option = new Option('- Smoothness Speed',
 			'Change the speed of the Health Bar smoothness.\n0 = Disabled, 1 = No Smoothness.',
 			'vsliceSmoothNess',
 			PERCENT);
