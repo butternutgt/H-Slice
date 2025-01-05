@@ -241,8 +241,6 @@ class Note extends FlxSprite
 		noteSplashData.texture = PlayState.SONG != null ? PlayState.SONG.splashSkin : 'noteSplashes';
 		if (rgbShader != null && rgbShader.enabled) defaultRGB();
 
-		trace(value, noteType);
-
 		if (noteData > -1) {
 			if (value == 'Hurt Note') {
 				ignoreNote = mustPress && isBotplay;
@@ -373,11 +371,13 @@ class Note extends FlxSprite
 		// x += offsetX;
 	}
 
-	static var newRGB:RGBPalette = new RGBPalette();
+	static var newRGB:RGBPalette;
 	public static function initializeGlobalRGBShader(noteData:Int)
 	{
 		if(globalRgbShaders[noteData] == null)
 		{
+			newRGB = null; // Memory deallocation
+			newRGB = new RGBPalette();
 			colArr = PlayState.isPixelStage ? ClientPrefs.data.arrowRGBPixel[noteData] : ClientPrefs.data.arrowRGB[noteData];
 			
 			if (colArr != null && noteData > -1 && noteData <= colArr.length)
