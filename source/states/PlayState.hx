@@ -4327,7 +4327,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				}
 			}
 			goodNoteHit(funnyNote);
-			popUpScore(funnyNote);
+			if (showPopups && popUpHitNote != null) popUpScore(funnyNote);
 		}
 		else
 		{

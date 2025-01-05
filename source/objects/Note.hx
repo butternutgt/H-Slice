@@ -123,6 +123,8 @@ class Note extends FlxSprite
 	public var lateHitMult:Float = 1;
 	public var lowPriority:Bool = false;
 
+	public static var isBotplay:Bool = false;
+
 	public static var SUSTAIN_SIZE:Int = 44;
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var originalWidth:Float = 160 * 0.7;
@@ -216,16 +218,16 @@ class Note extends FlxSprite
 		return value;
 	}
 
+	static var colArr:Array<FlxColor>;
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
+		colArr = PlayState.isPixelStage ? ClientPrefs.data.arrowRGBPixel[noteData] : ClientPrefs.data.arrowRGB[noteData];
 
-		if (arr != null && noteData > -1 && noteData <= arr.length)
+		if (colArr != null && noteData > -1 && noteData <= colArr.length)
 		{
-			rgbShader.r = arr[0];
-			rgbShader.g = arr[1];
-			rgbShader.b = arr[2];
+			rgbShader.r = colArr[0];
+			rgbShader.g = colArr[1];
+			rgbShader.b = colArr[2];
 		}
 		else
 		{
@@ -239,9 +241,11 @@ class Note extends FlxSprite
 		noteSplashData.texture = PlayState.SONG != null ? PlayState.SONG.splashSkin : 'noteSplashes';
 		if (rgbShader != null && rgbShader.enabled) defaultRGB();
 
-		if(noteData > -1 && noteType != value) {
+		trace(value, noteType);
+
+		if (noteData > -1) {
 			if (value == 'Hurt Note') {
-				ignoreNote = mustPress;
+				ignoreNote = mustPress && isBotplay;
 				//reloadNote('HURTNOTE_assets');
 				//this used to change the note texture to HURTNOTE_assets.png,
 				//but i've changed it to something more optimized with the implementation of RGBPalette:
@@ -282,7 +286,7 @@ class Note extends FlxSprite
 		y -= 2000;
 
 		rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
-		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
+		if (PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
 		
 		// if(createdFrom == null) createdFrom = PlayState.instance;
 
@@ -369,18 +373,18 @@ class Note extends FlxSprite
 		// x += offsetX;
 	}
 
+	static var newRGB:RGBPalette = new RGBPalette();
 	public static function initializeGlobalRGBShader(noteData:Int)
 	{
 		if(globalRgbShaders[noteData] == null)
 		{
-			var newRGB:RGBPalette = new RGBPalette();
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
+			colArr = PlayState.isPixelStage ? ClientPrefs.data.arrowRGBPixel[noteData] : ClientPrefs.data.arrowRGB[noteData];
 			
-			if (arr != null && noteData > -1 && noteData <= arr.length)
+			if (colArr != null && noteData > -1 && noteData <= colArr.length)
 			{
-				newRGB.r = arr[0];
-				newRGB.g = arr[1];
-				newRGB.b = arr[2];
+				newRGB.r = colArr[0];
+				newRGB.g = colArr[1];
+				newRGB.b = colArr[2];
 			}
 			else
 			{
@@ -671,6 +675,8 @@ class Note extends FlxSprite
 		wasGoodHit = hitByOpponent = tooLate = canBeHit = spawned = followed = false; // Don't make an update call of this for the note group
 		exists = true;
 
+		isBotplay = PlayState.instance != null ? PlayState.instance.cpuControlled : false;
+
 		strumTime = target.strumTime;
 		if (!inEditor) strumTime += ClientPrefs.data.noteOffset;
 
@@ -694,10 +700,10 @@ class Note extends FlxSprite
 		rgbShader.g = colorRef.g;
 		rgbShader.b = colorRef.b;
 
-		if (target.noteType is String) noteType = target.noteType; // applying note color on damage notes
-		else noteType = defaultNoteTypes[Std.parseInt(target.noteType)];
-
-		if (PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
+		try {
+			if (target.noteType is String) noteType = target.noteType; // applying note color on damage notes
+			else noteType = defaultNoteTypes[Std.parseInt(target.noteType)];
+		} catch (e:Dynamic) {}
 
 		sustainLength = target.holdLength ?? 0;
 
