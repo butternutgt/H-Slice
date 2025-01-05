@@ -1,5 +1,6 @@
 package backend;
 
+import haxe.ds.Vector;
 import haxe.Json;
 import backend.SongJson;
 import lime.utils.Assets;
@@ -21,6 +22,8 @@ typedef SwagSong =
 	var gfVersion:String;
 	var stage:String;
 	var format:String;
+
+	@:optional var isOldVersion:Bool;
 
 	@:optional var gameOverChar:String;
 	@:optional var gameOverSound:String;
@@ -157,19 +160,26 @@ class Song
 
 	public static function parseJSON(rawData:String, ?nameForError:String = null, ?convertTo:String = 'psych_v1'):SwagSong
 	{
+		var isOldVer:Vector<Bool> = new Vector(2);
 		var songJson:SwagSong = cast SongJson.parse(rawData);
 
 		if(Reflect.hasField(songJson, 'song'))
 		{
+			isOldVer[0] = true;
 			var subSong:SwagSong = Reflect.field(songJson, 'song');
 			if(subSong != null && Type.typeof(subSong) == TObject)
 				songJson = subSong;
-		}
+		} else isOldVer[0] = false;
 
 		if(convertTo != null && convertTo.length > 0)
 		{
 			var fmt:String = songJson.format;
-			if(fmt == null) fmt = songJson.format = 'unknown';
+			if(fmt == null)
+			{
+				fmt = songJson.format = 'unknown';
+				isOldVer[1] = true;
+				if (isOldVer[0] && isOldVer[1]) songJson.isOldVersion = true;
+			}
 
 			switch(convertTo)
 			{

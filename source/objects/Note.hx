@@ -30,7 +30,7 @@ typedef NoteSplashData = {
 }
 
 typedef CastNote = {
-	strumTime:Float,
+	var strumTime:Float;
 	// noteData and flags
 	// 1st-8th bits are for noteData (256keys)
 	// 9th bit is for mustHit
@@ -41,10 +41,10 @@ typedef CastNote = {
 	// 14th bit is for noAnim
 	// 15th bit is for noMissAnim
 	// 16th bit is for blockHit
-	noteData:Int,
-	noteType:String,
-	holdLength:Null<Float>,
-	noteSkin:String
+	var noteData:Int;
+	@:optional var noteType:String;
+	var holdLength:Null<Float>;
+	var noteSkin:String;
 }
 
 var toBool = CoolUtil.bool;

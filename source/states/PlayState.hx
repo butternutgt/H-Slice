@@ -1655,6 +1655,7 @@ class PlayState extends MusicBeatState
 	private var noteTypes:Array<String> = [];
 	private var eventsPushed:Array<String> = [];
 	private var totalColumns:Int = 4;
+	private var gfSide:Bool = false;
 
 	public var bfVocal:Bool = false; // a.k.a. legacy voices
 	public var opVocal:Bool = false;
@@ -1674,8 +1675,9 @@ class PlayState extends MusicBeatState
 				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed');
 		}
 
-		var songData = SONG;
+		var songData:SwagSong = SONG;
 		Conductor.bpm = songData.bpm;
+		gfSide = !songData.isOldVersion;
 
 		curSong = songData.song;
 
@@ -1702,10 +1704,7 @@ class PlayState extends MusicBeatState
 					bfVocal = true;
 				}
 			}
-		}
-		catch (e:Dynamic)
-		{
-		}
+		} catch (e:Dynamic) {}
 
 		#if FLX_PITCH
 		if (bfVocal) vocals.pitch = playbackRate;
@@ -1715,13 +1714,8 @@ class PlayState extends MusicBeatState
 		if (opVocal) FlxG.sound.list.add(opponentVocals);
 
 		inst = new FlxSound();
-		try
-		{
-			inst.loadEmbedded(Paths.inst(songData.song));
-		}
-		catch (e:Dynamic)
-		{
-		}
+		try { inst.loadEmbedded(Paths.inst(songData.song)); }
+		catch (e:Dynamic) {}
 		FlxG.sound.list.add(inst);
 
 		notes = new NoteGroup();
@@ -1820,7 +1814,7 @@ class PlayState extends MusicBeatState
 				};
 				
 				swagNote.noteData |= gottaHitNote ? 1<<8 : 0; // mustHit
-				swagNote.noteData |= (section.gfSection && (songNotes[1]<4) || songNotes[3] == 'GF Sing' || songNotes[3] == 4) ? 1<<11 : 0; // gfNote
+				swagNote.noteData |= (section.gfSection && (gfSide ? gottaHitNote : !gottaHitNote)) || songNotes[3] == 'GF Sing' || songNotes[3] == 4 ? 1<<11 : 0; // gfNote
 				swagNote.noteData |= (section.altAnim || (songNotes[3] == 'Alt Animation' || songNotes[3] == 1)) ? 1<<12 : 0; // altAnim
 				swagNote.noteData |= (songNotes[3] == 'No Animation' || songNotes[3] == 5) ? 1<<13 : 0; // noAnimation & noMissAnimaiton
 				
