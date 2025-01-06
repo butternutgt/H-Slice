@@ -217,7 +217,9 @@ class CoolUtil
 			} else {
 				// Larger than 1
 				if (str.length == prec) result = str;
-				else result = str.substr(0, str.length-prec) + (prec > 0 ? '.'+str.substr(str.length-prec) : '');
+				else {
+					result = str.substr(0, str.length-prec) + (prec > 0 ? '.'+str.substr(str.length-prec) : '');
+				}
 			}
 		} else {
 			str = ''+Math.fround(

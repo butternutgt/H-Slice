@@ -1680,6 +1680,7 @@ class PlayState extends MusicBeatState
 		gfSide = !songData.isOldVersion;
 
 		curSong = songData.song;
+		bfVocal = opVocal = false;
 
 		vocals = opponentVocals = null;
 		try
@@ -1691,8 +1692,10 @@ class PlayState extends MusicBeatState
 				{
 					var playerVocals = Paths.voices(songData.song,
 						(boyfriend.vocalsFile == null || boyfriend.vocalsFile.length < 1) ? 'Player' : boyfriend.vocalsFile);
-					vocals = new FlxSound().loadEmbedded(playerVocals);
-					bfVocal = true;
+					if (playerVocals != null && playerVocals.length > 0) {
+						vocals = new FlxSound().loadEmbedded(playerVocals);
+						bfVocal = true;
+					}
 
 					var oppVocals = Paths.voices(songData.song, (dad.vocalsFile == null || dad.vocalsFile.length < 1) ? 'Opponent' : dad.vocalsFile);
 					if (oppVocals != null && oppVocals.length > 0) {
@@ -1701,9 +1704,9 @@ class PlayState extends MusicBeatState
 					}
 				} else {
 					vocals = new FlxSound().loadEmbedded(legacyVoices);
-					bfVocal = true;
+					bfVocal = vocals != null;
 				}
-			}
+			} 
 		} catch (e:Dynamic) {}
 
 		#if FLX_PITCH
