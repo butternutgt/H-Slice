@@ -111,6 +111,7 @@ import states.TitleState;
 		'healthgain' => 1.0,
 		'healthloss' => 1.0,
 		'instakill' => false,
+		'instacrash' => false,
 		'practice' => false,
 		'botplay' => false,
 		'opponentplay' => false

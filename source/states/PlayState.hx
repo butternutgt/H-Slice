@@ -239,6 +239,7 @@ class PlayState extends MusicBeatState
 
 	public final guitarHeroSustains:Bool = false;
 	public var instakillOnMiss:Bool = false;
+	public var instacrashOnMiss:Bool = false;
 	public var cpuControlled:Bool = false;
 	public var practiceMode:Bool = false;
 	public var pressMissDamage:Float = 0.05;
@@ -427,6 +428,7 @@ class PlayState extends MusicBeatState
 		healthGain = ClientPrefs.getGameplaySetting('healthgain');
 		healthLoss = ClientPrefs.getGameplaySetting('healthloss');
 		instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
+		instacrashOnMiss = ClientPrefs.getGameplaySetting('instacrash');
 		practiceMode = ClientPrefs.getGameplaySetting('practice');
 		cpuControlled = ClientPrefs.getGameplaySetting('botplay') || ffmpegMode;
 
@@ -1466,7 +1468,7 @@ class PlayState extends MusicBeatState
 		hpShowStr = numFormat(targetHealth, 4 - Std.string(Math.floor(targetHealth)).length, true) + (targetHealth >= 0.001 ? ' %' : '');
 
 		if (!cpuControlled) {
-			if (!instakillOnMiss) {
+			if (!instakillOnMiss && !instacrashOnMiss) {
 				if (!practiceMode) {
 					tempScoreStr = Language.getPhrase(
 						'score_text',
@@ -4529,54 +4531,15 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (note != null)
 			subtract = note.missHealth;
 
-		// GUITAR HERO SUSTAIN CHECK LOL!!!!
-		// if (guitarHeroSustains && note != null) {
-		// 	if (note.parent == null) {
-		// 		if (note.tail.length > 0)
-		// 		{
-		// 			note.alpha = 0.35;
-		// 			for (childNote in note.tail)
-		// 			{
-		// 				childNote.alpha = note.alpha;
-		// 				childNote.missed = true;
-		// 				childNote.canBeHit = false;
-		// 				childNote.ignoreNote = true;
-		// 				childNote.tooLate = true;
-		// 			}
-		// 			note.missed = true;
-		// 			note.canBeHit = false;
-
-		// 			// subtract += 0.385; // you take more damage if playing with this gameplay changer enabled.
-		// 			// i mean its fair :p -Crow
-		// 			subtract *= note.tail.length + 1;
-		// 			// i think it would be fair if damage multiplied based on how long the sustain is -Tahir
-		// 		}
-
-		// 		if (note.missed) return;
-		// 	} else if (note.isSustainNote) {
-		// 		if (note.missed) return;
-
-		// 		var parentNote:Note = note.parent;
-		// 		if (parentNote.wasGoodHit && parentNote.tail.length > 0)
-		// 		{
-		// 			for (child in parentNote.tail) {
-		// 				if (child != note) {
-		// 					child.missed = true;
-		// 					child.canBeHit = false;
-		// 					child.ignoreNote = true;
-		// 					child.tooLate = true;
-		// 				}
-		// 			}
-		// 		}
-		// 		parentNote = null;
-		// 	}
-		// }
-
 		if (instakillOnMiss)
 		{
 			if (bfVocal) vocals.volume = 0;
 			if (opVocal) opponentVocals.volume = 0;
 			doDeathCheck(true);
+		}
+
+		if (instacrashOnMiss) {
+			throw "You missed the NOTE! HAHAHA";
 		}
 
 		var lastCombo:Float = combo;

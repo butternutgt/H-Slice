@@ -248,7 +248,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	function onStepUpdateRate(){
 		stepRate.scrollSpeed = interpolate(20.0, 1000.0, (holdTime - 0.5) / 3.0, 3.0);
 		descText.text = stepRate.description = 
-		'In this settings, Accurate up to ${
+		'In this settings, you can set the stepHit to be accurate up to ${
 			stepRate.getValue() != 0 ?
 			Std.string(stepRate.getValue() * defaultBPM * ClientPrefs.data.framerate) : "Infinite"
 		} BPM.';
