@@ -3,12 +3,10 @@ package debug;
 import flixel.input.keyboard.FlxKey;
 import openfl.events.KeyboardEvent;
 import lime.ui.Window;
-import haxe.Timer;
 import cpp.vm.Gc;
 import flixel.FlxG;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
-import openfl.system.System as OpenFlSystem;
 import lime.system.System as LimeSystem;
 
 #if flash
@@ -39,12 +37,9 @@ class FPSCounter extends TextField
 	public var fpsFontSize:Int = 16;
 	public var fpsTextLength:Int = 0;
 
-	var curWindow:Window;
-
 	var fps:Int = 0;
 	var curTime:Float = 0;
 	var frameTime:Float = 0;
-	var timeString:String = "";
 	var multipleRate:Float = 1.0;
 	public var updateRate:Float = 50;
 
@@ -101,16 +96,10 @@ class FPSCounter extends TextField
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		if (!visible || FlxG.autoPause && !stage.nativeWindow.active) return;
+		if (!ClientPrefs.data.showFPS || !visible || FlxG.autoPause && !stage.nativeWindow.active) return;
 		sliceCnt = 0; delta = Math.round(deltaTime);
 		times.push(delta); sum += delta; updated = false;
 		fps = ClientPrefs.data.framerate;
-
-		if (ClientPrefs.data.nanoPosition) {
-			curTime = CoolUtil.getNanoTime();
-			timeString = CoolUtil.floatToStringPrecision((curTime - frameTime) * 1000, 3);
-			frameTime = CoolUtil.getNanoTime();
-		} else timeString = CoolUtil.floatToStringPrecision(delta, 3);
 
 		while (sum > 1000) {
 			sum -= times[sliceCnt];
@@ -126,13 +115,13 @@ class FPSCounter extends TextField
 		if (deltaTimeout < 1000 / updateRate) return;
 		// Literally the stupidest thing i've done for the FPS counter but it allows it to update correctly when on 60 FPS??
 		currentFPS = Math.round(avg); //Math.round((times.length + cacheCount) * 0.5) - 1;
-		updateText(deltaTime);
+		updateText();
 		deltaTimeout = 0.0;
 	}
 
 	// so people can override it in hscript
-	public dynamic function updateText(delta:Float) {
-		text = 'FPS: ${(ClientPrefs.data.ffmpegMode ? '${ClientPrefs.data.targetFPS} (Rendering Mode)' : '$currentFPS, $timeString ms')}\n' + 
+	public dynamic function updateText() {
+		text = 'FPS: ${ClientPrefs.data.ffmpegMode ? ClientPrefs.data.targetFPS + " - Rendering Mode" : '$currentFPS\n'}' + 
 			   'RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 2, true)}' + 
 			   ' / ${MemoryUtil.isGcEnabled ? CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 2, true) : "Disabled"}' + 
 			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 2, true)}\n' + os;

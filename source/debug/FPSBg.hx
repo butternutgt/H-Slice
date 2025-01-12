@@ -1,6 +1,5 @@
 package debug;
 
-import openfl.events.EventType;
 import openfl.display.Sprite;
 
 class FPSBg extends Sprite
