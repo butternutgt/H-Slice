@@ -379,7 +379,7 @@ class CoolUtil
 	}
 
 	// stolen and modded from FlxStringUtil
-	static final byteUnits:Array<String> = ["Bytes", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+	static final byteUnits:Array<String> = ["Bytes", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", "RB", "QB"];
 	static var curUnit:Int;
 	public static function formatBytes(bytes:Float, precision:Int = 2, keepPrec:Bool = false, fixedSI:Int = -1):String
 	{
@@ -399,7 +399,8 @@ class CoolUtil
 		}
 		if(keepPrec) {
 			if(fixedSI < 0) {
-				precision = 5 - Std.int(logX(bytes, 10) + 1);
+				precision = (precision+3) - Std.int(logX(bytes, 10) + 1);
+				if (precision < 0) precision = 0;
 			}
 			return CoolUtil.floatToStringPrecision(bytes, precision) + byteUnits[curUnit];
 		}

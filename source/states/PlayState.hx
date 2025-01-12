@@ -1311,7 +1311,7 @@ class PlayState extends MusicBeatState
 
 			startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, function(tmr:FlxTimer)
 			{
-				if (swagCounter < 4) characterBopper(tmr.loopsLeft);
+				characterBopper(tmr.loopsLeft);
 
 				var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
 				var introImagesArray:Array<String> = switch (stageUI)
@@ -2909,19 +2909,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								tooLate = Conductor.songPosition - daNote.strumTime > noteKillOffset;
 
 								daNote.followStrumNote(songSpeed); ++shownCnt;
-
-								if (canBeHit) {
-									if (daNote.mustPress) {
-										if (cpuControlled)
-											if (!daNote.blockHit && daNote.canBeHit || daNote.isSustainNote)
-												goodNoteHit(daNote);
-									} else if (!daNote.hitByOpponent && !daNote.ignoreNote || daNote.isSustainNote)
-										opponentNoteHit(daNote);
-	
-									if (daNote.isSustainNote && daNote.strum.sustainReduce) {
-										daNote.clipToStrumNote();
-									}
-								}
 								
 								if (tooLate) {
 									// Kill extremely late notes and cause misses
@@ -2937,6 +2924,20 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 										opponentNoteHit(daNote);
 
 									invalidateNote(daNote);
+									canBeHit = false;
+								}
+								
+								if (canBeHit) {
+									if (daNote.mustPress) {
+										if (cpuControlled)
+											if (!daNote.blockHit && daNote.canBeHit || daNote.isSustainNote)
+												goodNoteHit(daNote);
+									} else if (!daNote.hitByOpponent && !daNote.ignoreNote || daNote.isSustainNote)
+										opponentNoteHit(daNote);
+	
+									if (daNote.isSustainNote && daNote.strum.sustainReduce) {
+										daNote.clipToStrumNote();
+									}
 								}
 							} else if (daNote == null) invalidateNote(daNote);
 						});
@@ -4996,7 +4997,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
 
-		characterBopper(curBeat);
+		if (curBeat > 0) characterBopper(curBeat);
 
 		super.beatHit();
 		lastBeatHit = curBeat;

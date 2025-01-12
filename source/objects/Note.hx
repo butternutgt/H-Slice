@@ -160,6 +160,8 @@ class Note extends FlxSprite
 	public var ratingDisabled:Bool = false;
 
 	public var texture(default, set):String = null;
+	public var downScr:Bool = false;
+	public var prevDownScr:Bool = false;
 
 	public var noAnimation:Bool = false;
 	public var noMissAnimation:Bool = false;
@@ -324,7 +326,7 @@ class Note extends FlxSprite
 		// {
 		// 	alpha = multAlpha = 0.6;
 		// 	hitsoundDisabled = true;
-		// 	if(ClientPrefs.data.downScroll) flipY = true;
+		// 	if(ClientPrefs.data.downScroll) downScr = true;
 
 		// 	offsetX += width / 2;
 		// 	copyAngle = false;
@@ -582,7 +584,14 @@ class Note extends FlxSprite
 
 		if (isSustainNote)
 		{
-			flipY = ClientPrefs.data.downScroll;
+			downScr = ClientPrefs.data.downScroll;
+			flipY = downScr;
+
+			if (prevDownScr != downScr) {
+				correctionOffset = isSustainNote && !downScr ? originalHeight * 0.5 : 0;
+				prevDownScr = downScr;
+			}
+
 			scale.set(0.7, animation != null && animation.curAnim != null && animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * (songSpeed * multSpeed) * sustainScale);
 			if (PlayState.isPixelStage)
 			{
@@ -672,8 +681,9 @@ class Note extends FlxSprite
 	var playbackRate:Float;
 
 	public function recycleNote(target:CastNote, ?oldNote:Note) {
-		wasGoodHit = hitByOpponent = tooLate = canBeHit = spawned = followed = false; // Don't make an update call of this for the note group
-		exists = true;
+		wasGoodHit = hitByOpponent = tooLate = false;
+		canBeHit = spawned = followed = false; // Don't make an update call of this for the note group
+		exists = true; flipY = false;
 
 		isBotplay = PlayState.instance != null ? PlayState.instance.cpuControlled : false;
 
@@ -712,10 +722,10 @@ class Note extends FlxSprite
 		// if (this.parent != null) parent.tail = [];
 
 		copyAngle = !isSustainNote;
-		flipY = ClientPrefs.data.downScroll && isSustainNote;
+		downScr = prevDownScr = ClientPrefs.data.downScroll;
 
 		animation.play(colArray[noteData % colArray.length] + 'Scroll', true);
-		correctionOffset = isSustainNote ? (flipY ? -originalHeight * 0.5 : originalHeight * 0.5) : 0;
+		correctionOffset = isSustainNote && !downScr ? originalHeight * 0.5 : 0;
 
 		if (PlayState.isPixelStage) offsetX = -5;
 
