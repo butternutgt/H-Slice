@@ -121,7 +121,7 @@ class FPSCounter extends TextField
 
 	// so people can override it in hscript
 	public dynamic function updateText() {
-		text = 'FPS: ${ClientPrefs.data.ffmpegMode ? ClientPrefs.data.targetFPS + " - Rendering Mode" : '$currentFPS - ${ClientPrefs.data.vsync ? "VSync" : "No VSync"}\n'}' + 
+		text = 'FPS: ${ClientPrefs.data.ffmpegMode ? ClientPrefs.data.targetFPS + " - Rendering Mode" : '$currentFPS - ${ClientPrefs.data.vsync ? "VSync" : "No VSync"}'}\n' + 
 			   'RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 1, true)}' + 
 			   ' / ${MemoryUtil.isGcEnabled ? CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 1, true) : "Disabled"}' + 
 			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 1, true)}\n' + os;
