@@ -956,7 +956,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 		playbackRate = value;
-		FlxG.animationTimeScale = value;
+		FlxG.animationTimeScale = 1 / value;
 		Conductor.safeZoneOffset = (ClientPrefs.data.safeFrames / 60) * 1000 * value;
 		setOnScripts('playbackRate', playbackRate);
 		#else
@@ -1290,7 +1290,7 @@ class PlayState extends MusicBeatState
 			}
 
 			startedCountdown = true;
-			// Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
+			Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 			botplaySine = Conductor.songPosition * 0.18;
 			setOnScripts('startedCountdown', true);
 			callOnScripts('onCountdownStarted');
@@ -2262,7 +2262,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 		#end
 		
-		daHit = bfHit = showAgain = false;
+		daHit = bfHit = showAgain = false; canAnim.fill(true);
 		if (popUpHitNote != null) popUpHitNote = null;
 		hit = skipHit = skipBf = skipOp = shownCnt = 0;
 
@@ -2589,9 +2589,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					buf = null;
 				case 'Note Appear Time':
 					info = 'Speed: ${CoolUtil.decimal(songSpeed, 3)}'
-						+ ' / Time: ${CoolUtil.decimal(shownTime, 3)}'
-						+ ' ms / Capacity: ${CoolUtil.floatToStringPrecision(safeTime, 1)}'
-						+ ' % / Skip: ${!isCanPass} ($skipTotalCnt)';
+						+ ' / Time: ${CoolUtil.decimal(shownTime, 1)} ms (${CoolUtil.decimal(spawnTime, 1)} ms)'
+						+ ' / Capacity: ${CoolUtil.floatToStringPrecision(safeTime, 1)}'
+						+ ' % / Skip: ($skipTotalCnt)';
 				#if desktop
 				case 'Video Info':
 					info = numFormat((CoolUtil.getNanoTime() - elapsedNano) * 1000, 1) + " ms / " + (numberSeparate ? formatD(frameCount) : Std.string(frameCount));
@@ -2783,70 +2783,35 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				}
 
-				if (isCanPass) {
-					if (!optimizeSpawnNote) {
-						noteDataInfo = targetNote.noteData;
-						if (betterRecycle) {
-							dunceNote = notes.spawnNote(targetNote, oldNote);
-						} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
-						dunceNote.spawned = true;
-		
-						strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
-						dunceNote.strum = strumGroup.members[dunceNote.noteData];
-						
-						if (spawnNoteEvent) {
-							callOnLuas('onSpawnNote', [
-								totalCnt,
-								dunceNote.noteData,
-								dunceNote.noteType,
-								dunceNote.isSustainNote,
-								dunceNote.strumTime
-							]);
-							callOnHScript('onSpawnNote', [dunceNote]);
-						}
-
-						if (processFirst && dunceNote.strum != null) {
-							dunceNote.followStrumNote(songSpeed / playbackRate);
-							++shownCnt;
-						}
-					} else {
-						if (!noteJudge) {
-							noteDataInfo = targetNote.noteData;
-							if (betterRecycle)
-								dunceNote = notes.spawnNote(targetNote, oldNote);
-							else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
-							dunceNote.spawned = true;
-			
-							strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
-							dunceNote.strum = strumGroup.members[dunceNote.noteData];
-							
-							if (spawnNoteEvent) {
-								callOnLuas('onSpawnNote', [
-									totalCnt,
-									dunceNote.noteData,
-									dunceNote.noteType,
-									dunceNote.isSustainNote,
-									dunceNote.strumTime
-								]);
-								callOnHScript('onSpawnNote', [dunceNote]);
-							}
-
-							if (processFirst && dunceNote.strum != null) {
-								dunceNote.followStrumNote(songSpeed / playbackRate);
-								++shownCnt;
-							}
-						} else {
-							// Skip notes without spawning
-							if (cpuControlled) {
-								if (!castHold) castMust ? ++skipBf : ++skipOp;
-								strumHitId = targetNote.noteData + (castMust ? 4 : 0);
-								skipHit |= 1 << strumHitId;
-							}
-							else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
-							if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
-						}
+				if (isCanPass && (!optimizeSpawnNote || optimizeSpawnNote && !noteJudge)) {
+					noteDataInfo = targetNote.noteData;
+					if (betterRecycle) {
+						dunceNote = notes.spawnNote(targetNote, oldNote);
+					} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+					dunceNote.spawned = true;
+	
+					strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
+					dunceNote.strum = strumGroup.members[dunceNote.noteData];
+					
+					if (spawnNoteEvent) {
+						callOnLuas('onSpawnNote', [
+							totalCnt,
+							dunceNote.noteData,
+							dunceNote.noteType,
+							dunceNote.isSustainNote,
+							dunceNote.strumTime
+						]);
+						callOnHScript('onSpawnNote', [dunceNote]);
 					}
-				} else {
+
+					if (processFirst && dunceNote.strum != null) {
+						dunceNote.followStrumNote(songSpeed);
+						if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
+							dunceNote.clipToStrumNote();
+						}
+						++shownCnt;
+					}
+				} else if (!isCanPass || optimizeSpawnNote && noteJudge) {
 					// Skip notes without spawning
 					if (cpuControlled) {
 						if (!castHold) castMust ? ++skipBf : ++skipOp;
@@ -2856,6 +2821,86 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
 					if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
 				}
+
+				// if (isCanPass) {
+				// 	if (!optimizeSpawnNote) {
+				// 		noteDataInfo = targetNote.noteData;
+				// 		if (betterRecycle) {
+				// 			dunceNote = notes.spawnNote(targetNote, oldNote);
+				// 		} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+				// 		dunceNote.spawned = true;
+		
+				// 		strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
+				// 		dunceNote.strum = strumGroup.members[dunceNote.noteData];
+						
+				// 		if (spawnNoteEvent) {
+				// 			callOnLuas('onSpawnNote', [
+				// 				totalCnt,
+				// 				dunceNote.noteData,
+				// 				dunceNote.noteType,
+				// 				dunceNote.isSustainNote,
+				// 				dunceNote.strumTime
+				// 			]);
+				// 			callOnHScript('onSpawnNote', [dunceNote]);
+				// 		}
+
+				// 		if (processFirst && dunceNote.strum != null) {
+				// 			dunceNote.followStrumNote(songSpeed);
+				// 			if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
+				// 				dunceNote.clipToStrumNote();
+				// 			}
+				// 			++shownCnt;
+				// 		}
+				// 	} else {
+				// 		if (!noteJudge) {
+				// 			noteDataInfo = targetNote.noteData;
+				// 			if (betterRecycle)
+				// 				dunceNote = notes.spawnNote(targetNote, oldNote);
+				// 			else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+				// 			dunceNote.spawned = true;
+			
+				// 			strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
+				// 			dunceNote.strum = strumGroup.members[dunceNote.noteData];
+							
+				// 			if (spawnNoteEvent) {
+				// 				callOnLuas('onSpawnNote', [
+				// 					totalCnt,
+				// 					dunceNote.noteData,
+				// 					dunceNote.noteType,
+				// 					dunceNote.isSustainNote,
+				// 					dunceNote.strumTime
+				// 				]);
+				// 				callOnHScript('onSpawnNote', [dunceNote]);
+				// 			}
+
+				// 			if (processFirst && dunceNote.strum != null) {
+				// 				dunceNote.followStrumNote(songSpeed);
+				// 				if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
+				// 					dunceNote.clipToStrumNote();
+				// 				}
+				// 				++shownCnt;
+				// 			}
+				// 		} else {
+				// 			// Skip notes without spawning
+				// 			if (cpuControlled) {
+				// 				if (!castHold) castMust ? ++skipBf : ++skipOp;
+				// 				strumHitId = targetNote.noteData + (castMust ? 4 : 0);
+				// 				skipHit |= 1 << strumHitId;
+				// 			}
+				// 			else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
+				// 			if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
+				// 		}
+				// 	}
+				// } else {
+				// 	// Skip notes without spawning
+				// 	if (cpuControlled) {
+				// 		if (!castHold) castMust ? ++skipBf : ++skipOp;
+				// 		strumHitId = targetNote.noteData + (castMust ? 4 : 0);
+				// 		skipHit |= 1 << strumHitId;
+				// 	}
+				// 	else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
+				// 	if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
+				// }
 				
 				oldNote = dunceNote;
 				unspawnNotes[totalCnt] = null; ++totalCnt;
@@ -2866,7 +2911,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				
 				shownTime = castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed;
 				shownRealTime = shownTime * 0.001;
-				isDisplay = targetNote.strumTime - Conductor.songPosition + ClientPrefs.data.noteOffset < shownTime;
+				isDisplay = targetNote.strumTime - Conductor.songPosition < shownTime;
 			}
 		}
 		safeTime = ((nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout) / shownRealTime * 100;
@@ -3080,7 +3125,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var currNote:SwagSection;
 	var holdTime:Float = Conductor.stepCrochet / 1000;
 	var fullHit:Bool = false;
-	var canAnim:Bool = false;
+	var canAnim:Vector<Bool> = new Vector(3, true);
+	var animTarget:Int = 0;
 	var isNullNote:Bool = false;
 
 	/**
@@ -3099,32 +3145,37 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (isNullNote) char = daddy && !bf ? !daddy && bf ? boyfriend : dad : null;
 		else char = objectNote.gfNote ? gf : objectNote.mustPress ? boyfriend : dad;
 		
-		if (char != null && canAnim)
+		if (char != null)
 		{
-			if (!isNullNote) {
-				altAnim = objectNote.animSuffix;
-				currNote = SONG.notes[curSection];
-				animCheck = objectNote.gfNote ? 'cheer' : 'hey';
-				animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, objectNote.noteData)))];
-			} else {
-				currNote = null;
-				animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, FlxG.random.int(0, 4))))];
-			}
-
-			if (currNote != null) {
-				if (currNote.altAnim && !currNote.gfSection)
-					altAnim = '-alt';
-			} else if (altAnim != '') altAnim = '';
-
-			char.playAnim(animToPlay + altAnim, true);
-			char.holdTimer = 0;
-
-			if (!isNullNote && objectNote.noteType == 'Hey!') {
-				if (char.animOffsets.exists(animCheck)) {
-					char.playAnim(animCheck, true);
-					char.specialAnim = true;
-					char.heyTimer = 0.6;
+			animTarget = objectNote.gfNote ? 2 : objectNote.mustPress ? 1 : 0;
+			if (canAnim[animTarget]) {
+				if (!isNullNote) {
+					altAnim = objectNote.animSuffix;
+					currNote = SONG.notes[curSection];
+					animCheck = objectNote.gfNote ? 'cheer' : 'hey';
+					animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, objectNote.noteData)))];
+				} else {
+					currNote = null;
+					animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, FlxG.random.int(0, 4))))];
 				}
+
+				if (currNote != null) {
+					if (currNote.altAnim && !currNote.gfSection)
+						altAnim = '-alt';
+				} else if (altAnim != '') altAnim = '';
+
+				char.playAnim(animToPlay + altAnim, true);
+				char.holdTimer = 0;
+
+				if (!isNullNote && objectNote.noteType == 'Hey!') {
+					if (char.animOffsets.exists(animCheck)) {
+						char.playAnim(animCheck, true);
+						char.specialAnim = true;
+						char.heyTimer = 0.6;
+					}
+				}
+
+				canAnim[animTarget] = false;
 			}
 		}
 	}
