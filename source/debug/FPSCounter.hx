@@ -113,6 +113,7 @@ class FPSCounter extends TextField
 		// prevents the overlay from updating every frame, why would you need to anyways @crowplexus
 		deltaTimeout += deltaTime;
 		if (deltaTimeout < 1000 / updateRate) return;
+		
 		// Literally the stupidest thing i've done for the FPS counter but it allows it to update correctly when on 60 FPS??
 		currentFPS = Math.round(avg); //Math.round((times.length + cacheCount) * 0.5) - 1;
 		updateText();
@@ -121,9 +122,10 @@ class FPSCounter extends TextField
 
 	// so people can override it in hscript
 	public dynamic function updateText() {
-		text = 'FPS: ${ClientPrefs.data.ffmpegMode ? ClientPrefs.data.targetFPS + " - Rendering Mode" : '$currentFPS - ${ClientPrefs.data.vsync ? "VSync" : "No VSync"}'}\n' + 
+		text = 'FPS: ${ClientPrefs.data.ffmpegMode ? ClientPrefs.data.targetFPS + " - Rendering Mode" : '$currentFPS - ${ClientPrefs.data.vsync ? "VSync" : "No VSync"}'}' +
+			   '${MemoryUtil.isGcEnabled ? '' : " - No GC"}\n' + 
 			   'RAM: ${CoolUtil.formatBytes(Memory.getCurrentUsage(), 1, true)}' + 
-			   ' / ${MemoryUtil.isGcEnabled ? CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 1, true) : "!No GC!"}' + 
+			   ' / ${CoolUtil.formatBytes(Gc.memInfo64(Gc.MEM_INFO_USAGE), 1, true)}' + 
 			   ' / ${CoolUtil.formatBytes(Memory.getPeakUsage(), 1, true)}\n' + os;
 
 		if (!ClientPrefs.data.ffmpegMode)
