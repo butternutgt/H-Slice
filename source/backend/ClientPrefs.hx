@@ -141,6 +141,7 @@ import states.TitleState;
 	public var showComboNum:Bool = true;
 	public var showCombo:Bool = false;
 	public var betterRecycle:Bool = true;
+	public var limitNotes:Int = 0;
 	public var cacheNotes:Int = 0;
 	public var skipSpawnNote:Bool = true;
 	public var processFirst:Bool = true;

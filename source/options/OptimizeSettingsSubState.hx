@@ -2,6 +2,7 @@ package options;
 
 class OptimizeSettingsSubState extends BaseOptionsMenu
 {
+	var limitCount:Option;
 	var cacheCount:Option;
 
 	public function new()
@@ -79,6 +80,19 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Max Notes Shown:',
+			"How many notes do you wanna display? To unlimited, set the value to 0.",
+			'limitNotes',
+			INT);
+		option.scrollSpeed = 30;
+		option.minValue = 0;
+		option.maxValue = 99999;
+		option.changeValue = 1;
+		option.decimals = 0;
+		option.onChange = onChangeLimitCount;
+		limitCount = option;
+		addOption(option);
+
 		var option:Option = new Option('Cache Notes:',
 			"Enables recycling of a specified number of items before playing.\nIt cuts time of newing instances. To diable, set the value to 0.\nYou need the same amount of RAM as the value chosen.",
 			'cacheNotes',
@@ -88,7 +102,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		option.maxValue = 99999;
 		option.changeValue = 1;
 		option.decimals = 0;
-		option.onChange = onChangeCount;
+		option.onChange = onChangeCacheCount;
 		cacheCount = option;
 		addOption(option);
 
@@ -143,7 +157,11 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
         super();
     }
 
-	function onChangeCount(){
+	function onChangeLimitCount(){
+		limitCount.scrollSpeed = interpolate(30, 50000, (holdTime - 0.5) / 10, 3);
+	}
+
+	function onChangeCacheCount(){
 		cacheCount.scrollSpeed = interpolate(30, 50000, (holdTime - 0.5) / 10, 3);
 	}
 }

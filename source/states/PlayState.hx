@@ -356,6 +356,7 @@ class PlayState extends MusicBeatState
 	var skipNoteEvent:Bool = ClientPrefs.data.skipNoteEvent;
 	var spawnNoteEvent:Bool = ClientPrefs.data.spawnNoteEvent;
 	var betterRecycle:Bool = ClientPrefs.data.betterRecycle;
+	var limitNotes:Int = ClientPrefs.data.limitNotes;
 	var cacheNotes:Int = ClientPrefs.data.cacheNotes;
 	var doneCache:Bool = false;
 	var skipSpawnNote:Bool = ClientPrefs.data.skipSpawnNote;
@@ -862,6 +863,8 @@ class PlayState extends MusicBeatState
 
 		if (eventNotes.length < 1)
 			checkEventNote();
+
+		if (limitNotes == 0) limitNotes = 2147483647;
 
 		if (cacheNotes > 0) {
 			Sys.println('Caching ${cacheNotes} Notes... 1/3');
@@ -2736,6 +2739,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		iconP2.x = barPos - (150 * iconP2.scale.x) / 2 - 52;
 	}
 
+	var limitCount:Int = 0;
 	var oldNote:Note = null;
 	var skipOpCNote:CastNote;
 	var skipBfCNote:CastNote;
@@ -2753,6 +2757,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		timeout = nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp();
 		if (unspawnNotes.length > totalCnt)
 		{
+			limitCount = notes.countLiving();
 			targetNote = unspawnNotes[totalCnt];
 			
 			// for initalize
@@ -2763,7 +2768,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			shownRealTime = shownTime * 0.001;
 			isDisplay = targetNote.strumTime - Conductor.songPosition + ClientPrefs.data.noteOffset < shownTime;
 
-			while (isDisplay)
+			while (isDisplay && limitCount < limitNotes)
 			{
 				canBeHit = Conductor.songPosition > targetNote.strumTime; // false is before, true is after
 				tooLate = Conductor.songPosition > targetNote.strumTime + noteKillOffset;
@@ -2809,7 +2814,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
 							dunceNote.clipToStrumNote();
 						}
-						++shownCnt;
+						++shownCnt; ++limitCount;
 					}
 				} else if (!isCanPass || optimizeSpawnNote && noteJudge) {
 					// Skip notes without spawning
@@ -2821,86 +2826,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
 					if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
 				}
-
-				// if (isCanPass) {
-				// 	if (!optimizeSpawnNote) {
-				// 		noteDataInfo = targetNote.noteData;
-				// 		if (betterRecycle) {
-				// 			dunceNote = notes.spawnNote(targetNote, oldNote);
-				// 		} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
-				// 		dunceNote.spawned = true;
-		
-				// 		strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
-				// 		dunceNote.strum = strumGroup.members[dunceNote.noteData];
-						
-				// 		if (spawnNoteEvent) {
-				// 			callOnLuas('onSpawnNote', [
-				// 				totalCnt,
-				// 				dunceNote.noteData,
-				// 				dunceNote.noteType,
-				// 				dunceNote.isSustainNote,
-				// 				dunceNote.strumTime
-				// 			]);
-				// 			callOnHScript('onSpawnNote', [dunceNote]);
-				// 		}
-
-				// 		if (processFirst && dunceNote.strum != null) {
-				// 			dunceNote.followStrumNote(songSpeed);
-				// 			if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
-				// 				dunceNote.clipToStrumNote();
-				// 			}
-				// 			++shownCnt;
-				// 		}
-				// 	} else {
-				// 		if (!noteJudge) {
-				// 			noteDataInfo = targetNote.noteData;
-				// 			if (betterRecycle)
-				// 				dunceNote = notes.spawnNote(targetNote, oldNote);
-				// 			else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
-				// 			dunceNote.spawned = true;
-			
-				// 			strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
-				// 			dunceNote.strum = strumGroup.members[dunceNote.noteData];
-							
-				// 			if (spawnNoteEvent) {
-				// 				callOnLuas('onSpawnNote', [
-				// 					totalCnt,
-				// 					dunceNote.noteData,
-				// 					dunceNote.noteType,
-				// 					dunceNote.isSustainNote,
-				// 					dunceNote.strumTime
-				// 				]);
-				// 				callOnHScript('onSpawnNote', [dunceNote]);
-				// 			}
-
-				// 			if (processFirst && dunceNote.strum != null) {
-				// 				dunceNote.followStrumNote(songSpeed);
-				// 				if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
-				// 					dunceNote.clipToStrumNote();
-				// 				}
-				// 				++shownCnt;
-				// 			}
-				// 		} else {
-				// 			// Skip notes without spawning
-				// 			if (cpuControlled) {
-				// 				if (!castHold) castMust ? ++skipBf : ++skipOp;
-				// 				strumHitId = targetNote.noteData + (castMust ? 4 : 0);
-				// 				skipHit |= 1 << strumHitId;
-				// 			}
-				// 			else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
-				// 			if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
-				// 		}
-				// 	}
-				// } else {
-				// 	// Skip notes without spawning
-				// 	if (cpuControlled) {
-				// 		if (!castHold) castMust ? ++skipBf : ++skipOp;
-				// 		strumHitId = targetNote.noteData + (castMust ? 4 : 0);
-				// 		skipHit |= 1 << strumHitId;
-				// 	}
-				// 	else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
-				// 	if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
-				// }
 				
 				oldNote = dunceNote;
 				unspawnNotes[totalCnt] = null; ++totalCnt;

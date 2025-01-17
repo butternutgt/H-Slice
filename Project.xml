@@ -166,6 +166,9 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 
 	<!--Allow working memory greater than 1 gigabyte-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" if="cpp" />
+
+	<!--Enable experimental generational garbage collector-->
+	<haxedef name="HXCPP_GC_GENERATIONAL" if="cpp" />
 	
 	<!--Enable the Flixel core recording system-->
 	<!--<haxedef name="FLX_RECORD" />-->
