@@ -24,7 +24,6 @@ class FunkinPath {
         //We'll handle this later in FunkinSound
     }
     public static function music(key:String):Sound {
-        
         return Paths.music(key);
     }
 
@@ -44,16 +43,14 @@ class FunkinPath {
         // Check if a file exists somethere
         return Paths.fileExists(s,TEXT);
     }
+    
     public static function stripLibrary(path:String):String
-        {
-          var parts:Array<String> = path.split(':');
-          if (parts.length < 2) return path;
-          return parts[1];
-        }
-    //! used by FileSystem
-    public static function file(s:String) { // this returns a full path to the file
-        return getPath(s);
+    {
+      	var parts:Array<String> = path.split(':');
+      	if (parts.length < 2) return path;
+      	return parts[1];
     }
+
     public static function clearUnusedMemory() { 
         Paths.clearUnusedMemory();
     }

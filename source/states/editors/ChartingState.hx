@@ -2712,7 +2712,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	function getMinNoteTime(sec:Int)
 	{
-		var minTime:Float = Math.NEGATIVE_INFINITY;
+		minTime = Math.NEGATIVE_INFINITY;
 		if(sec > 0)
 			minTime = cachedSectionTimes[sec];
 		return minTime;
@@ -2720,7 +2720,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	function getMaxNoteTime(sec:Int)
 	{
-		var maxTime:Float = Math.POSITIVE_INFINITY;
+		maxTime = Math.POSITIVE_INFINITY;
 		if(sec < cachedSectionTimes.length)
 			maxTime = cachedSectionTimes[sec + 1];
 		return maxTime;
@@ -3819,36 +3819,51 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var prevStartInput:PsychUINumericStepper;
 	var prevEndInput:PsychUINumericStepper;
 	var characterName:PsychUIInputText;
+	var chk_allowNew:PsychUICheckBox;
+	
+	var txt_altVariantSong:PsychUIInputText;
+	var txt_altInstSong:PsychUIInputText;
+
 	var albumName:PsychUIInputText;
 	var exportMetadataBtn:PsychUIButton;
-	// var maxTime:Float = 0.0; already declared
+
 	function addMetadataTab()
 	{
 		var tab_group = mainBox.getTab('Metadata').menu;
 		ratingInput = new PsychUINumericStepper(20, 30,1,0,0,99,0,60);
-		prevStartInput = new PsychUINumericStepper(20, 100,1,0,0,999,2,80); 
-		prevEndInput = new PsychUINumericStepper(20, 150,1,0,0,999,2,80);
-		characterName = new PsychUIInputText(160,100,100,"",8);
-		albumName = new PsychUIInputText(160,150,100,"",8);
+
+		prevStartInput = new PsychUINumericStepper(20, 70,1,0,0,999,2,80); 
+		characterName = new PsychUIInputText(180,70,100,"",8);
+
+		prevEndInput = new PsychUINumericStepper(20, 120,1,0,0,999,2,80);
+		albumName = new PsychUIInputText(180,120,100,"",8);
+		chk_allowNew = new PsychUICheckBox(180,30,"Show \"new\" tag");
+		
+		txt_altInstSong = new PsychUIInputText(20,160,250,"",8);
 
 		exportMetadataBtn = new PsychUIButton(20,200,"Export metadata",onMetadataSaveClick.bind(),110);
 
-		tab_group.add(new FlxText(ratingInput.x, ratingInput.y - 15, 80, 'Rating:'));
+		tab_group.add(meta_label(ratingInput, 'Rating:'));
 		tab_group.add(ratingInput);
 
-		tab_group.add(new FlxText(prevStartInput.x, prevStartInput.y - 15, 150, 'Freeplay preview start sec:'));
+		tab_group.add(meta_label(prevStartInput, 'Freeplay preview start sec:'));
+		tab_group.add(meta_label(prevEndInput, 'Freeplay preview end sec:'));
 		tab_group.add(prevStartInput);
-
-		tab_group.add(new FlxText(prevEndInput.x, prevEndInput.y - 15, 150, 'Freeplay preview end sec:'));
 		tab_group.add(prevEndInput);
 
-		tab_group.add(new FlxText(characterName.x, characterName.y - 15, 150, 'Player character:'));
+		tab_group.add(meta_label(characterName, 'Player character:'));
+		tab_group.add(meta_label(albumName,'Song album:'));
 		tab_group.add(characterName);
-
-		tab_group.add(new FlxText(albumName.x, albumName.y - 15, 150, 'Song album:'));
 		tab_group.add(albumName);
+		tab_group.add(chk_allowNew);
+
+		tab_group.add(meta_label(txt_altInstSong, 'Song alt vocals (separated with \',\'):'));
+		tab_group.add(txt_altInstSong);
 
 		tab_group.add(exportMetadataBtn);
+	}
+	function meta_label(spr:FlxSprite,txt:String){
+		return new FlxText(spr.x, spr.y - 15, 250, txt);
 	}
 
 	function onMetadataSaveClick() {
@@ -3857,8 +3872,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		meta.songRating = Std.int(ratingInput.value);
 		meta.freeplayPrevStart = prevStartInput.value;
 		meta.freeplayPrevEnd = prevEndInput.value;
+		meta.altInstrumentalSongs = txt_altInstSong.text;
 		meta.albumId = albumName.text;
 		meta.freeplayCharacter = characterName.text;
+		meta.allowNewTag = chk_allowNew.checked;
 		meta.freeplaySongLength = FlxG.sound.music.length/1000;
 		
 		var data:String = haxe.Json.stringify(meta, "\t");
@@ -5289,6 +5306,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		setSongPlaying(false);
 		updateChartData();
 		StageData.loadDirectory(PlayState.SONG);
+		PlayState.altInstrumentals = null; // don't persist alt inst
 		LoadingState.loadAndSwitchState(new PlayState());
 		ClientPrefs.toggleVolumeKeys(true);
 	}

@@ -1,21 +1,20 @@
 Português (Brasil)
 
 // Gameplay
-score_text: "Pontos: {1} | Erros: {2} | Avaliação: {3} | PS: {4} %"
-score_text_bot: "Pontos: {1} | Combo: {2} + {3} = {4} | PS: {5} %"
-score_text_instakill: "Pontos: {1} | Avaliação: {2} | PS: {3} %"
+score_text: "Pontos: {1} | Erros: {2} | Avaliação: {3}"
+score_text_instakill: "Pontos: {1} | Avaliação: {2}"
 botplay: "Automático"
 
-rating_you_suck: "o que- sério? tem certeza???"
-rating_shit: "Se não for \"overcharted\", é porque é mau."
-rating_bad: "Será que precisa de praticar?"
-rating_bruh: "Não é mau"
-rating_meh: "Tudo bem"
+rating_you_suck: "Que Horrível!"
+rating_shit: "Merda"
+rating_bad: "Ruim"
+rating_bruh: "Mal"
+rating_meh: "Meh"
 rating_nice: "Decente"
 rating_good: "Bom"
-rating_great: "Ótimo!"
-rating_sick: "Fantástico!!"
-rating_perfect: "TODAS DOENTES?!?"
+rating_great: "Ótimo"
+rating_sick: "Manda Ver!"
+rating_perfect: "Perfeito!!"
 
 // Dialogues
 dialogue_skip: "Aperte BACK para Pular"
@@ -132,7 +131,6 @@ delay_beat_hit: "Batida!"
 delay_current_offset: "Atraso: {1} ms";
 combo_rating_offset: "Offset de Classificação:"
 combo_numbers_offset: "Offset de Números:"
-combo_combo_offset: "Offset do Combo:"
 combo_offset: "Offset do Combo";
 note_delay: "Atraso das Notas";
 switch_on_accept: "(Pressione Accept para Trocar)"

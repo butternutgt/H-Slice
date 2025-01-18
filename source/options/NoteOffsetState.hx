@@ -4,7 +4,7 @@ import objects.Character;
 import objects.Bar;
 import flixel.addons.display.shapes.FlxShapeCircle;
 
-import states.stages.StageWeek1 as BackgroundStage;
+import mikolka.stages.standard.StageWeek1 as BackgroundStage;
 
 class NoteOffsetState extends MusicBeatState
 {
@@ -60,7 +60,9 @@ class NoteOffsetState extends MusicBeatState
 
 		// Stage
 		Paths.setCurrentLevel(stageDirectory);
-		new BackgroundStage();
+		var stage = new BackgroundStage();
+		stage.create();
+		add(stage);
 
 		// Characters
 		gf = new Character(400, 130, 'gf');

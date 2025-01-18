@@ -1,10 +1,10 @@
 package mikolka.funkin;
 
-import backend.WeekData;
-import lime.app.Promise;
 import openfl.media.Sound;
 import mikolka.vslice.freeplay.FreeplayState;
 import funkin.util.flixel.sound.FlxPartialSound;
+import haxe.exceptions.NotImplementedException;
+import openfl.media.SoundMixer;
 import flixel.system.FlxAssets.FlxSoundAsset;
 
 class FunkinSound extends FlxSound
@@ -78,77 +78,51 @@ class FunkinSound extends FlxSound
 
 		return sound;
 	}
-
 	public static function playMusic(key:String, params:FunkinSoundPlayMusicParams):Bool {
 		if(params.pathsFunction == INST){
 			var instPath = "";
-			var realKey = Paths.formatToSongPath(key); // converts lower case
-			var check = WeekData.songPathsLower.indexOf(realKey);
-
-			// trace('$key, $realKey');
-
-			if (check >= 0) {
-				realKey = Paths.formatToSongPlainPath(WeekData.songPaths[check]);
-			} else {
-				#if debug trace('Invalid song path'); #end
-				return false;
-			}
 			
-			try {
-				instPath = 'assets/songs/$realKey/Inst.${Paths.SOUND_EXT}';
+			try{
+				//key = songData.songId
+
+				instPath = 'assets/songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}';
 				#if MODS_ALLOWED
-				var modsInstPath = Paths.modFolders('songs/$realKey/Inst.${Paths.SOUND_EXT}');
+				var modsInstPath = Paths.modFolders('songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}');
 				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
 				#end
 				
-				#if debug trace('$instPath, ${params.partialParams.start}, ${params.partialParams.end}'); #end
-				var future:Promise<Sound> = FunkinPartialSound.partialLoadFromFile(instPath, params.partialParams.start, params.partialParams.end);
-				
-				#if debug 
-				trace('future: ${future != null}');
-				trace('future.future: ${future.future != null}');
-				#end
-				
-				future.future.onComplete(sound ->
-				{
-					@:privateAccess{
-						if(!Std.isOfType(FlxG.state.subState,FreeplayState)) return;
-						var fp = cast (FlxG.state.subState,FreeplayState);
-
-						var cap = fp.grpCapsules.members[fp.curSelected];
-						if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
-					}
-					#if debug trace(sound.bytesLoaded, sound.bytesTotal, sound.length); #end
-					FreeplayState.playedFreeplayMusic = false;
-					FlxG.sound.music.stop(); // muting previous track must be done NOW
-					FlxG.sound.playMusic(sound,0);
-					params.onLoad();
-				});
-				
-				if (future.future.value == null) {
-					#if debug trace('Internal failure loading instrumentals for ${key} "${instPath}"'); #end
-					return false;
-				} else if (future.future.value.length == 0) {
-					#if debug trace('No size loaded instrumentals for ${key} "${instPath}"'); #end
+				var future = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
+				if(future == null){
+					trace('Internal failure loading instrumentals for ${key} "${instPath}"');
 					return false;
 				}
-				#if debug trace('Sound length: ${future.future.value.length}'); #end
-				
+				future.future.onComplete(function(sound:Sound)
+					{
+						@:privateAccess{
+							if(!Std.isOfType(FlxG.state.subState,FreeplayState)) return;
+							var fp = cast (FlxG.state.subState,FreeplayState);
+
+							var cap = fp.grpCapsules.members[fp.curSelected];
+							if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
+						}
+						
+						trace("Playing preview!");
+						FlxG.sound.playMusic(sound,0);
+						params.onLoad();
+					});
 				return true;
-			} catch (x) {
+			}
+			catch (x){
 				var targetPath = instPath == "" ? "" : "from "+instPath;
-				// #if debug 
 				trace('Failed to parialy load instrumentals for ${key} ${targetPath}');
-				trace('Exception: ${x.message}');
-				// #end
 				return false;
 			}
-		} else {
+		}
+		else{
 			var targetPath = key+"/"+key;
 			if(key == "freakyMenu") targetPath = "freakyMenu";
-			FlxG.sound.music.stop();
-			FlxG.sound.playMusic(Paths.music(targetPath),params.startingVolume * ClientPrefs.data.sfxVolume,params.loop);
-			if(params.onLoad != null) params.onLoad();
+			FlxG.sound.playMusic(Paths.music(targetPath),params.startingVolume,params.loop);
+			if(params.onLoad!= null)params.onLoad();
 			return true;
 		}
 	}

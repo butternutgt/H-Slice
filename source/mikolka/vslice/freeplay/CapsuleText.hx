@@ -52,7 +52,6 @@ class CapsuleText extends FlxSpriteGroup
   {
     var text:FlxText = new FlxText(0, 0, 0, songTitle, Std.int(size));
     text.font = "5by7";
-    // text.antialiasing = ClientPrefs.data.antialiasing;
     return text;
   }
 

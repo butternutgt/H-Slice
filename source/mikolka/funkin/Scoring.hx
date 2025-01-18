@@ -36,16 +36,17 @@ enum abstract ScoringSystem(String)
 class Scoring
 {
 	public static function calculateRankForSong(formattedSngName:String):Null<ScoringRank>
-		{
-			if (!Highscore.songScores.exists(formattedSngName) || !Highscore.songRating.exists(formattedSngName))
-				return null;
-			var sngScore = Highscore.songScores.get(formattedSngName);
-			var sngAccuracy = Highscore.songRating.get(formattedSngName);
-			var sngFC = Highscore.songFCState.get(formattedSngName);
-			return Scoring.calculateRankFromData(sngScore, sngAccuracy, sngFC);
-		}
+	{
+		if (!Highscore.songScores.exists(formattedSngName) || !Highscore.songRating.exists(formattedSngName))
+			return null;
+		var sngScore = Highscore.songScores.get(formattedSngName);
+		var sngAccuracy = Highscore.songRating.get(formattedSngName);
+		var sngFC = Highscore.songFCState.get(formattedSngName);
+		return Scoring.calculateRankFromData(sngScore, sngAccuracy, sngFC);
+	}
 
-	public static function calculateRankFromData(sngScore:Float, sngAccuracy:Float, sngFC:Bool):Null<ScoringRank>{
+	public static function calculateRankFromData(sngScore:Float, sngAccuracy:Float, sngFC:Bool):Null<ScoringRank>
+	{
 		// Reminder that it MUSt be formatted first
 
 		// we can return null here, meaning that the player hasn't actually played and finished the song (thus has no data)

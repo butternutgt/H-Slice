@@ -48,8 +48,9 @@ import shaders.PulseEffect;
 import objects.VideoSprite;
 import objects.Note.EventNote;
 import objects.*;
-import states.stages.*;
+
 import mikolka.stages.erect.*;
+import mikolka.stages.standard.*;
 import states.stages.objects.*;
 #if LUA_ALLOWED
 import psychlua.*;
@@ -145,8 +146,9 @@ class PlayState extends MusicBeatState
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 1;
 
-	// ! new shit
+	// ! new shit P-Slice
 	public static var storyCampaignTitle = "";
+	public static var altInstrumentals:String = null;
 	public static var storyDifficultyColor = FlxColor.GRAY;
 
 	public var spawnTime:Float = 1500;
@@ -1722,7 +1724,7 @@ class PlayState extends MusicBeatState
 		if (opVocal) FlxG.sound.list.add(opponentVocals);
 
 		inst = new FlxSound();
-		try { inst.loadEmbedded(Paths.inst(songData.song)); }
+		try { inst.loadEmbedded(Paths.inst(altInstrumentals ?? songData.song)); }
 		catch (e:Dynamic) {}
 		FlxG.sound.list.add(inst);
 
@@ -3918,17 +3920,17 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				
 				zoomIntoResultsScreen(prevScore < tempActiveTallises.score, tempActiveTallises, prevRank);
 				changedDifficulty = false;
-			}
 
-			#if !switch
-			if (!practiceMode && !cpuControlled)
-			{
-				var percent:Float = ratingPercent;
-				if (Math.isNaN(percent))
-					percent = 0;
-				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent, songMisses == 0);
+				#if !switch
+				if (!practiceMode && !cpuControlled)
+				{
+					var percent:Float = ratingPercent;
+					if (Math.isNaN(percent))
+						percent = 0;
+					Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent, songMisses == 0);
+				}
+				#end
 			}
-			#end
 
 			transitioning = true;
 		}

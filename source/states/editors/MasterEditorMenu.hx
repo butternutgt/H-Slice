@@ -1,5 +1,8 @@
 package states.editors;
 
+import mikolka.vslice.components.crash.UserErrorSubstate;
+import mikolka.editors.CharSelectEditor;
+import mikolka.editors.StickerTest;
 import openfl.events.UncaughtErrorEvent;
 import mikolka.compatibility.VsliceOptions;
 import flixel.math.FlxRandom;
@@ -19,15 +22,13 @@ class MasterEditorMenu extends MusicBeatState
 		'Menu Character Editor', 
 		'Dialogue Editor', 
 		'Dialogue Portrait Editor',
+		'Player editor',
 		#if debug
 		'Crash the game',
+		'Usermess the game',
 		#end
 		'Note Splash Editor', 
-		'Preview results (perfect)', 
-		'Preview results (excellent)', 
-		'Preview results (great)', 
-		'Preview results (good)', 
-		'Preview results (shit)'
+		'Result Preview Menu'
 	];
 	private var grpTexts:FlxTypedGroup<Alphabet>;
 	private var directories:Array<String> = [null];
@@ -148,6 +149,8 @@ class MasterEditorMenu extends MusicBeatState
 					MusicBeatState.switchState(new NoteSplashEditorState());
 				case 'Test stickers':
 					MusicBeatState.switchState(new StickerTest());
+				case 'Player editor':
+					MusicBeatState.switchState(new CharSelectEditor());
 				#if debug
 				case 'Crash the game':{
 					@:privateAccess
@@ -156,17 +159,12 @@ class MasterEditorMenu extends MusicBeatState
 							openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR,
 							true,true,new openfl.errors.Error("The devs are too stupid and they write way too long errors")));
 				}
+				case 'Usermess the game':{
+					openSubState(new UserErrorSubstate("The devs are too stupid and they write way too long errors","Skill issue :/"));
+				}
 				#end
-				case 'Preview results (perfect)':
-					runResults(200);
-				case 'Preview results (excellent)':
-					runResults(190);
-				case 'Preview results (great)':
-					runResults(160);
-				case 'Preview results (good)':
-					runResults(110);
-				case 'Preview results (shit)':
-					runResults(30);
+				case 'Result Preview Menu':
+					MusicBeatState.switchState(new ResultPreviewMenu());
 			}
 			FlxG.sound.music.volume = 0;
 		}

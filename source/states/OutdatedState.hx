@@ -33,7 +33,7 @@ class OutdatedState extends MusicBeatState
 		warnText.antialiasing = ClientPrefs.data.antialiasing;
 		add(warnText);
 		#if TOUCH_CONTROLS_ALLOWED
-		addTouchPad('NONE', 'A_B_C');
+		addTouchPad('NONE', 'A_B');
 		#end
 	}
 

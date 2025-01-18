@@ -196,7 +196,7 @@ class CharSelectGF extends FlxAtlasSprite
 
 			enableVisualizer = gfData?.visualizer ?? false;
 
-			var animInfoPath = Paths.file('images/${gfData?.animInfoPath}');
+			var animInfoPath = 'images/${gfData?.animInfoPath}'; //? JSFL uses asset system!
 
 			animInInfo = FramesJSFLParser.parse(animInfoPath + '/In.txt');
 			animOutInfo = FramesJSFLParser.parse(animInfoPath + '/Out.txt');

@@ -1,5 +1,6 @@
 package mikolka.vslice.components;
 
+import mikolka.compatibility.VsliceOptions;
 import flixel.system.ui.FlxSoundTray;
 import flixel.tweens.FlxTween;
 import flixel.system.FlxAssets;
@@ -31,20 +32,22 @@ class FunkinSoundTray extends FlxSoundTray
     super();
     removeChildren();
 
-    var bg:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/volumebox.png")));
+    var bg:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/volumebox.png", true)));
     bg.scaleX = graphicScale;
     bg.scaleY = graphicScale;
+    bg.smoothing = VsliceOptions.ANTIALIASING;
     addChild(bg);
 
     y = -height;
     visible = false;
 
     // makes an alpha'd version of all the bars (bar_10.png)
-    var backingBar:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/bars_10.png")));
+    var backingBar:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/bars_10.png", true)));
     backingBar.x = 9;
     backingBar.y = 5;
     backingBar.scaleX = graphicScale;
     backingBar.scaleY = graphicScale;
+    backingBar.smoothing = VsliceOptions.ANTIALIASING;
     addChild(backingBar);
     backingBar.alpha = 0.4;
 
@@ -56,11 +59,12 @@ class FunkinSoundTray extends FlxSoundTray
     // we are trying to get assets bars_1-10
     for (i in 1...11)
     {
-      var bar:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/bars_" + i+".png")));
+      var bar:Bitmap = new Bitmap(Assets.getBitmapData(Paths.getPath("images/soundtray/bars_" + i+".png", true)));
       bar.x = 9;
       bar.y = 5;
       bar.scaleX = graphicScale;
       bar.scaleY = graphicScale;
+      bar.smoothing = VsliceOptions.ANTIALIASING;
       addChild(bar);
       _bars.push(bar);
     }
@@ -68,9 +72,9 @@ class FunkinSoundTray extends FlxSoundTray
     y = -height;
     screenCenter();
 
-    volumeUpSound = Paths.getPath("sounds/soundtray/Volup.ogg");
-    volumeDownSound = Paths.getPath("sounds/soundtray/Voldown.ogg");
-    volumeMaxSound = Paths.getPath("sounds/soundtray/VolMAX.ogg");
+    volumeUpSound = Paths.getPath("sounds/soundtray/Volup.ogg", true);
+    volumeDownSound = Paths.getPath("sounds/soundtray/Voldown.ogg", true);
+    volumeMaxSound = Paths.getPath("sounds/soundtray/VolMAX.ogg", true);
 
     trace("Custom tray added!");
   }

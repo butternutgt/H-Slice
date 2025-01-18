@@ -38,9 +38,9 @@ typedef CastNote = {
 	// 11th bit is for isHoldEnd
 	// 12th bit is for gfNote
 	// 13th bit is for altAnim
-	// 14th bit is for noAnim
-	// 15th bit is for noMissAnim
-	// 16th bit is for blockHit
+	// 14th bit is for noAnim & noMissAnim
+	// 15th bit is for blockHit
+	// 16th bit is for ignoreNote
 	var noteData:Int;
 	@:optional var noteType:String;
 	var holdLength:Null<Float>;
@@ -696,7 +696,8 @@ class Note extends FlxSprite
 		gfNote = toBool(target.noteData & (1<<11));							 // gfNote
 		animSuffix = toBool(target.noteData & (1<<12)) ? "-alt" : "";		 // altAnim
 		noAnimation = noMissAnimation = toBool(target.noteData & (1<<13));	 // noAnim
-		blockHit = toBool(target.noteData & (1<<15));				 		 // blockHit
+		blockHit = toBool(target.noteData & (1<<14));				 		 // blockHit
+		ignoreNote = toBool(target.noteData & (1<<15));				 		 // ignoreNote
 		noteData = target.noteData & 3;
 
 		// Absoluty should be here, or messing pixel texture glitches...

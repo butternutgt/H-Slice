@@ -92,7 +92,8 @@ class FunkinLua {
 		set('luaDebugMode', false);
 		set('luaDeprecatedWarnings', true);
 		set('version', MainMenuState.psychEngineVersion.trim());
-		set('hrkversion', MainMenuState.hrkVersion.trim());
+		set('versionPS', MainMenuState.pSliceVersion.trim());
+		set('versionHS', MainMenuState.hrkVersion.trim());
 		set('modFolder', this.modFolder);
 
 		// Song/Week shit
@@ -766,25 +767,25 @@ class FunkinLua {
 				FlxTransitionableState.skipNextTransIn = true;
 				FlxTransitionableState.skipNextTransOut = true;
 			}
-
-			if (PlayState.isStoryMode)
-				{
-					PlayState.storyPlaylist = [];
-					curGame.openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
-				}
-				else
-				{
-					curGame.openSubState(new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker)));
-				}
-
-
+			
 			#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 			PlayState.changedDifficulty = false;
 			PlayState.chartingMode = false;
 			curGame.transitioning = true;
 			FlxG.camera.followLerp = 0;
+			FlxG.sound.music.volume = 0;
+			var target = curGame.subState != null ? curGame.subState : curGame;
+			if (PlayState.isStoryMode)
+			{
+				PlayState.storyPlaylist = [];
+				curGame.openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
+			}
+			else
+			{
+				curGame.openSubState(new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker)));
+			}
+
 			Mods.loadTopMod();
 			return true;
 		});
