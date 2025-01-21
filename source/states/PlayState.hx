@@ -395,7 +395,6 @@ class PlayState extends MusicBeatState
 		Paths.clearStoredMemory();
 		if (nextReloadAll)
 		{
-			Paths.clearUnusedMemory();
 			Language.reloadPhrases();
 		}
 		nextReloadAll = false;
@@ -838,10 +837,19 @@ class PlayState extends MusicBeatState
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.000001; // cant make it invisible or it won't allow precaching
 
-		SustainSplash.startCrochet = Conductor.stepCrochet;
-		SustainSplash.frameRate = Math.floor(24 / 100 * SONG.bpm);
-		var holdSplash:SustainSplash = new SustainSplash();
-		holdSplash.alpha = 0.0001;
+		if (enableHoldSplash) {
+			for (i in 0...susplashMap.length) {
+				var holdSplash:SustainSplash = grpHoldSplashes.recycle(SustainSplash);
+				holdSplash.alpha = 0.0001;
+				susplashMap[i] = holdSplash;
+			}
+			
+			for (i in 0...susplashMap.length) {
+				var holdSplash:SustainSplash = susplashMap[i];
+				holdSplash.alive = false;
+				holdSplash.exists = false;
+			}
+		}
 
 		#if (!android && TOUCH_CONTROLS_ALLOWED)
 		addTouchPad('NONE', 'P');
@@ -2589,7 +2597,16 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						buf.add(splashMoment[i].hex());
 						if (i < splashMoment.length-1)
 							buf.add(",");
-					} buf.add("]");
+					}
+					if (enableHoldSplash) {
+						buf.add("]\n[");
+						for (i in 0...susplashMap.length) {
+							buf.add(susplashMap[i].holding ? 1 : 0);
+							if (i < susplashMap.length-1)
+								buf.add(",");
+						}
+					}
+					buf.add("]");
 					info = buf.toString();
 					buf = null;
 				case 'Note Appear Time':
@@ -4473,11 +4490,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				invalidateNote(note);
 		});
 
-		// var end:Note = daNote.isSustainNote ? daNote.parent.tail[daNote.parent.tail.length - 1] : daNote.tail[daNote.tail.length - 1];
-		// if (end != null && end.extraData['holdSplash'] != null) {
-		// 	end.extraData['holdSplash'].visible = false;
-		// }
-
 		noteMissCommon(daNote.noteData, daNote);
 		stagesFunc(function(stage:BaseStage) stage.noteMiss(daNote));
 		result = callOnLuas('noteMiss', [
@@ -4645,12 +4657,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			result = null;
 		}
 
-		if (enableSplash && splashOpponent && !note.noteSplashData.disabled) 
-			spawnHoldSplashOnNote(note);
+		if (splashOpponent && !note.noteSplashData.disabled) {
+			if (enableHoldSplash && note.isSustainNote) spawnHoldSplashOnNote(note);
+			if (enableSplash && !note.isSustainNote) spawnNoteSplashOnNote(note);
+		}
 
-		if (!note.isSustainNote) {
-			if (enableSplash && splashOpponent && !note.noteSplashData.disabled && !note.isSustainNote) spawnNoteSplashOnNote(note);
-			
+		if (!note.isSustainNote) {			
 			++opCombo; ++opSideHit; daHit = true;
 			if (showPopups && changePopup) popUpHitNote = note;
 			invalidateNote(note);
@@ -4769,9 +4781,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 			noteMiss(note);
 		}
-		if (enableSplash && !note.noteSplashData.disabled) {
-			spawnHoldSplashOnNote(note);
-			if (!note.isSustainNote) spawnNoteSplashOnNote(note);
+
+		if (!note.noteSplashData.disabled) {
+			if (enableHoldSplash && note.isSustainNote) spawnHoldSplashOnNote(note);
+			if (enableSplash && !note.isSustainNote) spawnNoteSplashOnNote(note);
 		}
 
 		stagesFunc(stage -> stage.goodNoteHit(note));
@@ -4801,29 +4814,35 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 
 	public function spawnHoldSplashOnNote(note:Note) {
-		if (ClientPrefs.data.holdSplashAlpha <= 0) return;
-
 		if (note != null)
-			if(note.strum != null) 
-				if(note.tail.length != 0)
-					spawnHoldSplash(note);
+			if(note.strum != null)
+				spawnHoldSplash(note);
 	}
 
-	var sustainEnd:Note = null;
+	public static var susplashMap:Vector<SustainSplash> = new Vector(8);
 	var susplash:SustainSplash = null;
-	var cnt:Int = 0;
+	var tempSplash:SustainSplash = null;
+	var isUsedSplash:Bool = false;
+	var susplashIndex:Int = 0;
 	var holdSplashStrum:StrumNote = null;
 
 	public function spawnHoldSplash(note:Note) {
-		sustainEnd = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
-		susplash = grpHoldSplashes.recycle(SustainSplash);
+		susplashIndex = (note.mustPress ? 4 : 0) + note.noteData;
+		susplash = susplashMap[susplashIndex];
+		isUsedSplash = susplash.holding;
 
-		holdSplashStrum = note.mustPress ? playerStrums.members[note.noteData] : opponentStrums.members[note.noteData];
-		if (note.strum != splashStrum) note.strum = holdSplashStrum;
+		if (!isUsedSplash || note.isSustainEnds) {
+			holdSplashStrum = note.mustPress ? playerStrums.members[note.noteData] : opponentStrums.members[note.noteData];
+			if (note.strum != splashStrum) note.strum = holdSplashStrum;
 
-		susplash.setupSusSplash(note, playbackRate);
-		susplash.note = note;
-		grpHoldSplashes.add(sustainEnd.noteHoldSplash = susplash);
+			susplash.setupSusSplash(note, playbackRate);
+
+			susplashMap[susplashIndex] = susplash;
+			if (!isUsedSplash) {
+				// trace("Index " + susplashIndex + " was added.");
+				grpHoldSplashes.add(susplash);
+			}
+		}
 	}
 	
 	var splashNoteData:Int = 0;

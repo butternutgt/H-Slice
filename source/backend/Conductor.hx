@@ -1,5 +1,6 @@
 package backend;
 
+import objects.SustainSplash;
 import backend.Song;
 import objects.Note;
 
@@ -146,6 +147,10 @@ class Conductor
 		bpm = newBPM;
 		crochet = calculateCrochet(bpm);
 		stepCrochet = crochet / 4;
+		if (ClientPrefs.data.holdSplashAlpha != 0) {
+			SustainSplash.startCrochet = stepCrochet;
+			SustainSplash.frameRate = Math.floor(24 / 100 * bpm);
+		}
 
 		return bpm = newBPM;
 	}

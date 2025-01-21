@@ -48,6 +48,7 @@ typedef CastNote = {
 }
 
 var toBool = CoolUtil.bool;
+var toInt = CoolUtil.int;
 
 /**
  * The note object used as a data structure to spawn and manage notes during gameplay.
@@ -533,6 +534,7 @@ class Note extends FlxSprite
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+		if (!exists) return;
 		followed = false;
 
 		if (mustPress)
@@ -775,5 +777,29 @@ class Note extends FlxSprite
 		clipRect = null;
 		x += offsetX;
 		return this;
+	}
+
+	// it used on spawning hold splashes
+	public function toCastNote():CastNote {
+		var lmfao:Int = 
+			this.noteData & 255 |
+			toInt(mustPress) << 8 |
+			toInt(isSustainNote) << 9 |
+			toInt(isSustainEnds) << 10 |
+			toInt(gfNote) << 11 |
+			toInt(animSuffix != "")	<< 12 |
+			toInt(noAnimation) << 13 |
+			toInt(blockHit) << 14 |
+			toInt(ignoreNote) << 15;
+		
+		var converted:CastNote = {
+			strumTime: this.strumTime,
+			noteData: lmfao,
+			noteType: this.noteType,
+			holdLength: this.sustainLength,
+			noteSkin: this.texture,
+		};
+
+		return converted;
 	}
 }

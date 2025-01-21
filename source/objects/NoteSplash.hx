@@ -233,8 +233,8 @@ class NoteSplash extends FlxSprite
 			PlayState.instance != null ? killLimit() : kill();
 		};
 		
-        alpha = ClientPrefs.data.splashAlpha;
-		if(note != null) alpha = note.noteSplashData.a;
+        alpha = ClientPrefs.data.splashAlpha - (1 - note.strum.alpha);
+		if(note != null) alpha = note.noteSplashData.a - (1 - note.strum.alpha);
 
 		if(note != null) antialiasing = note.noteSplashData.antialiasing;
 		if(PlayState.isPixelStage) antialiasing = false;
