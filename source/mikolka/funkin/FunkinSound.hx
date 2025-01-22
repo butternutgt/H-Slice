@@ -78,7 +78,9 @@ class FunkinSound extends FlxSound
 
 		return sound;
 	}
+	
 	public static function playMusic(key:String, params:FunkinSoundPlayMusicParams):Bool {
+		var loaded:Bool = false;
 		if(params.pathsFunction == INST){
 			var instPath = "";
 			
@@ -94,27 +96,30 @@ class FunkinSound extends FlxSound
 				var future = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
 				if(future == null){
 					trace('Internal failure loading instrumentals for ${key} "${instPath}"');
-					return false;
+					return loaded;
 				}
 				future.future.onComplete(function(sound:Sound)
-					{
-						@:privateAccess{
-							if(!Std.isOfType(FlxG.state.subState,FreeplayState)) return;
-							var fp = cast (FlxG.state.subState,FreeplayState);
+				{
+					if (sound.length > 0)
+						loaded = true;
+					
+					@:privateAccess{
+						if(!Std.isOfType(FlxG.state.subState,FreeplayState)) return;
+						var fp = cast (FlxG.state.subState,FreeplayState);
 
-							var cap = fp.grpCapsules.members[fp.curSelected];
-							if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
-						}
-						
-						trace("Playing preview!");
-						FlxG.sound.playMusic(sound,0);
-						params.onLoad();
-					});
-				return true;
-			}
-			catch (x){
+						var cap = fp.grpCapsules.members[fp.curSelected];
+						if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
+					}
+					
+					if (Main.debugBuild) trace("Playing preview!");
+					FlxG.sound.playMusic(sound,0);
+					params.onLoad();
+				});
+				 
+				return loaded;
+			} catch (x) {
 				var targetPath = instPath == "" ? "" : "from "+instPath;
-				trace('Failed to parialy load instrumentals for ${key} ${targetPath}');
+				trace('Failed to parialy load instrumentals for ${key} ${targetPath}\nError: ${x.message}');
 				return false;
 			}
 		}

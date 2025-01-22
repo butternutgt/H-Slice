@@ -25,7 +25,6 @@ class LoadingState extends MusicBeatState
 {
 	public static var loaded:Int = 0;
 	public static var loadMax:Int = 0;
-	static var doTrace:Bool = #if debug true #else false #end;
 
 	static var originalBitmapKeys:Map<String, String> = [];
 	static var requestedBitmaps:Map<String, BitmapData> = [];
@@ -254,7 +253,7 @@ class LoadingState extends MusicBeatState
 		for (key => bitmap in requestedBitmaps)
 		{
 			if (bitmap != null && Paths.cacheBitmap(originalBitmapKeys.get(key), bitmap) != null) {
-				if (doTrace) trace('finished preloading image $key');
+				if (Main.debugBuild) trace('finished preloading image $key');
 			} else trace('failed to cache image $key');
 		}
 		requestedBitmaps.clear();
@@ -271,7 +270,7 @@ class LoadingState extends MusicBeatState
 		if (weekDir != null && weekDir.length > 0 && weekDir != '') directory = weekDir;
 
 		Paths.setCurrentLevel(directory);
-		if(doTrace) trace('Setting asset folder to ' + directory);
+		if(Main.debugBuild) trace('Setting asset folder to ' + directory);
 	}
 
 	static function getNextState(target:FlxState, stopMusic = false, intrusive:Bool = true):FlxState
@@ -499,7 +498,7 @@ class LoadingState extends MusicBeatState
 					}
 				}
 
-				if(doTrace) trace('Folder detected! ' + folder);
+				if(Main.debugBuild) trace('Folder detected! ' + folder);
 			}
 		}
 
@@ -511,12 +510,12 @@ class LoadingState extends MusicBeatState
 			var myKey = '$prefix/$member$ext';
 			if(parentFolder == 'songs') myKey = '$member$ext';
 
-			if(doTrace) trace('attempting on $prefix: $myKey');
+			if(Main.debugBuild) trace('attempting on $prefix: $myKey');
 			
 			if(member.endsWith('/') || (!Paths.fileExists(myKey, type, false, parentFolder)))
 			{
 				arr.remove(member);
-				if(doTrace) trace('Removed invalid $prefix: $member');
+				if(Main.debugBuild) trace('Removed invalid $prefix: $member');
 			}
 			else i++;
 		}
@@ -542,7 +541,7 @@ class LoadingState extends MusicBeatState
 		Thread.create(() -> {
 			try {
 					if (func() != null) {
-						if (doTrace) trace('finished preloading $traceData');
+						if (Main.debugBuild) trace('finished preloading $traceData');
 					} else trace('ERROR! fail on preloading $traceData');
 				}
 			catch(e:Dynamic) {
@@ -592,7 +591,7 @@ class LoadingState extends MusicBeatState
 	
 					if(Paths.fileExists('images/$img/spritemap$st.png', IMAGE))
 					{
-						if (doTrace) trace('found Sprite PNG');
+						if (Main.debugBuild) trace('found Sprite PNG');
 						imagesToPrepare.push('$img/spritemap$st');
 						break;
 					}
@@ -617,7 +616,7 @@ class LoadingState extends MusicBeatState
 	{
 		var file:String = Paths.getPath(Language.getFileTranslation(key) + '.${Paths.SOUND_EXT}', SOUND, path, modsAllowed);
 
-		if (doTrace) trace('precaching sound: $file');
+		if (Main.debugBuild) trace('precaching sound: $file');
 		if(!Paths.currentTrackedSounds.exists(file))
 		{
 			if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, SOUND))

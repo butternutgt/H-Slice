@@ -274,7 +274,6 @@ class FreeplayState extends MusicBeatSubstate
 	}
 
 	var fadeShader:BlueFade = new BlueFade();
-	var isDebug:Bool;
 	public var angleMaskShader:AngleMask = new AngleMask();
 
 	override function create():Void
@@ -352,8 +351,6 @@ class FreeplayState extends MusicBeatSubstate
 		DiscordClient.changePresence('In the Freeplay Menus', null);
 		#end
 
-		isDebug = #if debug true #else false #end;
-
 		// Block input until the intro finishes.
 		busy = true;
 
@@ -387,7 +384,7 @@ class FreeplayState extends MusicBeatSubstate
 
 		// LOAD CHARACTERS
 
-		if (isDebug) {
+		if (Main.debugBuild) {
 			trace(FlxG.width);
 			trace(FlxG.camera.zoom);
 			trace(FlxG.camera.initialZoom);
@@ -1090,7 +1087,7 @@ class FreeplayState extends MusicBeatSubstate
 
 		originalPos.x = 320.488;
 		originalPos.y = 235.6;
-		trace(originalPos);
+		if (Main.debugBuild) trace(originalPos);
 
 		grpCapsules.members[curSelected].ranking.visible = false;
 		grpCapsules.members[curSelected].blurredRanking.visible = false;
@@ -1341,16 +1338,19 @@ class FreeplayState extends MusicBeatSubstate
 	function tryOpenCharSelect():Void
 	{
 		// Check if we have ACCESS to character select!
-		trace('Is Pico unlocked? ${PlayerRegistry.instance.fetchEntry('pico')?.isUnlocked()}');
-		trace('Number of characters: ${PlayerRegistry.instance.countUnlockedCharacters()}');
+		if (Main.debugBuild) 
+		{
+			trace('Is Pico unlocked? ${PlayerRegistry.instance.fetchEntry('pico')?.isUnlocked()}');
+			trace('Number of characters: ${PlayerRegistry.instance.countUnlockedCharacters()}');
+		}
 
 		if (PlayerRegistry.instance.countUnlockedCharacters() > 1)
 		{
-			trace('Opening character select!');
+			if (Main.debugBuild) trace('Opening character select!');
 		}
 		else
 		{
-			trace('Not enough characters unlocked to open character select!');
+			if (Main.debugBuild) trace('Not enough characters unlocked to open character select!');
 			FunkinSound.playOnce(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 			return;
 		}
@@ -2057,7 +2057,7 @@ class FreeplayState extends MusicBeatSubstate
 	function clearDaCache(actualSongTho:String):Void
 	{
 		// ? changed implementation of this
-		if (isDebug) trace("Purging song previews!");
+		if (Main.debugBuild) trace("Purging song previews!");
 		var cacheObj = cast(openfl.Assets.cache, AssetCache);
 		@:privateAccess
 		var list = cacheObj.sound.keys();
@@ -2067,7 +2067,7 @@ class FreeplayState extends MusicBeatSubstate
 				continue;
 			if (!song.contains(actualSongTho) && song.contains(".partial")) // .partial
 			{
-				if (isDebug) trace('trying to remove: ' + song);
+				if (Main.debugBuild) trace('trying to remove: ' + song);
 				openfl.Assets.cache.clear(song);
 			}
 		}
@@ -2354,24 +2354,16 @@ class FreeplayState extends MusicBeatSubstate
 		if (daSongCapsule == null)
 			daSongCapsule = grpCapsules.members[curSelected];
 
-		if (curSelected == 0)
-		{
-			FunkinSound.playMusic('freeplayRandom', {
-				startingVolume: 0.0,
-				overrideExisting: true,
-				restartTrack: false
-			});
-			FlxG.sound.music.fadeIn(2, 0, 0.8);
-		}
-		else
+		if (curSelected != 0)
 		{
 			if (!daSongCapsule.selected)
 				return; // ? make sure we actually have to load preview
 			var potentiallyErect:String = (currentDifficulty == "erect") || (currentDifficulty == "nightmare") ? "-erect" : "";
 			// ? psych dir setting
 			var songData = daSongCapsule.songData;
+			var isFull = ClientPrefs.data.vsliceLoadInstAll;
 			ModsHelper.loadModDir(songData.folder);
-			FunkinSound.playMusic(daSongCapsule.songData.songId, {
+			isLoadedInst = FunkinSound.playMusic(daSongCapsule.songData.songId, {
 				startingVolume: 0.0,
 				overrideExisting: true,
 				restartTrack: false,
@@ -2379,8 +2371,8 @@ class FreeplayState extends MusicBeatSubstate
 				suffix: potentiallyErect,
 				partialParams: {
 					loadPartial: true,
-					start: songData.freeplayPrevStart,
-					end: songData.freeplayPrevEnd
+					start: isFull ? 0.0 : songData.freeplayPrevStart,
+					end: isFull ? 1.0 : songData.freeplayPrevEnd
 				},
 				onLoad: function()
 				{
@@ -2392,6 +2384,15 @@ class FreeplayState extends MusicBeatSubstate
 					FreeplayHelpers.BPM = newBPM; // ? reimplementing
 				}
 			});
+		}
+		
+		if (curSelected == 0 || !isLoadedInst) {
+			FunkinSound.playMusic('freeplayRandom', {
+				startingVolume: 0.0,
+				overrideExisting: true,
+				restartTrack: false
+			});
+			FlxG.sound.music.fadeIn(2, 0, 0.8);
 		}
 	}
 

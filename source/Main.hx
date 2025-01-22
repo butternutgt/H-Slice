@@ -48,6 +48,7 @@ class Main extends Sprite
 	// hi
 	public static var fpsBg:FPSBg;
 	public static var fpsVar:FPSCounter;
+	public static var debugBuild:Bool;
 
 	public static var isConsoleAvailable:Bool = true;
 	public static final platform:String = #if mobile "Phones" #else "PCs" #end;
@@ -62,6 +63,7 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+		debugBuild = #if debug true #else false #end;
 
 		// #if desktop
 		try {

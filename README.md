@@ -1,6 +1,6 @@
-# FNF - H-Slice (HRK Engine Redux)
+# FNF - H-Slice (HRK Engine Redux)  
 This engine will implement some features inherited from my old Engine.  
-And add some new things.....?.....in the future.
+And add some new things.....?.....in the future.  
 
 My engine is for playing impossible charts by BOT NOT PEOPLE.  
 I won't take any issues about playing as PEOPLE. (99.9%)  
@@ -8,6 +8,7 @@ I won't take any issues about playing as PEOPLE. (99.9%)
 If you want to add my features in your own engine,  
 Please contact me before s0m3th1ng happens.  
 Because I don't like to be imitated so much.  
+
 Credit isn't required, but I'm glad if u did.  
 Discord: hrk.exex  
 X(Twitter): @Hrek_Hexex  
@@ -45,7 +46,7 @@ https://github.com/mcagabe19/linc_luajit-rewriten/
 <br />
 <div align="center">
   <a href="https://github.com/Psych-Slice/P-Slice">
-    <img src="art/iconOG.png" alt="Logo" width="80" height="80">
+    <img src="art/banner.png" alt="Logo" width="300" height="200">
   </a>
 
 <h3 align="center">P-Slice Engine</h3>
@@ -79,11 +80,11 @@ It's meant to bring new visuals and features from newer versions of FNF and make
 ## Features
 | V-Slice's freeplay menu | Results screen|
 |-|-|
-|![](art/docs/freeplay.png) | ![](art/docs/result.png)|
+|![](https://github.com/Psych-Slice/misc/blob/main/showcase/freeplay.png?raw=true) | ![](https://github.com/Psych-Slice/misc/blob/main/showcase/result.png?raw=true)|
 |Character selector|Pausable cutscenes|
-|![](art/docs/character.png)|![](art/docs/pause.png)|
-|Pico|**Just Boyfriend**|
-|![](art/docs/pico.png)|![](https://github.com/Psych-Slice/misc/blob/main/invalid.png?raw=true)|
+|![](https://github.com/Psych-Slice/misc/blob/main/showcase/character.png?raw=true)|![](https://github.com/Psych-Slice/misc/blob/main/showcase/pause.png?raw=true)|
+|Pico|Player editor|
+|![](https://github.com/Psych-Slice/misc/blob/main/showcase/pico.png?raw=true)|![](https://github.com/Psych-Slice/misc/blob/main/showcase/playerEditor.png?raw=true)|
 <!-- GETTING STARTED -->
 ## Getting Started
 
@@ -159,4 +160,5 @@ Distributed under the Apache License 2.0. See [Licence](https://github.com/Psych
 [issues-url]: https://github.com/Psych-Slice/P-Slice/issues
 [license-shield]: https://img.shields.io/github/license/Psych-Slice/P-Slice.svg?style=for-the-badge
 [license-url]: https://github.com/Psych-Slice/P-Slice/blob/master/LICENSE.txt!
+
 </details>
