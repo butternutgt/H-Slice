@@ -38,27 +38,18 @@ class SustainSplash extends FlxSprite
 			setPosition(note.strum.x, note.strum.y);
 			visible = note.strum.visible;
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - note.strum.alpha);
-
-			if (note.missed) {
-				timer.cancel();
-				kill();
-			}
 		}
-
-		// if (timer.active) {
-		// 	trace(CoolUtil.floatToStringPrecision(timer.elapsedTime, 3), timer.finished);
-		// }
 	}
 
 	public function setupSusSplash(daNote:Note, ?playbackRate:Float = 1):Void
 	{
-		this.revive(); holding = true;
+		this.revive();
 		var castNote:CastNote = daNote.toCastNote();
 		this.note.recycleNote(castNote);
 		note.strum = daNote.strum;
 		// trace(note.isSustainEnds);
 		if (!note.isSustainEnds) {
-			visible = true;
+			visible = true; holding = true;
 
 			if (note.strum != null) setPosition(note.strum.x, note.strum.y);
 
@@ -79,7 +70,7 @@ class SustainSplash extends FlxSprite
 
 			alpha = ClientPrefs.data.holdSplashAlpha - (1 - note.strum.alpha);
 			offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
-		} else if (ClientPrefs.data.holdSkin != "None") {
+		} else if (holding && ClientPrefs.data.holdSkin != "None") {
 			// trace("the timer started");
 
 			if (timer != null) timer.cancel();
@@ -103,6 +94,8 @@ class SustainSplash extends FlxSprite
 	}
 
 	override function kill() {
+		holding = false;
+		timer.destroy();
 		super.kill();
 	}
 }

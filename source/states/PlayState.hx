@@ -4531,8 +4531,16 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			doDeathCheck(true);
 		}
 
+		// please don't send issue about this lmao. i added it for fun.
 		if (instacrashOnMiss) {
 			throw "You missed the NOTE! HAHAHA";
+		}
+
+		if (note != null) {
+			var index:Int = (note.mustPress ? 4 : 0) + direction;
+			if (note.isSustainNote && susplashMap[index].holding) {
+				susplashMap[index].kill();
+			}
 		}
 
 		var lastCombo:Float = combo;
@@ -4831,7 +4839,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		susplash = susplashMap[susplashIndex];
 		isUsedSplash = susplash.holding;
 
-		if (!isUsedSplash || note.isSustainEnds) {
+		if (!isUsedSplash || isUsedSplash && note.isSustainEnds) {
 			holdSplashStrum = note.mustPress ? playerStrums.members[note.noteData] : opponentStrums.members[note.noteData];
 			if (note.strum != splashStrum) note.strum = holdSplashStrum;
 

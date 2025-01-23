@@ -460,21 +460,21 @@ class ResultState extends MusicBeatSubState
 				// Play the intro music.
 				FunkinSound.load(Paths.music(introMusic), 1.0, false, true, true, () -> {
 					FunkinSound.playMusic(getMusicPath(playerCharacter, rank),
-						{
-							startingVolume: 1.0,
-							overrideExisting: true,
-							restartTrack: true
-						});
-				});
-			}
-			else
-			{
-				FunkinSound.playMusic(getMusicPath(playerCharacter, rank),
 					{
 						startingVolume: 1.0,
 						overrideExisting: true,
 						restartTrack: true
 					});
+				});
+			}
+			else
+			{
+				FunkinSound.playMusic(getMusicPath(playerCharacter, rank),
+				{
+					startingVolume: 1.0,
+					overrideExisting: true,
+					restartTrack: true
+				});
 			}
 		});
 
@@ -845,10 +845,10 @@ class ResultState extends MusicBeatSubState
 							}
 						});
 					} else {
+						FlxG.sound.pause(); //? fix sound
 						FlxTransitionableState.skipNextTransIn = true;
 						FlxTransitionableState.skipNextTransOut = false;
 						FreeplayState.fromResultState = false;
-						FlxG.sound.music.stop();
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 						targetState = new FreeplayState();
 					}
@@ -864,7 +864,6 @@ class ResultState extends MusicBeatSubState
 					{
 						shouldTween = true;
 						FreeplayState.fromResultState = false;
-						FlxG.sound.music.stop();
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
 						targetState = new FreeplayState();
 					}
