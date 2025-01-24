@@ -1,5 +1,7 @@
 package objects;
 
+import cpp.CastCharStar;
+import objects.Note.CastNote;
 import backend.animation.PsychAnimationController;
 
 import shaders.RGBPalette;
@@ -107,6 +109,7 @@ class NoteSplash extends FlxSprite
 		}
 	}
 
+	var castNote:CastNote;
 	public function spawnSplashNote(note:Note, ?noteData:Null<Int>, ?randomize:Bool = true)
 	{	
 		if (note != null && note.noteSplashData.texture != null)
@@ -153,12 +156,25 @@ class NoteSplash extends FlxSprite
 
 		this.noteData = noteData;
 		var anim:String = playDefaultAnim();
+		
+		if (note != null) {
+			alpha = note.noteSplashData.a - (1 - note.strum.alpha);
+			antialiasing = note.noteSplashData.antialiasing;
+		} else {
+			alpha = ClientPrefs.data.splashAlpha;
+			antialiasing = !PlayState.isPixelStage;
+		}
+
+		if(PlayState.isPixelStage) antialiasing = false;
 
 		var tempShader:RGBPalette = null;
 		if (config.allowRGB)
 		{
 			if (note == null) {
-				note = new Note().recycleNote(Note.DEFAULT_CAST);
+				castNote = cast {
+					noteData: noteData
+				};
+				note = new Note().recycleNote(castNote);
 			}
 
 			Note.initializeGlobalRGBShader(noteData % Note.colArray.length);
@@ -232,12 +248,6 @@ class NoteSplash extends FlxSprite
 		{
 			PlayState.instance != null ? killLimit() : kill();
 		};
-		
-        alpha = ClientPrefs.data.splashAlpha - (1 - note.strum.alpha);
-		if(note != null) alpha = note.noteSplashData.a - (1 - note.strum.alpha);
-
-		if(note != null) antialiasing = note.noteSplashData.antialiasing;
-		if(PlayState.isPixelStage) antialiasing = false;
 
 		if(animation.curAnim != null && conf != null)
 		{

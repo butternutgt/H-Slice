@@ -288,90 +288,6 @@ class Note extends FlxSprite
 
 		rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
 		if (PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
-		
-		// if(createdFrom == null) createdFrom = PlayState.instance;
-
-		// if (prevNote == null)
-		// 	prevNote = this;
-
-		// this.prevNote = prevNote;
-		// isSustainNote = sustainNote;
-		// this.inEditor = inEditor;
-		// this.moves = false;
-
-		// this.strumTime = strumTime;
-		// if(!inEditor) this.strumTime += ClientPrefs.data.noteOffset;
-
-		// this.noteData = noteData;
-
-		// if(noteData > -1)
-		// {
-		// 	rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
-		// 	if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
-		// 	texture = '';
-
-		// 	x += swagWidth * (noteData);
-		// 	if(!isSustainNote && noteData < colArray.length) { //Doing this 'if' check to fix the warnings on Senpai songs
-		// 		var animToPlay:String = '';
-		// 		animToPlay = colArray[noteData % colArray.length];
-		// 		animation.play(animToPlay + 'Scroll');
-		// 	}
-		// }
-
-		// trace(prevNote);
-
-		// if(prevNote != null)
-		// 	prevNote.nextNote = this;
-
-		// if (isSustainNote && prevNote != null)
-		// {
-		// 	alpha = multAlpha = 0.6;
-		// 	hitsoundDisabled = true;
-		// 	if(ClientPrefs.data.downScroll) downScr = true;
-
-		// 	offsetX += width / 2;
-		// 	copyAngle = false;
-
-		// 	animation.play(colArray[noteData % colArray.length] + 'holdend');
-
-		// 	updateHitbox();
-
-		// 	offsetX -= width / 2;
-
-		// 	if (PlayState.isPixelStage)
-		// 		offsetX += 30;
-
-		// 	if (prevNote.isSustainNote)
-		// 	{
-		// 		prevNote.animation.play(colArray[prevNote.noteData % colArray.length] + 'hold');
-
-		// 		prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
-		// 		if(createdFrom != null && createdFrom.songSpeed != null) {
-		// 			// trace(createdFrom.songSpeed);
-		// 			prevNote.scale.y *= createdFrom.songSpeed;
-		// 		}
-
-		// 		if(PlayState.isPixelStage) {
-		// 			prevNote.scale.y *= 1.19;
-		// 			prevNote.scale.y *= (6 / height); //Auto adjust note size
-		// 		}
-		// 		prevNote.updateHitbox();
-		// 		// prevNote.setGraphicSize();
-		// 	}
-
-		// 	if(PlayState.isPixelStage)
-		// 	{
-		// 		scale.y *= PlayState.daPixelZoom;
-		// 		updateHitbox();
-		// 	}
-		// 	earlyHitMult = 0;
-		// }
-		// else if(!isSustainNote)
-		// {
-		// 	centerOffsets();
-		// 	centerOrigin();
-		// }
-		// x += offsetX;
 	}
 
 	static var newRGB:RGBPalette;
@@ -708,10 +624,12 @@ class Note extends FlxSprite
 			else if (target.noteSkin.length > 0 && target.noteSkin != texture) texture = target.noteSkin;
 		} else reloadNote(texture);
 
-		colorRef = inline initializeGlobalRGBShader(noteData);
-		rgbShader.r = colorRef.r;
-		rgbShader.g = colorRef.g;
-		rgbShader.b = colorRef.b;
+		if (rgbShader.enabled) {
+			colorRef = inline initializeGlobalRGBShader(noteData);
+			rgbShader.r = colorRef.r;
+			rgbShader.g = colorRef.g;
+			rgbShader.b = colorRef.b;
+		}
 
 		try {
 			if (target.noteType is String) noteType = target.noteType; // applying note color on damage notes

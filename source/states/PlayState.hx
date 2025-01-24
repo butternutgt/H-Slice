@@ -874,18 +874,14 @@ class PlayState extends MusicBeatState
 		if (eventNotes.length < 1)
 			checkEventNote();
 
+		skipNoteSplash.active = false;
+
 		if (limitNotes == 0) limitNotes = 2147483647;
 
 		if (cacheNotes > 0) {
 			Sys.println('Caching ${cacheNotes} Notes... 1/3');
 			var cacheNote:Note;
-			var cacheTargetNote:CastNote = {
-				strumTime: 0,
-				noteData: 0,
-				noteType: null,
-				holdLength: 0,
-				noteSkin: SONG != null ? SONG.arrowSkin : null,
-			};
+			var cacheTargetNote:CastNote = Note.DEFAULT_CAST;
 
 			if (cacheTargetNote.noteSkin.length > 0 && !Paths.noteSkinFramesMap.exists(cacheTargetNote.noteSkin))
 				inline Paths.initNote(cacheTargetNote.noteSkin);
@@ -910,6 +906,7 @@ class PlayState extends MusicBeatState
 				note.dirty = true;
 				note.draw();
 				note.drawFrame(true);
+				note.active = false;
 			});
 		} else doneCache = true;
 
@@ -2762,6 +2759,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var oldNote:Note = null;
 	var skipOpCNote:CastNote;
 	var skipBfCNote:CastNote;
+	var skipNoteSplash:Note = new Note();
 	var showAgain:Bool = false;
 	var isCanPass:Bool = false;
 	var isDisplay:Bool = false;
@@ -2839,12 +2837,23 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				} else if (!isCanPass || optimizeSpawnNote && noteJudge) {
 					// Skip notes without spawning
+
+					strumHitId = targetNote.noteData + (castMust ? 4 : 0) & 255;
+					skipHit |= 1 << strumHitId;
+
 					if (cpuControlled) {
 						if (!castHold) castMust ? ++skipBf : ++skipOp;
-						strumHitId = targetNote.noteData + (castMust ? 4 : 0);
-						skipHit |= 1 << strumHitId;
+					} else castMust ? noteMissCommon(targetNote.noteData) : ++skipOp;
+					
+					if (enableSplash) {
+						if (!castHold && (cpuControlled || !castMust) &&
+							splashMoment[strumHitId] < splashCount && splashUsing[strumHitId].length < splashCount)
+						{
+							skipNoteSplash.recycleNote(targetNote);
+							spawnNoteSplashOnNote(skipNoteSplash);
+						}
 					}
-					else castMust ? noteMissCommon(targetNote.noteData & 255) : ++skipOp;
+
 					if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
 				}
 				
@@ -2968,8 +2977,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 			skipHitSearch = 7;
 			while (skipHitSearch >= 0) {
-				if (toBool(skipHit & 1<<skipHitSearch))
+				if (toBool(skipHit & 1<<skipHitSearch)) {
 					strumPlayAnim(skipHitSearch < 4, skipHitSearch % 4);
+				}
 				--skipHitSearch;
 			}
 			
@@ -4891,10 +4901,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	var playerSplash:NoteSplash;
 
-	public function spawnNoteSplash(note:Note = null, splashNoteData:Int = -1)
+	public function spawnNoteSplash(note:Note, splashNoteData:Int = -1)
 	{
 		playerSplash = grpNoteSplashes.recycle(NoteSplash);
-		playerSplash.babyArrow = note.strum;
+		if (note != null) {
+			playerSplash.babyArrow = note.strum;
+		} else playerSplash.babyArrow = (splashNoteData < 3 ? opponentStrums.members[splashNoteData] : playerStrums.members[splashNoteData - 4]);
 		// trace(splashNoteData);
 		playerSplash.spawnSplashNote(note, splashNoteData);
 		if (splashNoteData >= 0) {
