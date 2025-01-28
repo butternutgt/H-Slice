@@ -447,25 +447,29 @@ class Note extends FlxSprite
 		animation.addByPrefix(name, prefix, framerate, doLoop);
 	}
 
+	var songTime:Float = 0;
+	var safeZone:Float = 0;
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (!exists) return;
 		followed = false;
+
+		songTime = Conductor.songPosition;
+		safeZone = Conductor.safeZoneOffset;
 
 		if (mustPress)
 		{
-			canBeHit = (strumTime > Conductor.songPosition - (Conductor.safeZoneOffset * lateHitMult) &&
-						strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult));
+			canBeHit = (strumTime > songTime - (safeZone * lateHitMult) &&
+						strumTime < songTime + (safeZone * earlyHitMult));
 
-			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
+			if (strumTime < songTime - safeZone && !wasGoodHit)
 				tooLate = true;
 		}
 		else
 		{
 			canBeHit = false;
 
-			if (!wasGoodHit && strumTime <= Conductor.songPosition)
+			if (!wasGoodHit && strumTime <= songTime)
 			{
 				if(!isSustainNote || (prevNote.wasGoodHit && !ignoreNote))
 					wasGoodHit = true;

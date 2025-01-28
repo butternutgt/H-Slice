@@ -328,7 +328,8 @@ class PlayState extends MusicBeatState
 	public var introSoundsSuffix:String = '';
 
 	// Less laggy controls
-	private var keysArray:Array<String>;
+	private final keysArray:Array<String> = ['note_left', 'note_down', 'note_up', 'note_right'];
+	public var pressHit:Int = 0;
 
 	public var songName:String;
 
@@ -420,8 +421,6 @@ class PlayState extends MusicBeatState
 
 		PauseSubState.songName = null; // Reset to default
 		playbackRate = ClientPrefs.getGameplaySetting('songspeed');
-
-		keysArray = ['note_left', 'note_down', 'note_up', 'note_right'];
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
@@ -2929,9 +2928,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								
 								if (canBeHit) {
 									if (daNote.mustPress) {
-										if (cpuControlled)
-											if (!daNote.blockHit && daNote.canBeHit || daNote.isSustainNote)
-												goodNoteHit(daNote);
+										if (!daNote.blockHit || daNote.isSustainNote) {
+											if (cpuControlled) goodNoteHit(daNote);
+											else if (!toBool(pressHit & 1<<daNote.noteData) && 
+												daNote.isSustainNote && !daNote.wasGoodHit && 
+											Conductor.songPosition - daNote.strumTime > Conductor.stepCrochet) noteMiss(daNote);
+										}
 									} else if (!daNote.hitByOpponent && !daNote.ignoreNote || daNote.isSustainNote)
 										opponentNoteHit(daNote);
 	
@@ -4433,15 +4435,16 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	// Hold notes
 	private function keysCheck():Void
 	{
-		// HOLDING
 		var holdArray:Array<Bool> = [];
 		var pressArray:Array<Bool> = [];
 		var releaseArray:Array<Bool> = [];
-		for (key in keysArray)
+		pressHit = 0;
+		for (index => key in keysArray)
 		{
 			holdArray.push(controls.pressed(key));
 			pressArray.push(controls.justPressed(key));
 			releaseArray.push(controls.justReleased(key));
+			pressHit |= holdArray[index] ? 1<<index : 0;
 		}
 
 		// TO DO: Find a better way to handle controller inputs, this should work for now
@@ -4548,7 +4551,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		if (note != null) {
 			var index:Int = (note.mustPress ? 4 : 0) + direction;
-			if (note.isSustainNote && susplashMap[index].holding) {
+			if (enableHoldSplash && note.isSustainNote && susplashMap[index].holding) {
 				susplashMap[index].kill();
 			}
 		}
