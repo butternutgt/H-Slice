@@ -25,6 +25,7 @@
 package backend;
 
 import haxe.Timer;
+import haxe.ds.Vector;
 
 /**
 	An implementation of JSON parser in Haxe.
@@ -52,22 +53,22 @@ class SongJson {
 	var str:String;
 	var pos:Int;
 	var time:Float = Timer.stamp();
-	var skipChart:Bool = false;
+	public static var skipChart:Bool = false;
+	public static var log:Bool = true;
 
 	function new(str:String) {
 		this.str = str;
 		this.pos = 0;
+		this.bracketMode = 0;
 	}
 
 	var prepareSkipMode:Bool = false;
 	var skipMode:Bool = false;
-	var skipLevel:Int = 0;
 	var skipDone:Bool = false;
 
 	function doParse():Dynamic {
-		this.skipChart = Song.skipChart;
 		var result = parseRec();
-		if (Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
+		if (Main.isConsoleAvailable && log) Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
 		while (!StringTools.isEof(c = nextChar())) {
 			switch (c) {
 				case ' '.code, '\r'.code, '\n'.code, '\t'.code:
@@ -76,7 +77,7 @@ class SongJson {
 					invalidChar();
 			}
 		}
-		Sys.print("\n");
+		if (log) Sys.print("\n");
 		return result;
 	}
 	
@@ -84,8 +85,11 @@ class SongJson {
 	var field:String = null;
 	var comma:Null<Bool> = null;
 	var save:Int = 0;
-	var bracketL:Null<Int> = 0;
-	var bracketR:Null<Int> = 0;
+
+	var bracketMode:Int = 0; // 0, 1 = inside notes, 2 = exit notes
+	var b_p:Vector<Null<Int>> = new Vector<Null<Int>>(4, null); // it's for "[", "]", "{", "}".
+	var b_s:Vector<Null<Int>> = new Vector<Null<Int>>(4, null); // it's for "[", "]", "{", "}".
+	final skipPattern:String = "[]{}";
 
 	var objLayer:Int = -1;
 	var obj:Array<Dynamic> = [];
@@ -102,29 +106,44 @@ class SongJson {
 			c = nextChar();
 			if (skipMode) {
 				showProgress();
-				
-				bracketL = str.indexOf('[', pos);
-				bracketR = str.indexOf(']', pos);
-				
-				if (bracketL == -1) bracketL = null;
-				if (bracketR == -1) bracketR = null;
 
-				if (bracketL != null && bracketL != null) {
-					pos = FlxMath.minInt(bracketL, bracketR);
-				} else pos = bracketL ?? bracketR ?? pos;
+				for (i in 0...b_s.length) {
+					b_p[i] = b_s[i] ?? str.indexOf(skipPattern.charAt(i), pos - 1);
+					b_s[i] = str.indexOf(skipPattern.charAt(i), pos);
+					if (b_s[i] == -1) b_s[i] = null;
+				}
 
-				c = nextChar(); pos--;
-				if (c == '['.code) ++skipLevel;
-				else if (c == ']'.code) {
-					--skipLevel;
-					if (skipLevel <= 0) {
-						prepareSkipMode = skipMode = false; pos++; comma = true;
-						#if debug trace('skipMode deactivated at $pos, $field'); #end
-						skipDone = true;
-					}
+				if (b_s[2] < b_s[3]) {
+					bracketMode = 0; // "{" < "}"
+					if (b_s[1] < b_s[2]) bracketMode = 2; // "]" < "{"
+				}
+				else if (b_s[2] == null || b_s[3] < b_s[2]) {
+					bracketMode = 1; // found '{' && "}" < "{"
+					if (b_s[2] == null) {
+						if (b_p[3] < b_s[1]) bracketMode = 2; // old "}" < new "]"
+					} 
 				}
 				
-				if (pos > str.length) prepareSkipMode = skipMode = false; // emergency stop
+				if (b_s[1] != null && (b_s[2] != null || b_s[3] != null)) {
+					switch (bracketMode) {
+						case 0, 1:
+							pos = FlxMath.minInt(b_s[2] ?? b_s[3] ?? pos, b_s[3] ?? b_s[2] ?? pos);
+						case 2:
+							pos = b_s[1] ?? pos;
+					} // lmao
+				} // else pos = FlxMath.maxInt(FlxMath.maxInt(FlxMath.maxInt(b_s[0] ?? pos, b_s[1] ?? pos), b_s[2] ?? pos), b_s[3] ?? pos);
+				c = nextChar(); --pos;
+				// trace(b_s[0].hex(8), b_s[1].hex(8), b_s[2].hex(8), b_s[3].hex(8), pos.hex(8), bracketMode, String.fromCharCode(c));
+				
+				if (bracketMode == 2) {
+					prepareSkipMode = skipMode = false; ++pos; comma = true;
+					#if debug trace('skipMode deactivated at $pos, $field'); #end
+					skipDone = true;
+				}
+				
+				if (pos > str.length) {
+					prepareSkipMode = skipMode = false;
+				} // emergency stop
 
 				skipDone ? return [] : continue;
 			}
@@ -166,9 +185,19 @@ class SongJson {
 					}
 				case '['.code:
 					if (prepareSkipMode) {
+						var chrode:Int = 0;
+						
+						do {
+							chrode = nextChar();
+							if (chrode == ']'.code) {
+								if (comma == false) invalidChar();
+								comma = null; prepareSkipMode = false;
+								return [];
+							}
+						} while (chrode == ' '.code || chrode == '\r'.code || chrode == '\n'.code || chrode == '\t'.code);
+						
 						skipMode = true;
-						++skipLevel;
-						#if debug trace('skipMode activated at $pos, $skipLevel'); #end
+						#if debug trace('skipMode activated at $pos'); #end
 						continue;
 					}
 					arr[++arrLayer] = [];
@@ -225,8 +254,8 @@ class SongJson {
 	}
 
 	function showProgress() {
-		if (Timer.stamp() - time > 0.02) {
-			if (Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
+		if (Timer.stamp() - time > 0.1) {
+			if (Main.isConsoleAvailable && log) Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
 			time = Timer.stamp();
 		}
 	}

@@ -709,7 +709,7 @@ class SongMenuItem extends FlxSpriteGroup
 
 	public function intendedY(index:Int):Float
 	{
-		return (index * ((height * realScaled) + 10)) + 120;
+		return (index * ((132 * realScaled) + 10)) + 120; // fixed the height for align spacing
 	}
 
 	function set_selected(value:Bool):Bool

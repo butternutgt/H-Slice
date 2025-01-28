@@ -126,10 +126,9 @@ class Song
 
 	public static var chartPath:String;
 	public static var loadedSongName:String;
-	public static var skipChart:Bool = false;
 	public static function loadFromJson(jsonInput:String, forPlay:Bool, ?folder:String):SwagSong
 	{
-		skipChart = forPlay;
+		SongJson.skipChart = forPlay;
 		if(folder == null) folder = jsonInput;
 		PlayState.SONG = getChart(jsonInput, folder);
 		loadedSongName = folder;
