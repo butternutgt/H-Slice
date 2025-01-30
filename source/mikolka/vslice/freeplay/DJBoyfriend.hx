@@ -280,7 +280,7 @@ class FreeplayDJ extends FlxAtlasSprite
 				// boyfriend switches channel code?
 				// runTvLogic();
 			}
-			trace('Replay idle: ${frame}');
+			if (Main.debugBuild) trace('Replay idle: ${frame}');
 			playFlashAnimation(playableCharData.getAnimationPrefix('cartoon'), true, false, false, frame);
 			// trace('Finished confirm');
 		}
@@ -485,12 +485,12 @@ class FreeplayDJ extends FlxAtlasSprite
 				yValue += offsetY;
 			}
 
-			trace('Successfully applied offset ($AnimName): ' + xValue + ', ' + yValue);
+			if (Main.debugBuild) trace('Successfully applied offset ($AnimName): ' + xValue + ', ' + yValue);
 			offset.set(xValue, yValue);
 		}
 		else
 		{
-			trace('No offset found ($AnimName), defaulting to: 0, 0');
+			if (Main.debugBuild) trace('No offset found ($AnimName), defaulting to: 0, 0');
 			offset.set(0, 0);
 		}
 	}

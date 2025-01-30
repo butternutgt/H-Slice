@@ -2419,6 +2419,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			// Killing instances
 			notes.forEach(n -> {
 				n.dirty = false;
+				n.active = true;
 				invalidateNote(n);
 			});
 
