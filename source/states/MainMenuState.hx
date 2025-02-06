@@ -1,5 +1,7 @@
 package states;
 
+import flixel.math.FlxRandom;
+import haxe.Timer;
 import mikolka.compatibility.ModsHelper;
 import mikolka.vslice.freeplay.FreeplayState as NewFreeplayState;
 import flixel.FlxObject;
@@ -255,16 +257,21 @@ class MainMenuState extends MusicBeatState
 			}
 			if (#if TOUCH_CONTROLS_ALLOWED touchPad.buttonE.justPressed || #end controls.justPressed('debug_1'))
 			{
-				selectedSomethin = true;
-				FlxTransitionableState.skipNextTransIn = false;
-				FlxTransitionableState.skipNextTransOut = false;
-				MusicBeatState.switchState(new MasterEditorMenu());
+				persistentDraw = false;
+				persistentUpdate = false;
+				FlxG.timeScale = 0;
+				for (i in 0...16) FlxG.sound.play(Paths.sound('jumpscare'), 1).time = new FlxRandom().float(0, 5000);
+				Timer.delay(() -> openfl.Lib.application.window.close(), 1000);
+				// selectedSomethin = true;
+				// FlxTransitionableState.skipNextTransIn = false;
+				// FlxTransitionableState.skipNextTransOut = false;
+				// MusicBeatState.switchState(new MasterEditorMenu());
 			}
 		}
 
 		super.update(elapsed);
 	}
-
+	
 	function changeItem(huh:Int = 0)
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), ClientPrefs.data.sfxVolume);
