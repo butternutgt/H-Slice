@@ -922,6 +922,7 @@ class PlayState extends MusicBeatState
 
 			video.init();
 			video.setup();
+			previewRender = ClientPrefs.data.previewRender;
 		}
 		#end
 
@@ -2354,21 +2355,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (!endingSong && !inCutscene && allowDebugKeys)
 		{
 			if (controls.justPressed('debug_1')) {
-				// openChartEditor();
-				
-				persistentDraw = false;
-				persistentUpdate = false;
-				FlxG.timeScale = 0;
-				for (i in 0...16) FlxG.sound.play(Paths.sound('jumpscare'), 1).time = new FlxRandom().float(0, 5000);
-				Timer.delay(() -> openfl.Lib.application.window.close(), 1000);
+				openChartEditor();
 			} else if (controls.justPressed('debug_2')) {
-				// openCharacterEditor();
-				
-				persistentDraw = false;
-				persistentUpdate = false;
-				FlxG.timeScale = 0;
-				for (i in 0...16) FlxG.sound.play(Paths.sound('jumpscare'), 1).time = new FlxRandom().float(0, 5000);
-				Timer.delay(() -> openfl.Lib.application.window.close(), 1000);
+				openCharacterEditor();
 			}
 		}
 
@@ -4990,6 +4979,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				FlxG.updateFramerate = ClientPrefs.data.framerate;
 			}
 			if (!previewRender) video.destroy();
+
+			if (video.wentPreview) ClientPrefs.data.previewRender = false;
 		}
 		#end
 

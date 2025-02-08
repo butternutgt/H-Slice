@@ -1,5 +1,7 @@
 package mikolka.vslice.freeplay;
 
+import mikolka.vslice.components.crash.UserErrorSubstate;
+import openfl.utils.AssetType;
 import mikolka.vslice.freeplay.obj.CapsuleOptionsMenu;
 import haxe.Exception;
 import backend.WeekData;
@@ -2177,6 +2179,19 @@ class FreeplayState extends MusicBeatSubstate
 			trace("SELECTED DIFFICULTY IS MISSING: " + currentDifficulty);
 			diffId = 0;
 		}
+		if(targetInstId != null && targetInstId != "default"){
+			var instPath = '${OldPaths.formatToSongPath(targetInstId)}/Inst.ogg';
+			if(OldPaths.fileExists(instPath,AssetType.BINARY,false,"songs")){
+				PlayState.altInstrumentals = targetInstId;
+			} else {
+				openSubState(new UserErrorSubstate("Missing instrumentals",
+				'Couldn\'t find Inst in \nsongs/${instPath}\nMake sure that there is a Inst.ogg file'
+				));
+				return;
+			}
+		}
+		else PlayState.altInstrumentals = null; //? P-Slice
+		LoadingState.loadAndSwitchState(new PlayState());
 
 		var songLowercase:String = OldPaths.formatToSongPath(targetSong.songId);
 		var poop:String = Highscore.formatSong(songLowercase, diffId); // TODO //currentDifficulty);

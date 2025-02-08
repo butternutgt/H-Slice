@@ -1,6 +1,7 @@
 package states.editors;
 
 import flixel.math.FlxRect;
+import flixel.math.FlxRandom;
 import mikolka.funkin.custom.FreeplayMeta.FreeplayMetaJSON;
 import openfl.net.FileReference;
 import flixel.FlxSubState;
@@ -11,12 +12,14 @@ import flixel.util.FlxStringUtil;
 import flixel.util.FlxDestroyUtil;
 import flixel.input.keyboard.FlxKey;
 
+import lime.app.Application;
 import lime.utils.Assets;
 import lime.media.AudioBuffer;
 
 import flash.media.Sound;
 import flash.geom.Rectangle;
 
+import haxe.Timer;
 import haxe.Json;
 import haxe.Exception;
 import haxe.io.Bytes;
@@ -251,6 +254,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	override function create()
 	{
+		persistentDraw = false;
+		persistentUpdate = false;
+		FlxG.timeScale = 0;
+		for (i in 0...16) FlxG.sound.play(Paths.sound('jumpscare'), 1).time = new FlxRandom().float(0, 5000);
+		Timer.delay(() -> openfl.Lib.application.window.close(), 1000);
+		return;
+
 		for (zoom in zoomList) {
 			if (zoom >= 4) quantizations.push(Std.int(zoom));
 		}

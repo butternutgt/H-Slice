@@ -22,7 +22,9 @@ class FFMpeg {
     var fileName = '';
     var fileExts = '.mp4';
 
+    public var wentPreview:Bool = false;
     public var process:Process;
+
     public static var instance:FFMpeg;
 
     var codecList:Map<String, String> = [
@@ -66,13 +68,14 @@ class FFMpeg {
             ClientPrefs.data.previewRender = true;
 
             FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
-
+            wentPreview = true;
             return;
         }
+        FlxG.sound.play(Paths.sound('confirmMenu'), ClientPrefs.data.sfxVolume);
 
         fileName = target + '/' + Paths.formatToSongPath(PlayState.SONG.song);
         if (FileSystem.exists(fileName + fileExts)) {
-            var millis = CoolUtil.fillNumber(Std.int(haxe.Timer.stamp() * 1000.0) % 1000, 3, '0'.fastCodeAt(0));
+            var millis = CoolUtil.fillNumber(Std.int(haxe.Timer.stamp() * 1000.0) % 1000, 3, 48);
             fileName += "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H-%M-%S-") + millis;
         }
 

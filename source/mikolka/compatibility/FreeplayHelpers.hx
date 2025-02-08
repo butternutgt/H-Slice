@@ -1,10 +1,8 @@
 package mikolka.compatibility;
 
-import mikolka.vslice.components.crash.UserErrorSubstate;
 import mikolka.vslice.freeplay.pslice.FreeplayColorTweener;
 import mikolka.vslice.freeplay.pslice.BPMCache;
 import mikolka.vslice.freeplay.FreeplayState;
-import openfl.utils.AssetType;
 import backend.Song;
 import backend.Highscore;
 import states.StoryMenuState;
@@ -69,61 +67,6 @@ class FreeplayHelpers {
 			// Paths.setCurrentLevel(cap.songData.levelId);
 			state.persistentUpdate = false;
 			Mods.currentModDirectory = cap.folder;
-
-			var diffId = cap.loadAndGetDiffId();
-			if (diffId == -1)
-			{
-				trace("SELECTED DIFFICULTY IS MISSING: " + currentDifficulty);
-				diffId = 0;
-			}
-			if(targetInstId != null && targetInstId != "default"){
-				var instPath = '${Paths.formatToSongPath(targetInstId)}/Inst.ogg';
-				if(Paths.fileExists(instPath,AssetType.BINARY,false,"songs")){
-					PlayState.altInstrumentals = targetInstId;
-				}
-				else{
-					state.openSubState(new UserErrorSubstate("Missing instrumentals",
-					'Couldn\'t find Inst in \nsongs/${instPath}\nMake sure that there is a Inst.ogg file'
-					));
-					return;
-				}
-			}
-			else PlayState.altInstrumentals = null; //? P-Slice
-
-			var songLowercase:String = Paths.formatToSongPath(cap.songId);
-			var poop:String = Highscore.formatSong(songLowercase, diffId); // TODO //currentDifficulty);
-			/*#if MODS_ALLOWED
-				if(!FileSystem.exists(Paths.modsJson(songLowercase + '/' + poop)) && !FileSystem.exists(Paths.json(songLowercase + '/' + poop))) {
-				#else
-				if(!OpenFlAssets.exists(Paths.json(songLowercase + '/' + poop))) {
-				#end
-					poop = songLowercase;
-					curDifficulty = 1;
-					trace('Couldnt find file');
-			}*/
-			trace(poop);
-
-			try
-			{
-				PlayState.SONG = Song.loadFromJson(poop, false, songLowercase);
-				PlayState.isStoryMode = false;
-				PlayState.storyDifficulty = diffId;
-
-				trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
-			}
-			catch (e:Dynamic)
-			{
-				trace('ERROR! $e');
-				state.openSubState(new UserErrorSubstate("Failed to load a song",
-					'$e'
-					));
-                @:privateAccess{
-                    state.busy = false;
-                    state.letterSort.inputEnabled = true;
-                }
-				return;
-			}
-			LoadingState.loadAndSwitchState(new PlayState());
 
 			FlxG.sound.music.volume = 0;
 
