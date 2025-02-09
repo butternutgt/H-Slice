@@ -2785,7 +2785,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			castHold = toBool(targetNote.noteData & (1<<9));
 			castMust = toBool(targetNote.noteData & (1<<8));
 			
-			shownTime = castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed;
+			shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
 			shownRealTime = shownTime * 0.001;
 			isDisplay = targetNote.strumTime - fixedPosition < shownTime;
 
@@ -2796,11 +2796,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				noteJudge = castHold ? tooLate : canBeHit;
 				timeLimit = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout < shownRealTime;
 
-				if (showNotes) {
-					if (keepNotes) 
-						isCanPass = !skipSpawnNote || !tooLate;
-					else isCanPass = !skipSpawnNote || timeLimit;
-				} else isCanPass = false;
+				if (keepNotes) 
+					isCanPass = !skipSpawnNote || !tooLate;
+				else isCanPass = !skipSpawnNote || timeLimit;
 				
 				if (showAfter) {
 					if (!showAgain && !canBeHit) {
@@ -2867,8 +2865,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				castHold = toBool(targetNote.noteData & (1<<9));
 				castMust = toBool(targetNote.noteData & (1<<8));
 				
-				shownTime = castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed;
-				shownRealTime = shownTime * 0.001;
+				if (showNotes) {
+					shownTime = castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed;
+					shownRealTime = shownTime * 0.001;
+				}
+				
 				isDisplay = targetNote.strumTime - fixedPosition < shownTime;
 			}
 		}
