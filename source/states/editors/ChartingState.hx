@@ -259,6 +259,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		FlxG.timeScale = 0;
 		for (i in 0...16) FlxG.sound.play(Paths.sound('jumpscare'), 1).time = new FlxRandom().float(0, 5000);
 		Timer.delay(() -> openfl.Lib.application.window.close(), 1000);
+		super.create();
 		return;
 
 		for (zoom in zoomList) {
