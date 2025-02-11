@@ -1681,7 +1681,7 @@ class PlayState extends MusicBeatState
 		songSpeedType = ClientPrefs.getGameplaySetting('scrolltype');
 		switch (songSpeedType)
 		{
-			case "multiplicative":
+			case "multiplicative", "ignore changes":
 				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed');
 			case "constant":
 				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed');
@@ -2796,9 +2796,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				noteJudge = castHold ? tooLate : canBeHit;
 				timeLimit = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout < shownRealTime;
 
-				if (keepNotes) 
-					isCanPass = !skipSpawnNote || !tooLate;
-				else isCanPass = !skipSpawnNote || timeLimit;
+				isCanPass = !skipSpawnNote || (keepNotes ? !tooLate : timeLimit);
 				
 				if (showAfter) {
 					if (!showAgain && !canBeHit) {
@@ -3574,12 +3572,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				reloadHealthBarColors();
 
 			case 'Change Scroll Speed':
-				if (songSpeedType != "constant")
+				if (songSpeedType == "multiplicative")
 				{
-					if (flValue1 == null)
-						flValue1 = 1;
-					if (flValue2 == null)
-						flValue2 = 0;
+					if (flValue1 == null) flValue1 = 1;
+					if (flValue2 == null) flValue2 = 0;
 
 					var newValue:Float = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed') * flValue1;
 					
@@ -3605,7 +3601,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				}
 			case 'Vslice Scroll Speed':
-				if (songSpeedType != "constant")
+				if (songSpeedType == "multiplicative")
 				{
 					if (flValue1 == null) flValue1 = 1;
 					if (flValue2 == null) flValue2 = 0;
