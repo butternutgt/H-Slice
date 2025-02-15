@@ -2805,35 +2805,33 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				}
 
-				if (!noteJudge) {
-					if (isCanPass || !optimizeSpawnNote) {
-						noteDataInfo = targetNote.noteData;
-						if (betterRecycle) {
-							dunceNote = notes.spawnNote(targetNote, oldNote);
-						} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
-						dunceNote.spawned = true;
-		
-						strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
-						dunceNote.strum = strumGroup.members[dunceNote.noteData];
-						
-						if (spawnNoteEvent) {
-							callOnLuas('onSpawnNote', [
-								totalCnt,
-								dunceNote.noteData,
-								dunceNote.noteType,
-								dunceNote.isSustainNote,
-								dunceNote.strumTime
-							]);
-							callOnHScript('onSpawnNote', [dunceNote]);
-						}
+				if (!noteJudge && isCanPass || !optimizeSpawnNote) {
+					noteDataInfo = targetNote.noteData;
+					if (betterRecycle) {
+						dunceNote = notes.spawnNote(targetNote, oldNote);
+					} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
+					dunceNote.spawned = true;
+	
+					strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
+					dunceNote.strum = strumGroup.members[dunceNote.noteData];
+					
+					if (spawnNoteEvent) {
+						callOnLuas('onSpawnNote', [
+							totalCnt,
+							dunceNote.noteData,
+							dunceNote.noteType,
+							dunceNote.isSustainNote,
+							dunceNote.strumTime
+						]);
+						callOnHScript('onSpawnNote', [dunceNote]);
+					}
 
-						if (processFirst && dunceNote.strum != null) {
-							dunceNote.followStrumNote(songSpeed);
-							if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
-								dunceNote.clipToStrumNote();
-							}
-							++shownCnt; ++limitCount;
+					if (processFirst && dunceNote.strum != null) {
+						dunceNote.followStrumNote(songSpeed);
+						if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
+							dunceNote.clipToStrumNote();
 						}
+						++shownCnt; ++limitCount;
 					}
 				} else if (optimizeSpawnNote) {
 					// Skip notes without spawning

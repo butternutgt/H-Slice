@@ -872,7 +872,8 @@ class FunkinPreloader extends FlxBasePreloader
 	}
 	#end
 
-	static var currentSteps:Int = 0;
+	static var currentSteps:Int = -1;
+	static var previousSteps:Int = 0;
 	static final TOTAL_STEPS:Int = 11;
 	static final ELLIPSIS_TIME:Float = 0.5;
 
@@ -919,64 +920,42 @@ class FunkinPreloader extends FlxBasePreloader
 
 		var percentage:Int = Math.floor(percent * 100);
 		var loadTime:Float = CoolUtil.floorDecimal(elapsed, 3);
+		previousSteps = currentSteps;
 		// Render status text
 		switch (currentState)
 		{
 			// case FunkinPreloaderState.NotStarted:
 			default:
-				currentSteps = 0;
-				updateProgressLeftText('Loading \n$currentSteps/$TOTAL_STEPS $ellipsis'); 
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 0; updateProgressLeftText('Loading \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.DownloadingAssets:
-				currentSteps = 1;
-				updateProgressLeftText('Downloading assets \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 1; updateProgressLeftText('Downloading assets \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.PreloadingPlayAssets:
-				currentSteps = 2;
-				updateProgressLeftText('Preloading assets \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 2; updateProgressLeftText('Preloading assets \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.InitializingScripts:
-				currentSteps = 3;
-				updateProgressLeftText('Initializing scripts \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 3; updateProgressLeftText('Initializing scripts \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.CachingGraphics:
-				currentSteps = 4;
-				updateProgressLeftText('Caching graphics \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 4; updateProgressLeftText('Caching graphics \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.CachingAudio:
-				currentSteps = 5;
-				updateProgressLeftText('Caching audio \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 5; updateProgressLeftText('Caching audio \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.CachingData:
-				currentSteps = 6;
-				updateProgressLeftText('Caching data \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 6; updateProgressLeftText('Caching data \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.ParsingSpritesheets:
-				currentSteps = 7;
-				updateProgressLeftText('Parsing spritesheets \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 7; updateProgressLeftText('Parsing spritesheets \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.ParsingStages:
-				currentSteps = 8;
-				updateProgressLeftText('Parsing stages \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 8; updateProgressLeftText('Parsing stages \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.ParsingCharacters:
-				currentSteps = 9;
-				updateProgressLeftText('Parsing characters \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 9; updateProgressLeftText('Parsing characters \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.ParsingSongs:
-				currentSteps = 10;
-				updateProgressLeftText('Parsing songs \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = 10; updateProgressLeftText('Parsing songs \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			case FunkinPreloaderState.Complete:
-				currentSteps = TOTAL_STEPS;
-				updateProgressLeftText('Finishing up \n$currentSteps/$TOTAL_STEPS $ellipsis');
-				// Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
+				currentSteps = TOTAL_STEPS; updateProgressLeftText('Finishing up \n$currentSteps/$TOTAL_STEPS $ellipsis');
 			#if TOUCH_HERE_TO_PLAY
 			case FunkinPreloaderState.TouchHereToPlay:
 				updateProgressLeftText(null);
-				// Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
 			#end
 		}
+		
+		if (previousSteps != currentSteps) Sys.println('Preloader state ($currentSteps/$TOTAL_STEPS) ' + currentState + ' (' + percentage + '%, ' + loadTime + 's)');
 
 		// Render percent text
 		progressRightText.text = '$percentage%';
