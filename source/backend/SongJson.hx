@@ -177,7 +177,7 @@ class SongJson {
 							case '"'.code:
 								if (field != null || comma) invalidChar();
 								field = parseString();
-								#if debug if (!skipMode) trace('field: $field'); #end
+								// #if debug if (!skipMode) trace('field: $field'); #end
 								if (skipChart && field == "notes") prepareSkipMode = true;
 							default:
 								invalidChar();

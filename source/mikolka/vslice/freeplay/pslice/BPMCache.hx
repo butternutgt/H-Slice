@@ -50,12 +50,10 @@ class BPMCache {
                     bpmMap[sngDataPath] = Std.parseInt(bpmFinder.matched(1));
                 }*/
             } catch (x) {
-			    #if debug else trace('failed to scrap initial BPM for $fileSngName'); #end
+			    #if debug trace('failed to scrap initial BPM for $fileSngName'); #end
             }
-		}
-		else{
+		} else {
 			#if debug trace('Missing chart of $fileSngName in $chosenChartToScrap for BPM scrapping!!'); #end //TODO
-			
 		}
         return bpmMap[sngDataPath];
     }
