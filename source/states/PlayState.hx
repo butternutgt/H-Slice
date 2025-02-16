@@ -1334,28 +1334,31 @@ class PlayState extends MusicBeatState
 
 				var introAlts:Array<String> = introAssets.get(stageUI);
 				var tick:Countdown = THREE;
+				var countVoice:FlxSound = null;
 
 				switch (swagCounter)
 				{
 					case 0:
-						FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+						countVoice = FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
 						tick = THREE;
 					case 1:
 						countdownReady = createCountdownSprite(introAlts[0], antialias);
-						FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+						countVoice = FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
 						tick = TWO;
 					case 2:
 						countdownSet = createCountdownSprite(introAlts[1], antialias);
-						FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+						countVoice = FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
 						tick = ONE;
 					case 3:
 						countdownGo = createCountdownSprite(introAlts[2], antialias);
-						FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+						countVoice = FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
 						tick = GO;
 					case 4:
 						tick = START;
 						FlxG.maxElapsed = nanoPosition ? 1000000 : 0.1;
 				}
+
+				#if FLX_PITCH if (countVoice != null) countVoice.pitch = playbackRate; #end
 
 				if (!skipArrowStartTween)
 				{
@@ -1394,7 +1397,7 @@ class PlayState extends MusicBeatState
 		spr.screenCenter();
 		spr.antialiasing = antialias;
 		insert(members.indexOf(notesGroup), spr);
-		FlxTween.tween(spr, {/*y: spr.y + 100,*/ alpha: 0}, Conductor.crochet / 1000, {
+		FlxTween.tween(spr, {/*y: spr.y + 100,*/ alpha: 0}, Conductor.crochet / 1000 / playbackRate, {
 			ease: FlxEase.cubeInOut,
 			onComplete: function(twn:FlxTween)
 			{
@@ -3173,13 +3176,14 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (ffmpegMode && !previewRender) {
 			if (cancelCount < 3) {
 				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume).pitch = cancelCount * 0.2 + 1;
+				Sys.println(4 - cancelCount + " left to escape the rendering.");
 				++cancelCount;
 			} else {
 				FlxG.fixedTimestep = false;
+				Sys.println("you escaped the rendering succesfully.");
 				finishSong();
 			}
 
-			Sys.println(3 - cancelCount + " left to escape the rendering.");
 			if (pauseTimer != null) pauseTimer.cancel();
 			pauseTimer = new FlxTimer().start(3, _ -> {
 				cancelCount = 0;
