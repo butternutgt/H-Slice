@@ -28,13 +28,13 @@ jobs:
           - name: macOS x86_64
             os: macos-14
             buildArgs: "mac -64 -D HXCPP_M64"
-            setupScript: sh ./setup/unix.sh
+            setupScript: sh ./setup/mobile.sh
             artifactName: H-Slice_0.2.0_macOS_x64
             artifactPath: export/release/macos/bin/*
           - name: macOS AArch64
             os: macos-15
             buildArgs: mac
-            setupScript: sh ./setup/unix.sh
+            setupScript: sh ./setup/mobile.sh
             artifactName: H-Slice_0.2.0_macOS_arm64
             artifactPath: export/release/macos/bin/*
     uses: ./.github/workflows/build.yml
