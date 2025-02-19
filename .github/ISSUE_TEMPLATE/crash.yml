@@ -38,6 +38,9 @@ body:
         - "Mac"
         - "Android"
         - "iOS"
+        - "HTML5"
+        - "Flash/Air-based target"
+        - "Neko, HashLink, or other build system"
     validations:
       required: true
 

@@ -21,6 +21,7 @@ class FFMpeg {
     var target = "render_video";
     var fileName = '';
     var fileExts = '.mp4';
+    var timer:FlxTimer;
 
     public var wentPreview:Bool = false;
     public var process:Process;
@@ -43,10 +44,10 @@ class FFMpeg {
         'VP9' => 'libvp9',
         'VP9 (VAAPI)' => 'libvp9_vaapi',
         'AV1' => 'libsvtav1',
-        'AV1 (NVENC)\n(Needs RTX4000~ lmao)' => 'av1_nvenc'
+        'AV1 (NVENC for RTX40)' => 'av1_nvenc'
     ];
 
-    public function new() { }
+    public function new() {}
 
     public function init() {
         if(FileSystem.exists(target)) {
@@ -60,6 +61,8 @@ class FFMpeg {
 
         x = window.width;
         y = window.height;
+
+        timer = new FlxTimer();
     }
 
     public function setup() {

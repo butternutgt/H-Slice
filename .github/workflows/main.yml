@@ -51,7 +51,7 @@ jobs:
       matrix:
         include:
           - name: Android
-            os: macos-14
+            os: macos-15
             buildArgs: "android"
             setupScript: sh ./setup/mobile.sh
             artifactName: H-Slice_0.2.0_Android

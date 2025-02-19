@@ -3176,7 +3176,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (ffmpegMode && !previewRender) {
 			if (cancelCount < 3) {
 				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume).pitch = cancelCount * 0.2 + 1;
-				Sys.println(4 - cancelCount + " left to escape the rendering.");
+				Sys.println(3 - cancelCount + " left to escape the rendering.");
 				++cancelCount;
 			} else {
 				FlxG.fixedTimestep = false;
