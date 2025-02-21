@@ -11,7 +11,7 @@ haxelib install flixel-tools 1.5.1
 haxelib install hscript-iris 1.1.0
 haxelib install tjson 1.4.0
 haxelib install hxdiscord_rpc 1.2.4
-haxelib install hxvlc 1.8.2
+haxelib install hxvlc 1.8.2 --skip-dependencies
 haxelib git flixel https://github.com/Psych-Slice/p-slice-1.0-flixel.git 4cb4b8a51ef00abb4a7881bb869b13e399e82577
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 18091dfeb629ba2805a5f3e10f5de80433080359
 haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7

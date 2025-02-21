@@ -604,7 +604,7 @@ class Note extends FlxSprite
 
 	public function recycleNote(target:CastNote, ?oldNote:Note) {
 		wasGoodHit = hitByOpponent = tooLate = false;
-		canBeHit = spawned = followed = false; // Don't make an update call of this for the note group
+		canBeHit = spawned = followed = missed = false; // Don't make an update call of this for the note group
 		exists = true; flipY = false;
 
 		isBotplay = PlayState.instance != null ? PlayState.instance.cpuControlled : false;

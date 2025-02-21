@@ -4495,9 +4495,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	function noteMiss(daNote:Note):Void
 	{ // You didn't hit the key and let it go offscreen, also used by Hurt Notes
+		if (daNote.missed) return;
 		// Dupe note remove
-		notes.forEachAlive(function(note:Note)
-		{
+		notes.forEachAlive( note -> {
 			if (daNote != note
 				&& daNote.mustPress
 				&& daNote.noteData == note.noteData
@@ -4524,8 +4524,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	// It's only works when ghost tapping disabled
 	function noteMissPress(direction:Int = 1):Void 
 	{
-		if (ClientPrefs.data.ghostTapping)
-			return; // fuck it
+		if (ClientPrefs.data.ghostTapping) return; // fuck it
 
 		noteMissCommon(direction);
 		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
@@ -4562,8 +4561,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		var lastCombo:Float = combo;
 		combo = 0;
 
-		if (note != null) note.missed = true;
-
 		health -= subtract * healthLoss;
 		if (!practiceMode)
 			songScore -= 10;
@@ -4593,7 +4590,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				gf.specialAnim = true;
 			}
 		}
+
 		if (bfVocal) vocals.volume = 0;
+		if (note != null)note.missed = true;
 	}
 
 	var result:Dynamic;
