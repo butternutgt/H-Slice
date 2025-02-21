@@ -187,8 +187,8 @@ class PlayState extends MusicBeatState
 
 	var splashCount:Int = ClientPrefs.data.splashCount != 0 ? ClientPrefs.data.splashCount : 2147483647;
 	var splashOpponent:Bool = ClientPrefs.data.splashOpponent;
-	var enableSplash:Bool = ClientPrefs.data.splashAlpha != 0;
-	var enableHoldSplash:Bool = ClientPrefs.data.holdSplashAlpha != 0;
+	var enableSplash:Bool = ClientPrefs.data.splashAlpha != 0 && ClientPrefs.data.splashSkin != "None";
+	var enableHoldSplash:Bool = ClientPrefs.data.holdSplashAlpha != 0 && ClientPrefs.data.holdSkin != "None";
 
 	public var camZooming:Bool = false;
 	public var camZoomingMult:Float = 1;
