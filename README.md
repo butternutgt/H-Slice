@@ -2,7 +2,7 @@
 This engine will implement some features inherited from my old Engine.  
 And add some new things.....?.....in the future.  
 
-My engine is for playing impossible charts by BOT NOT PEOPLE.  
+My engine is for playing impossible charts by BOT, not playing as human.  
 
 If you want to add my features in your own engine,  
 Please contact me before s0m3th1ng happens.  
