@@ -768,24 +768,15 @@ class ResultState extends MusicBeatSubState
 
 		if ((TouchUtil.justPressed || controls.PAUSE) && !busy)
 		{
-			if (FlxG.sound.music != null)
-			{
-				if (isNewFreePlay) {
-					FlxTween.tween(FlxG.sound.music, {pitch: 3}, 0.1,
-					{
-						onComplete: _ -> {
-							FlxTween.tween(FlxG.sound.music, {pitch: 0.5}, 0.4);
-						}
-					});
+			if (FlxG.sound.music != null && isNewFreePlay) {
+				FlxTween.tween(FlxG.sound.music, {pitch: 3}, 0.1,
+				{
+					onComplete: _ -> {
+						FlxTween.tween(FlxG.sound.music, {pitch: 0.5}, 0.4);
+					}
+				});
 
-					FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8, {
-						onComplete: _ -> {
-							if (!isNewFreePlay) {
-								destroy();
-							}
-						}
-					});
-				}
+				FlxTween.tween(FlxG.sound.music, {volume: 0}, 0.8);
 			}
 
 			// Determining the target state(s) to go to.

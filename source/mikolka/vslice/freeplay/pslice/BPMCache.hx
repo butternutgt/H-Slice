@@ -7,9 +7,7 @@ import backend.SongJson;
 class BPMCache {
     private var bpmMap:Map<String,Int> = [];
     public static var instance = new BPMCache();
-    public function new() {
-        
-    }
+    public function new() {}
 
     public function getBPM(sngDataPath:String, fileSngName:String):Int {
         if(bpmMap.exists(sngDataPath)){
@@ -37,7 +35,7 @@ class BPMCache {
                 var song:SwagSong = cast SongJson.parse(getContent(chosenChartToScrap));
                 SongJson.skipChart = false; SongJson.log = true;
 
-                if(Reflect.hasField(song, 'song')) {
+                if(Reflect.hasField(song.song, 'song')) {
                     song = Reflect.field(song, 'song');
                 }
 

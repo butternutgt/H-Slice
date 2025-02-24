@@ -134,14 +134,13 @@ class PhillyBlazin extends PicoCapableStage
 		}
 		abot.color = 0xFF888888;
 
-		var unspawnNotes:Array<Note> = cast game.unspawnNotes;
+		var unspawnNotes:Array<CastNote> = game.unspawnNotes;
 		for (note in unspawnNotes)
 		{
 			if(note == null) continue;
 
 			//override animations for note types
-			note.noAnimation = true;
-			note.noMissAnimation = true;
+			note.noteData |= (1<<13); // noAnim & noMissAnim
 		}
 		remove(dadGroup, true);
 		addBehindBF(dadGroup);

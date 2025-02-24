@@ -9,7 +9,6 @@ import backend.Song;
 import mikolka.compatibility.FunkinControls;
 import mikolka.vslice.charSelect.CharSelectSubState;
 import openfl.filters.ShaderFilter;
-import mikolka.vslice.freeplay.backcards.PicoCard;
 import mikolka.vslice.freeplay.backcards.NewCharacterCard;
 import mikolka.vslice.freeplay.backcards.PicoCard;
 import mikolka.funkin.freeplay.FreeplayStyleRegistry;
@@ -22,7 +21,6 @@ import mikolka.compatibility.ModsHelper;
 import mikolka.compatibility.VsliceOptions;
 import mikolka.compatibility.FunkinCamera;
 import mikolka.vslice.freeplay.pslice.BPMCache;
-import mikolka.vslice.freeplay.pslice.FreeplayColorTweener;
 import mikolka.compatibility.FreeplaySongData;
 import mikolka.compatibility.FreeplayHelpers;
 import backend.Paths as OldPaths;
@@ -40,14 +38,10 @@ import mikolka.funkin.Scoring.ScoringRank;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxCamera;
 import flixel.FlxSprite;
-import flixel.group.FlxGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
-import flixel.input.touch.FlxTouch;
-import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
 import openfl.display.BlendMode;
-import flixel.system.debug.watch.Tracker.TrackerProfile;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -2191,7 +2185,6 @@ class FreeplayState extends MusicBeatSubstate
 			}
 		}
 		else PlayState.altInstrumentals = null; //? P-Slice
-		LoadingState.loadAndSwitchState(new PlayState());
 
 		var songLowercase:String = OldPaths.formatToSongPath(targetSong.songId);
 		var poop:String = Highscore.formatSong(songLowercase, diffId); // TODO //currentDifficulty);

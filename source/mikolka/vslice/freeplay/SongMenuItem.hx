@@ -387,7 +387,7 @@ class SongMenuItem extends FlxSpriteGroup
 		FlxTween.tween(evilTrail, {alpha: 0}, 0.6,
 			{
 				ease: FlxEase.quadOut,
-				onComplete: function(_) {
+				onComplete: _ -> {
 					remove(evilTrail);
 				}
 			});
@@ -496,19 +496,20 @@ class SongMenuItem extends FlxSpriteGroup
 
 	function textAppear():Void
 	{
+		if (songText == null) return;
 		songText.scale.x = 1.7;
 		songText.scale.y = 0.2;
 
-		new FlxTimer().start(1 / 24, function(_) {
+		new FlxTimer().start(1 / 24, _ -> {
 			songText.scale.x = 0.4;
 			songText.scale.y = 1.4;
 		});
 
-		new FlxTimer().start(2 / 24, function(_) {
+		new FlxTimer().start(2 / 24, _ -> {
 			songText.scale.x = songText.scale.y = 1;
 		});
 		//? Attempting fallback in case the previous one fails!
-		new FlxTimer().start(4 / 24, function(_) { 
+		new FlxTimer().start(4 / 24, _ -> { 
 			songText.scale.x = songText.scale.y = 1;
 		});
 	}
@@ -585,7 +586,7 @@ class SongMenuItem extends FlxSpriteGroup
 		}
 		else
 		{
-			new FlxTimer().start((xFrames.length / 24) * 2.5, function(_) {
+			new FlxTimer().start((xFrames.length / 24) * 2.5, _ -> {
 				visible = true;
 				capsule.alpha = 1;
 				setVisibleGrp(true);

@@ -62,12 +62,12 @@ class FreeplayHelpers {
         return songs;
     }
     public static function moveToPlaystate(state:FreeplayState,cap:FreeplaySongData,currentDifficulty:String,?targetInstId:String){
-        // FunkinSound.emptyPartialQueue();
-
+        	// FunkinSound.emptyPartialQueue();
 			// Paths.setCurrentLevel(cap.songData.levelId);
 			state.persistentUpdate = false;
 			Mods.currentModDirectory = cap.folder;
 
+			LoadingState.loadAndSwitchState(new PlayState());
 			FlxG.sound.music.volume = 0;
 
 			#if (MODS_ALLOWED && DISCORD_ALLOWED)
