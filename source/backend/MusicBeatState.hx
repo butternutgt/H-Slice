@@ -11,7 +11,7 @@ class MusicBeatState extends FlxState
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
-	private var oldStep:Float = 0;
+	private var oldStep:Float = -1;
 	private var curStep:Float = 0;
 	private var curStepLimit:Int = 0;
 	private var updateCount:Int = 0;
@@ -155,8 +155,9 @@ class MusicBeatState extends FlxState
 		updateCurStep();
 		updateBeat();
 
-		if(curStep > 0)
-			stepHit();
+		// trace(curStep, CoolUtil.floatToStringPrecision(curDecStep, 3), curBeat);
+
+		if(curStep > 0) stepHit();
 
 		if(PlayState.SONG != null)
 		{
@@ -223,6 +224,7 @@ class MusicBeatState extends FlxState
 		delayToFix = ((Conductor.songPosition - ClientPrefs.data.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + delayToFix;
 		curStep = lastChange.stepTime + Math.floor(delayToFix);
+		if (oldStep - 1 > curDecStep) oldStep = curStep; // for looping music
 	}
 
 	public static function switchState(nextState:FlxState = null) {
@@ -264,13 +266,12 @@ class MusicBeatState extends FlxState
 			return currentState;
 	}
 
-	var nextStep:Float;
 	public function stepHit():Void
 	{
+		var nextStep:Float = curStep + 1;
 		if (curStepLimit > 0) 
 			maxBPM = curStepLimit * GameplaySettingsSubState.defaultBPM * ClientPrefs.data.framerate;
 		else maxBPM = Math.POSITIVE_INFINITY;
-		nextStep = curStep + 1;
 
 		if (Conductor.bpm <= maxBPM) {
 			if (curStepLimit != 0) {
@@ -286,31 +287,24 @@ class MusicBeatState extends FlxState
 					stage.stepHit();
 				});
 
-				if (oldStep % 4 == 0)
-					beatHit();
+				if (oldStep % 4 == 0) beatHit();
 				
 				++oldStep; ++updateCount;
 				
 				countJudge = (curStepLimit != 0 ? oldStep < nextStep && updateCount < curStepLimit : oldStep < nextStep);
 			}
-		} else {
-			for (i in 0...curStepLimit) {
-				oldStep = Std.int(FlxMath.lerp(oldStep, nextStep, i/curStepLimit));
-					
-				stagesFunc(function(stage:BaseStage) {
-					stage.curStep = oldStep;
-					stage.curDecStep = oldStep;
-					stage.stepHit();
-				});
+		} else {				
+			stagesFunc( stage -> {
+				stage.curStep = curStep;
+				stage.curDecStep = curStep;
+				stage.stepHit();
+			});
 
-				if (oldStep % 4 == 0)
-					beatHit();
-			}
+			if (curStep % 4 == 0) beatHit();
 			updateCount = curStepLimit;
+			oldStep = curStep;
 		}
 		updateMaxSteps = updateCount;
-
-		oldStep = Std.int(Math.max(oldStep, nextStep));
 	}
 
 	public var stages:Array<BaseStage> = [];
