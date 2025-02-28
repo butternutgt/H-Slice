@@ -2778,6 +2778,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	public function noteSpawn()
 	{
 		timeout = nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp();
+		
 		if (unspawnNotes.length > totalCnt)
 		{
 			limitCount = notes.countLiving();
@@ -2808,7 +2809,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				}
 
-				if (!noteJudge && isCanPass || !optimizeSpawnNote) {
+				if ((!noteJudge || !optimizeSpawnNote) && isCanPass) {
 					noteDataInfo = targetNote.noteData;
 					if (betterRecycle) {
 						dunceNote = notes.spawnNote(targetNote, oldNote);
@@ -2836,7 +2837,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						}
 						++shownCnt; ++limitCount;
 					}
-				} else if (optimizeSpawnNote) {
+				} else {
 					// Skip notes without spawning
 					strumHitId = targetNote.noteData + (castMust ? 4 : 0) & 255;
 					skipHit |= 1 << strumHitId;
@@ -4190,13 +4191,13 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		note.rating = daRating.name;
 		score = daRating.score;
 
-		if(!practiceMode && !cpuControlled) {
+		if(!practiceMode) {
 			songScore += score;
 			if(!note.ratingDisabled)
 			{
 				songHits++;
 				totalPlayed++;
-				if (!cpuControlled) recalculateRating();
+				recalculateRating();
 			}
 		}
 	}
@@ -4778,7 +4779,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				++combo; ++bfSideHit; globalNoteHit = true;
 				maxCombo = Math.max(maxCombo, combo);
 				if (showPopups) popUpHitNote = note;
-				addScore(note);
+				if (!cpuControlled) addScore(note);
 			}
 
 			bfHit = true;
