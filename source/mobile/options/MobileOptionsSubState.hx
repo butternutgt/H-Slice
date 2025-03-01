@@ -32,7 +32,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 	#if android
 	public var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL"];
 	var externalPaths:Array<String> = StorageUtil.checkExternalPaths(true);
-	public static var lastStorageType:String = ClientPrefs.data.storageType; // It might not work because it'll be get before initialized
+	public static var lastStorageType:String; // It might not work because it'll be get before initialized
 	#end
 	final exControlTypes:Array<String> = ["NONE", "SINGLE", "DOUBLE"];
 	final hintOptions:Array<String> = ["No Gradient", "No Gradient (Old)", "Gradient", "Hidden"];

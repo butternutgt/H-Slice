@@ -149,8 +149,19 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		}
 
 		if (controls.BACK) {
-			close();
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+			#if android
+			// P-Slice moment
+			if (ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
+			{
+				CoolUtil.showPopUp('Storage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
+				MobileOptionsSubState.onStorageChange();
+				CoolUtil.showPopUp('Storage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
+				ClientPrefs.saveSettings();
+				lime.system.System.exit(0);
+			}
+			#end
+			close();
 		}
 
 		if(nextAccept <= 0)
