@@ -1,5 +1,6 @@
 package options;
 
+import mobile.backend.MobileScaleMode;
 import objects.Note;
 import objects.StrumNote;
 import objects.NoteSplash;
@@ -222,6 +223,27 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
 		
+		var option:Option = new Option('- Memory Usage',
+			'If checked, shows Memory Usage, From Left to Right,\nOverall usage, Garbage Collector Usage, Maximum usage.',
+			'showMemory',
+			BOOL);
+		addOption(option);
+		option.onChange = onChangeFPSCounterHeight;
+		
+		var option:Option = new Option('- Maximum Memory Usage',
+			'If checked, shows Maximum Memory Usage.',
+			'showPeakMemory',
+			BOOL);
+		addOption(option);
+		option.onChange = onChangeFPSCounterHeight;
+		
+		var option:Option = new Option('- OS Infomation',
+			'If checked, shows OS Infomation.',
+			'showOS',
+			BOOL);
+		addOption(option);
+		option.onChange = onChangeFPSCounterHeight;
+		
 		var option:Option = new Option('FC - Update Rate',
 			"How fast will the FPS Counter Update?",
 			'fpsRate',
@@ -384,6 +406,11 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	{
 		if (Main.fpsVar != null) Main.fpsVar.visible = ClientPrefs.data.showFPS;
 		if (Main.fpsBg != null) Main.fpsBg.visible = ClientPrefs.data.showFPS;
+	}
+	
+	function onChangeFPSCounterHeight()
+	{
+		Main.fpsBg.relocate(0, 0, ClientPrefs.data.wideScreen);
 	}
 
 	function onChangeFPSRate()

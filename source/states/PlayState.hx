@@ -873,6 +873,13 @@ class PlayState extends MusicBeatState
 		if (eventNotes.length < 1)
 			checkEventNote();
 
+		columns = showInfoType == "Debug Info" ? 6 : 2;
+
+		changeInfo = switch (showInfoType) {
+			case "Debug Info", "Song Info": true;
+			default: false;
+		}
+
 		skipNoteSplash.active = false;
 
 		if (limitNotes == 0) limitNotes = 2147483647;
@@ -2232,9 +2239,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var skipMax:Int = 0;
 
 	// Infomation
-	public var debugInfos:Bool = false;
-	public var debugInfoType:Int = 0;
-	public var debugInfoMax:Int = 6;
+	var changeInfo:Bool = false;
+	var debugInfos:Bool = false;
+	var columnIndex:Int = 0;
+	var columns:Int = 0;
 
 	// NPS
 	var npsTime:Int;
@@ -2484,6 +2492,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		// NPS Zone
 		if (showInfoType == "Notes Per Second" && !paused) {
+			npsMod = bfNpsAdd > 0 || opNpsAdd > 0;
+			bothNpsAdd = bfNpsAdd > 0 && opNpsAdd > 0;
+
 			if (npsMod) {
 				if (globalNoteHit) {
 					if (opNpsAdd > 0) {
@@ -2535,28 +2546,30 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			bfNpsMax = Math.max(bfNpsVal, bfNpsMax);
 		}
 
-		if (debugInfos) {
-			if (FlxG.keys.justPressed.UP) --debugInfoType;
-			if (FlxG.keys.justPressed.DOWN) ++debugInfoType;
+		if (changeInfo) {
+			if (FlxG.keys.justPressed.UP) --columnIndex;
+			if (FlxG.keys.justPressed.DOWN) ++columnIndex;
 
-			if (debugInfoType >= debugInfoMax) debugInfoType = 0;
-			if (debugInfoType < 0) debugInfoType = debugInfoMax-1;
+			if (columnIndex >= columns) columnIndex = 0;
+			if (columnIndex < 0) columnIndex = FlxMath.maxInt(0, columns-1);
 
-			popUpDebug.fill(0); popUpAlive = 0;
-			if (showPopups) {
-				popUpGroup.forEach(lmfao -> {
-					switch (lmfao.type) {
-						case NONE: ++popUpDebug[0];
-						case RATING: ++popUpDebug[1];
-						case COMBO: ++popUpDebug[2];
-						case NUMBER: ++popUpDebug[3];
-					}
-				});
-			}
+			if (debugInfos) {
+				popUpDebug.fill(0); popUpAlive = 0;
+				if (showPopups) {
+					popUpGroup.forEach(lmfao -> {
+						switch (lmfao.type) {
+							case NONE: ++popUpDebug[0];
+							case RATING: ++popUpDebug[1];
+							case COMBO: ++popUpDebug[2];
+							case NUMBER: ++popUpDebug[3];
+						}
+					});
+				}
 
-			for (index in 0...popUpDebug.length) {
-				if (index != 0)
-					popUpAlive += popUpDebug[index];
+				for (index in 0...popUpDebug.length) {
+					if (index != 0)
+						popUpAlive += popUpDebug[index];
+				}
 			}
 		}
 
@@ -2637,7 +2650,13 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 					info = info.substr(2);
 				case 'Song Info':
-					info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat+1,0)}/${Math.max(curStep+1,0)}, Update Cnt: ${updateMaxSteps}';
+					switch (columnIndex) {
+						case 0:
+							info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat+1,0)}/${Math.max(curStep+1,0)}, Update Cnt: ${updateMaxSteps}';
+						default:
+							var secBeat:Float = getBeatsOnSection();
+							info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat % secBeat + 1,0)}/${Math.max(curStep % secBeat + 1,0)}, Update Cnt: ${updateMaxSteps}';
+					}
 				case 'Music Sync Info':
 					info = 'Desync: ('
 						 + numFormat(desyncTime, 1)
@@ -2646,7 +2665,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						 + ') Sync Count: $desyncCount';
 				case 'Debug Info':
 					debugInfos = true;
-					switch (debugInfoType) {
+					switch (columnIndex) {
 						case 0:
 							if (betterRecycle) {
 								var f = notes.debugInfo();
@@ -3085,7 +3104,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 
 	var altAnim:String;
-	var currNote:SwagSection;
+	var curSec:SwagSection;
 	var holdTime:Float = Conductor.stepCrochet / 1000;
 	var fullHit:Bool = false;
 	var canAnim:Vector<Bool> = new Vector(3, true);
@@ -3114,16 +3133,14 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			if (canAnim[animTarget]) {
 				if (!isNullNote) {
 					altAnim = objectNote.animSuffix;
-					currNote = SONG.notes[curSection];
 					animCheck = objectNote.gfNote ? 'cheer' : 'hey';
 					animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, objectNote.noteData)))];
 				} else {
-					currNote = null;
 					animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, FlxG.random.int(0, 4))))];
 				}
 
-				if (currNote != null) {
-					if (currNote.altAnim && !currNote.gfSection)
+				if (curSec != null) {
+					if (curSec.altAnim && !curSec.gfSection)
 						altAnim = '-alt';
 				} else if (altAnim != '') altAnim = '';
 
@@ -4573,7 +4590,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		// play character anims
 		var char:Character = boyfriend;
-		if ((note != null && note.gfNote) || (SONG.notes[curSection] != null && SONG.notes[curSection].gfSection))
+		if ((note != null && note.gfNote) || (curSec != null && curSec.gfSection))
 			char = gf;
 
 		if (char != null && (note == null || !note.noMissAnimation) && char.hasMissAnimations)
@@ -5006,7 +5023,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	override function beatHit()
 	{
-		if (lastBeatHit >= curBeat)
+		if (lastBeatHit > curBeat)
 		{
 			// trace('BEAT HIT: ' + curBeat + ', LAST HIT: ' + lastBeatHit);
 			return;
@@ -5058,21 +5075,22 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	override function sectionHit()
 	{
-		if (SONG.notes[curSection] != null)
+		curSec = SONG.notes[curSection];
+		if (curSec != null)
 		{
 			if (generatedMusic && !endingSong && !isCameraOnForcedPos)
 				moveCameraSection();
 
-			if (SONG.notes[curSection].changeBPM)
+			if (curSec.changeBPM)
 			{
-				Conductor.bpm = SONG.notes[curSection].bpm;
+				Conductor.bpm = curSec.bpm;
 				setOnScripts('curBpm', Conductor.bpm);
 				setOnScripts('crochet', Conductor.crochet);
 				setOnScripts('stepCrochet', Conductor.stepCrochet);
 			}
-			setOnScripts('mustHitSection', SONG.notes[curSection].mustHitSection);
-			setOnScripts('altAnim', SONG.notes[curSection].altAnim);
-			setOnScripts('gfSection', SONG.notes[curSection].gfSection);
+			setOnScripts('mustHitSection', curSec.mustHitSection);
+			setOnScripts('altAnim', curSec.altAnim);
+			setOnScripts('gfSection', curSec.gfSection);
 		}
 		super.sectionHit();
 

@@ -121,6 +121,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	}
 
 	var nextAccept:Int = 5;
+	var selectHoldTime:Float = 0;
 	var holdTime:Float = 0;
 	var holdValue:Float = 0;
 
@@ -139,13 +140,20 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			return;
 		}
 
-		if (controls.UI_UP_P)
+		if (controls.UI_UP_P || controls.UI_DOWN_P)
 		{
-			changeSelection(-1);
+			changeSelection(controls.UI_UP_P ? -1 : 1);
+			selectHoldTime = 0;
 		}
-		if (controls.UI_DOWN_P)
+
+		if(controls.UI_DOWN || controls.UI_UP)
 		{
-			changeSelection(1);
+			var checkLastHold:Int = Std.int((selectHoldTime - 0.5) * 10);
+			selectHoldTime += elapsed;
+			var checkNewHold:Int = Std.int((selectHoldTime - 0.5) * 10);
+
+			if(selectHoldTime > 0.5 && checkNewHold - checkLastHold >= 1)
+				changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -1 : 1));
 		}
 
 		if (controls.BACK) {
@@ -154,7 +162,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			// P-Slice moment
 			if (ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
 			{
-				CoolUtil.showPopUp('Storage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
 				MobileOptionsSubState.onStorageChange();
 				CoolUtil.showPopUp('Storage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
 				ClientPrefs.saveSettings();

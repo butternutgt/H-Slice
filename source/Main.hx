@@ -155,6 +155,7 @@ class Main extends Sprite
 		addChild(gameObject);
 
 		fpsBg = new FPSBg();
+		fpsBg.relocate(0, 0, ClientPrefs.data.wideScreen);
 		fpsVar = new FPSCounter(6, 1, 0xFFFFFF);
 		// #if mobile
 		// FlxG.game.addChild(fpsBg);

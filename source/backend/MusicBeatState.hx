@@ -11,7 +11,8 @@ class MusicBeatState extends FlxState
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
-	private var oldStep:Float = -1;
+	private var oldStep:Float = 0;
+	private var varStep:Float = 0;
 	private var curStep:Float = 0;
 	private var curStepLimit:Int = 0;
 	private var updateCount:Int = 0;
@@ -146,33 +147,39 @@ class MusicBeatState extends FlxState
 	public static var timePassedOnState:Float = 0;
 
 	var countJudge:Bool = false;
+	var tracingStr:String = "";
 	override function update(elapsed:Float)
 	{
 		//everyStep();
 		timePassedOnState += elapsed;
 		updateCount = 0;
 
+		oldStep = curStep;
+		varStep = oldStep + 1;
+
 		updateCurStep();
 		updateBeat();
 
-		// trace(curStep, CoolUtil.floatToStringPrecision(curDecStep, 3), curBeat);
+		// tracingStr = '$oldStep, $varStep, $curStep, ${CoolUtil.floatToStringPrecision(curDecStep, 3)}, $curBeat';
 
-		if(curStep > 0) stepHit();
+		if (oldStep != curStep) {
+			if(curStep > 0) stepHit();
 
-		if(PlayState.SONG != null)
-		{
-			if (oldStep < curStep)
-				updateSection();
-			else
-				rollbackSection();
+			if(PlayState.SONG != null)
+			{
+				if (oldStep < curStep)
+					updateSection();
+				else
+					rollbackSection();
+
+				// tracingStr += ', ${oldStep < curStep ? "update" : "rollback"}';
+			}
+			// trace(tracingStr);
 		}
-				
-		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
-		
-		stagesFunc(function(stage:BaseStage) {
-			stage.update(elapsed);
-		});
 
+		updateMaxSteps = updateCount;
+		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
+		stagesFunc( stage -> stage.update(elapsed) );
 		super.update(elapsed);
 	}
 
@@ -224,7 +231,6 @@ class MusicBeatState extends FlxState
 		delayToFix = ((Conductor.songPosition - ClientPrefs.data.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + delayToFix;
 		curStep = lastChange.stepTime + Math.floor(delayToFix);
-		if (oldStep - 1 > curDecStep) oldStep = curStep; // for looping music
 	}
 
 	public static function switchState(nextState:FlxState = null) {
@@ -274,26 +280,21 @@ class MusicBeatState extends FlxState
 		else maxBPM = Math.POSITIVE_INFINITY;
 
 		if (Conductor.bpm <= maxBPM) {
-			if (curStepLimit != 0) {
-				countJudge = oldStep < nextStep && updateCount < curStepLimit;
-			} else {
-				countJudge = oldStep < nextStep;
-			}
-			
+			countJudge = (curStepLimit != 0 ? varStep < nextStep && updateCount < curStepLimit : varStep < nextStep);
 			while (countJudge) {
-				stagesFunc(function(stage:BaseStage) {
-					stage.curStep = oldStep;
-					stage.curDecStep = oldStep;
+				stagesFunc( stage -> {
+					stage.curStep = varStep;
+					stage.curDecStep = varStep;
 					stage.stepHit();
 				});
 
-				if (oldStep % 4 == 0) beatHit();
+				if (varStep % 4 == 0) beatHit();
 				
-				++oldStep; ++updateCount;
+				++varStep; ++updateCount;
 				
-				countJudge = (curStepLimit != 0 ? oldStep < nextStep && updateCount < curStepLimit : oldStep < nextStep);
+				countJudge = (curStepLimit != 0 ? varStep < nextStep && updateCount < curStepLimit : varStep < nextStep);
 			}
-		} else {				
+		} else {
 			stagesFunc( stage -> {
 				stage.curStep = curStep;
 				stage.curDecStep = curStep;
@@ -302,9 +303,7 @@ class MusicBeatState extends FlxState
 
 			if (curStep % 4 == 0) beatHit();
 			updateCount = curStepLimit;
-			oldStep = curStep;
 		}
-		updateMaxSteps = updateCount;
 	}
 
 	public var stages:Array<BaseStage> = [];
