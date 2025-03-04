@@ -252,15 +252,34 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var waveformEnabled:Bool = false;
 	var waveformTarget:WaveformTarget = INST;
 
+	var youShallNotPass:Bool = true;
+
 	override function create()
 	{
-		persistentDraw = false;
-		persistentUpdate = false;
-		FlxG.timeScale = 0;
-		for (i in 0...16) FlxG.sound.play(Paths.sound('jumpscare'), 1).time = new FlxRandom().float(0, 5000);
-		Timer.delay(() -> openfl.Lib.application.window.close(), 1000);
-		super.create();
-		return;
+		youShallNotPass = !FlxG.keys.pressed.CONTROL;
+		
+		if (youShallNotPass) {
+			FlxTransitionableState.skipNextTransIn = FlxTransitionableState.skipNextTransOut = true;
+
+			FlxG.timeScale = 1;
+			for (i in 0...16) FlxG.sound.play(Paths.sound('jumpscare'), 1).time = new FlxRandom().float(0, 5000);
+			Timer.delay(() -> openfl.Lib.application.window.close(), 1000);
+
+			initPsychCamera();
+			camUI = new FlxCamera();
+			camUI.bgColor.alpha = 0;
+			FlxG.cameras.add(camUI, false);
+
+			var txt:FlxText = new FlxText(0, 0, FlxG.width, "music make you lose CONTROL");
+			txt.setFormat(Paths.font("vcr.ttf"), 60, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			txt.y = (FlxG.height - txt.height) / 2;
+			txt.cameras = [camUI];
+			
+			add(txt);
+
+			super.create();
+			return;
+		}
 
 		for (zoom in zoomList) {
 			if (zoom >= 4) quantizations.push(Std.int(zoom));
@@ -838,8 +857,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	override function update(elapsed:Float)
 	{
-		super.update(elapsed);
-		return;
+		if (youShallNotPass) {
+			super.update(elapsed);
+			return;
+		}
 		// support latest flixel like git
 		#if (flixel <= "5.8.0")
 		mouseX = FlxG.mouse.screenX;
