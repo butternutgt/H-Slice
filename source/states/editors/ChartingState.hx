@@ -838,6 +838,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	override function update(elapsed:Float)
 	{
+		super.update(elapsed);
+		return;
 		// support latest flixel like git
 		#if (flixel <= "5.8.0")
 		mouseX = FlxG.mouse.screenX;

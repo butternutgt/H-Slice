@@ -42,8 +42,8 @@ typedef CastNote = {
 	// 15th bit is for blockHit
 	// 16th bit is for ignoreNote
 	var noteData:Int;
-	@:optional var noteType:String;
 	var holdLength:Null<Float>;
+	@:optional var noteType:String;
 	var noteSkin:String;
 }
 
