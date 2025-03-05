@@ -131,11 +131,11 @@ class TitleState extends MusicBeatState
 		}
 
 		FlxG.mouse.visible = false;
-		#if FREEPLAY
-		MusicBeatState.switchState(new FreeplayState());
-		#elseif CHARTING
-		MusicBeatState.switchState(new ChartingState());
-		#else
+		// #if FREEPLAY
+		// MusicBeatState.switchState(new FreeplayState());
+		// #elseif CHARTING
+		// MusicBeatState.switchState(new ChartingState());
+		// #else
 		if (FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
 			controls.isInSubstate = false;
@@ -157,7 +157,7 @@ class TitleState extends MusicBeatState
 				});
 			}
 		}
-		#end
+		// #end
 	}
 
 	var logoBl:FlxSprite;

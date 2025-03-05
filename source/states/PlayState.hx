@@ -2781,6 +2781,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	var limitCount:Int = 0;
 	var oldNote:Note = null;
+	var swapNote:Note = null;
 	var skipOpCNote:CastNote;
 	var skipBfCNote:CastNote;
 	var skipNoteSplash:Note = new Note();
@@ -3259,6 +3260,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		DiscordClient.changePresence("Chart Editor", null, null, true);
 		DiscordClient.resetClientID();
 		#end
+
+		if (FlxG.keys.pressed.CONTROL) ChartingState.youShallNotPass = false;
 
 		MusicBeatState.switchState(new ChartingState());
 	}
@@ -4736,10 +4739,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		note.wasGoodHit = true;
 
+		if (bfHit && note.sustainLength > 0) bfHit = false;
+		
 		if (!ffmpegMode && !bfHit && note.hitsoundVolume > 0 && !note.hitsoundDisabled)
 			FlxG.sound.play(Paths.sound(note.hitsound), note.hitsoundVolume);
-
-		if (bfHit && !note.isSustainNote && note.sustainLength > 0) bfHit = false;
 
 		if (!note.hitCausesMiss) // Common notes
 		{

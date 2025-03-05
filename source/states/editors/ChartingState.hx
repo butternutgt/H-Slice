@@ -252,12 +252,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var waveformEnabled:Bool = false;
 	var waveformTarget:WaveformTarget = INST;
 
-	var youShallNotPass:Bool = true;
+	public static var youShallNotPass:Bool = true;
 
 	override function create()
-	{
-		youShallNotPass = !FlxG.keys.pressed.CONTROL;
-		
+	{		
 		if (youShallNotPass) {
 			FlxTransitionableState.skipNextTransIn = FlxTransitionableState.skipNextTransOut = true;
 
@@ -5371,6 +5369,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		MetaNote.noteTypeTexts = [];
 		fileDialog.destroy();
+		ChartingState.youShallNotPass = true;
 		super.destroy();
 	}
 
