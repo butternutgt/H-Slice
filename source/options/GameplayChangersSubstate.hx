@@ -303,31 +303,56 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 			
 			if(controls.RESET #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonC.justPressed #end)			
 			{
-				for (i in 0...optionsArray.length)
-				{
-					var leOption:GameplayOption = optionsArray[i];
-					leOption.setValue(leOption.defaultValue);
-					if(leOption.type != BOOL)
+				if (!FlxG.keys.pressed.SHIFT) {
+					curOption.setValue(curOption.defaultValue);
+					if(curOption.type != BOOL)
 					{
-						if(leOption.type == STRING)
-							leOption.curOption = leOption.options.indexOf(leOption.getValue());
+						if(curOption.type == STRING)
+							curOption.curOption = curOption.options.indexOf(curOption.getValue());
 
-						updateTextFrom(leOption);
+						updateTextFrom(curOption);
 					}
 
-					if(leOption.name == 'Scroll Speed')
+					if(curOption.name == 'Scroll Speed')
 					{
-						leOption.displayFormat = "%vX";
-						leOption.maxValue = MultiMax;
-						if(leOption.getValue() > MultiMax)
-							leOption.setValue(MultiMax);
+						curOption.displayFormat = "%vX";
+						curOption.maxValue = MultiMax;
+						if(curOption.getValue() > MultiMax)
+							curOption.setValue(MultiMax);
 
-						updateTextFrom(leOption);
+						updateTextFrom(curOption);
 					}
-					leOption.change();
+					curOption.change();
+					
+					FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+					reloadCheckboxes();
+				} else {
+					for (i in 0...optionsArray.length)
+					{
+						var leOption:GameplayOption = optionsArray[i];
+						leOption.setValue(leOption.defaultValue);
+						if(leOption.type != BOOL)
+						{
+							if(leOption.type == STRING)
+								leOption.curOption = leOption.options.indexOf(leOption.getValue());
+
+							updateTextFrom(leOption);
+						}
+
+						if(leOption.name == 'Scroll Speed')
+						{
+							leOption.displayFormat = "%vX";
+							leOption.maxValue = MultiMax;
+							if(leOption.getValue() > MultiMax)
+								leOption.setValue(MultiMax);
+
+							updateTextFrom(leOption);
+						}
+						leOption.change();
+					}
+					FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+					reloadCheckboxes();
 				}
-				FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
-				reloadCheckboxes();
 			}
 		}
 

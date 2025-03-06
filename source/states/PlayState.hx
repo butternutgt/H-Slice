@@ -734,9 +734,9 @@ class PlayState extends MusicBeatState
 		// Default Value has inherited from HRK Engine
 		var botplayTxtY:Float = timeBar.y + (ClientPrefs.data.downScroll ? -80 : 55);
 		switch (ClientPrefs.data.vsliceBotPlayPlace) {
-			case "Near the Health Bar":
+			case "Health Bar":
 				botplayTxtY = healthBar.y + (ClientPrefs.data.downScroll ? -80 : 70);
-			case "Near the Time Bar": // Omitted because nothing has changed.
+			case "Time Bar": // Omitted because nothing has changed.
 		}
 
 		botplayTxt = new FlxText(400, botplayTxtY, FlxG.width - 800, Language.getPhrase("Botplay").toUpperCase(), 32);
