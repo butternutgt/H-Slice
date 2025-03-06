@@ -2863,7 +2863,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					strumHitId = targetNote.noteData + (castMust ? 4 : 0) & 255;
 					skipHit |= 1 << strumHitId;
 
-					if (timeLimit) ++skipTimeOut;
+					if (!timeLimit) ++skipTimeOut;
 
 					if (cpuControlled) {
 						if (!castHold) castMust ? ++skipBf : ++skipOp;
