@@ -2212,8 +2212,6 @@ class FreeplayState extends MusicBeatSubstate
 			busy = false;
 			letterSort.inputEnabled = true;
 			
-			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
-			
 			var errorStr:String = e.message;
 			if(errorStr.contains('There is no TEXT asset with an ID of')) errorStr = 'Missing file: ' + errorStr.substring(errorStr.indexOf(songLowercase), errorStr.length-1); //Missing chart
 			else errorStr += '\n\n' + e.stack;
@@ -2224,7 +2222,7 @@ class FreeplayState extends MusicBeatSubstate
 			missingText.screenCenter(Y);
 			missingText.visible = true;
 			missingTextBG.visible = true;
-			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+			FlxG.sound.play(OldPaths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 
 			return;
 		}

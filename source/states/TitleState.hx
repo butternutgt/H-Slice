@@ -641,7 +641,7 @@ class TitleState extends MusicBeatState
 		if (cheatActive && this.curBeat % 2 == 0 && swagShader != null)
 			swagShader.hue += 0.125;
 		
-		if (!closedState)
+		if (!closedState && !skippedIntro)
 		{
 			sickBeats++;
 			switch (sickBeats)
@@ -683,6 +683,9 @@ class TitleState extends MusicBeatState
 				case 17:
 					skipIntro();
 			}
+		} else {
+			skippedIntro = false;
+			skipIntro();
 		}
 	}
 
