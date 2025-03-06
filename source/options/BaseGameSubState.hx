@@ -62,8 +62,8 @@ class BaseGameSubState extends BaseOptionsMenu {
 			'vsliceBotPlayPlace',
 			STRING,
 			[
-				"Near the Time Bar",
-				"Near the Health Bar",
+				"Time Bar",
+				"Health Bar",
 			]);
 		addOption(option);
 		var option:Option = new Option('Force "New" tag',

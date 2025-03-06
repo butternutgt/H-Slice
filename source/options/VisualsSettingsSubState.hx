@@ -170,7 +170,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 				'Notes Per Second',
 				'Rendered Notes',
 				'Note Splash Counter',
-				'Note Appear Time',
+				'Note Spawn Time',
 				'Video Info',
 				'Note Info',
 				'Strums Info',
