@@ -1596,6 +1596,7 @@ class FreeplayState extends MusicBeatSubstate
 					grpCapsules.members[realShit].favIconBlurred.animation.play('fav');
 					FunkinSound.playOnce(Paths.sound('fav'), ClientPrefs.data.sfxVolume);
 					grpCapsules.members[realShit].checkClip();
+					grpCapsules.members[realShit].pixelIcon.favoriteAnim(true);
 					grpCapsules.members[realShit].selected = grpCapsules.members[realShit].selected; // set selected again, so it can run it's getter function to initialize movement
 					busy = true;
 
@@ -1623,6 +1624,8 @@ class FreeplayState extends MusicBeatSubstate
 						grpCapsules.members[realShit].favIconBlurred.visible = false;
 						grpCapsules.members[realShit].checkClip();
 					});
+
+					grpCapsules.members[realShit].pixelIcon.favoriteAnim(false);
 
 					busy = true;
 					grpCapsules.members[realShit].doLerp = false;

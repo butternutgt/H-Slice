@@ -13,6 +13,8 @@ import mikolka.funkin.FlxFilteredSprite;
 class PixelatedIcon extends FlxFilteredSprite
 {
 	public var type:IconType;
+	public var thirdIcon:Bool;
+
 	public function new(x:Float, y:Float)
 	{
 		super(x, y);
@@ -50,15 +52,19 @@ class PixelatedIcon extends FlxFilteredSprite
 					image = Paths.image("icons/icon-face");
 					// healthIcon = true;
 				}
-				var iSize:Float = Math.round(graphic.width / graphic.height);
+				var iSize:Float = Math.max(Math.round(image.width / image.height), 1);
+				// trace(iSize, image.width, Math.round(image.width / iSize));
 				this.loadGraphic(image, true, Math.round(image.width / iSize), Math.round(image.height));
 				animation.add("idle", [0]);
 				animation.add("confirm", [1]);
+				if (iSize > 2) animation.add("favorite", [2]);
+
+				thirdIcon = iSize > 2;
+
 				this.scale.x = this.scale.y = 0.58;
 				this.updateHitbox();
 				this.origin.x = 100;
 				this.antialiasing = ClientPrefs.data.antialiasing;
-			// animation.play("idle");
 			case PIXEL:
 				// legacy P-Slice freeplay icons
 				var image = Paths.image('freeplay/icons/${char}pixel');
@@ -90,7 +96,14 @@ class PixelatedIcon extends FlxFilteredSprite
 				if (char == "parents")
 					this.origin.x = 55;
 		}
-		animation.play("idle");
+		favoriteAnim();
+	}
+
+	public function favoriteAnim(isFavorited:Bool = false) {
+		if (isFavorited && thirdIcon)
+			animation.play("favorite");
+		else
+			animation.play("idle");
 	}
 }
 

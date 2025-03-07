@@ -26,7 +26,7 @@ class SongMenuItem extends FlxSpriteGroup
 {
 	public var capsule:FlxSprite;
 
-	var pixelIcon:PixelatedIcon;
+	public var pixelIcon:PixelatedIcon;
 
 	/**
 	 * Modify this by calling `init()`
