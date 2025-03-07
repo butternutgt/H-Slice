@@ -1,5 +1,6 @@
 package mikolka.compatibility;
 
+import haxe.Json;
 import mikolka.vslice.freeplay.pslice.FreeplayColorTweener;
 import mikolka.vslice.freeplay.pslice.BPMCache;
 import mikolka.vslice.freeplay.FreeplayState;
@@ -24,15 +25,37 @@ class FreeplayHelpers {
 	static var sngCard:FreeplaySongData;
 	static var offset:Int;
 	static var songCount:Int;
-    public inline static function loadSongs(){
+    public static function loadSongs(){
+		var noCache:Bool = false;
 		songs = []; 
         songCount = offset = 0;
         WeekData.reloadWeekFiles(false);
+
+		var bpmList:Dynamic = null;
+		try {
+			bpmList = Json.parse(File.getContent("assets/bpmList.json"));
+		} catch (e) {trace('Bpm list file not found'); noCache = true;}
+
 		// programmatically adds the songs via LevelRegistry and SongRegistry
-		for (week in WeekData.weeksList)
-		{
-			songCount += WeekData.weeksLoaded.get(week).songs.length;
+		var songName:String = null;
+		for (week in WeekData.weeksList) songCount += WeekData.weeksLoaded.get(week).songs.length;
+
+		if (!noCache) {
+			if (bpmList != null) {
+				for (key in Reflect.fields(bpmList)) {
+					if (!BPMCache.freeplayBPMs.exists(key)) {
+						BPMCache.freeplayBPMs.set(key, Reflect.field(bpmList, key));
+						songName = Paths.formatToSongPath(key.substring(key.lastIndexOf("/")+1));
+					}
+				}
+			}
 		}
+
+		trace(songCount, BPMCache.count());
+		if (songCount < BPMCache.count() || noCache) {
+			BPMCache.clearCache(); // for good measure
+		}
+
 		for (i => week in WeekData.weeksList)
 		{
 			if (weekIsLocked(week))
@@ -59,20 +82,23 @@ class FreeplayHelpers {
 			offset += leWeek.songs.length;
 		}
 		Sys.print("\n");
+
+		File.saveContent("assets/bpmList.json", Json.stringify(BPMCache.freeplayBPMs));
+
         return songs;
     }
     public static function moveToPlaystate(state:FreeplayState,cap:FreeplaySongData,currentDifficulty:String,?targetInstId:String){
-        	// FunkinSound.emptyPartialQueue();
-			// Paths.setCurrentLevel(cap.songData.levelId);
-			state.persistentUpdate = false;
-			Mods.currentModDirectory = cap.folder;
+		// FunkinSound.emptyPartialQueue();
+		// Paths.setCurrentLevel(cap.songData.levelId);
+		state.persistentUpdate = false;
+		Mods.currentModDirectory = cap.folder;
 
-			LoadingState.loadAndSwitchState(new PlayState());
-			FlxG.sound.music.volume = 0;
+		LoadingState.loadAndSwitchState(new PlayState());
+		FlxG.sound.music.volume = 0;
 
-			#if (MODS_ALLOWED && DISCORD_ALLOWED)
-			DiscordClient.loadModRPC();
-			#end
+		#if (MODS_ALLOWED && DISCORD_ALLOWED)
+		DiscordClient.loadModRPC();
+		#end
     }
 
     static function weekIsLocked(name:String):Bool
@@ -83,11 +109,9 @@ class FreeplayHelpers {
                 && (!StoryMenuState.weekCompleted.exists(leWeek.weekBefore) || !StoryMenuState.weekCompleted.get(leWeek.weekBefore)));
         }
 	public static function exitFreeplay() {
-		BPMCache.instance.clearCache();	
+		// bpmCache.clearCache();
 		Mods.loadTopMod();
 		FlxG.signals.postStateSwitch.dispatch(); //? for the screenshot plugin to clean itself
-
-		
 	}
 	public static function loadDiffsFromWeek(songData:FreeplaySongData){
 		Mods.currentModDirectory = songData.folder;

@@ -1,51 +1,60 @@
 package mikolka.vslice.freeplay.pslice;
 
+import haxe.ds.StringMap;
+import haxe.ds.IntMap;
+import haxe.ds.Map;
 import backend.Song.SwagSong;
 import backend.SongJson;
 
 //? no psych. uses sys
 class BPMCache {
-    private var bpmMap:Map<String,Int> = [];
+    public static var freeplayBPMs:StringMap<Int> = new StringMap();
     public static var instance = new BPMCache();
     public function new() {}
 
+    var chartFiles:Array<String>;
+    var chosenChartToScrap:String;
+    var regexSongName:String;
+    var song:SwagSong;
+
     public function getBPM(sngDataPath:String, fileSngName:String):Int {
-        if(bpmMap.exists(sngDataPath)){
-            //trace("loading from cache");
-            return bpmMap[sngDataPath];
-        }
-        bpmMap[sngDataPath] = 0;
+        if(freeplayBPMs.exists(sngDataPath))
+            return freeplayBPMs.get(sngDataPath);
+        
+        freeplayBPMs.set(sngDataPath, 0);
+        
         if(!exists(sngDataPath)){
             #if debug trace('Missing data folder for $fileSngName in $sngDataPath for BPM scrapping!!'); #end //TODO
             return 0;
         }
-        var chartFiles = Paths.readDirectory(sngDataPath);
+        
+        chartFiles = Paths.readDirectory(sngDataPath);
         #if MODS_ALLOWED
         chartFiles = chartFiles.filter(s -> s.toLowerCase().startsWith(fileSngName) && s.endsWith(".json"));
-        var chosenChartToScrap = sngDataPath+"/"+chartFiles[0];
+        chosenChartToScrap = sngDataPath+"/"+chartFiles[0];
         #else
-        var regexSongName = fileSngName.replace("(","\\(").replace(")","\\)");
+        regexSongName = fileSngName.replace("(","\\(").replace(")","\\)");
         chartFiles = chartFiles.filter(s -> new EReg('\\/$regexSongName\\/$regexSongName.*\\.json',"").match(s));
-        var chosenChartToScrap = chartFiles[0];
+        chosenChartToScrap = chartFiles[0];
         #end
 		
 		if(exists(chosenChartToScrap)){
             try {
                 SongJson.skipChart = true; SongJson.log = false;
-                var song:SwagSong = cast SongJson.parse(getContent(chosenChartToScrap));
+                song = cast SongJson.parse(getContent(chosenChartToScrap));
                 SongJson.skipChart = false; SongJson.log = true;
 
                 if(Reflect.hasField(song.song, 'song')) {
                     song = Reflect.field(song, 'song');
                 }
 
-                bpmMap[sngDataPath] = Math.round(song.bpm);
+                freeplayBPMs.set(sngDataPath, Math.round(song.bpm));
 
                 /* old way
                 var bpmFinder = ~/"bpm": *([0-9]+)/g; //TODO fix this regex
                 var cleanChart = ~/"notes": *\[.*\]/gs.replace(getContent(chosenChartToScrap),"");
                 if(bpmFinder.match(cleanChart)){
-                    bpmMap[sngDataPath] = Std.parseInt(bpmFinder.matched(1));
+                    freeplayBPMs.set(sngDataPath, Std.parseInt(bpmFinder.matched(1)));
                 }*/
             } catch (x) {
 			    #if debug trace('failed to scrap initial BPM for $fileSngName'); #end
@@ -53,10 +62,17 @@ class BPMCache {
 		} else {
 			#if debug trace('Missing chart of $fileSngName in $chosenChartToScrap for BPM scrapping!!'); #end //TODO
 		}
-        return bpmMap[sngDataPath];
+        return freeplayBPMs.get(sngDataPath);
     }
-    public function clearCache() {
-        bpmMap.clear();
+    public static function clearCache() {
+        freeplayBPMs.clear();
+    }
+    public static function count() {
+        var cnt:Int = 0;
+        for (value in freeplayBPMs) {
+            cnt++;
+        }
+        return cnt;
     }
     private function exists(path:String) {
         #if MODS_ALLOWED

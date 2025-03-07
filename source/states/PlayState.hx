@@ -701,13 +701,13 @@ class PlayState extends MusicBeatState
 		reloadHealthBarColors();
 		uiGroup.add(healthBar);
 
-		iconP1 = new HealthIcon(boyfriend.healthIcon, true);
+		iconP1 = new HealthIcon(boyfriend.healthIcon, true, ClientPrefs.data.cacheOnGPU, boyfriend.healthIconDivider);
 		iconP1.y = healthBar.y - 75;
 		iconP1.visible = !ClientPrefs.data.hideHud;
 		iconP1.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP1);
 
-		iconP2 = new HealthIcon(dad.healthIcon, false);
+		iconP2 = new HealthIcon(dad.healthIcon, false, ClientPrefs.data.cacheOnGPU, dad.healthIconDivider);
 		iconP2.y = healthBar.y - 75;
 		iconP2.visible = !ClientPrefs.data.hideHud;
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
@@ -1738,7 +1738,7 @@ class PlayState extends MusicBeatState
 		if (bfVocal) FlxG.sound.list.add(vocals);
 		if (opVocal) FlxG.sound.list.add(opponentVocals);
 
-		inst = new FlxSound(); trace(altInstrumentals);
+		inst = new FlxSound(); if (Main.debugBuild) trace('Alt inst: ${altInstrumentals ?? "None"}');
 		try { inst.loadEmbedded(Paths.inst(altInstrumentals ?? songData.song)); }
 		catch (e:Dynamic) {}
 		FlxG.sound.list.add(inst);
@@ -3181,8 +3181,24 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			healthBar.bounds.min, healthBar.bounds.max, 0, 100);
 		healthBar.percent = (newPercent != null ? newPercent : 0);
 
-		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; // If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
-		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; // If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)
+		if (healthBar.percent < 20) {
+			// If health is under 20%,
+			// change player icon to frame 1 (losing icon) and
+			// change opponent icon to frame 2 (winning icon if available)
+			iconP1.animation.curAnim.curFrame = 1;
+			iconP2.animation.curAnim.curFrame = iconP2.iconCnt > 2 ? 2 : 0;
+		} else if (healthBar.percent > 80) {
+			// If health is over 80%,
+			// change opponent icon to frame 1 (losing icon) and
+			// change player icon to frame 2 (winning icon if available)
+			iconP1.animation.curAnim.curFrame = iconP1.iconCnt > 2 ? 2 : 0;
+			iconP2.animation.curAnim.curFrame = 1;
+		} else {
+			// otherwise, frame 0 (normal)
+			iconP1.animation.curAnim.curFrame = 0;
+			iconP2.animation.curAnim.curFrame = 0;
+		}
+
 		return health;
 	}
 	
@@ -3545,7 +3561,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							boyfriend.alpha = 0.00001;
 							boyfriend = boyfriendMap.get(value2);
 							boyfriend.alpha = lastAlpha;
-							iconP1.changeIcon(boyfriend.healthIcon);
+							iconP1.changeIcon(boyfriend.healthIcon, boyfriend.healthIconDivider);
 						}
 						setOnScripts('boyfriendName', boyfriend.curCharacter);
 
@@ -3573,7 +3589,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								gf.visible = false;
 							}
 							dad.alpha = lastAlpha;
-							iconP2.changeIcon(dad.healthIcon);
+							iconP2.changeIcon(dad.healthIcon, dad.healthIconDivider);
 						}
 						setOnScripts('dadName', dad.curCharacter);
 

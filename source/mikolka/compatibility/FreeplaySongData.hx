@@ -141,6 +141,9 @@ class FreeplaySongData
 			currentDifficulty = songDifficulties[0]; // TODO
 		}
 
+		if (!songDifficulties.contains("normal") && !sngDataPath.contains(currentDifficulty)) {
+			sngDataPath += '-$currentDifficulty';
+		}
 		songStartingBpm = BPMCache.instance.getBPM(sngDataPath, fileSngName);
 
 		// this.songStartingBpm = songDifficulty.getStartingBPM();

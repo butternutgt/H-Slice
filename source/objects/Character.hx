@@ -17,6 +17,7 @@ typedef CharacterFile = {
 	var scale:Float;
 	var sing_duration:Float;
 	var healthicon:String;
+	var healthicondivider:Int;
 
 	var position:Array<Float>;
 	var camera_position:Array<Float>;
@@ -62,6 +63,7 @@ class Character extends FlxSprite
 	public var skipDance:Bool = false;
 
 	public var healthIcon:String = 'face';
+	public var healthIconDivider:Int = 0;
 	public var animationsArray:Array<AnimArray> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
@@ -196,6 +198,7 @@ class Character extends FlxSprite
 
 		// data
 		healthIcon = json.healthicon;
+		healthIconDivider = json.healthicondivider;
 		singDuration = json.sing_duration;
 		flipX = (json.flip_x != isPlayer);
 		healthColorArray = (json.healthbar_colors != null && json.healthbar_colors.length > 2) ? json.healthbar_colors : [161, 161, 161];

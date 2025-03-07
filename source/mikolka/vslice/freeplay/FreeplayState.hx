@@ -1,5 +1,6 @@
 package mikolka.vslice.freeplay;
 
+import flixel.FlxSubState;
 import mikolka.vslice.components.crash.UserErrorSubstate;
 import openfl.utils.AssetType;
 import mikolka.vslice.freeplay.obj.CapsuleOptionsMenu;
@@ -320,7 +321,7 @@ class FreeplayState extends MusicBeatSubstate
 
 		bgDad = new FlxSprite(backingCard.pinkBack.width * 0.74, 0).loadGraphic(styleData == null ? 'freeplay/freeplayBGdad' : styleData.getBgAssetGraphic());
 
-		BPMCache.instance.clearCache(); // for good measure
+		BPMCache.clearCache(); // for good measure
 		//? end of init
 
 		super.create();

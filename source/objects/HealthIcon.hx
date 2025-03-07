@@ -6,11 +6,15 @@ class HealthIcon extends FlxSprite
 	private var isPlayer:Bool = false;
 	private var char:String = '';
 
-	public function new(char:String = 'face', isPlayer:Bool = false, ?allowGPU:Bool = true)
+	public var iconW:Int;
+	public var iconH:Int;
+	public var iconCnt:Int;
+
+	public function new(char:String = 'face', isPlayer:Bool = false, ?allowGPU:Bool = true, iconSet = 0)
 	{
 		super();
 		this.isPlayer = isPlayer;
-		changeIcon(char, allowGPU);
+		changeIcon(char, allowGPU, iconSet);
 		scrollFactor.set();
 	}
 
@@ -23,20 +27,26 @@ class HealthIcon extends FlxSprite
 	}
 
 	private var iconOffsets:Array<Float> = [0, 0];
-	public function changeIcon(char:String, ?allowGPU:Bool = true) {
+	public function changeIcon(char:String, ?allowGPU:Bool = true, iconSet:Int = 0) {
 		if(this.char != char) {
 			var name:String = 'icons/' + char;
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-' + char; //Older versions of psych engine's support
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-face'; //Prevents crash from missing icon
 			
 			var graphic = Paths.image(name, allowGPU);
-			var iSize:Float = Math.round(graphic.width / graphic.height);
-			loadGraphic(graphic, true, Math.floor(graphic.width / iSize), Math.floor(graphic.height));
-			iconOffsets[0] = (width - 150) / iSize;
-			iconOffsets[1] = (height - 150) / iSize;
+			var iSize:Float = FlxMath.maxInt(iconSet == 0 ? Math.round(graphic.width / graphic.height) : iconSet, 1);
+			iconCnt = Std.int(iSize);
+			
+			iconW = Math.round(graphic.width / iSize);
+			iconH = Math.round(graphic.height);
+
+			loadGraphic(graphic, true, iconW, iconH);
+			
+			iconOffsets[0] = (width - iconW) / iSize;
+			iconOffsets[1] = (height - iconH) / iSize;
 			updateHitbox();
 
-			animation.add(char, [for(i in 0...frames.frames.length) i], 0, false, isPlayer);
+			animation.add(char, [0, 1, 2], 0, false, isPlayer);
 			animation.play(char);
 			this.char = char;
 

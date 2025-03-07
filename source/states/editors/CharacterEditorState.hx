@@ -426,6 +426,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				no_antialiasing: false,
 				flip_x: false,
 				healthicon: 'face',
+				healthicondivider: 0,
 				image: 'characters/BOYFRIEND',
 				sing_duration: 4,
 				scale: 1,
