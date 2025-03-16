@@ -31,11 +31,11 @@ _**Because I don't like to be imitated so much.**_
 ### Socials
 **Credit isn't required, but I'm glad if you credited.**
 
-**Discord**: _**[hrk.exex]()**_
+**Discord**: _**[hrk.exex](about:blank)**_
 
 **Twitter**: _**[hrek_hexex](https://x.com/Hrek_Hexex)**_
 
-**Discord**: _**[hrekexexex]()**_
+**Bluesky**: _**[hrekexexex](about:blank)**_
 <details>
   <summary><h2>Original P-Slice Description</h2></summary>
 
