@@ -25,7 +25,6 @@ And probably add some new things in the future?
 
 _**If you want to add my features in your own engine,**_
 _**Please contact me before something happens.**_
-
 _**Because I don't like to be imitated so much.**_
 
 **My engine is for playing impossible charts for BOTPLAY, not playing normally.**
@@ -33,11 +32,11 @@ _**Because I don't like to be imitated so much.**_
 ### Socials
 **Credit isn't required, but I'm glad if you credited.**
 
-**Discord**: _**[hrk.exex](about:blank)**_
+**Discord**: _**[hrk.exex](about:blank)**_ <!--Available!-->
 
-**Twitter**: _**[hrek_hexex](https://x.com/Hrek_Hexex)**_
+**Twitter**: _**[hrek_hexex](https://x.com/Hrek_Hexex)**_ <!--Available!-->
 
-**Bluesky**: _**[hrekexexex](about:blank)**_
+**Bluesky**: _**[hrekexexex](about:blank)**_ <!--Not available!-->
 <details>
   <summary><h2>Original P-Slice Description</h2></summary>
 
