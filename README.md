@@ -30,7 +30,7 @@ _**Because I don't like to be imitated so much.**_
 
 **My engine is for playing impossible charts for BOTPLAY, not playing normally.**
 
-#### Socials
+### Socials
 **Credit isn't required, but I'm glad if you credited.**
 
 **Discord**: _**[hrk.exex](about:blank)**_
