@@ -28,7 +28,9 @@ _**Please contact me before something happens.**_
 
 _**Because I don't like to be imitated so much.**_
 
-### Socials
+**My engine is for playing impossible charts for BOTPLAY, not playing normally.**
+
+#### Socials
 **Credit isn't required, but I'm glad if you credited.**
 
 **Discord**: _**[hrk.exex](about:blank)**_
