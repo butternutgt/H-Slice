@@ -1,5 +1,6 @@
 package states.editors.content;
 
+import haxe.ds.Vector;
 import haxe.Timer;
 import backend.Song;
 import backend.Rating;
@@ -68,8 +69,8 @@ class EditorPlayState extends MusicBeatSubstate
 	var dataTxt:FlxText;
 	final guitarHeroSustains:Bool = false;
 
-	var _noteList:Array<Note>;
-	public function new(noteList:Array<Note>, allVocals:Array<FlxSound>)
+	var _noteList:Array<SwagSection>;
+	public function new(noteList:Array<SwagSection>, allVocals:Array<FlxSound>)
 	{
 		super();
 		
@@ -351,13 +352,17 @@ class EditorPlayState extends MusicBeatSubstate
 		var daBpm:Float = (PlayState.SONG.notes[0].changeBPM == true) ? PlayState.SONG.notes[0].bpm : PlayState.SONG.bpm;
 		var oldNote:Note = null;
 
+		var sectionNoteCnt:Float = 0;
+		var shownProgress:Bool = false;
+		var sustainNoteCnt:Float = 0;
+		var sustainTotalCnt:Float = 0;
 		var noteCount:Float = 0;
 
 		var shownProgress:Bool = false;
 		var sustainNoteCnt:Float = 0;
 		var sustainTotalCnt:Float = 0;
 
-		var songNotes:Array<Dynamic> = [];
+		// var note:Array<Dynamic> = [];
 		var strumTime:Float;
 		var noteColumn:Int;
 		var holdLength:Float;
@@ -375,6 +380,12 @@ class EditorPlayState extends MusicBeatSubstate
 
 		var isMobile:Bool = Main.platform == 'Phones';
 		var section:SwagSection;
+
+		var chartNoteData:Int = 0;
+		var removeTime:Float = ClientPrefs.data.ghostRange;
+		var strumTimeVector:Vector<Float> = new Vector(8, 0.0);
+		var skipGhostNotes:Bool = ClientPrefs.data.skipGhostNotes;
+		var ghostNotesCaught:Int = 0;
 		
 		function showProgress(force:Bool = false) {
 			if (Main.isConsoleAvailable)
@@ -409,111 +420,70 @@ class EditorPlayState extends MusicBeatSubstate
 
 		// Load Notes
 		section = songData.notes[0];
-		for (note in _noteList)
+		for (sec in _noteList)
 		{
-			if(note == null || note.strumTime < startPos) continue;
-			
-			while(cachedSectionTimes.length > noteSec + 1 && cachedSectionTimes[noteSec + 1] <= note.strumTime)
+			for (note in sec.sectionNotes)
 			{
-				section = songData.notes[++noteSec];
-				if(PlayState.SONG.notes[noteSec].changeBPM == true)
-					daBpm = PlayState.SONG.notes[noteSec].bpm;
-			}
-
-			// var idx: Int = _noteList.indexOf(note);
-			// if (idx != 0) {
-			// 	// CLEAR ANY POSSIBLE GHOST NOTES
-			// 	for (evilNote in unspawnNotes) {
-			// 		var matches: Bool = note.noteData == evilNote.noteData && note.mustPress == evilNote.mustPress;
-			// 		if (matches && Math.abs(note.strumTime - evilNote.strumTime) == 0.0) {
-			// 			evilNote.destroy();
-			// 			unspawnNotes.remove(evilNote);
-			// 			//continue;
-			// 		}
-			// 	}
-			// }
-
-			swagNote = cast {
-				strumTime: songNotes[0],
-				noteData: songNotes[1],
-				noteType: Math.isNaN(songNotes[3]) ? songNotes[3] : 0,
-				holdLength: songNotes[2],
-				noteSkin: songData.arrowSkin != null ? songData.arrowSkin : ""
-			};
-			
-			swagNote.noteData |= section.mustHitSection ? 1<<8 : 0; // mustHit
-			swagNote.noteData |= (section.gfSection && (songNotes[1]<4) || songNotes[3] == 'GF Sing' || songNotes[3] == 4) ? 1<<11 : 0; // gfNote
-			swagNote.noteData |= (section.altAnim || (songNotes[3] == 'Alt Animation' || songNotes[3] == 1)) ? 1<<12 : 0; // altAnim
-			swagNote.noteData |= (songNotes[3] == 'No Animation' || songNotes[3] == 5) ? 3<<13 : 0; // noAnimation & noMissAnimaiton
-			swagNote.noteData |= (songNotes[3] == 'Hurt Note' || songNotes[3] == 3) ? 1<<15 : 0;
-
-			if (songNotes[1] > 3) {
-				swagNote.noteData ^= 1<<8;
-			}
-			
-			unspawnNotes.push(swagNote);
-
-			var curStepCrochet:Float = 60 / daBpm * 1000 / 4.0;
-			final roundSus:Int = Math.round(swagNote.holdLength / Conductor.stepCrochet);
-			if(roundSus > 0)
-			{
-				for (susNote in 0...roundSus)
+				if(note == null || note[0] < startPos) continue;
+				
+				while(cachedSectionTimes.length > noteSec + 1 && cachedSectionTimes[noteSec + 1] <= note[0])
 				{
-					swagNote.noteData |= 1<<9; // isHold
-					swagNote.noteData |= susNote == roundSus ? 1<<10 : 0; // isHoldEnd
-
-					sustainNote = cast {
-						strumTime: swagNote.noteData + Conductor.stepCrochet * susNote,
-						noteData: swagNote.noteData,
-						noteType: swagNote.noteType,
-						holdLength: 0,
-						noteSkin: swagNote.noteSkin
-					};
-					unspawnSustainNotes.push(sustainNote);
-
-					// sustainNote.correctionOffset = swagNote.height / 2;
-					// if(!PlayState.isPixelStage)
-					// {
-					// 	if(oldNote.isSustainNote)
-					// 	{
-					// 		oldNote.scale.y *= Note.SUSTAIN_SIZE / oldNote.frameHeight;
-					// 		oldNote.scale.y /= playbackRate;
-					// 		oldNote.resizeByRatio(curStepCrochet / Conductor.stepCrochet);
-					// 	}
-
-					// 	if(ClientPrefs.data.downScroll)
-					// 		sustainNote.correctionOffset = 0;
-					// }
-					// else if(oldNote.isSustainNote)
-					// {
-					// 	oldNote.scale.y /= playbackRate;
-					// 	oldNote.resizeByRatio(curStepCrochet / Conductor.stepCrochet);
-					// }
-
-					// if (sustainNote.mustPress) sustainNote.x += FlxG.width / 2; // general offset
-					// else if(ClientPrefs.data.middleScroll)
-					// {
-					// 	sustainNote.x += 310;
-					// 	if(sustainNote.noteData > 1) //Up and Right
-					// 		sustainNote.x += FlxG.width / 2 + 25;
-					// }
+					section = songData.notes[++noteSec];
+					if(PlayState.SONG.notes[noteSec].changeBPM == true)
+						daBpm = PlayState.SONG.notes[noteSec].bpm;
 				}
-			}
+				
+				// CLEAR ANY POSSIBLE GHOST NOTES WHEN IF THE OPTION ENABLED
+				if (skipGhostNotes && sectionNoteCnt != 0) {
+					if (Math.abs(strumTimeVector[chartNoteData] - note[0]) <= removeTime) {
+						ghostNotesCaught++; continue;
+					} else {
+						strumTimeVector[chartNoteData] = note[0];
+					}
+				}
 
-			// if (swagNote.mustPress)
-			// {
-			// 	swagNote.x += FlxG.width / 2; // general offset
-			// }
-			// else if(ClientPrefs.data.middleScroll)
-			// {
-			// 	swagNote.x += 310;
-			// 	if(swagNote.noteData > 1) //Up and Right
-			// 	{
-			// 		swagNote.x += FlxG.width / 2 + 25;
-			// 	}
-			// }
-			// oldNote = swagNote;
-			noteCount++;
+				// note = cast (note, Array<Dynamic>);
+
+				swagNote = cast {
+					strumTime: note[0],
+					noteData: note[1],
+					noteType: Math.isNaN(note[3]) ? note[3] : 0,
+					holdLength: note[2],
+					noteSkin: songData.arrowSkin != null ? songData.arrowSkin : ""
+				};
+				
+				swagNote.noteData |= section.mustHitSection ? 1<<8 : 0; // mustHit
+				swagNote.noteData |= (section.gfSection && (note[1]<4) || note[3] == 'GF Sing' || note[3] == 4) ? 1<<11 : 0; // gfNote
+				swagNote.noteData |= (section.altAnim || (note[3] == 'Alt Animation' || note[3] == 1)) ? 1<<12 : 0; // altAnim
+				swagNote.noteData |= (note[3] == 'No Animation' || note[3] == 5) ? 3<<13 : 0; // noAnimation & noMissAnimaiton
+				swagNote.noteData |= (note[3] == 'Hurt Note' || note[3] == 3) ? 1<<15 : 0;
+
+				if (note[1] > 3) {
+					swagNote.noteData ^= 1<<8;
+				}
+				
+				unspawnNotes.push(swagNote);
+
+				final roundSus:Int = Math.round(swagNote.holdLength / Conductor.stepCrochet);
+				if(roundSus > 0)
+				{
+					for (susNote in 0...roundSus)
+					{
+						swagNote.noteData |= 1<<9; // isHold
+						swagNote.noteData |= susNote == roundSus ? 1<<10 : 0; // isHoldEnd
+
+						sustainNote = cast {
+							strumTime: swagNote.noteData + Conductor.stepCrochet * susNote,
+							noteData: swagNote.noteData,
+							noteType: swagNote.noteType,
+							holdLength: 0,
+							noteSkin: swagNote.noteSkin
+						};
+						unspawnSustainNotes.push(sustainNote);
+					}
+				}
+				noteCount++;
+			}
 		}
 		unspawnNotes.sort(PlayState.sortByTime);
 	}

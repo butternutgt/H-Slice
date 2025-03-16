@@ -1,5 +1,6 @@
 package states;
 
+import haxe.Timer;
 import backend.WeekData;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -55,8 +56,9 @@ class TitleState extends MusicBeatState
 	var titleTextAlphas:Array<Float> = [1, .64];
 
 	var curWacky:Array<String> = [];
-
 	var wackyImage:FlxSprite;
+
+	var busy:Bool = false;
 
 	#if TITLE_SCREEN_EASTER_EGG
 	final easterEggKeys:Array<String> = [
@@ -561,7 +563,7 @@ class TitleState extends MusicBeatState
 				swagShader.hue += elapsed * 0.1;
 		}
 		#if FLX_PITCH
-		if (FlxG.sound.music != null) {
+		if (FlxG.sound.music != null && !busy) {
 			if (controls.UI_UP) FlxG.sound.music.pitch += 0.5 * elapsed;
 			if (controls.UI_DOWN) FlxG.sound.music.pitch -= 0.5 * elapsed;
 		}
@@ -776,7 +778,7 @@ class TitleState extends MusicBeatState
 		}
 	}
 
-	// Cheat code shit
+	// Cheat code shit - ←→←→↑↓↑↓
 	var cheatArray:Array<Int> = [0x0001, 0x0010, 0x0001, 0x0010, 0x0100, 0x1000, 0x0100, 0x1000];
 	var curCheatPos:Int = 0;
 	var cheatActive:Bool = false;
@@ -813,6 +815,9 @@ class TitleState extends MusicBeatState
 	function startCheat():Void
 	{
 		cheatActive = true;
+		FlxG.sound.music.pitch = 1;
+		busy = true;
+		Timer.delay(() -> {busy = false;}, 500);
 
 		// var spec:SpectogramSprite = new SpectogramSprite(FlxG.sound.music);
 

@@ -131,7 +131,6 @@ class MasterEditorMenu extends MusicBeatState
 			switch (options[curSelected])
 			{
 				case 'Chart Editor': // felt it would be cool maybe
-					PlayState.chartingMode = true; // don't forget
 					if (FlxG.keys.pressed.CONTROL) ChartingState.youShallNotPass = false;
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 				case 'Character Editor':

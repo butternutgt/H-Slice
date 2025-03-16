@@ -1,5 +1,6 @@
 package states;
 
+import flixel.animation.FlxAnimation;
 #if desktop import backend.FFMpeg; #end
 import openfl.system.Capabilities;
 import objects.Note.CastNote;
@@ -388,12 +389,20 @@ class PlayState extends MusicBeatState
 	public var luaTouchPad:TouchPad;
 	#end
 
+	var backupOffset = 0; 
+
 	override public function create()
 	{
 		this.variables = new JoinedLuaVariables();
 		// trace('Playback Rate: ' + playbackRate);
 		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
+
+		if (ffmpegMode) {
+			backupOffset = ClientPrefs.data.noteOffset;
+			ClientPrefs.data.noteOffset = 0;
+		}
+
 		if (nextReloadAll)
 		{
 			Language.reloadPhrases();
@@ -1820,6 +1829,7 @@ class PlayState extends MusicBeatState
 				noteColumn = Std.int(chartNoteData % totalColumns);
 				gottaHitNote = (chartNoteData < totalColumns);
 
+				// CLEAR ANY POSSIBLE GHOST NOTES WHEN IF THE OPTION ENABLED
 				if (skipGhostNotes && sectionNoteCnt != 0) {
 					if (Math.abs(strumTimeVector[chartNoteData] - strumTime) <= removeTime) {
 						ghostNotesCaught++; continue;
@@ -3007,9 +3017,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 			skipHitSearch = 7;
 			while (skipHitSearch >= 0) {
-				if (toBool(skipHit & 1<<skipHitSearch)) {
+				if (toBool(skipHit & 1<<skipHitSearch))
 					strumPlayAnim(skipHitSearch < 4, skipHitSearch % 4);
-				}
 				--skipHitSearch;
 			}
 			
@@ -3266,7 +3275,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		FlxG.camera.followLerp = 0;
 		persistentUpdate = false;
 		persistentDraw = true;
-		chartingMode = true;
 		paused = true;
 
 		if (FlxG.sound.music != null)
@@ -5017,6 +5025,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				FlxG.updateFramerate = ClientPrefs.data.framerate;
 			}
 			if (!previewRender) video.destroy();
+			
+			ClientPrefs.data.noteOffset = backupOffset;
 
 			if (video.wentPreview) ClientPrefs.data.previewRender = false;
 		}
@@ -5346,30 +5356,25 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	var strumSpr:StrumNote = null;
 	var strumHitId:Int = -1;
-	var strumART:Float = 0;
+	var strumCurAnim:FlxAnimation = null;
+	// var strumART:Float = 0;
 
 	function strumPlayAnim(isDad:Bool, id:Int)
 	{
-		if (!strumAnim)
-			return;
+		if (!strumAnim) return;
 		strumHitId = id + (isDad ? 0 : 4);
 		if (!toBool(hit & 1 << strumHitId))
 		{
 			if (isDad)
-			{
-				strumART = dad.charaCrochet;
 				strumSpr = opponentStrums.members[id];
-			}
 			else
-			{
-				strumART = boyfriend.charaCrochet;
 				strumSpr = playerStrums.members[id];
-			}
 
 			if (strumSpr != null)
 			{
 				strumSpr.playAnim('confirm', true);
-				strumSpr.resetAnim = strumART;
+				strumCurAnim = strumSpr.animation.curAnim;
+				strumSpr.resetAnim = (1 / strumCurAnim.frameRate) * strumCurAnim.numFrames;
 			}
 			hit |= 1 << strumHitId;
 		}

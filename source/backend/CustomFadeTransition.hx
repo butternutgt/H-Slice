@@ -19,23 +19,23 @@ class CustomFadeTransition extends FlxSubState {
 
 	override function create()
 	{
-		
-		var width:Int = Std.int(FlxG.width / Math.max(camera.zoom, 0.001));
-		var height:Int = Std.int(FlxG.height / Math.max(camera.zoom, 0.001));
+		var targetCamera:FlxCamera = FlxG.cameras.list[FlxG.cameras.list.length-1];
+		var width:Int = Std.int(FlxG.width / Math.max(targetCamera.zoom, 0.001));
+		var height:Int = Std.int(FlxG.height / Math.max(targetCamera.zoom, 0.001));
 		transGradient = FlxGradient.createGradientFlxSprite(1, height, (isTransIn ? [0x0, FlxColor.BLACK] : [FlxColor.BLACK, 0x0]));
+		transGradient.cameras = [targetCamera];
 		transGradient.scale.x = width;
 		transGradient.updateHitbox();
-		transGradient.scrollFactor.set();
+		transGradient.scrollFactor.set(0, 0);
 		transGradient.screenCenter(X);
-		transGradient.cameras = [FlxG.cameras.list[FlxG.cameras.list.length-1]];
 		add(transGradient);
 
 		transBlack = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
+		transBlack.cameras = [targetCamera];
 		transBlack.scale.set(width, height + 400);
 		transBlack.updateHitbox();
-		transBlack.scrollFactor.set();
+		transBlack.scrollFactor.set(0, 0);
 		transBlack.screenCenter(X);
-		transBlack.cameras = [FlxG.cameras.list[FlxG.cameras.list.length-1]];
 		add(transBlack);
 
 		if(isTransIn)
