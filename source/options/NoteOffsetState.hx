@@ -189,6 +189,7 @@ class NoteOffsetState extends MusicBeatState
 
 		Conductor.bpm = 128.0;
 		FlxG.sound.playMusic(Paths.music('offsetSong'), ClientPrefs.data.bgmVolume, true);
+		Conductor.songPosition = 0;
 
 		#if TOUCH_CONTROLS_ALLOWED controls.controllerMode = controls.mobileC; #end
 
@@ -453,7 +454,9 @@ class NoteOffsetState extends MusicBeatState
 		}
 	
 		holdTimeText.text = Std.string(holdTime);
-		Conductor.songPosition = FlxG.sound.music.time;
+		Conductor.songPosition += elapsed;
+		if (Math.abs(FlxG.sound.music.time - Conductor.songPosition) > 20)
+			Conductor.songPosition = FlxG.sound.music.time;
 		super.update(elapsed);
 	}
 

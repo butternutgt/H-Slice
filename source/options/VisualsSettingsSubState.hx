@@ -1,5 +1,6 @@
 package options;
 
+import objects.HealthIcon;
 import mobile.backend.MobileScaleMode;
 import objects.Note;
 import objects.StrumNote;
@@ -17,6 +18,11 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	var noteY:Float = 90;
 	var fpsRateOption:Option;
 	var splashOption:Option;
+	var bfIcon:HealthIcon;
+	var iconOption:Option;
+	
+	var notesShown:Bool = false;
+	var iconShown:Bool = false;
 
 	public function new()
 	{
@@ -81,6 +87,11 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			addOption(option);
 			option.onChange = onChangeSplashSkin;
 		}
+
+		// HealthIcon for Bopping
+		bfIcon = new HealthIcon("bf", true);
+		bfIcon.x = FlxG.width + 100;
+		bfIcon.y = FlxG.height / 3;
 
 		var option:Option = new Option('Note Splash Opacity',
 			'How transparent should the Note Splashes be?',
@@ -184,7 +195,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			"What should the Time Bar display?",
 			'timeBarType',
 			STRING,
-			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
+			[
+				'Time Left',
+				'Time Elapsed',
+				'Song Name',
+				'Disabled'
+			]);
 		addOption(option);
 
 		var option:Option = new Option('Flashing Lights',
@@ -214,6 +230,27 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.maxValue = 1;
 		option.changeValue = 0.01;
 		option.decimals = 2;
+		addOption(option);
+
+		var option:Option = new Option('Icon Bop Type:',
+			'Select icon bop animation on a beat hit.',
+			'iconBopType',
+			STRING,
+			[
+				'Default',
+				'Horizontal',
+				'Vertical',
+				'Drill',
+				'HRK Style',
+				'None'
+			]);
+		iconOption = option;
+		addOption(option);
+			
+		var option:Option = new Option('Icon Strength on HP',
+			'If checked, Icon bopping depends current HP.',
+			'iconStrength',
+			BOOL);
 		addOption(option);
 		
 		var option:Option = new Option('FPS Counter',
@@ -301,9 +338,9 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		super();
 		add(notes);
 		add(splashes);
+		add(bfIcon);
 	}
 
-	var notesShown:Bool = false;
 	override function changeSelection(change:Int = 0)
 	{
 		super.changeSelection(change);
@@ -311,7 +348,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		switch(curOption.variable)
 		{
 			case 'noteSkin', 'splashSkin', 'splashAlpha', 'splashCount':
-				if(!notesShown)
+				if (!notesShown)
 				{
 					for (note in notes.members)
 					{
@@ -322,8 +359,16 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 				notesShown = true;
 				if(curOption.variable.startsWith('splash') && Math.abs(notes.members[0].y - noteY) < 25) playNoteSplashes();
 
+			case 'iconBopType':
+				if (!iconShown)
+				{
+					FlxTween.cancelTweensOf(bfIcon);
+					FlxTween.tween(bfIcon, {x: FlxG.width - 250}, 0.25, {ease: FlxEase.quadInOut});
+				}
+				iconShown = true;
+
 			default:
-				if(notesShown) 
+				if (notesShown) 
 				{
 					for (note in notes.members)
 					{
@@ -332,7 +377,76 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 					}
 				}
 				notesShown = false;
+				
+				if (iconShown)
+				{
+					FlxTween.cancelTweensOf(bfIcon);
+					FlxTween.tween(bfIcon, {x: FlxG.width + 100}, 0.125, {ease: FlxEase.quadInOut});
+				}
+				iconShown = false;
 		}
+	}
+
+	override function beatHit() {
+		super.beatHit();
+		if (iconOption.getValue() == "None") return;
+
+		var multX:Float = 0;
+		var multY:Float = 0;
+		var angle:Float = 0;
+
+		bfIcon.angle = 0;
+		switch (iconOption.getValue()) {
+			case 'Default':
+				multX = multY = 1.2;
+			case 'Horizontal':
+				multX = 1.2;
+				multY = 0.6;
+			case 'Vertical':
+				multX = 0.6;
+				multY = 1.2;
+			case 'Drill':
+				multX = 1.6;
+				multY = 0.8;
+				angle = 25;
+			case 'HRK Style':
+				if (curBeat % 2 == 1) {
+					multX = 1.2;
+					multY = 1.2;
+					angle = -20;
+				} else {
+					multX = 1.5;
+					multY = 1.2;
+					angle = 30;
+				}
+		}
+		
+		bfIcon.scale.set(multX, multY);
+		bfIcon.angle = -angle;
+	}
+
+	var iconBopTime:Float;
+	var iconAngleTime:Float;
+	var iconBopMultX:Float;
+	var iconBopMultY:Float;
+	var iconBopAngle:Float;
+	override function update(elapsed:Float) {
+		iconBopTime = Math.exp(-Conductor.bpm / 24 * elapsed);
+		iconAngleTime = Math.exp(-Conductor.bpm / 12 * elapsed);
+
+		iconBopMultX = FlxMath.lerp(1, bfIcon.scale.x, iconBopTime);
+		iconBopMultY = FlxMath.lerp(1, bfIcon.scale.y, iconBopTime);
+		iconBopAngle = FlxMath.lerp(0, bfIcon.angle, iconAngleTime);
+
+		bfIcon.scale.set(iconBopMultX, iconBopMultY);
+		bfIcon.angle = iconBopAngle;
+		bfIcon.updateHitbox();
+		
+		Conductor.songPosition += elapsed;
+		if (Math.abs(FlxG.sound.music.time - Conductor.songPosition) > 20)
+			Conductor.songPosition = FlxG.sound.music.time;
+
+		super.update(elapsed);
 	}
 
 	var changedMusic:Bool = false;

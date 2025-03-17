@@ -254,6 +254,8 @@ class PlayState extends MusicBeatState
 
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
+	public var iconBopType:String = ClientPrefs.data.iconBopType;
+	public var iconStrength:Bool = ClientPrefs.data.iconStrength;
 	public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
 	public var camOther:FlxCamera;
@@ -2767,17 +2769,24 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	// Health icon updaters
 	var iconBopTime:Float;
-	var iconBopMult:Float;
+	var iconAngleTime:Float;
+	var iconBopMultX:Float;
+	var iconBopMultY:Float;
+	var iconBopAngle:Float;
 	public dynamic function updateIconsScale(time:Float)
 	{
 		iconBopTime = Math.exp(-Conductor.bpm / 24 * time);
-		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, iconBopTime);
-		iconP1.scale.set(mult, mult);
-		iconP1.updateHitbox();
+		iconAngleTime = Math.exp(-Conductor.bpm / 12 * time);
 
-		var mult:Float = FlxMath.lerp(1, iconP2.scale.x, iconBopTime);
-		iconP2.scale.set(mult, mult);
-		iconP2.updateHitbox();
+		for (icon in [iconP1, iconP2]) {
+			iconBopMultX = FlxMath.lerp(1, icon.scale.x, iconBopTime);
+			iconBopMultY = FlxMath.lerp(1, icon.scale.y, iconBopTime);
+			iconBopAngle = FlxMath.lerp(0, icon.angle, iconAngleTime);
+
+			icon.scale.set(iconBopMultX, iconBopMultY);
+			icon.angle = iconBopAngle;
+			icon.updateHitbox();
+		}
 	}
 
 	var barPos:Float = 0;
@@ -5052,6 +5061,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 
 	var lastBeatHit:Float = -1;
+	var beatRatio:Float = 1;
+	var bopRatio:Float = 1;
+	var hpRatio:Float = 1;
 
 	override function beatHit()
 	{
@@ -5061,17 +5073,66 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			return;
 		}
 
-		if (camZooming && FlxG.camera.zoom < 1.35 && ClientPrefs.data.camZooms && (curBeat % camZoomingFrequency) == 0)
+		var multPlusX:Float = 0;
+		var multPlusY:Float = 0;
+		var angle:Float = 0;
+
+		beatRatio = curDecBeat % 1;
+		bopRatio = 1 - beatRatio;
+
+		if (camZooming && ClientPrefs.data.camZooms && (curBeat % camZoomingFrequency) == 0)
 		{
-			FlxG.camera.zoom += 0.015 * camZoomingMult;
-			camHUD.zoom += 0.03 * camZoomingMult;
+			FlxG.camera.zoom += 0.015 * camZoomingMult * bopRatio;
+			camHUD.zoom += 0.03 * camZoomingMult * bopRatio;
+
+			if (FlxG.camera.zoom >= 1.35) FlxG.camera.zoom = 1.35;
+			if (camHUD.zoom < 1.7) camHUD.zoom = 1.7;
 		}
 
-		iconP1.scale.set(1.2, 1.2);
-		iconP2.scale.set(1.2, 1.2);
+		if (iconBopType != "None") {
+			for (index => icon in [iconP1, iconP2]) {
+				angle = 0;
+				switch (iconBopType) {
+					case 'Default':
+						multPlusX = multPlusY = 0.2;
+					case 'Horizontal':
+						multPlusX = 0.2;
+						multPlusY = -0.4;
+					case 'Vertical':
+						multPlusX = -0.4;
+						multPlusY = 0.2;
+					case 'Drill':
+						multPlusX = 0.6;
+						multPlusY = 0.0;
+						angle = 25;
+					case 'HRK Style':
+						if (curBeat % 2 == 1) {
+							multPlusX = (index == 0 ? 0.8 : 0.2);
+							multPlusY = (index == 0 ? 0.2 : 0.2);
+							angle = (index == 0 ? 30 : -20);
+						} else {
+							multPlusX = (index == 1 ? 0.8 : 0.2);
+							multPlusY = (index == 1 ? 0.2 : 0.2);
+							angle = (index == 1 ? 30 : -20);
+						}
+				}
 
-		iconP1.updateHitbox();
-		iconP2.updateHitbox();
+				if (icon.flipX) angle = -angle;
+				
+				if (iconStrength) {
+					hpRatio = Math.max(index == 0 ? 2 - health : health, 0);
+					multPlusX = Math.pow(multPlusX, hpRatio);
+					multPlusY = Math.pow(multPlusY, hpRatio);
+					angle *= hpRatio;
+				}
+
+				icon.scale.set(1 + multPlusX * bopRatio, 1 + multPlusY * bopRatio);
+				icon.angle = angle * bopRatio;
+			}
+		}
+
+		// iconP1.updateHitbox();
+		// iconP2.updateHitbox();
 
 		if (curBeat > 0) characterBopper(curBeat);
 

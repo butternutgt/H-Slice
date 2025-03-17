@@ -91,6 +91,8 @@ import states.TitleState;
 	public var timeBarType:String = 'Time Left';
 	public var scoreZoom:Bool = true;
 	public var noReset:Bool = false;
+	public var iconBopType:String = 'Default';
+	public var iconStrength:Bool = false;
 	public var healthBarAlpha:Float = 1;
 	public var bgmVolume:Float = 1;
 	public var sfxVolume:Float = 1;
