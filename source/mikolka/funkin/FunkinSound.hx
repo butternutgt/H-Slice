@@ -111,7 +111,7 @@ class FunkinSound extends FlxSound
 						if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
 					}
 					
-					if (Main.debugBuild) trace("Playing preview!");
+					#if debug trace("Playing preview!"); #end
 					FlxG.sound.playMusic(sound,0);
 					params.onLoad();
 				});

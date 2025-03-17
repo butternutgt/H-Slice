@@ -157,7 +157,6 @@ class EventMetaNote extends MetaNote
 		super(time, -1, eventData);
 		this.isEvent = true;
 		events = eventData[1];
-		//trace('events: $events');
 		
 		loadGraphic(Paths.image('editors/eventIcon'));
 		setGraphicSize(ChartingState.GRID_SIZE);

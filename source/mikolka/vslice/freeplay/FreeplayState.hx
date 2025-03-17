@@ -381,12 +381,12 @@ class FreeplayState extends MusicBeatSubstate
 
 		// LOAD CHARACTERS
 
-		if (Main.debugBuild) {
-			trace(FlxG.width);
-			trace(FlxG.camera.zoom);
-			trace(FlxG.camera.initialZoom);
-			trace(FlxCamera.defaultZoom);
-		}
+		#if debug
+		trace(FlxG.width);
+		trace(FlxG.camera.zoom);
+		trace(FlxG.camera.initialZoom);
+		trace(FlxCamera.defaultZoom);
+		#end
 
 		if (backingCard != null)
 		{
@@ -1084,7 +1084,7 @@ class FreeplayState extends MusicBeatSubstate
 
 		originalPos.x = 320.488;
 		originalPos.y = 235.6;
-		if (Main.debugBuild) trace(originalPos);
+		#if debug trace(originalPos); #end
 
 		grpCapsules.members[curSelected].ranking.visible = false;
 		grpCapsules.members[curSelected].blurredRanking.visible = false;
@@ -1335,19 +1335,18 @@ class FreeplayState extends MusicBeatSubstate
 	function tryOpenCharSelect():Void
 	{
 		// Check if we have ACCESS to character select!
-		if (Main.debugBuild) 
-		{
-			trace('Is Pico unlocked? ${PlayerRegistry.instance.fetchEntry('pico')?.isUnlocked()}');
-			trace('Number of characters: ${PlayerRegistry.instance.countUnlockedCharacters()}');
-		}
+		#if debug
+		trace('Is Pico unlocked? ${PlayerRegistry.instance.fetchEntry('pico')?.isUnlocked()}');
+		trace('Number of characters: ${PlayerRegistry.instance.countUnlockedCharacters()}');
+		#end
 
 		if (PlayerRegistry.instance.countUnlockedCharacters() > 1)
 		{
-			if (Main.debugBuild) trace('Opening character select!');
+			#if debug trace('Opening character select!'); #end
 		}
 		else
 		{
-			if (Main.debugBuild) trace('Not enough characters unlocked to open character select!');
+			#if debug trace('Not enough characters unlocked to open character select!'); #end
 			FunkinSound.playOnce(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 			return;
 		}
@@ -2057,7 +2056,7 @@ class FreeplayState extends MusicBeatSubstate
 	function clearDaCache(actualSongTho:String):Void
 	{
 		// ? changed implementation of this
-		if (Main.debugBuild) trace("Purging song previews!");
+		#if debug trace("Purging song previews!"); #end
 		var cacheObj = cast(openfl.Assets.cache, AssetCache);
 		@:privateAccess
 		var list = cacheObj.sound.keys();
@@ -2067,7 +2066,7 @@ class FreeplayState extends MusicBeatSubstate
 				continue;
 			if (!song.contains(actualSongTho) && song.contains(".partial")) // .partial
 			{
-				if (Main.debugBuild) trace('trying to remove: ' + song);
+				#if debug trace('trying to remove: ' + song); #end
 				openfl.Assets.cache.clear(song);
 			}
 		}

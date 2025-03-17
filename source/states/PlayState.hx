@@ -1747,7 +1747,7 @@ class PlayState extends MusicBeatState
 		if (bfVocal) FlxG.sound.list.add(vocals);
 		if (opVocal) FlxG.sound.list.add(opponentVocals);
 
-		inst = new FlxSound(); if (Main.debugBuild) trace('Alt inst: ${altInstrumentals ?? "None"}');
+		inst = new FlxSound(); #if debug trace('Alt inst: ${altInstrumentals ?? "None"}'); #end
 		try { inst.loadEmbedded(Paths.inst(altInstrumentals ?? songData.song)); }
 		catch (e:Dynamic) {}
 		FlxG.sound.list.add(inst);
