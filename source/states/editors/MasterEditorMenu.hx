@@ -94,7 +94,7 @@ class MasterEditorMenu extends MusicBeatState
 		FlxG.mouse.visible = false;
 
 		#if TOUCH_CONTROLS_ALLOWED
-		addTouchPad(#if MODS_ALLOWED 'LEFT_FULL' #else 'UP_DOWN' #end, 'A_B');
+		addTouchPad(#if MODS_ALLOWED 'LEFT_FULL' #else 'UP_DOWN' #end, 'A_B_C');
 		#end
 		
 		super.create();
@@ -131,7 +131,7 @@ class MasterEditorMenu extends MusicBeatState
 			switch (options[curSelected])
 			{
 				case 'Chart Editor': // felt it would be cool maybe
-					if (FlxG.keys.pressed.CONTROL) ChartingState.youShallNotPass = false;
+					if (FlxG.keys.pressed.CONTROL #if TOUCH_CONTROLS_ALLOWED || touchPad.buttonC.pressed #end) ChartingState.youShallNotPass = false;
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
