@@ -1584,10 +1584,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 							});
 							closeNotes.sort(function(a:MetaNote, b:MetaNote) return Math.abs(a.strumTime - touch.y) < Math.abs(b.strumTime - touch.y) ? 1 : -1);
 		
-							var closest = closeNotes[0];
-							if(closest != null && (!closest.isEvent || !lockedEvents))
+							var closest:Dynamic = closeNotes[0] != null ? closeNotes[0].songData : null;
+							if(closest != null && closeNotes[0].exists && (!isEvent(closest) || !lockedEvents))
 							{
-								if(holdingAlt) // Select Note/Event
+								if(FlxG.keys.pressed.SHIFT || holdingAlt) // Select Note/Event
 								{
 									var sel = selectedNotes.copy();
 									if(!selectedNotes.contains(closest))
@@ -1603,6 +1603,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 										addUndoAction(SELECT_NOTE, {old: sel, current: selectedNotes.copy()});
 									}
 		
+									curRenderedNotes.remove(closest, true);
 									trace('Notes selected: ' + selectedNotes.length);
 								}
 								else if(!FlxG.keys.pressed.CONTROL) // Remove Note/Event
