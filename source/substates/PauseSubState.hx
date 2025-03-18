@@ -375,6 +375,17 @@ class PauseSubState extends MusicBeatSubstate
 						FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), pauseMusic.volume);
 						FlxTween.tween(FlxG.sound.music, {volume: ClientPrefs.data.bgmVolume}, 0.8);
 						FlxG.sound.music.time = pauseMusic.time;
+
+						Conductor.bpm = switch (ClientPrefs.data.pauseMusic) {
+							case 'Tea Time': 105.0;
+							case 'Breakfast': 160.0;
+							case 'Breakfast (Pico)': 88.0;
+							default: Conductor.bpm;
+						}
+					} else {
+						FlxG.sound.music.resume();
+						FlxTween.tween(FlxG.sound.music, {volume: ClientPrefs.data.bgmVolume}, 0.8);
+						FlxG.sound.music.looped = true;
 					}
 					OptionsState.onPlayState = true;
 				case "Exit to menu":

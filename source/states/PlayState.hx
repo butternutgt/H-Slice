@@ -2640,7 +2640,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				case 'Note Spawn Time':
 					info = 'Speed: ${CoolUtil.decimal(songSpeed, 3)}'
 						+ ' / Time: ${CoolUtil.decimal(shownTime, 1)} ms'
-						+ ' / Capacity: ${CoolUtil.floatToStringPrecision(safeTime, 1)}'
+						+ ' / Capacity: ${numFormat(safeTime, 1)}'
 						+ ' % / Skip: $skipTimeOut/$skipTotalCnt';
 				#if desktop
 				case 'Video Info':
@@ -2775,6 +2775,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var iconBopAngle:Float;
 	public dynamic function updateIconsScale(time:Float)
 	{
+		if (iconBopType == "None") return;
 		iconBopTime = Math.exp(-Conductor.bpm / 24 * time);
 		iconAngleTime = Math.exp(-Conductor.bpm / 12 * time);
 
@@ -5090,7 +5091,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		if (iconBopType != "None") {
-			for (index => icon in [iconP1, iconP2]) {
+			for (index => icon in [iconP2, iconP1]) {
 				angle = 0;
 				switch (iconBopType) {
 					case 'Default':
@@ -5103,26 +5104,26 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						multPlusY = 0.2;
 					case 'Drill':
 						multPlusX = 0.6;
-						multPlusY = 0.0;
-						angle = 25;
+						// multPlusY = 0.0;
+						angle = (index == 0 ? 25 : -25);
 					case 'HRK Style':
-						if (curBeat % 2 == 1) {
+						if (curBeat % 2 == 0) {
 							multPlusX = (index == 0 ? 0.8 : 0.2);
-							multPlusY = (index == 0 ? 0.2 : 0.2);
+							multPlusY = (index == 0 ? 0.2 : 0.15);
 							angle = (index == 0 ? 30 : -20);
 						} else {
 							multPlusX = (index == 1 ? 0.8 : 0.2);
-							multPlusY = (index == 1 ? 0.2 : 0.2);
+							multPlusY = (index == 1 ? 0.2 : 0.15);
 							angle = (index == 1 ? 30 : -20);
 						}
 				}
 
-				if (icon.flipX) angle = -angle;
+				// if (icon.flipX) angle = -angle;
 				
 				if (iconStrength) {
-					hpRatio = Math.max(index == 0 ? 2 - health : health, 0);
-					multPlusX = Math.pow(multPlusX, hpRatio);
-					multPlusY = Math.pow(multPlusY, hpRatio);
+					hpRatio = Math.max(index == 0 ? 2 - healthLerp : healthLerp, 0);
+					multPlusX = Math.pow(1 + multPlusX, hpRatio) - 1;
+					multPlusY = Math.pow(1 + multPlusY, hpRatio) - 1;
 					angle *= hpRatio;
 				}
 
@@ -5131,8 +5132,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			}
 		}
 
-		// iconP1.updateHitbox();
-		// iconP2.updateHitbox();
+		iconP1.updateHitbox();
+		iconP2.updateHitbox();
 
 		if (curBeat > 0) characterBopper(curBeat);
 

@@ -29,6 +29,9 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		title = Language.getPhrase('visuals_menu', 'Visuals Settings');
 		rpcTitle = 'Visuals Settings Menu'; //for Discord Rich Presence
 
+		if (!OptionsState.onPlayState)
+			Conductor.bpm = 102;
+
 		// for note skins and splash skins
 		notes = new FlxTypedGroup<StrumNote>();
 		splashes = new FlxTypedGroup<NoteSplash>();

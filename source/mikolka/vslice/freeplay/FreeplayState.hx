@@ -837,6 +837,10 @@ class FreeplayState extends MusicBeatSubstate
 	 */
 	public function generateSongList(filterStuff:Null<SongFilter>, force:Bool = false, onlyIfChanged:Bool = true):Void
 	{
+		if (ClientPrefs.data.disableGC) {
+			MemoryUtil.compact();
+			MemoryUtil.disable();
+		}
 		tempSongs = songs;
 
 		if (filterStuff != null)
@@ -1783,6 +1787,11 @@ class FreeplayState extends MusicBeatSubstate
 			rememberedDifficulty = currentDifficulty; // ? make sure to remember it, because otherwise we'll forget about it
 			generateSongList(currentFilter, true);
 			if (diffSelLeft != null) diffSelLeft.setPress(true);
+			
+			if (ClientPrefs.data.disableGC && !MemoryUtil.isGcEnabled) {
+				MemoryUtil.enable();
+				MemoryUtil.collect(true);
+			}
 		}
 		if (controls.UI_RIGHT_P || (TouchUtil.overlapsComplex(diffSelRight) && TouchUtil.justPressed))
 		{
@@ -1792,6 +1801,11 @@ class FreeplayState extends MusicBeatSubstate
 			rememberedDifficulty = currentDifficulty; // ? make sure to remember it, because otherwise we'll forget about it
 			generateSongList(currentFilter, true);
 			if (diffSelLeft != null) diffSelRight.setPress(true);
+			
+			if (ClientPrefs.data.disableGC && !MemoryUtil.isGcEnabled) {
+				MemoryUtil.enable();
+				MemoryUtil.collect(true);
+			}
 		}
 
 		if (diffSelLeft != null && diffSelRight != null && TouchUtil.justReleased)

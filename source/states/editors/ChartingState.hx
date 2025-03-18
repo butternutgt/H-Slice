@@ -1607,15 +1607,16 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 								}
 								else if(!FlxG.keys.pressed.CONTROL) // Remove Note/Event
 								{
-									trace('Removed ${!closest.isEvent ? 'note' : 'event'} at time: ${closest.strumTime}');
-									if(!closest.isEvent)
-										notes.remove(closest);
+									trace('Removed ${!isEvent(closest) ? 'note' : 'event'} at time: ${closest[0]}');
+									if(!isEvent(closest))
+										curSong.notes[curSec].sectionNotes.remove(closest);
 									else
-										events.remove(cast (closest, EventMetaNote));
+										curSong.events.remove(closest);
 		
 									selectedNotes.remove(closest);
 									curRenderedNotes.remove(closest, true);
-									addUndoAction(DELETE_NOTE, !closest.isEvent ? {notes: [closest]} : {events: [closest]});
+									closeNotes[0].kill();
+									addUndoAction(DELETE_NOTE, !isEvent(closest) ? {notes: [closest]} : {events: [closest]});
 								}
 								if(selectedNotes.length == 1) onSelectNote();
 								forceDataUpdate = true;

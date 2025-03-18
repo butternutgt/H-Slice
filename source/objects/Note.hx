@@ -656,7 +656,12 @@ class Note extends FlxSprite
 			scale.y *= Conductor.stepCrochet * 0.0105;
 
 			if (PlayState.isPixelStage) {
-				offsetX += 35;
+				offsetX += switch (ClientPrefs.data.noteSkin) {
+					case "Default": 35;
+					case "Future": 5;
+					case "Chip": 17.25;
+					default: 0;
+				}
 
 				if(!isSustainEnds) {
 					scale.y *= 1.05 * (6 / height); //Auto adjust note size
