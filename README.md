@@ -1,25 +1,46 @@
-# FNF - H-Slice (HRK Engine Redux)  
-This engine will implement some features inherited from my old Engine.  
-And add some new things.....?.....in the future.  
+<h1 align="center">
+  <br>
+  <a href="https://github.com/HRK-EXEX/H-Slice">
+    <img src="/art/iconOG.png" alt="H-Slice" width="150">
+  </a>
+  <br>
+  <b>H-Slice</b>
+  <br>
+</h1>
 
-My engine is for playing impossible charts by BOT, not playing as human.  
+<p align="center">
+<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/HRK-EXEX/H-Slice">
+<img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/HRK-EXEX/H-Slice">
+<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/HRK-EXEX/H-Slice">
+<img src="https://img.shields.io/badge/LUA-262626?style=for-the-badge&logo=lua"> <img src="https://img.shields.io/badge/-HAXE-262626.svg?logo=haxe&style=for-the-badge">
+</p>
 
-If you want to add my features in your own engine,  
-Please contact me before s0m3th1ng happens.  
-Because I don't like to be imitated so much.  
+## Introduction
 
-Credit isn't required, but I'm glad if u did.  
-Discord: hrk.exex  
-X(Twitter): @Hrek_Hexex  
-Bluesky: @hrekexexex.bsky.social  
+Welcome to **H-Slice**, a Friday Night Funkin' engine except it's optimized!
 
-This project using linc_luajit by Lily/mcagabe19  
-For more information, It's here a link.  
-https://github.com/mcagabe19/linc_luajit-rewriten/  
-  
+This engine will implement some features inherited from my old engine.
+
+And probably add some new things in the future?
+
+_**If you want to add my features in your own engine,**_
+_**Please contact me before something happens.**_
+_**Because I don't like to be imitated so much.**_
+
+**My engine is for playing impossible charts for BOTPLAY, not playing normally.**
+
+### Socials
+**Credit isn't required, but I'm glad if you credited.**
+
+**Discord**: _**[hrk.exex](about:blank)**_ <!--Available!-->
+
+**Twitter**: _**[hrek_hexex](https://x.com/Hrek_Hexex)**_ <!--Available!-->
+
+**Bluesky**: _**[hrekexexex](about:blank)**_ <!--Not available!-->
 <details>
-<summary>Original description is here</summary>
-<!-- Thanks soushimiya for this README template! -->
+  <summary><h2>Original P-Slice Description</h2></summary>
+
+  <!-- Thanks soushimiya for this README template! -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 <!--
@@ -70,7 +91,7 @@ https://github.com/mcagabe19/linc_luajit-rewriten/
 <!-- ABOUT THE PROJECT -->
 ## About
 
-P-Slice engine is a crossover between Psych engine and the newest Friday Night Funkin.
+P-Slice engine is a crossover between Psych Engine and the newest version of Friday Night Funkin.
 
 It's meant to bring new visuals and features from newer versions of FNF and make changes to the existing ones to make them feel closer to the ones in the V-Slice.
 
@@ -87,11 +108,11 @@ It's meant to bring new visuals and features from newer versions of FNF and make
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Pre-built Engine can be download from [GameBanana](https://gamebanana.com/mods/535203).
-Also, Nightly/Beta Build can be download from [Github Actions](https://github.com/Psych-Slice/P-Slice/actions/workflows/main.yml). (You needs to make a Github account.)
+Pre-built engine can be downloaded from [GameBanana](https://gamebanana.com/mods/535203).
+Also, Nightly/Beta builds can be downloaded from [Github Actions](https://github.com/Psych-Slice/P-Slice/actions/workflows/main.yml). (You need to make a Github account.)
 
 
-If you wanna compile this Engine, Please check out <a href="#build">Here</a>
+If you wanna compile this engine, Please check out <a href="#build">here!</a>
 
 <a id="build"></a>
 ## Building
@@ -128,11 +149,11 @@ Run
 ### Branches
 `master` is the repository's main branch. It contains a PE 1.0 flavor of P-Slice and is the most maintained version.
 
-`master-dev` same as `master`, but used for development so might contain less stable builds.
+`master-dev` same as `master`, but it is used for development so it might contain less stable builds.
 
 `pe-0.6.3` works the same way, but built on Psych 0.6.3. Note that it may contain some bugs not present in the master version.
 
-`pe-0.6.3-dev` same as `pe-0.6.3`, but used for development so might contain less stable builds.
+`pe-0.6.3-dev` same as `pe-0.6.3`, but it is used for development so it might contain less stable builds.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -159,5 +180,3 @@ Distributed under the Apache License 2.0. See [Licence](https://github.com/Psych
 [issues-url]: https://github.com/Psych-Slice/P-Slice/issues
 [license-shield]: https://img.shields.io/github/license/Psych-Slice/P-Slice.svg?style=for-the-badge
 [license-url]: https://github.com/Psych-Slice/P-Slice/blob/master/LICENSE.txt!
-
-</details>
