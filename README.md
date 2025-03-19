@@ -32,9 +32,9 @@ And probably add some new things.....?.....in the future.
 ### Socials
 *Credit isn't required **if you just use my engine**, but I'm glad if you credited.*
 
-**Discord**: **hrk.exex *[Available my discord server!](https://discord.gg/SzXbVkqmG9)*** <!--Available!-->
-**Twitter**: ***[hrek_hexex](https://x.com/Hrek_Hexex)*** <!--Available!-->
-**Bluesky**: ***[hrekexexex](https://bsky.app/profile/hrekexkex.bsky.social)*** <!--Available but It's for emergency like discord and twitter is down-->
+**Discord**: **hrk.exex *[Available my discord server!](https://discord.gg/SzXbVkqmG9)***  <!--Available!-->  
+**Twitter**: ***[hrek_hexex](https://x.com/Hrek_Hexex)***  <!--Available!-->  
+**Bluesky**: ***[hrekexexex](https://bsky.app/profile/hrekexkex.bsky.social)***  <!--Available but It's for emergency like discord and twitter is down-->  
 <details>
   <summary><h2>Original P-Slice Description</h2></summary>
 
