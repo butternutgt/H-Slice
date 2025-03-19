@@ -4,7 +4,7 @@
     <img src="/art/iconOG.png" alt="H-Slice" width="150">
   </a>
   <br>
-  <b>H-Slice</b>
+  <b>H-Slice Engine</b>
   <br>
 </h1>
 
@@ -17,26 +17,24 @@
 
 ## Introduction
 
-Welcome to **H-Slice**, a Friday Night Funkin' engine except it's optimized!
+Welcome to **H-Slice** (HRK Engine Redux), a Friday Night Funkin' engine except it's optimized!
 
 This engine will implement some features inherited from my old engine.
 
-And probably add some new things in the future?
+And probably add some new things.....?.....in the future.
 
-_**If you want to add my features in your own engine,**_
-_**Please contact me before something happens.**_
-_**Because I don't like to be imitated so much.**_
+### *If you want to add my features in your own engine,*
+### *Please contact me before s0m3th1ng happens and CREDIT H-SLICE.*
+### *Because I don't like to be imitated so much.*
 
-**My engine is for playing impossible charts for BOTPLAY, not playing normally.**
+**My engine is for playing impossible charts using BOTPLAY, not playing normally as human.**
 
 ### Socials
-**Credit isn't required, but I'm glad if you credited.**
+*Credit isn't required **if you just use my engine**, but I'm glad if you credited.*
 
-**Discord**: _**[hrk.exex](about:blank)**_ <!--Available!-->
-
-**Twitter**: _**[hrek_hexex](https://x.com/Hrek_Hexex)**_ <!--Available!-->
-
-**Bluesky**: _**[hrekexexex](about:blank)**_ <!--Not available!-->
+**Discord**: **hrk.exex *[Available my discord server!](https://discord.gg/SzXbVkqmG9)*** <!--Available!-->
+**Twitter**: ***[hrek_hexex](https://x.com/Hrek_Hexex)*** <!--Available!-->
+**Bluesky**: ***[hrekexexex](https://bsky.app/profile/hrekexkex.bsky.social)*** <!--Available but It's for emergency like discord and twitter is down-->
 <details>
   <summary><h2>Original P-Slice Description</h2></summary>
 
