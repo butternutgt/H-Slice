@@ -111,12 +111,20 @@ class UserErrorSubstate extends MusicBeatSubstate
 		}
 	}
 
+	var tapped:Bool = false;
+	var released:Bool = false;
+	var touchTime:Float = 0;
 	override function update(elapsed:Float)
 	{
+		if (TouchUtil.pressed) { 
+			tapped = true;
+			touchTime += elapsed;
+		} else if (tapped) released = true;
+
 		super.update(elapsed);
 		if (!allowClosing)
 			return;
-		if (TouchUtil.justPressed || FlxG.keys.justPressed.ENTER)
+		if (released && touchTime < 0.8 || FlxG.keys.justPressed.ENTER)
 		{
 			FlxG.cameras.remove(camOverlay);
 			if (!isCritical)
@@ -136,17 +144,22 @@ class UserErrorSubstate extends MusicBeatSubstate
 			FlxG.resetGame();
 		}
 		#if sys
-		else if (FlxG.keys.justPressed.ESCAPE && isCritical)
+		else if ((touchTime >= 0.8 || FlxG.keys.justPressed.ESCAPE) && isCritical)
 		{
 			Sys.exit(1);
 		}
 		#end
+
+		if (released) {
+			tapped = false;
+			touchTime = 0;
+		}
 	}
 
 	function printError(error:CrashData)
 	{
 		var star = #if CHECK_FOR_UPDATES "" #else "*" #end;
-		printToTrace('P-SLICE ${MainMenuState.pSliceVersion}$star  (${error.message})');
+		printToTrace('H-SLICE ${MainMenuState.hrkVersion}$star (${error.message})');
 		textNextY += 35;
 		FlxTimer.wait(1 / 24, () ->
 		{
@@ -180,13 +193,13 @@ class UserErrorSubstate extends MusicBeatSubstate
 			printToTrace('MOD:${error.activeMod.rpad(" ", 10)} PE:${MainMenuState.psychEngineVersion.rpad(" ", 5)} SYS:${error.systemName}');
 			printSpaceToTrace();
 			if (isCritical)
-				printToTrace('REPORT TO GITHUB.COM/MIKOLKA9144/P-SLICE');
+				printToTrace('REPORT TO GITHUB.COM/HRK-EXEX/H-SLICE');
 			else
 				printToTrace('');
 			if (isCritical)
 			{
 				if (controls.mobileC)
-					printToTrace('TAP ANYWHERE TO RESTART');
+					printToTrace('TAP ANYWHERE TO RESTART | HOLD TO QUIT');
 				else
 					printToTrace('PRESS ENTER TO RESTART | ESC TO QUIT');
 			}
@@ -208,7 +221,7 @@ class UserErrorSubstate extends MusicBeatSubstate
 		var star = #if CHECK_FOR_UPDATES "" #else "*" #end;
 		dateNow = dateNow.replace(' ', '_');
 		dateNow = dateNow.replace(':', "'");
-		errMsg += 'P-Slice ${MainMenuState.pSliceVersion}$star\n';
+		errMsg += 'H-SLICE ${MainMenuState.hrkVersion}$star\n';
 		errMsg += '\nUncaught Error: ' + error.message + "\n";
 		for (x in error.extendedTrace)
 		{
@@ -218,13 +231,14 @@ class UserErrorSubstate extends MusicBeatSubstate
 		errMsg += 'Active mod: ${error.activeMod}\n';
 		errMsg += 'Platform: ${error.systemName}\n';
 		errMsg += '\n';
-		errMsg += '\nPlease report this error to the GitHub page: https://github.com/Psych-Slice/P-Slice\n\n> Crash Handler written by: sqirra-rng';
+		errMsg += '\nPlease report this error to the GitHub page: https://github.com/HRK-EXEX/H-Slice';
+		errMsg += '\n\n> Crash Handler written by: sqirra-rng';
 
 		#if !LEGACY_PSYCH
 		@:privateAccess // lazy
 		backend.CrashHandler.saveErrorMessage(errMsg + '\n');
 		#else
-		var path = './crash/' + 'PSlice_' + dateNow + '.txt';
+		var path = './crash/' + 'HSlice_' + dateNow + '.txt';
 		File.saveContent(path, errMsg + '\n');
 		Sys.println(errMsg);
 		#end
