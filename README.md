@@ -9,32 +9,32 @@
 </h1>
 
 <p align="center">
-<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/HRK-EXEX/H-Slice">
-<img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/HRK-EXEX/H-Slice">
-<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/HRK-EXEX/H-Slice">
-<img src="https://img.shields.io/badge/LUA-262626?style=for-the-badge&logo=lua"> <img src="https://img.shields.io/badge/-HAXE-262626.svg?logo=haxe&style=for-the-badge">
+  <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/HRK-EXEX/H-Slice">
+  <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/HRK-EXEX/H-Slice">
+  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/HRK-EXEX/H-Slice">
+  <img src="https://img.shields.io/badge/LUA-262626?style=for-the-badge&logo=lua">
+  <img src="https://img.shields.io/badge/-HAXE-262626.svg?logo=haxe&style=for-the-badge">
 </p>
 
 ## Introduction
 
-Welcome to **H-Slice** (HRK Engine Redux), a Friday Night Funkin' engine except it's optimized!
+Welcome to **H-Slice** (HRK Engine Redux), a Friday Night Funkin' engine optimized for handling large charts efficiently.
 
-This engine will implement some features inherited from my old engine.
+This engine builds upon features from my previous engine and may include new features in the future.
 
-And probably add some new things.....?.....in the future.
+### *If you plan to integrate my features into your own engine,*
+### *Please contact me first and CREDIT H-SLICE.*
 
-### *If you want to add my features in your own engine,*
-### *Please contact me before s0m3th1ng happens and CREDIT H-SLICE.*
-### *Because I don't like to be imitated so much.*
+**Note:** This engine is designed for playing large, unplayable charts using BOTPLAY. It is not intended for regular gameplay.
 
-**My engine is for playing impossible charts using BOTPLAY, not playing normally as human.**
+### Social Media
+*While credit isn't mandatory, I would greatly appreciate it if you credited me.*
 
-### Socials
-*Credit isn't required **if you just use my engine**, but I'm glad if you credited.*
+- **Discord**: [hrk.exex](https://discord.gg/SzXbVkqmG9) *(Phone verification required)*
+- **Twitter**: [@hrek_hexex](https://x.com/Hrek_Hexex)
+- **Bluesky**: [@hrekexexex](https://bsky.app/profile/hrekexkex.bsky.social) *(For emergencies if Discord or Twitter is unavailable)*
 
-**Discord**: **hrk.exex *[Available my discord server!](https://discord.gg/SzXbVkqmG9)*** but you need the phone verification <!--Available!-->  
-**Twitter**: ***[hrek_hexex](https://x.com/Hrek_Hexex)***  <!--Available!-->  
-**Bluesky**: ***[hrekexexex](https://bsky.app/profile/hrekexkex.bsky.social)***  <!--Available but It's for emergency like discord and twitter is down-->  
+
 <details>
   <summary><h2>Original P-Slice Description</h2></summary>
 
