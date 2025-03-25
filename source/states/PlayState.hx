@@ -5087,7 +5087,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			camHUD.zoom += 0.03 * camZoomingMult * bopRatio;
 
 			if (FlxG.camera.zoom >= 1.35) FlxG.camera.zoom = 1.35;
-			if (camHUD.zoom < 1.7) camHUD.zoom = 1.7;
+			if (camHUD.zoom >= 1.7) camHUD.zoom = 1.7;
 		}
 
 		if (iconBopType != "None") {
