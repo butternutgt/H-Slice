@@ -1,5 +1,4 @@
 package shaders;
-import objects.Note;
 
 class RGBPalette {
 	public var shader(default, null):RGBPaletteShader = new RGBPaletteShader();

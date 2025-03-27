@@ -142,6 +142,7 @@ class PlayState extends MusicBeatState
 		return stageUI == "pixel" || stageUI.endsWith("-pixel");
 
 	public static var SONG:SwagSong = null;
+	public static var inPlayState:Bool = false;
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
@@ -396,6 +397,7 @@ class PlayState extends MusicBeatState
 	override public function create()
 	{
 		this.variables = new JoinedLuaVariables();
+		inPlayState = true;
 		// trace('Playback Rate: ' + playbackRate);
 		Paths.clearUnusedMemory();
 		Paths.clearStoredMemory();
@@ -1373,14 +1375,14 @@ class PlayState extends MusicBeatState
 						tick = GO;
 					case 4:
 						tick = START;
-						FlxG.maxElapsed = nanoPosition ? 1000000 : 0.1;
+						FlxG.maxElapsed = nanoPosition || ffmpegMode ? 1000000 : 0.1;
 				}
 
 				#if FLX_PITCH if (countVoice != null) countVoice.pitch = playbackRate; #end
 
 				if (!skipArrowStartTween)
 				{
-					notes.forEachAlive(function(note:Note)
+					notes.forEachAlive( note ->
 					{
 						if (ClientPrefs.data.opponentStrums || note.mustPress)
 						{
@@ -1921,7 +1923,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		for (usn in unspawnSustainNotes)
 			unspawnNotes.push(usn);
 		
-		unspawnSustainNotes.resize(0);
+		unspawnSustainNotes = [];
 
 		Sys.println('Sorting Notes...');
 		unspawnNotes.sort(sortByTime);
@@ -2831,7 +2833,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			castMust = toBool(targetNote.noteData & (1<<8));
 			
 			shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
-			shownRealTime = shownTime * 0.001;
+			shownRealTime = shownTime / 1000;
+			// if (betterRecycle) shownRealTime /= 4;
 			isDisplay = targetNote.strumTime - fixedPosition < shownTime;
 
 			while (isDisplay && limitCount < limitNotes)
@@ -2949,13 +2952,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					{
 						notes.forEach(daNote -> {
 							if (daNote.exists && daNote.strum != null) {
-
 								if (debugInfos) ++processedReal;
 
 								canBeHit = Conductor.songPosition - daNote.strumTime > 0;
 								tooLate = Conductor.songPosition - daNote.strumTime > noteKillOffset;
-
-								daNote.followStrumNote(songSpeed); ++shownCnt;
 								
 								if (tooLate) {
 									// Kill extremely late notes and cause misses
@@ -2989,6 +2989,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 										daNote.clipToStrumNote();
 									}
 								}
+								
+								if (daNote.exists) daNote.followStrumNote(songSpeed); ++shownCnt;
 							} else if (daNote == null) invalidateNote(daNote);
 						});
 					}
@@ -3025,10 +3027,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			combo += skipBf; bfSideHit += skipBf;
 			skipTotalCnt += skipCnt;
 
+			if (skipOp > 0 && !camZooming) camZooming = true;
+
 			skipHitSearch = 7;
 			while (skipHitSearch >= 0) {
 				if (toBool(skipHit & 1<<skipHitSearch))
-					strumPlayAnim(skipHitSearch < 4, skipHitSearch % 4);
+					strumPlayAnim(skipHitSearch < 4, skipHitSearch % 4, false);
 				--skipHitSearch;
 			}
 			
@@ -4720,7 +4724,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		if (!ffmpegMode && opVocal) opponentVocals.volume = ClientPrefs.data.bgmVolume;
-		strumPlayAnim(true, note.noteData);
+		strumPlayAnim(true, note.noteData, note.isSustainNote && !note.isSustainEnds);
 		if (healthDrain) health = Math.max(0.1e-320, health * 0.99);
 		note.hitByOpponent = true;
 
@@ -4827,7 +4831,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			if (!cpuControlled)
 			{
 				playerStrums.members[note.noteData].playAnim('confirm', true);
-			} else strumPlayAnim(false, note.noteData);
+			} else strumPlayAnim(false, note.noteData, note.isSustainNote && !note.isSustainEnds);
 
 			if (!ffmpegMode && bfVocal) vocals.volume = ClientPrefs.data.bgmVolume;
 
@@ -5006,7 +5010,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		hscriptArray = null;
 		#end
-		stagesFunc(function(stage:BaseStage) stage.destroy());
+		stagesFunc(stage -> stage.destroy());
 
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
@@ -5025,6 +5029,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		Paths.noteSkinFramesMap.clear();
 		Paths.noteSkinAnimsMap.clear();
 		Paths.popUpFramesMap.clear();
+
+		if (endingSong) SONG = null;
+		unspawnNotes = [];
+		notes.clear();
 		
 		#if desktop
 		if (ffmpegMode) {
@@ -5042,6 +5050,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 		#end
 
+		inPlayState = false;
 		super.destroy();
 	}
 
@@ -5066,6 +5075,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var bopRatio:Float = 1;
 	var hpRatio:Float = 1;
 
+	var multPlusX:Float = 0;
+	var multPlusY:Float = 0;
+	var angle:Float = 0;
+
 	override function beatHit()
 	{
 		if (lastBeatHit > curBeat)
@@ -5074,21 +5087,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			return;
 		}
 
-		var multPlusX:Float = 0;
-		var multPlusY:Float = 0;
-		var angle:Float = 0;
-
 		beatRatio = curDecBeat % 1;
 		bopRatio = 1 - beatRatio;
-
-		if (camZooming && ClientPrefs.data.camZooms && (curBeat % camZoomingFrequency) == 0)
-		{
-			FlxG.camera.zoom += 0.015 * camZoomingMult * bopRatio;
-			camHUD.zoom += 0.03 * camZoomingMult * bopRatio;
-
-			if (FlxG.camera.zoom >= 1.35) FlxG.camera.zoom = 1.35;
-			if (camHUD.zoom >= 1.7) camHUD.zoom = 1.7;
-		}
 
 		if (iconBopType != "None") {
 			for (index => icon in [iconP2, iconP1]) {
@@ -5144,6 +5144,45 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		callOnScripts('onBeatHit');
 	}
 
+	var sectionRatio:Float = 0;
+	var zoomRatio:Float = 0;
+	override function sectionHit()
+	{
+		sectionRatio = (curDecBeat / 4) % 1;
+		zoomRatio = 1 - sectionRatio;
+
+		curSec = SONG.notes[curSection];
+		if (curSec != null)
+		{
+			if (camZooming && ClientPrefs.data.camZooms)
+			{
+				FlxG.camera.zoom += 0.015 * camZoomingMult * zoomRatio;
+				camHUD.zoom += 0.03 * camZoomingMult * zoomRatio;
+	
+				if (FlxG.camera.zoom >= 1.35) FlxG.camera.zoom = 1.35;
+				if (camHUD.zoom >= 1.7) camHUD.zoom = 1.7;
+			}
+			
+			if (generatedMusic && !endingSong && !isCameraOnForcedPos)
+				moveCameraSection();
+
+			if (curSec.changeBPM)
+			{
+				Conductor.bpm = curSec.bpm;
+				setOnScripts('curBpm', Conductor.bpm);
+				setOnScripts('crochet', Conductor.crochet);
+				setOnScripts('stepCrochet', Conductor.stepCrochet);
+			}
+			setOnScripts('mustHitSection', curSec.mustHitSection);
+			setOnScripts('altAnim', curSec.altAnim);
+			setOnScripts('gfSection', curSec.gfSection);
+		}
+		super.sectionHit();
+
+		setOnScripts('curSection', curSection);
+		callOnScripts('onSectionHit');
+	}
+	
 	public function characterBopper(beat:Float):Void
 	{
 		if (gf != null
@@ -5165,31 +5204,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		var anim:String = boyfriend.getAnimationName();
 		if (boyfriend.holdTimer > boyfriend.charaCrochet * boyfriend.singDuration && anim.startsWith('sing') && !anim.endsWith('miss'))
 			boyfriend.dance();
-	}
-
-	override function sectionHit()
-	{
-		curSec = SONG.notes[curSection];
-		if (curSec != null)
-		{
-			if (generatedMusic && !endingSong && !isCameraOnForcedPos)
-				moveCameraSection();
-
-			if (curSec.changeBPM)
-			{
-				Conductor.bpm = curSec.bpm;
-				setOnScripts('curBpm', Conductor.bpm);
-				setOnScripts('crochet', Conductor.crochet);
-				setOnScripts('stepCrochet', Conductor.stepCrochet);
-			}
-			setOnScripts('mustHitSection', curSec.mustHitSection);
-			setOnScripts('altAnim', curSec.altAnim);
-			setOnScripts('gfSection', curSec.gfSection);
-		}
-		super.sectionHit();
-
-		setOnScripts('curSection', curSection);
-		callOnScripts('onSectionHit');
 	}
 
 	#if LUA_ALLOWED
@@ -5421,7 +5435,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var strumCurAnim:FlxAnimation = null;
 	// var strumART:Float = 0;
 
-	function strumPlayAnim(isDad:Bool, id:Int)
+	function strumPlayAnim(isDad:Bool, id:Int, inSustain:Bool)
 	{
 		if (!strumAnim) return;
 		strumHitId = id + (isDad ? 0 : 4);
@@ -5439,6 +5453,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				strumSpr.resetAnim = (1 / strumCurAnim.frameRate) * strumCurAnim.numFrames;
 			}
 			hit |= 1 << strumHitId;
+			if (!strumSpr.inSustain) strumSpr.inSustain = inSustain;
 		}
 	}
 
