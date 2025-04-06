@@ -52,8 +52,10 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			splash.animation.finishCallback = name -> splash.visible = false;
 			splashes.add(splash);
 			
-			Note.initializeGlobalRGBShader(i % Note.colArray.length);
-			splash.rgbShader.copyValues(Note.globalRgbShaders[i % Note.colArray.length]);
+			if (ClientPrefs.data.noteShaders) {
+				Note.initializeGlobalRGBShader(i % Note.colArray.length);
+				splash.rgbShader.copyValues(Note.globalRgbShaders[i % Note.colArray.length]);
+			}
 		}
 
 		// options
@@ -327,7 +329,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Pop-Up Stacking',
-			"If unchecked, score pop-ups won't stack, but the game now uses a recycling system,\nso it doesn't have a huge effect anymore.",
+			"If unchecked, score pop-ups won't stack,\nbut the game now uses a recycling system,\nso it doesn't have a huge effect anymore.",
 			'comboStacking',
 			BOOL);
 		addOption(option);

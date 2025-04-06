@@ -5,7 +5,7 @@ class BaseGameSubState extends BaseOptionsMenu {
         title = "V-Slice settings";
         rpcTitle = "V-Slice settings menu";
         var option:Option = new Option('Use New Freeplay State',
-			'If disabled, it uses the original Freeplay State.',
+			'If disabled, it uses the Freeplay State of Psych Engine instead new one.',
 			'vsliceFreeplay',
 			BOOL);
 		addOption(option);
@@ -51,8 +51,8 @@ class BaseGameSubState extends BaseOptionsMenu {
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Listen Whole Song Of Freeplay',
-			'If enabled, it will load every song in Freeplay State,\nVery CPU Intensive.',
+		var option:Option = new Option('Preview Whole Song in New Freeplay',
+			'If enabled, it will load every song in New Freeplay State,\nVery CPU Intensive.',
 			'vsliceLoadInstAll',
 			BOOL);
 		addOption(option);

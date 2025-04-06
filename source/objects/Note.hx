@@ -139,7 +139,7 @@ class Note extends FlxSprite
 		texture: null,
 		antialiasing: !PlayState.isPixelStage,
 		useGlobalShader: false,
-		useRGBShader: (PlayState.SONG != null) ? !(PlayState.SONG.disableNoteRGB == true) : true,
+		useRGBShader: PlayState.SONG != null && !PlayState.SONG.disableNoteRGB || ClientPrefs.data.noteShaders,
 		a: ClientPrefs.data.splashAlpha
 	};
 	public var noteHoldSplash:SustainSplash;
@@ -148,7 +148,7 @@ class Note extends FlxSprite
 	public var offsetY:Float = 0;
 	public var offsetAngle:Float = 0;
 	public var multAlpha:Float = 1;
-	public var multSpeed(default, set):Float = 1;
+	// public var multSpeed(default, set):Float = 1;
 
 	public var copyX:Bool = true;
 	public var copyY:Bool = true;
@@ -183,12 +183,12 @@ class Note extends FlxSprite
 	}
 	public var hitsound:String = 'hitsound';
 
-	private function set_multSpeed(value:Float):Float {
-		resizeByRatio(value / multSpeed);
-		multSpeed = value;
-		//trace('fuck cock');
-		return value;
-	}
+	// private function set_multSpeed(value:Float):Float {
+	// 	resizeByRatio(value / multSpeed);
+	// 	multSpeed = value;
+	// 	//trace('fuck cock');
+	// 	return value;
+	// }
 
 	inline public function resizeByRatio(ratio:Float) //haha funny twitter shit
 	{
@@ -255,14 +255,19 @@ class Note extends FlxSprite
 		if (noteData > -1) {
 			if (value == 'Hurt Note') {
 				ignoreNote = mustPress && isBotplay;
-				//reloadNote('HURTNOTE_assets');
 				//this used to change the note texture to HURTNOTE_assets.png,
 				//but i've changed it to something more optimized with the implementation of RGBPalette:
 
 				// note colors
-				rgbShader.r = 0xFF101010;
-				rgbShader.g = 0xFFFF0000;
-				rgbShader.b = 0xFF990022;
+				if (rgbShader != null && rgbShader.enabled) {
+					rgbShader.r = 0xFF101010;
+					rgbShader.g = 0xFFFF0000;
+					rgbShader.b = 0xFF990022;
+				} else {
+					try {
+						reloadNote('HURTNOTE_assets');
+					} catch (e) {alpha = 0.5; }
+				}
 
 				// splash data and colors
 				//noteSplashData.r = 0xFFFF0000;
@@ -296,7 +301,7 @@ class Note extends FlxSprite
 
 		try {
 			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
-			if (PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
+			if (PlayState.SONG != null && PlayState.SONG.disableNoteRGB || !ClientPrefs.data.noteShaders) rgbShader.enabled = false;
 		} catch (e) { rgbShader = null; }
 	}
 
@@ -459,8 +464,6 @@ class Note extends FlxSprite
 	var safeZone:Float = 0;
 	override function update(elapsed:Float)
 	{
-		if (PlayState.inPlayState && PlayState.instance.cpuControlled) return;
-		
 		super.update(elapsed);
 
 		songTime = Conductor.songPosition;
@@ -499,7 +502,7 @@ class Note extends FlxSprite
 	}
 	
 	var angleDir:Float;
-	public function followStrumNote(songSpeed:Float = 1)
+	public function followStrumNote(songSpeed:Float = 1, distance:Float = 0)
 	{
 		if (isSustainNote)
 		{
@@ -510,7 +513,7 @@ class Note extends FlxSprite
 				prevDownScr = flipY;
 			}
 
-			scale.set(0.7, animation != null && animation.curAnim != null && animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * (songSpeed * multSpeed) * sustainScale);
+			scale.set(0.7, animation != null && animation.curAnim != null && animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * songSpeed * sustainScale);
 			if (PlayState.isPixelStage)
 			{
 				scale.x = PlayState.daPixelZoom;
@@ -520,9 +523,10 @@ class Note extends FlxSprite
 			updateHitbox();
 		}
 
-		distance = (0.45 * (Conductor.songPosition - strumTime) * songSpeed * multSpeed);
+		// it will set 450 
+		this.distance = distance;
 		if (!strum.downScroll) distance *= -1;
-
+		
 		angleDir = strum.direction * Math.PI / 180;
 		if (copyAngle)
 			angle = strum.direction - 90 + strum.angle + offsetAngle;
@@ -598,8 +602,8 @@ class Note extends FlxSprite
 
 	public function recycleNote(target:CastNote, ?oldNote:Note) {
 		wasGoodHit = hitByOpponent = tooLate = false;
-		canBeHit = spawned = missed = false; // Don't make an update call of this for the note group
-		exists = true; flipY = false;
+		canBeHit = spawned = missed = flipY = false; // Don't make an update call of this for the note group
+		exists = visible = true;
 
 		isBotplay = PlayState.instance != null ? PlayState.instance.cpuControlled : false;
 

@@ -54,6 +54,7 @@ import states.TitleState;
 	public var holdSplashAlpha:Float = 0.6;
 	public var lowQuality:Bool = false;
 	public var shaders:Bool = true;
+	public var noteShaders:Bool = true;
 	public var cacheOnGPU:Bool = #if !switch false #else true #end; //From Stilic
 	public var framerate:Int = 60;
 	
@@ -149,6 +150,7 @@ import states.TitleState;
 	public var betterRecycle:Bool = true;
 	public var limitNotes:Int = 0;
 	public var cacheNotes:Int = 0;
+	public var hideOverlapped:Float = 0;
 	public var skipSpawnNote:Bool = true;
 	public var processFirst:Bool = true;
 	public var optimizeSpawnNote:Bool = true;

@@ -23,7 +23,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
         var option:Option = new Option('Show Notes',
-			"If unchecked, appearTime is set to 0. All notes will be processed as skipped notes.\nBotplay is force-enabled.",
+			"If unchecked, appearTime is set to 0.\nAll notes will be processed as skipped notes.\nBotplay is force-enabled.",
 			'showNotes',
 			BOOL);
 		addOption(option);
@@ -106,20 +106,32 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		cacheCount = option;
 		addOption(option);
 
+		var option:Option = new Option('Invisible overlapped notes:',
+			"I thought It would be nice because I implemented skipping feature\nI won't care about cheating anymore",
+			'hideOverlapped',
+			FLOAT);
+		option.displayFormat = "%v pixel";
+		option.scrollSpeed = 10.0;
+		option.minValue = 0.0;
+		option.maxValue = 10.0;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+		addOption(option);
+
         var option:Option = new Option('Process Notes before Spawning',
-			"If checked, it process notes before they spawn.\nIt boosts game performance vastly.\nIt is recommended to enable this option.",
+			"If checked, it process notes before they spawn.\nIt boosts game performance massively.\nIt is recommended to enable this option.",
 			'processFirst',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('Skip Process for Spawned Note',
-			"If checked, enables Skip Note Function.\nIt boosts game performance vastly, but it only works in specific situations.\nIf you don't understand, enable this.",
+			"If checked, enables Skip Note Function.\nIt boosts game performance massively, but it only works in specific situations.\nIf you don't understand, enable this.",
 			'skipSpawnNote',
 			BOOL);
 		addOption(option);
 
         var option:Option = new Option('Optimize Process for Spawned Note',
-			"If checked, it judges whether or not to do hit process\nimmediately when a note spawned. It boosts game performance vastly,\nbut it only works in specific situations. If you don't understand, enable this.",
+			"If checked, it judges whether or not to do hit process\nimmediately when a note spawned. It boosts game performance massively,\nbut it only works in specific situations. If you don't understand, enable this.",
 			'optimizeSpawnNote',
 			BOOL);
 		addOption(option);

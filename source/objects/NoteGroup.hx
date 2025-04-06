@@ -30,6 +30,11 @@ class NoteGroup extends FlxTypedGroup<Note>
         return _ecyc_e.recycleNote(castNote, oldNote);
     }
 
+    override function update(elapsed:Float) {
+		if (PlayState.inPlayState && PlayState.instance.cpuControlled) return;
+        super.update(elapsed);
+    }
+
     public function debugInfo():Array<Float> {
         living = 0;
         for (obj in pool) if (obj != null) ++living;

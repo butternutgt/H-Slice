@@ -37,7 +37,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Over Health',
-			'If checked, health goes beyond 100%, but it returns to 100% immedietaly after 1 frame.',
+			'If checked, health goes beyond 100%,\nbut it returns to 100% immedietaly after 1 frame.',
 			'overHealth',
 			BOOL);
 		addOption(option);
@@ -49,7 +49,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Health Drain - Accurate',
-			'If checked, health drain will work for skipped notes, but it will take high CPU loads.',
+			'If checked, health drain will work for skipped notes,\nbut it will take high CPU loads.',
 			'drainAccurated',
 			BOOL);
 		addOption(option);
@@ -82,7 +82,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option(' - Threshold',
+		var option:Option = new Option(' - Threshold:',
 			"Threshold of the option above.\nYou can set it in millisecond.",
 			'ghostRange',
 			FLOAT);
@@ -125,7 +125,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Accurate Song Position',
-			"If checked, songPosition supports microSeconds. Unsupported for very old CPUs",
+			"If checked, songPosition supports microSeconds.\nBut It doesn't support for very old CPUs.",
 			'nanoPosition',
 			BOOL);
 		option.onChange = onChangeCounterMethod;
