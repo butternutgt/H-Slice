@@ -167,8 +167,7 @@ class PhillyStreets extends PicoCapableStage
 
 	override function createPost()
 	{
-		var unspawnNotes:Array<CastNote> = game.unspawnNotes;
-		for (note in unspawnNotes)
+		for (note in PlayState.unspawnNotes)
 		{
 			if (note == null)
 				continue;

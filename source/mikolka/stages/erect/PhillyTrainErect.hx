@@ -222,7 +222,7 @@ class PhillyTrainErect extends PicoCapableStage
 					#else
 					game.opponentVocals = new FlxSound();
 					#end
-					for (note in game.unspawnNotes)
+					for (note in PlayState.unspawnNotes)
 					{
 						if ((note.noteData & 1<<8) == 0)
 						{

@@ -337,24 +337,23 @@ class PauseSubState extends MusicBeatSubstate
 					restartSong();
 					PlayState.chartingMode = false;
 				case 'Skip Time':
-					if(curTime < Conductor.songPosition)
-					{
+					// if(curTime < Conductor.songPosition)
+					// {
 						PlayState.startOnTime = curTime;
 						restartSong(true);
-					}
-					else
-					{
-						if (curTime != Conductor.songPosition)
-						{
-							pSte.clearNotesBefore(curTime);
-							pSte.setSongTime(curTime);
-						}
-						close();
-					}
+					// }
+					// else
+					// {
+					// 	if (curTime != Conductor.songPosition)
+					// 	{
+					// 		pSte.setSongTime(curTime);
+					// 	}
+					// 	close();
+					// }
 				case 'End Song':
 					close();
 					pSte.notes.clear();
-					pSte.unspawnNotes = [];
+					PlayState.unspawnNotes = [];
 					pSte.finishSong(true);
 				case 'Toggle Botplay':
 					pSte.cpuControlled = !pSte.cpuControlled;
@@ -417,6 +416,7 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.changedDifficulty = false;
 					PlayState.chartingMode = false;
 					FlxG.camera.followLerp = 0;
+					PlayState.unspawnNotes = [];
 				default:
 					if(daSelected == cutscene_skipTxt){
 						specialAction = SKIP;

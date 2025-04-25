@@ -134,8 +134,7 @@ class PhillyBlazin extends PicoCapableStage
 		}
 		abot.color = 0xFF888888;
 
-		var unspawnNotes:Array<CastNote> = game.unspawnNotes;
-		for (note in unspawnNotes)
+		for (note in PlayState.unspawnNotes)
 		{
 			if(note == null) continue;
 

@@ -59,7 +59,7 @@ class SustainSplash extends FlxSprite
 
 			clipRect = new flixel.math.FlxRect(0, !PlayState.isPixelStage ? 0 : -210, frameWidth, frameHeight);
 
-			if (note.shader != null)
+			if (note.shader != null && note.rgbShader.enabled)
 			{
 				shader = new objects.NoteSplash.PixelSplashShaderRef().shader;
 				shader.data.r.value = note.shader.data.r.value;
@@ -76,6 +76,10 @@ class SustainSplash extends FlxSprite
 			if (timer != null) timer.cancel();
 			timer = new FlxTimer().start(startCrochet / playbackRate * 0.001, (idk:FlxTimer) -> showEndSplash());
 		}
+	}
+
+	public function sendSustainEnd() {
+		if (holding) showEndSplash();
 	}
 
 	function showEndSplash() {

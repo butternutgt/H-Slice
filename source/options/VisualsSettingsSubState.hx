@@ -50,9 +50,10 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			splash.visible = false;
 			splash.alpha = ClientPrefs.data.splashAlpha;
 			splash.animation.finishCallback = name -> splash.visible = false;
+			splash.rgbShader.enabled = ClientPrefs.data.noteShaders;
 			splashes.add(splash);
 			
-			if (ClientPrefs.data.noteShaders) {
+			if (splash.rgbShader.enabled) {
 				Note.initializeGlobalRGBShader(i % Note.colArray.length);
 				splash.rgbShader.copyValues(Note.globalRgbShaders[i % Note.colArray.length]);
 			}

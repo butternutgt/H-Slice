@@ -165,7 +165,7 @@ class PlayState extends MusicBeatState
 	public var boyfriend:Character = null;
 
 	public var notes:NoteGroup;
-	public var unspawnNotes:Array<CastNote> = [];
+	public static var unspawnNotes:Array<CastNote> = [];
 	public var unspawnSustainNotes:Array<CastNote> = [];
 	public var eventNotes:Array<EventNote> = [];
 	public var sustainAnim:Bool = ClientPrefs.data.holdAnim;
@@ -365,8 +365,6 @@ class PlayState extends MusicBeatState
 	var spawnNoteEvent:Bool = ClientPrefs.data.spawnNoteEvent;
 	var betterRecycle:Bool = ClientPrefs.data.betterRecycle;
 	var limitNotes:Int = ClientPrefs.data.limitNotes;
-	var cacheNotes:Int = ClientPrefs.data.cacheNotes;
-	var doneCache:Bool = false;
 	var hideOverlapped:Float = ClientPrefs.data.hideOverlapped;
 	var skipSpawnNote:Bool = ClientPrefs.data.skipSpawnNote;
 	var optimizeSpawnNote:Bool = ClientPrefs.data.optimizeSpawnNote;
@@ -414,7 +412,7 @@ class PlayState extends MusicBeatState
 		nextReloadAll = false;
 		noteKillOffset = NoteKillTime;
 
-		if (cacheNotes == 0) startCallback = startCountdown;
+		startCallback = startCountdown;
 		endCallback = endSong;
 
 		// for lua
@@ -819,7 +817,7 @@ class PlayState extends MusicBeatState
 		hitbox.onHintUp.add(onHintRelease);
 		#end
 
-		if (cacheNotes == 0) startCallback();
+		startCallback();
 		recalculateRating();
 		if (cpuControlled) ratingImage = forceSick.name;
 
@@ -897,38 +895,23 @@ class PlayState extends MusicBeatState
 
 		if (limitNotes == 0) limitNotes = 2147483647;
 
-		if (cacheNotes > 0) {
-			Sys.println('Caching ${cacheNotes} Notes... 1/3');
-			var cacheNote:Note;
-			var cacheTargetNote:CastNote = Note.DEFAULT_CAST;
-			cacheTargetNote.noteData += FlxG.random.int(0, 3);
-
-			if (cacheTargetNote.noteSkin.length > 0 && !Paths.noteSkinFramesMap.exists(cacheTargetNote.noteSkin))
-				inline Paths.initNote(cacheTargetNote.noteSkin);
-
-			// Newing instances
-			for (i in 0...cacheNotes) {
-				if (betterRecycle)
-					notes.spawnNote(cacheTargetNote);
-				else
-				{
-					cacheNote = notes.recycle(Note).recycleNote(cacheTargetNote);
-					notes.add(cacheNote);
+		var diff = ClientPrefs.data.noteOffset;
+		if (Conductor.songPosition - diff < startOnTime) {
+			var left:Int = 0;
+			var right:Int = unspawnNotes.length;
+			var middle:Int = Std.int((left + right) / 2);
+			while (left < right) {
+				if (unspawnNotes[middle].strumTime - diff == startOnTime) break;
+				else {
+					if (unspawnNotes[middle].strumTime - diff < startOnTime) {
+						left = middle + 1;
+					} else right = middle - 1;
+					middle = Std.int((left + right) / 2);
 				}
-			}
-			
-			Sys.println('Drawing ${cacheNotes} Notes... 2/3');
-			// Drawing instances for cache note texture
-			notes.forEach(note -> {
-				note.spawned = true;
-				note.x = FlxG.random.int(0, 1280);
-				note.y = FlxG.random.int(0, 720);
-				note.dirty = true;
-				note.draw();
-				note.drawFrame(true);
-				note.active = false;
-			});
-		} else doneCache = true;
+			};
+			totalCnt = middle;
+			#if debug trace('next index is $totalCnt'); #end
+		}
 
 		#if desktop
 		if (ffmpegMode) {
@@ -1329,7 +1312,6 @@ class PlayState extends MusicBeatState
 			var swagCounter:Int = 0;
 			if (startOnTime > 0)
 			{
-				clearNotesBefore(startOnTime);
 				setSongTime(startOnTime - noteKillOffset);
 				return true;
 			}
@@ -1450,7 +1432,7 @@ class PlayState extends MusicBeatState
 		var daCastNote:CastNote = unspawnNotes[i];
 		while (daCastNote.strumTime - noteKillOffset < time)
 		{
-			daCastNote = unspawnNotes[--i];
+			daCastNote = unspawnNotes[i--];
 		}
 
 		i = notes.length - 1;
@@ -1461,7 +1443,7 @@ class PlayState extends MusicBeatState
 			daNote.visible = false;
 			daNote.ignoreNote = true;
 			invalidateNote(daNote);
-			daNote = notes.members[--i];
+			daNote = notes.members[i--];
 		}
 	}
 
@@ -1586,7 +1568,7 @@ class PlayState extends MusicBeatState
 
 	public function setSongTime(time:Float)
 	{
-		if (!starting && !ffmpegMode) {
+		if ((!starting || time > 0) && !ffmpegMode) {
 			FlxG.sound.music.pause();
 			if (bfVocal) vocals.pause();
 			if (opVocal) opponentVocals.pause();
@@ -1728,13 +1710,13 @@ class PlayState extends MusicBeatState
 				{
 					var playerVocals = Paths.voices(songData.song,
 						(boyfriend.vocalsFile == null || boyfriend.vocalsFile.length < 1) ? 'Player' : boyfriend.vocalsFile);
-					if (playerVocals != null && playerVocals.length > 0) {
+					if (playerVocals != null && playerVocals.length > 0 && boyfriend != null && boyfriend.alive) {
 						vocals = new FlxSound().loadEmbedded(playerVocals);
 						bfVocal = true;
 					}
 
 					var oppVocals = Paths.voices(songData.song, (dad.vocalsFile == null || dad.vocalsFile.length < 1) ? 'Opponent' : dad.vocalsFile);
-					if (oppVocals != null && oppVocals.length > 0) {
+					if (oppVocals != null && oppVocals.length > 0 && dad != null && dad.alive) {
 						opponentVocals = new FlxSound().loadEmbedded(oppVocals);
 						opVocal = true;
 					}
@@ -1771,163 +1753,167 @@ class PlayState extends MusicBeatState
 						makeEvent(event, i);
 		} catch (e:Dynamic) {}
 
-		// var oldNote:CastNote = null;
-		var sectionsData:Array<SwagSection> = PlayState.SONG.notes;
-		var daBpm:Float = Conductor.bpm;
+		if (PlayState.unspawnNotes.length == 0) {
+			// var oldNote:CastNote = null;
+			var sectionsData:Array<SwagSection> = PlayState.SONG.notes;
+			var daBpm:Float = Conductor.bpm;
 
-		var cnt:Float = 0;
-		var notes:Float = 0;
+			var cnt:Float = 0;
+			var notes:Float = 0;
 
-		var sectionNoteCnt:Float = 0;
-		var shownProgress:Bool = false;
-		var sustainNoteCnt:Float = 0;
-		var sustainTotalCnt:Float = 0;
+			var sectionNoteCnt:Float = 0;
+			var shownProgress:Bool = false;
+			var sustainNoteCnt:Float = 0;
+			var sustainTotalCnt:Float = 0;
 
-		var songNotes:Array<Dynamic> = [];
-		var strumTime:Float;
-		var noteColumn:Int;
-		var holdLength:Float;
-		var noteType:String;
+			var songNotes:Array<Dynamic> = [];
+			var strumTime:Float;
+			var noteColumn:Int;
+			var holdLength:Float;
+			var noteType:String;
 
-		var gottaHitNote:Bool;
+			var gottaHitNote:Bool;
 
-		var swagNote:CastNote;
-		var roundSus:Int;
-		var curStepCrochet:Float;
-		var sustainNote:CastNote;
+			var swagNote:CastNote;
+			var roundSus:Int;
+			var curStepCrochet:Float;
+			var sustainNote:CastNote;
 
-		var chartNoteData:Int = 0;
-		var strumTimeVector:Vector<Float> = new Vector(8, 0.0);
+			var chartNoteData:Int = 0;
+			var strumTimeVector:Vector<Float> = new Vector(8, 0.0);
 
-		var updateTime:Float = 0.1;
-		var syncTime:Float = Timer.stamp();
-		var removeTime:Float = ClientPrefs.data.ghostRange;
+			var updateTime:Float = 0.1;
+			var syncTime:Float = Timer.stamp();
+			var removeTime:Float = ClientPrefs.data.ghostRange;
 
-		var isDesktop:Bool = Main.platform != 'Phones';
-		var loadNoteTime:Float = CoolUtil.getNanoTime();
+			var isDesktop:Bool = Main.platform != 'Phones';
+			var loadNoteTime:Float = CoolUtil.getNanoTime();
 
-		function showProgress(force:Bool = false) {
-			if (Main.isConsoleAvailable)
-			{
-				if (Timer.stamp() - syncTime > updateTime || force)
+			function showProgress(force:Bool = false) {
+				if (Main.isConsoleAvailable)
 				{
-					Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
-					syncTime = Timer.stamp();
-				}
-			} else if (isDesktop && force) {
-				Sys.println('Loading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
-			}
-		}
-
-		for (section in sectionsData)
-		{
-			++cnt;
-			sectionNoteCnt = 0;
-			shownProgress = false;
-			if (section.changeBPM != null && section.changeBPM && section.bpm != null && daBpm != section.bpm)
-				daBpm = section.bpm;
-
-			for (songNotes in section.sectionNotes)
-			{
-				strumTime = songNotes[0];
-				chartNoteData = songNotes[1];
-				noteColumn = Std.int(chartNoteData % totalColumns);
-				gottaHitNote = (chartNoteData < totalColumns);
-
-				// CLEAR ANY POSSIBLE GHOST NOTES WHEN IF THE OPTION ENABLED
-				if (skipGhostNotes && sectionNoteCnt != 0) {
-					if (Math.abs(strumTimeVector[chartNoteData] - strumTime) <= removeTime) {
-						ghostNotesCaught++; continue;
-					} else {
-						strumTimeVector[chartNoteData] = strumTime;
-					}
-				}
-
-				holdLength = songNotes[2];
-
-				swagNote = {
-					strumTime: songNotes[0],
-					noteData: noteColumn,
-					noteType: songNotes[3],
-					holdLength: holdLength,
-					noteSkin: SONG.arrowSkin ?? null
-				};
-				
-				swagNote.noteData |= gottaHitNote ? 1<<8 : 0; // mustHit
-				swagNote.noteData |= (section.gfSection && (gfSide ? gottaHitNote : !gottaHitNote)) || songNotes[3] == 'GF Sing' || songNotes[3] == 4 ? 1<<11 : 0; // gfNote
-				swagNote.noteData |= (section.altAnim || (songNotes[3] == 'Alt Animation' || songNotes[3] == 1)) ? 1<<12 : 0; // altAnim
-				swagNote.noteData |= (songNotes[3] == 'No Animation' || songNotes[3] == 5) ? 1<<13 : 0; // noAnimation & noMissAnimaiton
-				
-				unspawnNotes.push(swagNote);
-
-				curStepCrochet = 15000 / daBpm;
-				roundSus = Math.round(swagNote.holdLength / curStepCrochet);
-				if (roundSus > 0)
-				{
-					for (susNote in 0...roundSus + 1)
+					if (Timer.stamp() - syncTime > updateTime || force)
 					{
-						sustainNote = {
-							strumTime: swagNote.strumTime + curStepCrochet * susNote,
-							noteData: swagNote.noteData,
-							noteType: swagNote.noteType,
-							holdLength: null,
-							noteSkin: swagNote.noteSkin
-						};
-						
-						sustainNote.noteData |= 1<<9; // isHold
-						sustainNote.noteData |= susNote == roundSus ? 1<<10 : 0; // isHoldEnd
-
-						unspawnSustainNotes.push(sustainNote);
-
-						++sustainNoteCnt;
+						Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
+						syncTime = Timer.stamp();
 					}
-					sustainTotalCnt += sustainNoteCnt;
+				} else if (isDesktop && force) {
+					Sys.println('Loading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 				}
-				
-				if (!noteTypes.contains(swagNote.noteType))
-					noteTypes.push(swagNote.noteType);
+			}
+
+			for (section in sectionsData)
+			{
+				++cnt;
+				sectionNoteCnt = 0;
+				shownProgress = false;
+				if (section.changeBPM != null && section.changeBPM && section.bpm != null && daBpm != section.bpm)
+					daBpm = section.bpm;
+
+				for (songNotes in section.sectionNotes)
+				{
+					strumTime = songNotes[0];
+					chartNoteData = songNotes[1];
+					noteColumn = Std.int(chartNoteData % totalColumns);
+					gottaHitNote = (chartNoteData < totalColumns);
+
+					// CLEAR ANY POSSIBLE GHOST NOTES WHEN IF THE OPTION ENABLED
+					if (skipGhostNotes && sectionNoteCnt != 0) {
+						if (Math.abs(strumTimeVector[chartNoteData] - strumTime) <= removeTime) {
+							ghostNotesCaught++; continue;
+						} else {
+							strumTimeVector[chartNoteData] = strumTime;
+						}
+					}
+
+					holdLength = songNotes[2];
+
+					swagNote = {
+						strumTime: songNotes[0],
+						noteData: noteColumn,
+						noteType: songNotes[3],
+						holdLength: holdLength,
+						noteSkin: SONG.arrowSkin ?? null
+					};
+					
+					swagNote.noteData |= gottaHitNote ? 1<<8 : 0; // mustHit
+					swagNote.noteData |= (section.gfSection && (gfSide ? gottaHitNote : !gottaHitNote)) || songNotes[3] == 'GF Sing' || songNotes[3] == 4 ? 1<<11 : 0; // gfNote
+					swagNote.noteData |= (section.altAnim || (songNotes[3] == 'Alt Animation' || songNotes[3] == 1)) ? 1<<12 : 0; // altAnim
+					swagNote.noteData |= (songNotes[3] == 'No Animation' || songNotes[3] == 5) ? 1<<13 : 0; // noAnimation & noMissAnimaiton
+					
+					unspawnNotes.push(swagNote);
+
+					curStepCrochet = 15000 / daBpm;
+					roundSus = Math.round(swagNote.holdLength / curStepCrochet);
+					if (roundSus > 0)
+					{
+						for (susNote in 0...roundSus + 1)
+						{
+							sustainNote = {
+								strumTime: swagNote.strumTime + curStepCrochet * susNote,
+								noteData: swagNote.noteData,
+								noteType: swagNote.noteType,
+								holdLength: null,
+								noteSkin: swagNote.noteSkin
+							};
+							
+							sustainNote.noteData |= 1<<9; // isHold
+							sustainNote.noteData |= susNote == roundSus ? 1<<10 : 0; // isHoldEnd
+
+							unspawnSustainNotes.push(sustainNote);
+
+							++sustainNoteCnt;
+						}
+						sustainTotalCnt += sustainNoteCnt;
+					}
+					
+					if (!noteTypes.contains(swagNote.noteType))
+						noteTypes.push(swagNote.noteType);
+
+					showProgress();
+					++sectionNoteCnt;
+				}
 
 				showProgress();
-				++sectionNoteCnt;
+				notes += sectionNoteCnt;
 			}
 
-			showProgress();
-			notes += sectionNoteCnt;
-		}
+			showProgress(isDesktop);
 
-		showProgress(isDesktop);
+			Sys.println('\n[ --- "${SONG.song.toUpperCase()}" CHART INFO --- ]');
+			
+			var takenTime = CoolUtil.floorDecimal(CoolUtil.getNanoTime() - loadTime, 6);
+			var takenNoteTime = CoolUtil.floorDecimal(CoolUtil.getNanoTime() - loadNoteTime, 6);
 
-		Sys.println('\n[ --- "${SONG.song.toUpperCase()}" CHART INFO --- ]');
-		
-		var takenTime = CoolUtil.floorDecimal(CoolUtil.getNanoTime() - loadTime, 6);
-		var takenNoteTime = CoolUtil.floorDecimal(CoolUtil.getNanoTime() - loadNoteTime, 6);
-
-		Sys.println('Loaded ${notes} notes!
+			Sys.println('Loaded ${notes} notes!
 Sustain notes amount: $sustainTotalCnt
 Taken time: $takenTime sec
 Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
-		if (skipGhostNotes) {
-			if (ghostNotesCaught > 0)
-				Sys.println('Overlapped Notes Cleared: $ghostNotesCaught');
-			else {
-				Sys.println('WOW! There is no overlapped notes. Great charting!');
+			if (skipGhostNotes) {
+				if (ghostNotesCaught > 0)
+					Sys.println('Overlapped Notes Cleared: $ghostNotesCaught');
+				else {
+					Sys.println('WOW! There is no overlapped notes. Great charting!');
+				}
 			}
+		
+			Sys.println('Merging Notes...');
+			for (usn in unspawnSustainNotes)
+				unspawnNotes.push(usn);
+			
+			unspawnSustainNotes = [];
+
+			Sys.println('Sorting Notes...');
+			unspawnNotes.sort(sortByTime);
+		} else {
+			trace("Unspawned Notes are omitted since they are already in the memory!");
 		}
 
 		// IT'S FOR INSIDE EVENTS ON CHART JSON
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
 				makeEvent(event, i);
-
-		Sys.println('Merging Notes...');
-		for (usn in unspawnSustainNotes)
-			unspawnNotes.push(usn);
-		
-		unspawnSustainNotes = [];
-
-		Sys.println('Sorting Notes...');
-		unspawnNotes.sort(sortByTime);
 
 		generatedMusic = true;
 		Sys.println('Ready to PLAY!');
@@ -2190,20 +2176,22 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		desyncCount++;
 		#if debug trace('resynced vocals at ' + Math.floor(Conductor.songPosition)); #end
 
-		FlxG.sound.music.play();
-		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
-		Conductor.songPosition = FlxG.sound.music.time + Conductor.offset;
+		if (startOnTime > 0) {
+			FlxG.sound.music.play();
+			#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
+			Conductor.songPosition = FlxG.sound.music.time + Conductor.offset;
 
-		var checkVocals = [vocals, opponentVocals];
-		for (voc in checkVocals)
-		{
-			if (voc == null) continue;
-			if (FlxG.sound.music.time < voc.length)
+			var checkVocals = [vocals, opponentVocals];
+			for (voc in checkVocals)
 			{
-				voc.time = FlxG.sound.music.time;
-				#if FLX_PITCH voc.pitch = playbackRate; #end
-				voc.play();
-			} else voc.pause();
+				if (voc == null) continue;
+				if (FlxG.sound.music.time < voc.length)
+				{
+					voc.time = FlxG.sound.music.time;
+					#if FLX_PITCH voc.pitch = playbackRate; #end
+					voc.play();
+				} else voc.pause();
+			}
 		}
 	}
 
@@ -2301,7 +2289,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		
 		daHit = bfHit = showAgain = false; canAnim.fill(true);
 		if (popUpHitNote != null) popUpHitNote = null;
-		hit = skipHit = skipBf = skipOp = shownCnt = 0;
+		hit = skipHit = skipBf = skipOp = shownCnt = susEnds = 0;
 		lastSongSpeed = songSpeed;
 
 		if (refBpm != Conductor.bpm) {
@@ -2321,7 +2309,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			globalElapsed = FlxG.elapsed * playbackRate;
 		}
 		
-		if (startedCountdown && !paused && doneCache) {
+		if (startedCountdown && !paused) {
 			if (vsliceSongPosition && !ffmpegMode)
 			{
 				if (Conductor.songPosition >= Conductor.offset)
@@ -2443,34 +2431,17 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (!ffmpegMode && started && !paused && canResync)
 			checkSync();
 
-		if (cacheNotes > 0 && frameCount > 1) {
-			Sys.println('Killing ${cacheNotes} Notes... 3/3');
-
-			// Killing instances
-			notes.forEach(n -> {
-				n.dirty = false;
-				n.active = true;
-				invalidateNote(n);
-			});
-
-			Sys.println('${notes.length} notes cached.');
-			frameCount = cacheNotes = shownCnt = shownMax = 0;
-			startCallback = startCountdown;
-			startCallback();
-			doneCache = true;
-		} else if (cacheNotes == 0 && doneCache) {
-			/* --- main process --- */
-			if (!processFirst) {
-				noteSpawn();
-				noteUpdate();
-			} else {
-				noteUpdate();
-				noteSpawn();
-			}
-			noteFinalize();
-			/* --- main process --- */
+		/* --- main process --- */
+		if (!processFirst) {
+			noteSpawn();
+			noteUpdate();
+		} else {
+			noteUpdate();
+			noteSpawn();
 		}
-		
+		noteFinalize();
+		/* --- main process --- */
+
 		if (sortingWay >= 3) {
 			noteSort();
 		}
@@ -2836,6 +2807,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var lDist:Array<Float> = [];
 	var dist:Array<Float> = [];
 	var availNoteData:Int = 0;
+
+	var susEnds:Int = 0;
 	
 	public function noteSpawn()
 	{
@@ -2931,12 +2904,13 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				} else {
 					// Skip notes without spawning
 					skipHit |= 1 << availNoteData;
-
 					if (!timeLimit) ++skipTimeOut;
 
 					if (cpuControlled) {
 						if (!castHold) castMust ? ++skipBf : ++skipOp;
 					} else castMust ? noteMissCommon(availNoteData) : ++skipOp;
+
+					if (enableHoldSplash) susEnds |= (targetNote.noteData & 1<<10) > 0 ? 1 << availNoteData : 0;
 					
 					if (enableSplash) {
 						if (!castHold && (cpuControlled || !castMust) &&
@@ -2950,8 +2924,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
 				}
 				
-				oldNote = dunceNote;
-				unspawnNotes[totalCnt] = null; ++totalCnt;
+				oldNote = dunceNote; ++totalCnt;
 				if (unspawnNotes.length > totalCnt) targetNote = unspawnNotes[totalCnt]; else break;
 				
 				noteDataInfo = targetNote.noteData;
@@ -3008,7 +2981,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 					if (startedCountdown)
 					{
-						notes.forEach(daNote -> {
+						notes.forEachAlive(daNote -> {
 							if (daNote.exists && daNote.strum != null) {
 								if (debugInfos) ++processedReal;
 
@@ -3030,34 +3003,31 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 									invalidateNote(daNote);
 									canBeHit = false;
-								}
+								} else if (hideOverlapped > 0) {
+									availNoteData = daNote.noteData + (daNote.mustPress ? 4 : 0);
+									dist[availNoteData] = 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed;
+									
+									if (lastSongSpeed != songSpeed) {
+										currSus[availNoteData] = daNote.isSustainNote;
+										iDist[availNoteData] = dist[availNoteData] - lDist[availNoteData];
 
-								if (daNote.exists) {
-									if (hideOverlapped > 0) {
-										availNoteData = daNote.noteData + (daNote.mustPress ? 4 : 0);
-										dist[availNoteData] = 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed;
-										daNote.followStrumNote(songSpeed, dist[availNoteData]); ++shownCnt;
-										
-										if (lastSongSpeed != songSpeed) {
-											currSus[availNoteData] = daNote.isSustainNote;
-											iDist[availNoteData] = dist[availNoteData] - lDist[availNoteData];
+										daNote.visible = prevSus[availNoteData] != currSus[availNoteData] || Math.abs(iDist[availNoteData]) >= hideOverlapped;
+										if (daNote.visible) {
+											lDist[availNoteData] = dist[availNoteData];
+											if (ClientPrefs.data.noteShaders) {
+												daNote.rgbShader.enabled = true;
+												daNote.defaultRGB();
+											}
+										} else daNote.rgbShader.enabled = false;
 
-											daNote.visible = prevSus[availNoteData] != currSus[availNoteData] || Math.abs(iDist[availNoteData]) >= hideOverlapped;
-											if (daNote.visible) {
-												lDist[availNoteData] = dist[availNoteData];
-												if (ClientPrefs.data.noteShaders) {
-													daNote.rgbShader.enabled = true;
-													daNote.defaultRGB();
-												}
-											} else daNote.rgbShader.enabled = false;
-
-											prevSus[availNoteData] = currSus[availNoteData];
-										}
-									} else {
-										daNote.followStrumNote(songSpeed, 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed); ++shownCnt;
+										prevSus[availNoteData] = currSus[availNoteData];
 									}
+
+									if (daNote.visible) daNote.followStrumNote(songSpeed, dist[availNoteData]); ++shownCnt;
+								} else {
+									daNote.followStrumNote(songSpeed, 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed); ++shownCnt;
 								}
-								
+							
 								if (canBeHit) {
 									if (daNote.mustPress) {
 										if (!daNote.blockHit || daNote.isSustainNote) {
@@ -3118,7 +3088,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			
 			if (healthDrain) {
 				if(!drainAccurated) {
-					health = randomize.bool() ? Math.max(0.1e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
+					health = randomize.bool() ? Math.max(0.2e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
 				} else {
 					var max:Null<Int> = FlxMath.maxInt(skipOp, skipBf);
 					for (i in 0...max) {
@@ -3127,6 +3097,13 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					} max = null;
 				}
 			} else health += 0.02 * skipBf;
+
+			if (enableHoldSplash) {
+				for (holdSplash in susplashMap) {
+					if (holdSplash != null && (susEnds & 1 > 0)) holdSplash.sendSustainEnd();
+					susEnds >>= 1;
+				}
+			}
 
 			skipAnim[0] = skipCnt > 0;
 			skipAnim[1] = skipOp > 0;
@@ -4109,6 +4086,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 			transitioning = true;
 		}
+		
+		unspawnNotes = [];
 		return true;
 	}
 
@@ -4806,7 +4785,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		if (!ffmpegMode && opVocal) opponentVocals.volume = ClientPrefs.data.bgmVolume;
 		strumPlayAnim(true, note.noteData, note.isSustainNote && !note.isSustainEnds);
-		if (healthDrain) health = Math.max(0.1e-320, health * 0.99);
+		if (healthDrain) health = Math.max(0.2e-320, health * 0.99);
 		note.hitByOpponent = true;
 
 		stagesFunc(stage -> stage.goodNoteHit(note));
@@ -5112,7 +5091,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		Paths.popUpFramesMap.clear();
 
 		if (endingSong) SONG = null;
-		unspawnNotes = [];
 		notes.clear();
 		
 		#if desktop

@@ -67,12 +67,12 @@ class NotesColorSubState extends MusicBeatSubstate
 		FlxTween.tween(grid, {alpha: 1}, 0.5, {ease: FlxEase.quadOut});
 		add(grid);
 
-		modeBG = new FlxSprite(215, 85).makeGraphic(315, 115, FlxColor.BLACK);
+		modeBG = new FlxSprite(220, 70).makeGraphic(330, 105, FlxColor.BLACK);
 		modeBG.visible = false;
 		modeBG.alpha = 0.4;
 		add(modeBG);
 
-		notesBG = new FlxSprite(140, 190).makeGraphic(480, 125, FlxColor.BLACK);
+		notesBG = new FlxSprite(135, 190).makeGraphic(495, 128, FlxColor.BLACK);
 		notesBG.visible = false;
 		notesBG.alpha = 0.4;
 		add(notesBG);
@@ -365,7 +365,7 @@ class NotesColorSubState extends MusicBeatSubstate
 			{
 				Clipboard.text = getShaderColor().toHexString(false, false);
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.6 * ClientPrefs.data.sfxVolume);
-				trace('copied: ' + Clipboard.text);
+				#if debug trace('copied: ' + Clipboard.text); #end
 			}
 			hexTypeNum = -1;
 		}
@@ -644,7 +644,7 @@ class NotesColorSubState extends MusicBeatSubstate
 		var res:Int = !onPixel ? 160 : 17;
 		for (i in 0...3)
 		{
-			var newNote:FlxSprite = new FlxSprite(230 + (100 * i), 100).loadGraphic(Paths.image('noteColorMenu/' + (!onPixel ? 'note' : 'notePixel')), true, res, res);
+			var newNote:FlxSprite = new FlxSprite(242 + (100 * i), 80).loadGraphic(Paths.image('noteColorMenu/' + (!onPixel ? 'note' : 'notePixel')), true, res, res);
 			newNote.antialiasing = ClientPrefs.data.antialiasing;
 			newNote.setGraphicSize(85);
 			newNote.updateHitbox();
@@ -662,16 +662,19 @@ class NotesColorSubState extends MusicBeatSubstate
 			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0);
 			newNote.useRGBShader = true;
 			newNote.setGraphicSize(102);
-			newNote.updateHitbox();
+			newNote.centerOffsets();
+			newNote.centerOrigin();
+			
 			newNote.ID = i;
 			myNotes.add(newNote);
 		}
 
 		bigNote = new Note().recycleNote(Note.DEFAULT_CAST);
 		bigNote.inEditor = true;
-		bigNote.setPosition(250, 325);
+		bigNote.setPosition(330, 420);
 		bigNote.setGraphicSize(250);
-		bigNote.updateHitbox();
+		bigNote.centerOffsets();
+		bigNote.centerOrigin();
 		bigNote.rgbShader.parent = Note.globalRgbShaders[curSelectedNote];
 		bigNote.shader = Note.globalRgbShaders[curSelectedNote].shader;
 		for (i in 0...Note.colArray.length)
@@ -697,6 +700,9 @@ class NotesColorSubState extends MusicBeatSubstate
 			if(instant) note.animation.curAnim.finish();
 		}
 		bigNote.animation.play('note$curSelectedNote', true);
+		bigNote.centerOffsets();
+		bigNote.centerOrigin();
+
 		updateColors();
 	}
 

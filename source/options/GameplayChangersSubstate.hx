@@ -313,9 +313,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 						updateTextFrom(curOption);
 					}
 
-					if(curOption.name == 'Scroll Speed')
+					if (curOption.name == 'Scroll Type' || curOption.name == 'Scroll Speed')
 					{
-						curOption.displayFormat = "%vX";
+						curOption.displayFormat = (optionsArray[0].getValue() == "constant") ? "%v" : "%vX";
 						curOption.maxValue = MultiMax;
 						if(curOption.getValue() > MultiMax)
 							curOption.setValue(MultiMax);

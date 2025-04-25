@@ -93,19 +93,6 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 		limitCount = option;
 		addOption(option);
 
-		var option:Option = new Option('Cache Notes:',
-			"Enables recycling of a specified number of items before playing.\nIt cuts time of newing instances. To diable, set the value to 0.\nYou need the same amount of RAM as the value chosen.",
-			'cacheNotes',
-			INT);
-		option.scrollSpeed = 30;
-		option.minValue = 0;
-		option.maxValue = 99999;
-		option.changeValue = 1;
-		option.decimals = 0;
-		option.onChange = onChangeCacheCount;
-		cacheCount = option;
-		addOption(option);
-
 		var option:Option = new Option('Invisible overlapped notes:',
 			"I thought It would be nice because I implemented skipping feature\nI won't care about cheating anymore",
 			'hideOverlapped',

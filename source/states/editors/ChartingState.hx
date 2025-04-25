@@ -2934,7 +2934,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						if (sections.sectionNotes[0][0] > nextMaxTime) break; continue;
 					}
 					
-					trace('behind section ${cursed+1}: ${sections.sectionNotes[0][0]}');
+					#if debug trace('behind section ${cursed+1}: ${sections.sectionNotes[0][0]}'); #end
 
 					for (note in sections.sectionNotes)
 					{
@@ -2942,7 +2942,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						metaNote.alpha = 0.4;
 						if(metaNote.hasSustain) metaNote.updateSustainToZoom(cachedSectionCrochets[cursed] / 4, curZoom);
 						behindRenderedNotes.add(metaNote);
-						trace('behindRender Added Note: $cursed, ${note[0]}');
+						#if debug trace('behindRender Added Note: $cursed, ${note[0]}'); #end
 					}
 				}
 

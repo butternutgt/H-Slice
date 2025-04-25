@@ -27,6 +27,8 @@ class NoteOffsetState extends MusicBeatState
 	var delayMax:Int = 500;
 	var timeBar:Bar;
 	var timeTxt:FlxText;
+	var timingTxt:FlxText;
+	var timingTween:FlxTween;
 	var beatText:Alphabet;
 	var beatTween:FlxTween;
 
@@ -140,6 +142,14 @@ class NoteOffsetState extends MusicBeatState
 		timeTxt.visible = false;
 		timeTxt.cameras = [camHUD];
 		timeTxt.antialiasing = ClientPrefs.data.antialiasing;
+		
+		timingTxt = new FlxText(0, timeTxt.y - 50, FlxG.width, "", 32);
+		timingTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		timingTxt.scrollFactor.set();
+		timingTxt.borderSize = 2;
+		timingTxt.visible = false;
+		timingTxt.cameras = [camHUD];
+		timingTxt.antialiasing = ClientPrefs.data.antialiasing;
 
 		barPercent = ClientPrefs.data.noteOffset;
 		updateNoteDelay();
@@ -153,6 +163,7 @@ class NoteOffsetState extends MusicBeatState
 
 		add(timeBar);
 		add(timeTxt);
+		add(timingTxt);
 
 		///////////////////////
 
@@ -393,6 +404,8 @@ class NoteOffsetState extends MusicBeatState
 		}
 		else
 		{
+			timingTxt.alpha -= elapsed / 3;
+
 			if(controls.UI_LEFT_P)
 			{
 				holdTime = 0;
@@ -406,9 +419,24 @@ class NoteOffsetState extends MusicBeatState
 				updateNoteDelay();
 			}
 
-			var mult:Int = 1;
+			if (FlxG.keys.justPressed.ANY || TouchUtil.justPressed) {
+				timingTxt.alpha = 1;
+				var delay:Float = (Conductor.songPosition * Conductor.bpm / 120) % 2000 - 1000;
+				
+				timingTxt.text = '${delay > 0 ? "+" : ""}${CoolUtil.floatToStringPrecision(delay, 3)} ms';
+				timingTxt.scale.set(1.2, 1.2);
+
+				if (timingTween != null) timingTween.cancel();
+				timingTween = FlxTween.tween(timingTxt.scale, {x: 1, y: 1}, 1, {
+					type: ONESHOT,
+					ease: FlxEase.cubeOut,
+					onComplete: twn -> timingTween = null
+				});
+			}
+
 			if(controls.UI_LEFT || controls.UI_RIGHT)
 			{
+				var mult:Int = 1;
 				holdTime += elapsed;
 				if(controls.UI_LEFT) mult = -1;
 
@@ -574,6 +602,7 @@ class NoteOffsetState extends MusicBeatState
 		
 		timeBar.visible = !onComboMenu;
 		timeTxt.visible = !onComboMenu;
+		timingTxt.visible = !onComboMenu;
 		beatText.visible = !onComboMenu;
 
 		controllerPointer.visible = false;

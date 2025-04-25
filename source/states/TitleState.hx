@@ -78,6 +78,8 @@ class TitleState extends MusicBeatState
 		super.create();
 		Paths.clearUnusedMemory();
 
+		FlxG.mouse.useSystemCursor = true; // could u tell me the customized cursor image path
+
 		if(!initialized)
 		{
 			ClientPrefs.loadPrefs();
