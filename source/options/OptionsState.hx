@@ -178,8 +178,8 @@ class OptionsState extends MusicBeatState
 		if (controls.UI_DOWN_P)
 			changeSelection(1);
 
-		var lerpVal:Float = Math.max(0, Math.min(1, elapsed * 7.5));
-		camFollowPos.setPosition(635, FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
+		// var lerpVal:Float = Math.max(0, Math.min(1, elapsed * 7.5));
+		// camFollowPos.setPosition(635, FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
 		var bullShit:Int = 0;
 
@@ -193,7 +193,7 @@ class OptionsState extends MusicBeatState
 				if(grpOptions.members.length > 6) {
 					thing = grpOptions.members.length * 2;
 				}
-				camFollow.setPosition(635, item.getGraphicMidpoint().y + 100 - thing);
+				// camFollow.setPosition(635, item.getGraphicMidpoint().y + 100 - thing);
 			}
 		}
 

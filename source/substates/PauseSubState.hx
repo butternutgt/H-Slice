@@ -68,16 +68,17 @@ class PauseSubState extends MusicBeatSubstate
 		controls.isInSubstate = true;
 		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
 
+		var num:Int = 0;
+		if(!pSte.startingSong)
+		{
+			num = 1;
+			menuItemsOG.insert(PlayState.chartingMode ? 3 : 2, 'Skip Time');
+		}
+
 		if(PlayState.chartingMode)
 		{
 			menuItemsOG.insert(2, 'Leave Charting Mode');
 			
-			var num:Int = 0;
-			if(!pSte.startingSong)
-			{
-				num = 1;
-				menuItemsOG.insert(3, 'Skip Time');
-			}
 			menuItemsOG.insert(3 + num, 'End Song');
 			menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
 			menuItemsOG.insert(5 + num, 'Toggle Botplay');
@@ -289,6 +290,7 @@ class PauseSubState extends MusicBeatSubstate
 						FlxG.sound.music.volume = 0;
 						PlayState.changedDifficulty = true;
 						PlayState.chartingMode = false;
+						PlayState.unspawnNotes = [];
 						return;
 					}
 				}
@@ -333,6 +335,7 @@ class PauseSubState extends MusicBeatSubstate
 					restartSong();
 				case 'Chart Editor':
 					PlayState.instance.openChartEditor();
+					PlayState.unspawnNotes = [];
 				case "Leave Charting Mode":
 					restartSong();
 					PlayState.chartingMode = false;

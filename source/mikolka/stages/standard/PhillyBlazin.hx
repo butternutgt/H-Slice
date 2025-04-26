@@ -155,7 +155,7 @@ class PhillyBlazin extends PicoCapableStage
 		rainShader = new RainShader();
 		rainShader.scale = FlxG.height / 200;
 		rainShader.intensity = 0.5;
-		FlxG.camera.setFilters([new ShaderFilter(rainShader)]);
+		FlxG.camera.filters = [new ShaderFilter(rainShader)];
 	}
 
 	function precache()

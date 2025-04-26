@@ -2176,7 +2176,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		desyncCount++;
 		#if debug trace('resynced vocals at ' + Math.floor(Conductor.songPosition)); #end
 
-		if (startOnTime > 0) {
+		if (startOnTime <= 0) {
 			FlxG.sound.music.play();
 			#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
 			Conductor.songPosition = FlxG.sound.music.time + Conductor.offset;
@@ -3402,7 +3402,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				persistentDraw = false;
 				FlxTimer.globalManager.clear();
 				FlxTween.globalManager.clear();
-				FlxG.camera.setFilters([]);
+				FlxG.camera.filters = [];
 
 				if (GameOverSubstate.deathDelay > 0)
 				{
@@ -3788,7 +3788,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				{
 					allowDisable = false;
 					allowDisableAt = Std.parseInt(value1);
-					FlxG.camera.setFilters([new ShaderFilter(masterPulse.shader)]);
+					FlxG.camera.filters = [new ShaderFilter(masterPulse.shader)];
 					
 					masterPulse.waveAmplitude = 1;
 					masterPulse.waveFrequency = 2;
@@ -5075,7 +5075,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
-		FlxG.camera.setFilters([]);
+		FlxG.camera.filters = [];
 		FlxG.maxElapsed = 0.1;
 
 		#if FLX_PITCH FlxG.sound.music.pitch = 1; #end
