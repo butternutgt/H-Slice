@@ -896,7 +896,7 @@ class PlayState extends MusicBeatState
 		if (limitNotes == 0) limitNotes = 2147483647;
 
 		var diff = ClientPrefs.data.noteOffset;
-		if (Conductor.songPosition - diff < startOnTime) {
+		if (Conductor.songPosition - diff < startOnTime && startOnTime > 0) {
 			var left:Int = 0;
 			var right:Int = unspawnNotes.length;
 			var middle:Int = Std.int((left + right) / 2);
@@ -910,7 +910,7 @@ class PlayState extends MusicBeatState
 				}
 			};
 			totalCnt = middle;
-			#if debug trace('next index is $totalCnt'); #end
+			trace('next index is $totalCnt');
 		}
 
 		#if desktop
@@ -1622,7 +1622,7 @@ class PlayState extends MusicBeatState
 		starting = true; // prevent play inst double times
 
 		@:privateAccess
-		if (!ffmpegMode) {
+		if (!ffmpegMode && startOnTime <= 0) {
 			FlxG.sound.playMusic(inst._sound, ClientPrefs.data.bgmVolume, false);
 			#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
 			FlxG.sound.music.onComplete = finishSong.bind();
