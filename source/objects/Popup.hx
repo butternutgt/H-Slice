@@ -13,6 +13,7 @@ class Popup extends FlxSprite {
     // static var comboDigit:Int = 0;
 	var placement:Float = FlxG.width * 0.35;
     var i:PlayState;
+    var tween:FlxTween;
 
     public function new() {
         super();
@@ -57,12 +58,12 @@ class Popup extends FlxSprite {
     }
 
     public function ratingOtherStuff() {
-        FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
-            onComplete: function(tween:FlxTween)
-            {
+        tween = FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
+            onComplete: tween -> {
                 kill();
+                tween = null;
             },
-            startDelay: 0.7 / i.playbackRate
+            startDelay: 1.0 / i.playbackRate
         });
     }
 
@@ -90,12 +91,12 @@ class Popup extends FlxSprite {
     }
 
     public function numberOtherStuff() {
-        FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
-            onComplete: function(tween:FlxTween)
-            {
+        tween = FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
+            onComplete: tween -> {
                 kill();
+                tween = null;
             },
-            startDelay: 1.4 / i.playbackRate
+            startDelay: 1.25 / i.playbackRate
         });
     }
 
@@ -120,12 +121,12 @@ class Popup extends FlxSprite {
     }
 
     public function comboOtherStuff() {
-        FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
-            onComplete: function(tween:FlxTween)
-            {
+        tween = FlxTween.tween(this, {alpha: 0}, 0.2 / i.playbackRate, {
+            onComplete: tween -> {
                 kill();
+                tween = null;
             },
-            startDelay: 1.4 / i.playbackRate
+            startDelay: 1.125 / i.playbackRate
         });
     }
 

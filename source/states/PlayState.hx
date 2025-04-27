@@ -2213,6 +2213,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var noteSpawnJudge:Bool = false;
 	var safeTime:Float = 0;
 	var frameCount:Int = 0;
+	var prevDecBeat:Float = 0;
 
 	// Spawning
 	var totalCnt:Int = 0;
@@ -2343,6 +2344,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			FlxG.camera.followLerp = 0;
 		callOnScripts('onUpdate', [globalElapsed]);
 
+		prevDecBeat = curDecBeat;
 		super.update(globalElapsed);
 
 		setOnScripts('curDecStep', curDecStep);
@@ -2641,9 +2643,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					switch (columnIndex) {
 						case 0:
 							info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat+1,0)}/${Math.max(curStep+1,0)}, Update Cnt: ${updateMaxSteps}';
+							info += '\ncurDecBeat: ${numFormat(curDecBeat, 6)}, bopRatio: ${numFormat(bopRatio, 6)}';
 						default:
 							var secBeat:Float = getBeatsOnSection();
 							info = 'BPM: ${Conductor.bpm}, Sections: ${curSection+1}/${Math.max(curBeat % secBeat + 1,0)}/${Math.max(curStep % secBeat + 1,0)}, Update Cnt: ${updateMaxSteps}';
+							info += '\ncurDecBeat: ${numFormat(curDecBeat, 6)}, bopRatio: ${numFormat(bopRatio, 6)}';
 					}
 				case 'Music Sync Info':
 					info = 'Desync: '
@@ -5146,7 +5150,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			return;
 		}
 
-		beatRatio = curDecBeat % 1;
+		if (Math.abs(curDecBeat % 1) < Math.abs(prevDecBeat % 1 - 1))
+			beatRatio = curDecBeat % 1;
+		else beatRatio = prevDecBeat % 1 - 1;
 		bopRatio = 1 - beatRatio;
 
 		if (iconBopType != "None") {
