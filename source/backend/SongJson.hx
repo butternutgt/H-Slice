@@ -68,7 +68,7 @@ class SongJson {
 
 	function doParse():Dynamic {
 		var result = parseRec();
-		if (Main.isConsoleAvailable && log) Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
+		showProgress(true);
 		while (!StringTools.isEof(c = nextChar())) {
 			switch (c) {
 				case ' '.code, '\r'.code, '\n'.code, '\t'.code:
@@ -253,9 +253,14 @@ class SongJson {
 		}
 	}
 
-	function showProgress() {
-		if (Timer.stamp() - time > 0.1) {
-			if (Main.isConsoleAvailable && log) Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
+	function showProgress(force:Bool = false) {
+		if (force || Timer.stamp() - time > 0.1) {
+			if (Main.isConsoleAvailable && log) {
+				if (ClientPrefs.data.numberFormat)
+					Sys.stdout().writeString('\x1b[0G${CoolUtil.formatMoney(pos)}/${CoolUtil.formatMoney(str.length)}');
+				else
+					Sys.stdout().writeString('\x1b[0G$pos/${str.length}');
+			}
 			time = Timer.stamp();
 		}
 	}

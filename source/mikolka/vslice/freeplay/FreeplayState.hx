@@ -371,7 +371,12 @@ class FreeplayState extends MusicBeatSubstate
 				if (!diffIdsTotalModBinds.exists(difficulty))
 					diffIdsTotalModBinds.set(difficulty, sngCard.folder);
 			}
-			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GSetting Weeklist (${index+1}/${allSongs.length})');
+			if(Main.isConsoleAvailable) {
+				if (ClientPrefs.data.numberFormat)
+					Sys.stdout().writeString('\x1b[0GSetting Weeklist (${CoolUtil.formatMoney(index+1)}/${CoolUtil.formatMoney(allSongs.length)})');
+				else
+					Sys.stdout().writeString('\x1b[0GSetting Weeklist (${index+1}/${allSongs.length})');
+			}
 		}
 		Sys.print("\n");
 		// TODO put the method
@@ -932,7 +937,12 @@ class FreeplayState extends MusicBeatSubstate
 
 			grpCapsules.add(funnyMenu);
 
-			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GSetting Song (${i+1}/${tempSongs.length})');
+			if(Main.isConsoleAvailable) {
+				if (ClientPrefs.data.numberFormat)
+					Sys.stdout().writeString('\x1b[0GSetting Song (${CoolUtil.formatMoney(i+1)}/${CoolUtil.formatMoney(tempSongs.length)})');
+				else
+					Sys.stdout().writeString('\x1b[0GSetting Song (${i+1}/${tempSongs.length})');
+			}
 		}
 
 		for (capsule in grpCapsules)

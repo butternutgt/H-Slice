@@ -172,8 +172,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('3 digits Separator',
-			'If checked, it will increase the visibility of large numbers, such as 1000 or more.',
+		var option:Option = new Option('Three Digits Delimiter',
+			'If checked, it will improves the visibility of large numbers, such as 1000 or more.',
 			'numberFormat',
 			BOOL);
 		addOption(option);

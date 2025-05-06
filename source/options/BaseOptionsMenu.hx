@@ -67,8 +67,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		titleText.alpha = 0.4;
 		add(titleText);
 
-		descText = new FlxText(50, 600, 1180, "", 32);
-		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		descText = new FlxText(50, 600, 1180, "", 24);
+		descText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		descText.scrollFactor.set();
 		descText.borderSize = 2.4;
 		descText.antialiasing = ClientPrefs.data.antialiasing;
@@ -512,6 +512,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		descText.text = optionsArray[curSelected].description;
 		descText.screenCenter(Y);
 		descText.y += 270;
+		descText.y = Math.min(descText.y, FlxG.height - 30 - descText.height);
 
 		for (num => item in grpOptions.members)
 		{
@@ -526,7 +527,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		}
 
 		descBox.setPosition(descText.x - 10, descText.y - 10);
-		descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
+		descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 20));
 		descBox.updateHitbox();
 
 		curOption = optionsArray[curSelected]; //shorter lol

@@ -1,6 +1,5 @@
 package options;
 
-import openfl.system.System;
 import objects.Character;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
@@ -9,6 +8,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 	var boyfriend:Character = null;
 	var fpsOption:Option;
 	var syncOption:Option;
+
 	public function new()
 	{
 		title = Language.getPhrase('graphics_menu', 'Graphics Settings');
@@ -61,6 +61,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		option.onChange = onChangeVSync;
 		addOption(option);
+		syncOption = option;
 		#end
 
 		#if !html5 //Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk

@@ -42,11 +42,11 @@ class MusicPlayer extends FlxGroup
 
 		var xPos:Float = FlxG.width * 0.7;
 
-		songBG = new FlxSprite(xPos - 6, 0).makeGraphic(1, 100, 0xFF000000);
+		songBG = new FlxSprite(xPos - 6, 0).makeGraphic(1, 105, 0xFF000000);
 		songBG.alpha = 0.6;
 		add(songBG);
 
-		playbackBG = new FlxSprite(xPos - 6, 0).makeGraphic(1, 100, 0xFF000000);
+		playbackBG = new FlxSprite(xPos - 6, 0).makeGraphic(1, 105, 0xFF000000);
 		playbackBG.alpha = 0.6;
 		add(playbackBG);
 
@@ -77,7 +77,7 @@ class MusicPlayer extends FlxGroup
 		progressBar.createFilledBar(FlxColor.WHITE, FlxColor.BLACK);
 		add(progressBar);
 
-		playbackTxt = new FlxText(FlxG.width * 0.6, 20, 0, "", 32);
+		playbackTxt = new FlxText(FlxG.width * 0.6, 24, 0, "", 32);
 		playbackTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE);
 		playbackTxt.antialiasing = ClientPrefs.data.antialiasing;
 		add(playbackTxt);
@@ -321,7 +321,7 @@ class MusicPlayer extends FlxGroup
 		playbackBG.x -= playbackBG.scale.x;
 
 		playbackTxt.x = playbackBG.x - playbackTxt.width / 2;
-		playbackTxt.y = playbackTxt.height;
+		playbackTxt.y = playbackTxt.height / 1.5;
 
 		progressBar.setGraphicSize(Std.int(songTxt.width), 5);
 		progressBar.y = songTxt.y + songTxt.height + 10;
@@ -339,9 +339,9 @@ class MusicPlayer extends FlxGroup
 			text.y = playbackTxt.y;
 
 			if (i == 0)
-				text.y -= playbackTxt.height;
+				text.y -= playbackTxt.height / 2;
 			else
-				text.y += playbackTxt.height;
+				text.y += playbackTxt.height / 2;
 		}
 	}
 

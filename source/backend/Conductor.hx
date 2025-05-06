@@ -110,6 +110,7 @@ class Conductor
 		curBPM = song.bpm;
 		totalSteps = 0;
 		totalPos = 0;
+		
 		for (i in 0...song.notes.length)
 		{
 			if(song.notes[i].changeBPM && song.notes[i].bpm != curBPM)

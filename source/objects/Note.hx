@@ -1,5 +1,6 @@
 package objects;
 
+import haxe.ds.Vector;
 import flixel.animation.FlxAnimationController;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.FlxGraphic;
@@ -46,7 +47,6 @@ typedef CastNote = {
 	var noteData:Int;
 	var holdLength:Null<Float>;
 	@:optional var noteType:String;
-	var noteSkin:String;
 }
 
 var toBool = CoolUtil.bool;
@@ -74,8 +74,7 @@ class Note extends FlxSprite
 		strumTime: 0,
 		noteData: 0,
 		noteType: "",
-		holdLength: 0,
-		noteSkin: ""
+		holdLength: 0
 	};
 
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -133,6 +132,9 @@ class Note extends FlxSprite
 	public static var originalHeight:Float = 160 * 0.7;
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
+	public static var chartArrowSkin:String = null;
+	public static var pixelWidth:Vector<Int> = new Vector(2, 0);
+	public static var pixelHeight:Vector<Int> = new Vector(2, 0);
 
 	public var noteSplashData:NoteSplashData = {
 		disabled: false,
@@ -207,24 +209,23 @@ class Note extends FlxSprite
 		if (value == null || value.length == 0) {
 			value = defaultNoteSkin + getNoteSkinPostfix();
 		}
-		if (!PlayState.isPixelStage) {
-			if(texture != value) {
-				if (!Paths.noteSkinFramesMap.exists(value)) inline Paths.initNote(value);
+		// if (!PlayState.isPixelStage) {
+		if(texture != value) {
+			if (!Paths.noteSkinFramesMap.exists(value)) inline Paths.initNote(value);
 
-				noteFramesCollection = Paths.noteSkinFramesMap.get(value);
-				noteFramesAnimation = Paths.noteSkinAnimsMap.get(value);
-				if (frames != noteFramesCollection) frames = noteFramesCollection;
-				if (animation != noteFramesAnimation) animation.copyFrom(noteFramesAnimation);
-				
-				antialiasing = ClientPrefs.data.antialiasing;
-				if (originalWidth != width || originalHeight != height) {
-					setGraphicSize(Std.int(width * 0.7));
-					updateHitbox();
-					originalWidth = width;
-					originalHeight = height;
-				}
-			} else return value;
-		} else if (inEditor) reloadNote(value);
+			noteFramesCollection = Paths.noteSkinFramesMap.get(value);
+			noteFramesAnimation = Paths.noteSkinAnimsMap.get(value);
+			if (frames != noteFramesCollection) frames = noteFramesCollection;
+			if (animation != noteFramesAnimation) animation.copyFrom(noteFramesAnimation);
+			
+			antialiasing = ClientPrefs.data.antialiasing;
+			if (originalWidth != width || originalHeight != height) {
+				setGraphicSize(Std.int(width * 0.7));
+				updateHitbox();
+				originalWidth = width;
+				originalHeight = height;
+			}
+		} else return value;
 		texture = value;
 		return value;
 	}
@@ -330,7 +331,6 @@ class Note extends FlxSprite
 		return globalRgbShaders[noteData];
 	}
 
-	var _lastNoteOffX:Float = 0;
 	var rSkin:String;
 	var rAnimName:String;
 
@@ -343,7 +343,6 @@ class Note extends FlxSprite
 	var rGraphic:FlxGraphic;
 
 	static var _lastValidChecked:String; //optimization
-	public var pixelHeight:Float = 6;
 	public var correctionOffset:Float = 0; //dont mess with this
 	public function reloadNote(texture:String = '', postfix:String = '') {
 		if(texture == null) texture = '';
@@ -377,23 +376,15 @@ class Note extends FlxSprite
 		else rSkinPostfix = '';
 
 		if (PlayState.isPixelStage) {
-			if (isSustainNote) {
-				rGraphic = Paths.image(rSkinPixel + 'ENDS' + rSkinPostfix);
-				loadGraphic(rGraphic, true, Math.floor(rGraphic.width / 4), Math.floor(rGraphic.height / 2));
-				pixelHeight = rGraphic.height / 2;
-			} else {
-				rGraphic = Paths.image(rSkinPixel + rSkinPostfix);
-				loadGraphic(rGraphic, true, Math.floor(rGraphic.width / 4), Math.floor(rGraphic.height / 5));
-			}
+			rGraphic = Paths.image(rSkinPixel + (isSustainNote ? 'ENDS' : '') + rSkinPostfix);
+			loadGraphic(rGraphic, true, Math.floor(rGraphic.width / 4), Math.floor(rGraphic.height / (isSustainNote ? 2 : 5)));
+			
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			loadPixelNoteAnims();
 			antialiasing = false;
-
-			if (isSustainNote) {
-				offsetX += _lastNoteOffX;
-				_lastNoteOffX = (width - 7) * (PlayState.daPixelZoom / 2);
-				offsetX -= _lastNoteOffX;
-			}
+			
+			pixelWidth[isSustainNote ? 1:0] = frameWidth;
+			pixelHeight[isSustainNote ? 1:0] = frameHeight;
 		} else {
 			frames = Paths.getSparrowAtlas(rSkin);
 			loadNoteAnims();
@@ -464,6 +455,7 @@ class Note extends FlxSprite
 	var safeZone:Float = 0;
 	override function update(elapsed:Float)
 	{
+		if (PlayState.inPlayState && PlayState.instance.cpuControlled) return;
 		super.update(elapsed);
 
 		songTime = Conductor.songPosition;
@@ -597,13 +589,13 @@ class Note extends FlxSprite
 	}
 	
 	var initSkin:String = Note.defaultNoteSkin + getNoteSkinPostfix();
-	var correctY:Float;
 	var playbackRate:Float;
+	var correctWidth:Float;
 
 	public function recycleNote(target:CastNote, ?oldNote:Note) {
 		wasGoodHit = hitByOpponent = tooLate = false;
 		canBeHit = spawned = missed = flipY = false; // Don't make an update call of this for the note group
-		exists = visible = true;
+		exists = true;
 
 		isBotplay = PlayState.instance != null ? PlayState.instance.cpuControlled : false;
 
@@ -611,7 +603,7 @@ class Note extends FlxSprite
 		if (!inEditor) strumTime += ClientPrefs.data.noteOffset;
 
 		mustPress = toBool(target.noteData & (1<<8));						 // mustHit
-		isSustainNote = hitsoundDisabled = toBool(target.noteData & (1<<9)); // isHold
+		isSustainNote = toBool(target.noteData & (1<<9));					 // isHold
 		isSustainEnds = toBool(target.noteData & (1<<10));					 // isHoldEnd
 		gfNote = toBool(target.noteData & (1<<11));							 // gfNote
 		animSuffix = toBool(target.noteData & (1<<12)) ? "-alt" : "";		 // altAnim
@@ -620,10 +612,12 @@ class Note extends FlxSprite
 		ignoreNote = toBool(target.noteData & (1<<15));				 		 // ignoreNote
 		noteData = target.noteData & 3;
 
+		hitsoundDisabled = isSustainNote;
+
 		// Absoluty should be here, or messing pixel texture glitches...
 		if (!PlayState.isPixelStage) {
-			if (target.noteSkin == null || target.noteSkin.length == 0 && texture != initSkin) texture = initSkin;
-			else if (target.noteSkin.length > 0 && target.noteSkin != texture) texture = target.noteSkin;
+			if (!CoolUtil.notBlank(chartArrowSkin)) texture = chartArrowSkin = initSkin;
+			else if (chartArrowSkin != texture) texture = chartArrowSkin;
 		} else reloadNote(texture);
 
 		try {
@@ -639,50 +633,46 @@ class Note extends FlxSprite
 
 		copyAngle = !isSustainNote;
 
-		animation.play(colArray[noteData % colArray.length] + 'Scroll', true);
-
-		if (PlayState.isPixelStage) offsetX = -5;
+		// Juuuust in case we recycle a sustain note to a regular note
+		if (PlayState.isPixelStage || !isSustainNote){
+			animation.play(colArray[noteData % colArray.length] + 'Scroll', true);
+			offsetX = 0;
+		}
 
 		if (isSustainNote)
 		{
 			flipY = ClientPrefs.data.downScroll;
 			alpha = multAlpha = 0.6;
 
-			offsetX += width * 0.5;
-			animation.play(colArray[noteData % colArray.length] + (isSustainEnds ? 'holdend' : 'hold'));  // isHoldEnd
-			updateHitbox();
-			offsetX -= width * 0.5;
-			
-			scale.y *= Conductor.stepCrochet * 0.0105;
-
 			if (PlayState.isPixelStage) {
-				offsetX += switch (ClientPrefs.data.noteSkin) {
-					case "Default": 35;
-					case "Future": 5;
-					case "Chip": 17.25;
-					default: 0;
-				}
+				offsetX += pixelWidth[0] * 0.5 * PlayState.daPixelZoom;
+				animation.play(colArray[noteData % colArray.length] + (isSustainEnds ? 'holdend' : 'hold'));  // isHoldEnd
+				offsetX -= pixelWidth[1] * 0.5 * PlayState.daPixelZoom;
 
 				if(!isSustainEnds) {
-					scale.y *= 1.05 * (6 / height); //Auto adjust note size
+					// trace(pixelHeight[0], pixelHeight[1]);
+					sustainScale = (PlayState.daPixelZoom / pixelHeight[1]); //Auto adjust note size
 				}
-			} else sustainScale = Note.SUSTAIN_SIZE / frameHeight;
-			updateHitbox();
+			} else {
+				offsetX += width * 0.5;
+				animation.play(colArray[noteData % colArray.length] + (isSustainEnds ? 'holdend' : 'hold'));  // isHoldEnd
+				updateHitbox();
+				offsetX -= width * 0.5;
+
+				sustainScale = Note.SUSTAIN_SIZE / frameHeight;
+			}
 		} else {
 			alpha = multAlpha = sustainScale = 1;
 
 			if (!PlayState.isPixelStage) 
 			{
-				// Juuuust in case we recycle a sustain note to a regular note
-				offsetX = 0;
 				scale.set(0.7, 0.7);
+				width = originalWidth;
+				height = originalHeight;
+
+				centerOffsets(true);
+				centerOrigin();
 			} else scale.set(PlayState.daPixelZoom, PlayState.daPixelZoom);
-
-			width = originalWidth;
-			height = originalHeight;
-
-			centerOffsets(true);
-			centerOrigin();
 		}
 		correctionOffset = isSustainNote && !flipY ? originalHeight * 0.5 : 0;
 
@@ -710,8 +700,7 @@ class Note extends FlxSprite
 			strumTime: this.strumTime,
 			noteData: lmfao,
 			noteType: this.noteType,
-			holdLength: this.sustainLength,
-			noteSkin: this.texture,
+			holdLength: this.sustainLength
 		};
 
 		return converted;

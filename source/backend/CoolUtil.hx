@@ -1,5 +1,6 @@
 package backend;
 
+import cpp.abi.Abi;
 import cpp.Float64;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
@@ -96,16 +97,21 @@ class CoolUtil
 	 * @param code Integer (use fastCodeAt)
 	 */
 	static var format:StringBuf = new StringBuf();
-	inline public static function fillNumber(value:Float, digits:Int, code:Int) {
-		var length:Int = Std.string(value).length;
+	inline public static function fillNumber(value:Dynamic, digits:Int, code:Int) {
+		var defined:String = customNumberDelimiter(value);
+
+		var length:Int = defined.length;
 		var str:String = null;
 		format = new StringBuf();
 
-		if(length < digits) {
+		if (ClientPrefs.data.numberFormat) 
+			digits += Std.int(Math.max(0.0, (digits - 1) / 3));
+
+		if (length < digits) {
 			for (i in 0...(digits - length))
 				format.addChar(code);
-			format.add(Std.string(value));
-		} else format.add(Std.string(value));
+			format.add(defined);
+		} else format.add(defined);
 
 		str = format.toString(); format = null;
 		return str;
@@ -204,7 +210,11 @@ class CoolUtil
 		var abs:Null<Float> = Math.abs(number);
 		var len:Null<Int>;
 		var result:String;
-		if(!exponent || (abs >= Math.pow(0.1, prec) && abs < Math.pow(10, 6))) {
+		
+		// for number delimiter
+		var mode:Bool = !exponent || (abs >= Math.pow(0.1, prec) && abs < Math.pow(10, 6));
+
+		if (mode) {
 			str = Std.string(Math.fround(abs * Math.pow(10, prec)));
 			len = str.length;
 			if(len <= prec){
@@ -228,7 +238,91 @@ class CoolUtil
 			result = (number > MIN_VALUE_DOUBLE ? str.substr(0,1) + '.' + str.substr(1) : '0') + 'e' + Math.floor(logX(abs, 10));
 		}
 		str = null; len = null; abs = null;
-		return (number < 0 ? "-" : "") + result;
+		result = (number < 0 ? "-" : "") + result;
+
+		if (mode && ClientPrefs.data.numberFormat) {
+			result = customNumberDelimiter(result);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Mathematic Function for Decimal Array.
+	 * @param array Array of Float Type
+	 * @param type Maximum = 0, Minimum = 1, Average = 2
+	 */
+	inline public static function decimalArrayUtil(array:Array<Float>, type:Int) {
+		if (array.length == 0) return null;
+		var value:Float = array[0];
+		for (i in 1...array.length) {
+			switch (type) {
+				case 0: value = Math.max(value, array[i]);
+				case 1: value = Math.min(value, array[i]);
+				case 2: value += array[i];
+			}
+		}
+		if (type == 2) value /= array.length;
+		return value;
+	}
+
+	/**
+	 * Mathematic Function for Integer Array.
+	 * @param array Array of Integer Type
+	 * @param type Maximum = 0, Minimum = 1, Average = 2
+	 */
+	inline public static function integerArrayUtil(array:Array<Int>, type:Int) {
+		if (array.length == 0) return null;
+		var value:Float = array[0];
+		for (i in 1...array.length) {
+			switch (type) {
+				case 0: value = Math.max(value, array[i]);
+				case 1: value = Math.min(value, array[i]);
+				case 2: value += array[i];
+			}
+		}
+		if (type == 2) value /= array.length;
+		return Math.round(value);
+	}
+
+
+	inline public static function customNumberDelimiter(value:Dynamic) {
+		if (ClientPrefs.data.numberFormat) {
+			var defined:String = null;
+			if (value is String) {
+				if (Std.parseFloat(value) != Math.NaN) {
+					defined = value;
+				} else throw "Given string, but It cannot convert to number";
+			} else if (value is Float || value is Int) {
+				defined = Std.string(value);
+			} else throw "It's invalid type";
+			
+			// for number delimiter
+			var cnt:Int = -1;
+			var decimal:Bool;
+			var pos:Int = 0;
+
+			decimal = defined.lastIndexOf(".") != -1;
+			cnt = 0;
+			pos = defined.length - 1;
+			// Sys.print('$defined (decimal: $decimal): ');
+			for (i in 0...defined.length) {
+				// Sys.print('$cnt, ');
+				var char:Int = defined.fastCodeAt(pos);
+				if (decimal) {
+					if (char == ".".code) {decimal = false;}
+				} else {
+					if (48 <= char && char < 58) ++cnt;
+					if (cnt > 3) {
+						cnt -= 3;
+						defined = defined.substr(0, pos+1) + "," + defined.substr(pos+1);
+					}
+				}
+				--pos;
+			}
+			// Sys.print('end\n');
+			return defined;
+		} else return value;
 	}
 
 	public static function charAppearanceCnt(str:String, target:String):Int {
@@ -273,19 +367,6 @@ class CoolUtil
 			  });
 		return list;
 	}
-
-	// @:functionCode('
-	// 	LARGE_INTEGER freq;
-	// 	LARGE_INTEGER time;
-
-	// 	QueryPerformanceFrequency(&freq);
-	// 	QueryPerformanceCounter(&time);
-
-	// 	if (freq.QuadPart == 0L || time.QuadPart == 0L) return 0;
-	// 	double get = static_cast<double>(time.QuadPart) / freq.QuadPart;
-
-	// 	return get;
-	// ')
 
 	@:functionCode('		
 		// Get the current time
@@ -440,6 +521,10 @@ class CoolUtil
 		return maxKey;
 	}
 
+	inline public static function notBlank(s:String) {
+		return s != null && s.length > 0;
+	}
+
 	inline public static function numberArray(max:Int, ?min = 0):Array<Int>
 	{
 		var dumbArray:Array<Int> = [];
@@ -472,6 +557,28 @@ class CoolUtil
 			trace('$command $folder');
 		#else
 			FlxG.error("Platform is not supported for CoolUtil.openFolder");
+		#end
+	}
+
+	// why doesn't it work
+	public static function deleteDirectoryWithFiles(path:String) {
+		#if sys
+		if (FileSystem.exists(path) && FileSystem.isDirectory(path)) {
+			var files = FileSystem.readDirectory(path);
+			var innerPath:String = "";
+
+			for (file in files) {
+				innerPath = FileSystem.fullPath(path + "/" + file).replace(#if windows "/", "\\" #else "\\", "/" #end);
+				trace(innerPath);
+				if (FileSystem.isDirectory(innerPath)) {
+					deleteDirectoryWithFiles(innerPath);
+				} else FileSystem.deleteFile(innerPath);
+			}
+
+			FileSystem.deleteDirectory(path);
+		}
+		#else
+			FlxG.error("Platform is not supported for CoolUtil.deleteDirectoryWithFiles");
 		#end
 	}
 

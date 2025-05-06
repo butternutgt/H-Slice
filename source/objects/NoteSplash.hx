@@ -175,6 +175,7 @@ class NoteSplash extends FlxSprite
 					noteData: noteData
 				};
 				note = new Note().recycleNote(castNote);
+				note.visible = false;
 			}
 
 			Note.initializeGlobalRGBShader(noteData % Note.colArray.length);

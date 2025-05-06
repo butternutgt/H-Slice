@@ -81,8 +81,8 @@ import crowplexus.iris.Iris;
 **/
 class PlayState extends MusicBeatState
 {
-	public static var STRUM_X = 50;
-	public static var STRUM_X_MIDDLESCROLL = -276;
+	public static var STRUM_X = 0;
+	public static var STRUM_X_MIDDLESCROLL = FlxG.width / 2;
 
 	private var strumAnim:Bool = ClientPrefs.data.strumAnim;
 
@@ -217,6 +217,7 @@ class PlayState extends MusicBeatState
 	public var vsliceSmoothBar = ClientPrefs.data.vsliceSmoothBar;
 	public var vsliceSmoothNess = ClientPrefs.data.vsliceSmoothNess;
 	public var vsliceSongPosition = ClientPrefs.data.vsliceSongPosition;
+	public var vsliceBotPlayPlace = ClientPrefs.data.vsliceBotPlayPlace;
 
 	var songPercent:Float = 0;
 	public var nanoPosition:Bool = ClientPrefs.data.nanoPosition;
@@ -225,6 +226,7 @@ class PlayState extends MusicBeatState
 
 	public var endingSong:Bool = false;
 	public var startingSong:Bool = false;
+	public var leavePlayState:Bool = false;
 
 	private var updateTime:Bool = true;
 
@@ -377,7 +379,7 @@ class PlayState extends MusicBeatState
 	var formatD = CoolUtil.formatMoney;
 	var hex2bin = CoolUtil.hex2bin;
 	var revStr = CoolUtil.reverseString;
-	var numberSeparate = ClientPrefs.data.numberFormat;
+	var numberDelimit = ClientPrefs.data.numberFormat;
 
 	// Debug Infomations
 	var showInfoType = ClientPrefs.data.showInfoType;
@@ -652,7 +654,7 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 		var showTime:Bool = (ClientPrefs.data.timeBarType != 'Disabled');
-		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 19, 400, "", 32);
+		timeTxt = new FlxText(FlxG.width / 4, 19, FlxG.width / 2, "", 32);
 		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
 		timeTxt.alpha = 0;
@@ -703,7 +705,7 @@ class PlayState extends MusicBeatState
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 		moveCameraSection();
 
-		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', () -> return healthLerp, 0, 2);
+		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? (cpuControlled && vsliceBotPlayPlace == 'Time Bar') ? 0.89 : 0.85 : 0.11), 'healthBar', () -> return healthLerp, 0, 2);
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
 		healthBar.scrollFactor.set();
@@ -724,7 +726,7 @@ class PlayState extends MusicBeatState
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP2);
 
-		scoreTxt = new FlxText(0, healthBar.y + 40, FlxG.width, "", 20);
+		scoreTxt = new FlxText(0, healthBar.y + 30, FlxG.width, "", 20);
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
@@ -744,9 +746,9 @@ class PlayState extends MusicBeatState
 
 		// Default Value has inherited from HRK Engine
 		var botplayTxtY:Float = timeBar.y + (ClientPrefs.data.downScroll ? -80 : 55);
-		switch (ClientPrefs.data.vsliceBotPlayPlace) {
+		switch (vsliceBotPlayPlace) {
 			case "Health Bar":
-				botplayTxtY = healthBar.y + (ClientPrefs.data.downScroll ? -80 : 70);
+				botplayTxtY = healthBar.y + (ClientPrefs.data.downScroll ? -40 : 60);
 			case "Time Bar": // Omitted because nothing has changed.
 		}
 
@@ -891,6 +893,7 @@ class PlayState extends MusicBeatState
 		}
 
 		skipNoteSplash.active = false;
+		skipNoteSplash.alpha = 0.00001;
 		currSus.resize(8); prevSus.resize(8);
 
 		if (limitNotes == 0) limitNotes = 2147483647;
@@ -1291,16 +1294,28 @@ class PlayState extends MusicBeatState
 			canPause = true;
 			generateStaticArrows(0);
 			generateStaticArrows(1);
-			for (i in 0...playerStrums.length)
-			{
-				setOnScripts('defaultPlayerStrumX' + i, playerStrums.members[i].x);
-				setOnScripts('defaultPlayerStrumY' + i, playerStrums.members[i].y);
-			}
-			for (i in 0...opponentStrums.length)
-			{
-				setOnScripts('defaultOpponentStrumX' + i, opponentStrums.members[i].x);
-				setOnScripts('defaultOpponentStrumY' + i, opponentStrums.members[i].y);
-				// if(ClientPrefs.data.middleScroll) opponentStrums.members[i].visible = false;
+			
+			for (index => strums in [opponentStrums, playerStrums]) {
+				var length = strums.length;
+				var lastStrum = strums.members[length - 1];
+				var laneWidth:Float = Note.swagWidth * (length - 1) + lastStrum.width;
+				for (i => strum in strums) {
+					strum.x += (Note.swagWidth * length - laneWidth + FlxG.width * (index + 0.5)) / 2;
+					
+					if (ClientPrefs.data.middleScroll && index == 1)
+					{
+						strum.x -= FlxG.width / 4;
+					}
+
+					switch (index) {
+						case 0:
+							setOnScripts('defaultOpponentStrumX' + i, strum.x);
+							setOnScripts('defaultOpponentStrumY' + i, strum.y);
+						case 1:
+							setOnScripts('defaultPlayerStrumX' + i, strum.x);
+							setOnScripts('defaultPlayerStrumY' + i, strum.y);
+					}
+				}
 			}
 
 			startedCountdown = true;
@@ -1481,7 +1496,8 @@ class PlayState extends MusicBeatState
 				updateScoreStr += ' (${CoolUtil.floorDecimal(ratingPercent * 100, 3)} %) - ' + Language.getPhrase(ratingFC);
 		}
 		
-		hpShowStr = numFormat(targetHealth, 4 - Std.string(Math.floor(targetHealth)).length, true) + (targetHealth >= 0.001 ? ' %' : '');
+		if (practiceMode) hpShowStr = CoolUtil.formatMoney(targetHealth) + ' %';
+		else hpShowStr = numFormat(targetHealth, 4 - Std.string(Math.floor(targetHealth)).length, true) + (targetHealth >= 0.001 ? ' %' : '');
 
 		if (!cpuControlled) {
 			if (!instakillOnMiss && !instacrashOnMiss) {
@@ -1501,12 +1517,12 @@ class PlayState extends MusicBeatState
 			} else
 				tempScoreStr = Language.getPhrase(
 					'score_text_instakill',
-					'Score: {1} | Instant Kill Mode - Good Luck! | Rating: {2}',
+					'Score: {1} | Instant ${instacrashOnMiss ? "Crash" : "Kill"} Mode - Good Luck! | Rating: {2}',
 					[songScore, updateScoreStr]
 				);
 		} else {
 			
-			if (numberSeparate) {
+			if (numberDelimit) {
 				opComboStr = formatD(opCombo);
 				comboStr = formatD(combo);
 				notesStr = formatD(opCombo + combo);
@@ -1518,7 +1534,7 @@ class PlayState extends MusicBeatState
 
 			tempScoreStr = Language.getPhrase(
 				'score_text_bot',
-				'Score: {1} | Combo: {2} + {3} = {4} | HP: {5}',
+				'Notes: {2} + {3} = {4} | HP: {5}',
 				[ songScore, opComboStr, comboStr, notesStr, hpShowStr ]
 			);
 			
@@ -1753,6 +1769,8 @@ class PlayState extends MusicBeatState
 						makeEvent(event, i);
 		} catch (e:Dynamic) {}
 
+		Note.chartArrowSkin = SONG.arrowSkin;
+
 		if (PlayState.unspawnNotes.length == 0) {
 			// var oldNote:CastNote = null;
 			var sectionsData:Array<SwagSection> = PlayState.SONG.notes;
@@ -1786,7 +1804,6 @@ class PlayState extends MusicBeatState
 			var syncTime:Float = Timer.stamp();
 			var removeTime:Float = ClientPrefs.data.ghostRange;
 
-			var isDesktop:Bool = Main.platform != 'Phones';
 			var loadNoteTime:Float = CoolUtil.getNanoTime();
 
 			function showProgress(force:Bool = false) {
@@ -1794,11 +1811,12 @@ class PlayState extends MusicBeatState
 				{
 					if (Timer.stamp() - syncTime > updateTime || force)
 					{
-						Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
+						if (numberDelimit) 
+							Sys.stdout().writeString('\x1b[0GLoading ${formatD(cnt)}/${formatD(sectionsData.length)} (${formatD(notes + sectionNoteCnt)} notes)');
+						else
+							Sys.stdout().writeString('\x1b[0GLoading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 						syncTime = Timer.stamp();
 					}
-				} else if (isDesktop && force) {
-					Sys.println('Loading $cnt/${sectionsData.length} (${notes + sectionNoteCnt} notes)');
 				}
 			}
 
@@ -1832,8 +1850,7 @@ class PlayState extends MusicBeatState
 						strumTime: songNotes[0],
 						noteData: noteColumn,
 						noteType: songNotes[3],
-						holdLength: holdLength,
-						noteSkin: SONG.arrowSkin ?? null
+						holdLength: holdLength
 					};
 					
 					swagNote.noteData |= gottaHitNote ? 1<<8 : 0; // mustHit
@@ -1853,8 +1870,7 @@ class PlayState extends MusicBeatState
 								strumTime: swagNote.strumTime + curStepCrochet * susNote,
 								noteData: swagNote.noteData,
 								noteType: swagNote.noteType,
-								holdLength: null,
-								noteSkin: swagNote.noteSkin
+								holdLength: null
 							};
 							
 							sustainNote.noteData |= 1<<9; // isHold
@@ -1878,17 +1894,24 @@ class PlayState extends MusicBeatState
 				notes += sectionNoteCnt;
 			}
 
-			showProgress(isDesktop);
+			showProgress(true);
 
 			Sys.println('\n[ --- "${SONG.song.toUpperCase()}" CHART INFO --- ]');
 			
-			var takenTime = CoolUtil.floorDecimal(CoolUtil.getNanoTime() - loadTime, 6);
-			var takenNoteTime = CoolUtil.floorDecimal(CoolUtil.getNanoTime() - loadNoteTime, 6);
+			var takenTime = CoolUtil.getNanoTime() - loadTime;
+			var takenNoteTime = CoolUtil.getNanoTime() - loadNoteTime;
 
-			Sys.println('Loaded ${notes} notes!
+			if (!numberDelimit) {
+				Sys.println('Loaded ${notes} notes!
 Sustain notes amount: $sustainTotalCnt
-Taken time: $takenTime sec
+Taken time: ${numFormat(takenTime, 6)} sec
 Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
+			} else {
+				Sys.println('Loaded ${formatD(notes)} notes!
+Sustain notes amount: ${formatD(sustainTotalCnt)}
+Taken time: ${numFormat(takenTime, 6)} sec
+Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
+			}
 
 			if (skipGhostNotes) {
 				if (ghostNotesCaught > 0)
@@ -2044,14 +2067,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 			if (player == 1)
 				playerStrums.add(babyArrow);
-			else
-			{
+			else {
 				if (ClientPrefs.data.middleScroll)
 				{
-					babyArrow.x += 310;
 					if (i > 1)
 					{ // Up and Right
-						babyArrow.x += FlxG.width / 2 + 25;
+						babyArrow.x += FlxG.width / 2;
 					}
 				}
 				opponentStrums.add(babyArrow);
@@ -2428,7 +2449,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			health = 0;
 			trace("RESET = True");
 		}
-		doDeathCheck();
+		if (!practiceMode) doDeathCheck();
 
 		if (!ffmpegMode && started && !paused && canResync)
 			checkSync();
@@ -2449,16 +2470,20 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 		
 		if (overHealth) healthLerp = healthLerper();
-		else if (healthBar.bounds.max != null && health > healthBar.bounds.max)
-			health = healthBar.bounds.max;
+		else {
+			if (healthBar.bounds.max != null) 
+				health = Math.max(healthBar.bounds.min, Math.min(health, healthBar.bounds.max));
+		}
 
 		updateIconsScale(globalElapsed);
 		updateIconsPosition();
 		updateScoreText();
 		
 		if (!overHealth) healthLerp = healthLerper();
-		else if (healthBar.bounds.max != null && health > healthBar.bounds.max)
-			health = healthBar.bounds.max;
+		else {
+			if (healthBar.bounds.max != null) 
+				health = Math.max(healthBar.bounds.min, Math.min(health, healthBar.bounds.max));
+		}
 
 		// Shader Update Zone
 		if (shaderEnabled) {
@@ -2576,16 +2601,17 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						Math.fround(totalNpsMax),
 					];
 
-					var opNpsStr:String = fillNum(nps[0], Std.string(nps[3]).length, ' '.fastCodeAt(0));
-					var bfNpsStr:String = fillNum(nps[1], Std.string(nps[4]).length, ' '.fastCodeAt(0));
-					var totalNpsStr:String = fillNum(nps[2], Std.string(nps[5]).length, ' '.fastCodeAt(0));
+					var lengths:Array<Int> = [Std.string(nps[3]).length, Std.string(nps[4]).length, Std.string(nps[5]).length];
+					var len:Null<Int> = CoolUtil.integerArrayUtil(lengths, 0);
+					var npsStr:Array<String> = [for (n in nps) fillNum(n, len, ' '.code)];
 
-					info = '$opNpsStr/${nps[3]}\n$bfNpsStr/${nps[4]}\n$totalNpsStr/${nps[5]}';
-					nps = null; opNpsStr = bfNpsStr = totalNpsStr = null;
+					info = '${npsStr[0]}/${npsStr[3]}\n${npsStr[1]}/${npsStr[4]}\n${npsStr[2]}/${npsStr[5]}';
+
+					npsStr.resize(0); nps.resize(0); len = null;
 				case 'Rendered Notes':
 					skipMax = FlxMath.maxInt(skipCnt, skipMax);
 
-					if (numberSeparate)
+					if (numberDelimit)
 						info = 'Rendered/Skipped: ${formatD(Math.max(notes.countLiving(), 0))}/${formatD(skipCnt)}/${formatD(notes.length)}/${formatD(skipMax)}';
 					else
 						info = 'Rendered/Skipped: ${Math.max(notes.countLiving(), 0)}/$skipCnt/${notes.length}/$skipMax';
@@ -2621,7 +2647,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						+ ' % / Skip: $skipTimeOut/$skipTotalCnt';
 				#if desktop
 				case 'Video Info':
-					info = numFormat((CoolUtil.getNanoTime() - elapsedNano) * 1000, 1) + " ms / " + (numberSeparate ? formatD(frameCount) : Std.string(frameCount));
+					info = numFormat((CoolUtil.getNanoTime() - elapsedNano) * 1000, 1) + " ms / " + (numberDelimit ? formatD(frameCount) : Std.string(frameCount));
 				#end
 				case 'Note Info':
 					info = hex2bin(noteDataInfo.hex(4));
@@ -2899,12 +2925,15 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 
 					if (processFirst && dunceNote.strum != null) {
-						dunceNote.followStrumNote(songSpeed, dist[availNoteData]);
-						if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
-							dunceNote.clipToStrumNote();
+						if (dunceNote.visible) {
+							dunceNote.followStrumNote(songSpeed, dist[availNoteData]);
+							if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
+								dunceNote.clipToStrumNote();
+							}
+							++shownCnt;
 						}
-						++shownCnt; ++limitCount;
 					}
+					++limitCount;
 				} else {
 					// Skip notes without spawning
 					skipHit |= 1 << availNoteData;
@@ -2948,8 +2977,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 		safeTime = ((nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - timeout) / shownRealTime * 100;
 		
-		if (sortingWay == 1)
-			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
+		if (sortingWay == 1) {
+			if (ClientPrefs.data.fastSort)
+				notes.fasterSort(!ClientPrefs.data.downScroll);
+			else noteSortShortCut(ClientPrefs.data.downScroll);
+		}
 	}
 
 	var index:Int = 0;
@@ -2986,68 +3018,67 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					if (startedCountdown)
 					{
 						notes.forEachAlive(daNote -> {
-							if (daNote.exists && daNote.strum != null) {
-								if (debugInfos) ++processedReal;
+							++processedReal;
 
-								canBeHit = Conductor.songPosition - daNote.strumTime > 0;
-								tooLate = Conductor.songPosition - daNote.strumTime > noteKillOffset;
-								
-								if (tooLate) {
-									// Kill extremely late notes and cause misses
-									if (daNote.mustPress)
-									{
-										if (cpuControlled)
-											goodNoteHit(daNote);
-										else if (!daNote.ignoreNote && !endingSong && daNote.tooLate || !daNote.wasGoodHit) {
-											// trace(noteKillOffset, Conductor.stepCrochet);
-											noteMiss(daNote);
-										}
-									} else if (!daNote.hitByOpponent)
-										opponentNoteHit(daNote);
-
-									invalidateNote(daNote);
-									canBeHit = false;
-								} else if (hideOverlapped > 0) {
-									availNoteData = daNote.noteData + (daNote.mustPress ? 4 : 0);
-									dist[availNoteData] = 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed;
-									
-									if (lastSongSpeed != songSpeed) {
-										currSus[availNoteData] = daNote.isSustainNote;
-										iDist[availNoteData] = dist[availNoteData] - lDist[availNoteData];
-
-										daNote.visible = prevSus[availNoteData] != currSus[availNoteData] || Math.abs(iDist[availNoteData]) >= hideOverlapped;
-										if (daNote.visible) {
-											lDist[availNoteData] = dist[availNoteData];
-											if (ClientPrefs.data.noteShaders) {
-												daNote.rgbShader.enabled = true;
-												daNote.defaultRGB();
-											}
-										} else daNote.rgbShader.enabled = false;
-
-										prevSus[availNoteData] = currSus[availNoteData];
-									}
-
-									if (daNote.visible) daNote.followStrumNote(songSpeed, dist[availNoteData]); ++shownCnt;
-								} else {
-									daNote.followStrumNote(songSpeed, 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed); ++shownCnt;
-								}
+							canBeHit = Conductor.songPosition - daNote.strumTime > 0;
+							tooLate = Conductor.songPosition - daNote.strumTime > noteKillOffset;
 							
-								if (canBeHit) {
-									if (daNote.mustPress) {
-										if (!daNote.blockHit || daNote.isSustainNote) {
-											if (cpuControlled) goodNoteHit(daNote);
-											else if (!toBool(pressHit & 1<<daNote.noteData) && 
-												daNote.isSustainNote && !daNote.wasGoodHit && 
-											Conductor.songPosition - daNote.strumTime > Conductor.stepCrochet) noteMiss(daNote);
-										}
-									} else if (!daNote.hitByOpponent && !daNote.ignoreNote || daNote.isSustainNote)
-										opponentNoteHit(daNote);
-	
-									if (daNote.isSustainNote && daNote.strum.sustainReduce) {
-										daNote.clipToStrumNote();
+							if (tooLate) {
+								// Kill extremely late notes and cause misses
+								if (daNote.mustPress)
+								{
+									if (cpuControlled)
+										goodNoteHit(daNote);
+									else if (!daNote.ignoreNote && !endingSong && daNote.tooLate || !daNote.wasGoodHit) {
+										// trace(noteKillOffset, Conductor.stepCrochet);
+										noteMiss(daNote);
 									}
+								} else if (!daNote.hitByOpponent)
+									opponentNoteHit(daNote);
+
+								invalidateNote(daNote);
+								canBeHit = false;
+							} else if (hideOverlapped > 0) {
+								availNoteData = daNote.noteData + (daNote.mustPress ? 4 : 0);
+								dist[availNoteData] = 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed;
+								
+								if (lastSongSpeed != songSpeed) {
+									currSus[availNoteData] = daNote.isSustainNote;
+									iDist[availNoteData] = dist[availNoteData] - lDist[availNoteData];
+
+									daNote.visible = prevSus[availNoteData] != currSus[availNoteData] || Math.abs(iDist[availNoteData]) >= hideOverlapped;
+									if (daNote.visible) {
+										lDist[availNoteData] = dist[availNoteData];
+										if (ClientPrefs.data.noteShaders) {
+											daNote.rgbShader.enabled = true;
+											daNote.defaultRGB();
+										}
+									} else daNote.rgbShader.enabled = false;
+
+									prevSus[availNoteData] = currSus[availNoteData];
 								}
-							} // else if (daNote == null) invalidateNote(daNote);
+
+								if (daNote.visible) daNote.followStrumNote(songSpeed, dist[availNoteData]);
+								++shownCnt;
+							} else {
+								daNote.followStrumNote(songSpeed, 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed); ++shownCnt;
+							}
+						
+							if (canBeHit) {
+								if (daNote.mustPress) {
+									if (!daNote.blockHit || daNote.isSustainNote) {
+										if (cpuControlled) goodNoteHit(daNote);
+										else if (!toBool(pressHit & 1<<daNote.noteData) && 
+											daNote.isSustainNote && !daNote.wasGoodHit && 
+										Conductor.songPosition - daNote.strumTime > Conductor.stepCrochet) noteMiss(daNote);
+									}
+								} else if (!daNote.hitByOpponent && !daNote.ignoreNote || daNote.isSustainNote)
+									opponentNoteHit(daNote);
+
+								if (daNote.isSustainNote && daNote.strum.sustainReduce) {
+									daNote.clipToStrumNote();
+								}
+							}
 						});
 					}
 					else
@@ -3063,8 +3094,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			processedRealElapsed = (nanoPosition ? CoolUtil.getNanoTime() : Timer.stamp()) - processedRealTimer;
 		}
 
-		if (sortingWay == 2)
-			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
+		if (sortingWay == 2) {
+			if (ClientPrefs.data.fastSort)
+				notes.fasterSort(!ClientPrefs.data.downScroll);
+			else noteSortShortCut(ClientPrefs.data.downScroll);
+		}
 	}
 
 	var skipResult:Dynamic = null;
@@ -3091,14 +3125,18 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			}
 			
 			if (healthDrain) {
-				if(!drainAccurated) {
-					health = randomize.bool() ? Math.max(0.2e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
+				if (practiceMode) {
+					health += (skipBf - skipOp) * 0.02;
 				} else {
-					var max:Null<Int> = FlxMath.maxInt(skipOp, skipBf);
-					for (i in 0...max) {
-						if (skipBf > i) health += 0.02;
-						if (skipOp > i) health *= 0.99;
-					} max = null;
+					if(!drainAccurated) {
+						health = randomize.bool() ? Math.max(0.2e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
+					} else {
+						var max:Null<Int> = FlxMath.maxInt(skipOp, skipBf);
+						for (i in 0...max) {
+							if (skipBf > i) health += 0.02;
+							if (skipOp > i) health *= 0.99;
+						} max = null;
+					}
 				}
 			} else health += 0.02 * skipBf;
 
@@ -3118,7 +3156,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					if (betterRecycle) loopVector[0] = skipNotes.spawnNote(skipOpCNote);
 					else loopVector[0] = skipNotes.recycle(Note).recycleNote(skipOpCNote);
 					doAnim(loopVector[0]);
-				} 
+				}
 				if (skipAnim[2] && cpuControlled) {
 					if (betterRecycle) loopVector[1] = skipNotes.spawnNote(skipBfCNote);
 					else loopVector[1] = skipNotes.recycle(Note).recycleNote(skipBfCNote);
@@ -3141,7 +3179,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						
 						var targetStr = index == 0 ? 'opponent' : 'good';
 						for (shit in 0...scriptTarget[index]) {
-							if (index == 1 && cpuControlled) {
+							if (index != 1 || cpuControlled) {
 								if (noteHitPreEvent) {
 									skipResult = callOnLuas(targetStr + 'NoteHitPre', skipArray);
 						
@@ -3158,7 +3196,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 											skipResult = callOnHScript(targetStr + 'NoteHit', [daNote]);
 									}
 								}
-							}
+							} else break;
 						}
 					}
 				}
@@ -3167,25 +3205,23 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 	
 	var randomize = new FlxRandom();
+	var sortOrder = false;
+	inline function noteSortShortCut(reverse:Bool) {
+		notes.sort((i, note1, note2) -> NoteGroup.noteSort(note1, note2), ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
+	}
 	
-	inline private function noteSort() {
+	inline function noteSort() {
 		switch (sortingWay) {
-			case 3:
-				notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
-			case 4:
-				notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
+			case 3, 4:
+				sortOrder = sortingWay == 3 ? !ClientPrefs.data.downScroll : ClientPrefs.data.downScroll;
+				if (ClientPrefs.data.fastSort)
+					notes.fasterSort(sortOrder);
+				else
+					noteSortShortCut(ClientPrefs.data.downScroll);
 			case 5:
-				if (frameCount & 1 == 1) {
-					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
-				} else {
-					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
-				}
+				noteSortShortCut(frameCount & 1 == 0);
 			case 6:
-				if (randomize.bool()) {
-					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.DESCENDING : FlxSort.ASCENDING);
-				} else {
-					notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
-				}
+				noteSortShortCut(randomize.bool());
 			case 7:
 				randomize.shuffle(notes.members);
 		}
@@ -3389,7 +3425,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	function doDeathCheck(?skipHealthCheck:Bool = false)
 	{
-		if (((skipHealthCheck && instakillOnMiss) || health <= 0) && !practiceMode && !isDead && gameOverTimer == null)
+		if (((skipHealthCheck && instakillOnMiss) || health <= 0) && !isDead && gameOverTimer == null)
 		{
 			returnValue = callOnScripts('onGameOver', null, true);
 			if (returnValue != LuaUtils.Function_Stop)
@@ -4041,19 +4077,22 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					campaignSaveData = FunkinTools.newTali();
 
 					changedDifficulty = false;
+					leavePlayState = true;
 				}
 				else
 				{
 					var difficulty:String = Difficulty.getFilePath();
 
 					trace('LOADING NEXT SONG');
-					trace(Paths.formatToSongPath(PlayState.storyPlaylist[0]) + difficulty);
+					var songLowercase:String = Paths.formatToSongPath(PlayState.storyPlaylist[0]);
+					trace(songLowercase + difficulty);
 
 					FlxTransitionableState.skipNextTransIn = true;
 					FlxTransitionableState.skipNextTransOut = true;
 					prevCamFollow = camFollow;
 
-					Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, false, PlayState.storyPlaylist[0]);
+					Song.loadFromJson(songLowercase + difficulty, false, songLowercase);
+					
 					FlxG.sound.music.stop();
 
 					canResync = false;
@@ -4086,6 +4125,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent, songMisses == 0);
 				}
 				#end
+				leavePlayState = true;
 			}
 
 			transitioning = true;
@@ -4669,7 +4709,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		{
 			if (bfVocal) vocals.volume = 0;
 			if (opVocal) opponentVocals.volume = 0;
-			doDeathCheck(true);
+			if (!practiceMode) doDeathCheck(true);
 		}
 
 		// please don't send issue about this lmao. i added it for fun.
@@ -4789,7 +4829,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		if (!ffmpegMode && opVocal) opponentVocals.volume = ClientPrefs.data.bgmVolume;
 		strumPlayAnim(true, note.noteData, note.isSustainNote && !note.isSustainEnds);
-		if (healthDrain) health = Math.max(0.2e-320, health * 0.99);
+		if (healthDrain) {
+			health = practiceMode ? health - note.hitHealth * healthLoss : Math.max(0.2e-320, health * 0.99);
+		}
 		note.hitByOpponent = true;
 
 		stagesFunc(stage -> stage.goodNoteHit(note));
@@ -5093,8 +5135,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		Paths.noteSkinFramesMap.clear();
 		Paths.noteSkinAnimsMap.clear();
 		Paths.popUpFramesMap.clear();
+		Note.chartArrowSkin = null;
 
-		if (endingSong) SONG = null;
+		if (leavePlayState) SONG = null;
 		notes.clear();
 		
 		#if desktop

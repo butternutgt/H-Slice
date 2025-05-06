@@ -1,10 +1,53 @@
 package options;
 
+import backend.FFMpeg;
+import flixel.input.gamepad.FlxGamepad;
+
 class GameRendererSettingsSubState extends BaseOptionsMenu
 {
 	var fpsOption:Option;
 	var bitOption:Option;
 	var gcRateOption:Option;
+	var testOption:Option;
+	
+	public static final codecList:Array<String> = [
+		'H.264',
+		'H.264 (QSV)',
+		'H.264 (NVENC)',
+		'H.264 (AMF)',
+		'H.264 (VAAPI)',
+		'H.265',
+		'H.265 (QSV)',
+		'H.265 (NVENC)',
+		'H.265 (AMF)',
+		'H.265 (VAAPI)',
+		'VP8',
+		'VP8 (VAAPI)',
+		'VP9',
+		'VP9 (VAAPI)',
+		'AV1',
+		'AV1 (NVENC for RTX40)'
+	];
+	
+    public static final codecMap:Map<String, String> = [
+        'H.264' => 'libx264',
+        'H.264 (QSV)' => 'h264_qsv',
+        'H.264 (NVENC)' => 'h264_nvenc',
+        'H.264 (AMF)' => 'h264_amf',
+        'H.264 (VAAPI)' => 'h264_vaapi',
+        'H.265' => 'libx265',
+        'H.265 (QSV)' => 'hevc_qsv',
+        'H.265 (NVENC)' => 'hevc_nvenc',
+        'H.265 (AMF)' => 'hevc_amf',
+        'H.265 (VAAPI)' => 'hevc_vaapi',
+        'VP8' => 'libvpx',
+        'VP8 (VAAPI)' => 'libvpx_vaapi',
+        'VP9' => 'libvp9',
+        'VP9 (VAAPI)' => 'libvp9_vaapi',
+        'AV1' => 'libsvtav1',
+        'AV1 (NVENC for RTX40)' => 'av1_nvenc'
+    ];
+
 	public function new()
 	{
 		#if DISCORD_ALLOWED
@@ -28,13 +71,6 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		option.onChange = resetTimeScale;
 		addOption(option);
-
-        // var option:Option = new Option('Skip Notes Even Rendering',
-		// 	"If checked, The note can skips in rendering.\nBut It wouldn't big impact any perfomance.",
-		// 	'allowSkipInRendering',
-		// 	BOOL);
-		// option.onChange = resetTimeScale;
-		// addOption(option);
 
         var option:Option = new Option('Garbage Collection Rate',
 			"Have GC run automatically based on this option.\nSpecified by Frame and It turn on GC forcely.\n0 means disabled. Beware of memory leaks!",
@@ -74,24 +110,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 			"It's advanced Option. If you don't know, leave this 'H.264'.",
 			'codec',
 			STRING,
-			[
-				'H.264',
-				'H.264 (QSV)',
-				'H.264 (NVENC)',
-				'H.264 (AMF)',
-				'H.264 (VAAPI)',
-				'H.265',
-				'H.265 (QSV)',
-				'H.265 (NVENC)',
-				'H.265 (AMF)',
-				'H.265 (VAAPI)',
-				'VP8',
-				'VP8 (VAAPI)',
-				'VP9',
-				'VP9 (VAAPI)',
-				'AV1',
-				'AV1 (NVENC for RTX40)'
-			]); //Variable type
+			codecList);
 		addOption(option);
 
 		var option:Option = new Option('Encode Mode',
@@ -152,6 +171,13 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+        var option:Option = new Option('Test Pipe Frames by encoders',
+			"Try to test which is encoder available!\ncheck it out the avail_codecs.txt if it's done.",
+			'dummy',
+			BOOL);
+		option.onChange = testRender;
+		addOption(option);
+
         super();
     }
 
@@ -173,5 +199,47 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 	function resetTimeScale()
 	{
 		FlxG.timeScale = 1;
+	}
+
+	function testRender()
+	{
+		var video:FFMpeg = new FFMpeg();
+		var backupCodec = ClientPrefs.data.codec;
+		var result:Bool = true;
+		var output:String = 'FPS: ${ClientPrefs.data.targetFPS}, Mode: ${ClientPrefs.data.encodeMode}\n';
+
+		video.target = "render_test";
+		video.init();
+
+		var maxLength:Int = 0;
+		var space:String;
+
+		for (codec in codecList) {
+			maxLength = FlxMath.maxInt(codec.length, maxLength);
+		}
+
+		for (codec in codecList) {
+			space = "";
+			ClientPrefs.data.codec = codec;
+			try {
+				video.setup(true);
+				video.pipeFrame();
+				video.destroy();
+				
+				result = FileSystem.stat(video.fileName + video.fileExts).size != 0;
+			} catch (e) {
+				result = false;
+			}
+
+			for (i in 0...(maxLength - codec.length)) {
+				space += " ";
+			}
+
+			output += 'Codec: ${ClientPrefs.data.codec},$space Result: ${result ? "PASS" : "fail"}\n';
+		}
+
+		// CoolUtil.deleteDirectoryWithFiles(video.target);
+		File.saveContent("avail_codecs.txt", output);
+		ClientPrefs.data.codec = backupCodec;
 	}
 }

@@ -162,6 +162,10 @@ class TitleState extends MusicBeatState
 			}
 		}
 		// #end
+		
+		#if TOUCH_CONTROLS_ALLOWED
+		addTouchPad('NONE', 'B');
+		#end
 	}
 
 	var logoBl:FlxSprite;
@@ -570,9 +574,8 @@ class TitleState extends MusicBeatState
 			if (controls.UI_DOWN) FlxG.sound.music.pitch -= 0.5 * elapsed;
 		}
 		#end
-		#if desktop
+		
 		if (controls.BACK) openfl.Lib.application.window.close();
-		#end
 
 		super.update(elapsed);
 	}

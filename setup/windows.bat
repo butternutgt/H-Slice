@@ -12,6 +12,7 @@ haxelib install tjson 1.4.0 --quiet
 haxelib install hxdiscord_rpc 1.2.4 --quiet
 haxelib install hxvlc 1.8.2 --quiet
 haxelib install flixel 6.0.0 --quiet
+haxelib set flixel 6.0.0
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3 --quiet
 haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7 --quiet
 haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cdc4632397ef3504d464e90 --quiet

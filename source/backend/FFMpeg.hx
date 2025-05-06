@@ -8,6 +8,7 @@ import lime.graphics.Image;
 import flixel.FlxG;
 import lime.ui.Window;
 import sys.FileSystem;
+import options.GameRendererSettingsSubState;
 
 class FFMpeg {
     var x:Int;
@@ -18,40 +19,20 @@ class FFMpeg {
     var bytes:Bytes;
     var window:Window = null;
     var frameBuffer:Rectangle;
-    var target = "render_video";
-    var fileName = '';
-    var fileExts = '.mp4';
-    var timer:FlxTimer;
 
+    public var target = "render_video";
+    public var fileName = '';
+    public var fileExts = '.mp4';
     public var wentPreview:Bool = false;
     public var process:Process;
 
     public static var instance:FFMpeg;
 
-    var codecList:Map<String, String> = [
-        'H.264' => 'libx264',
-        'H.264 (QSV)' => 'h264_qsv',
-        'H.264 (NVENC)' => 'h264_nvenc',
-        'H.264 (AMF)' => 'h264_amf',
-        'H.264 (VAAPI)' => 'h264_vaapi',
-        'H.265' => 'libx265',
-        'H.265 (QSV)' => 'hevc_qsv',
-        'H.265 (NVENC)' => 'hevc_nvenc',
-        'H.265 (AMF)' => 'hevc_amf',
-        'H.265 (VAAPI)' => 'hevc_vaapi',
-        'VP8' => 'libvpx',
-        'VP8 (VAAPI)' => 'libvpx_vaapi',
-        'VP9' => 'libvp9',
-        'VP9 (VAAPI)' => 'libvp9_vaapi',
-        'AV1' => 'libsvtav1',
-        'AV1 (NVENC for RTX40)' => 'av1_nvenc'
-    ];
-
     public function new() {}
 
     public function init() {
-        if(FileSystem.exists(target)) {
-            if(!FileSystem.isDirectory(target)) {
+        if (FileSystem.exists(target)) {
+            if (!FileSystem.isDirectory(target)) {
                 FileSystem.deleteFile(target);
                 FileSystem.createDirectory(target);
             }
@@ -61,11 +42,9 @@ class FFMpeg {
 
         x = window.width;
         y = window.height;
-
-        timer = new FlxTimer();
     }
 
-    public function setup() {
+    public function setup(testMode:Bool = false) {
         if (!FileSystem.exists('ffmpeg.exe')) {
             trace("\"FFmpeg.exe\" not found, turning on preview mode...");
             ClientPrefs.data.previewRender = true;
@@ -74,21 +53,25 @@ class FFMpeg {
             wentPreview = true;
             return;
         }
-        FlxG.sound.play(Paths.sound('confirmMenu'), ClientPrefs.data.sfxVolume);
+        var curCodec:String = ClientPrefs.data.codec;
 
-        fileName = target + '/' + Paths.formatToSongPath(PlayState.SONG.song);
-        if (FileSystem.exists(fileName + fileExts)) {
-            var millis = CoolUtil.fillNumber(Std.int(haxe.Timer.stamp() * 1000.0) % 1000, 3, 48);
-            fileName += "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H-%M-%S-") + millis;
+        if (!testMode) {
+            FlxG.sound.play(Paths.sound('confirmMenu'), ClientPrefs.data.sfxVolume);
+            fileName = target + '/' + Paths.formatToSongPath(testMode ? "test" : PlayState.SONG.song);
+            if (FileSystem.exists(fileName + fileExts)) {
+                var millis = CoolUtil.fillNumber(Std.int(haxe.Timer.stamp() * 1000.0) % 1000, 3, 48);
+                fileName += "-" + DateTools.format(Date.now(), "%Y-%m-%d_%H-%M-%S-") + millis;
+            }
+        } else {
+            fileName = target + '/test-codec-' + curCodec;
         }
-
-        var tmp:String = ClientPrefs.data.codec;
-        var isGPU:Bool = tmp.contains('QSV') || tmp.contains('NVENC') || tmp.contains('AMF') || tmp.contains('VAAPI');
+        var isGPU:Bool = curCodec.contains('QSV') || curCodec.contains('NVENC') || curCodec.contains('AMF') || curCodec.contains('VAAPI');
+        if (curCodec.contains('VP')) fileExts = ".webm";
 
         var arguments:Array<String> = [
             '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', x + 'x' + y,
             '-r', Std.string(ClientPrefs.data.targetFPS), '-i', '-',
-            '-c:v', codecList[ClientPrefs.data.codec]
+            '-c:v', GameRendererSettingsSubState.codecMap[curCodec]
         ];
         switch (ClientPrefs.data.encodeMode) {
             case "CRF/CQP":

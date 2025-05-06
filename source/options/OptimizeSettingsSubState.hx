@@ -56,6 +56,12 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			]); //Variable type
 		addOption(option);
 
+        var option:Option = new Option('Faster Sort',
+			"If checked, It sorts only visible objects.",
+			'fastSort',
+			BOOL);
+		addOption(option);
+
         var option:Option = new Option('Show Rating Pop-Up',
 			"If checked, \"Rating Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
 			'showRating',

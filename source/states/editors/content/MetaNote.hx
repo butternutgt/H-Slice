@@ -23,8 +23,7 @@ class MetaNote extends Note
 			strumTime: time,
 			noteData: data,
 			noteType: "",
-			holdLength: 0,
-			noteSkin: "" 
+			holdLength: 0
 		}
 
 		recycleNote(tempCast);

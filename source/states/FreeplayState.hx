@@ -109,7 +109,12 @@ class FreeplayState extends MusicBeatState
 				}
 				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
 			}
-			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Weeklist (${i+1}/${WeekData.weeksList.length})');
+			if(Main.isConsoleAvailable) {
+				if (ClientPrefs.data.numberFormat)
+					Sys.stdout().writeString('\x1b[0GLoading Weeklist (${CoolUtil.formatMoney(i+1)}/${CoolUtil.formatMoney(WeekData.weeksList.length)})');
+				else
+					Sys.stdout().writeString('\x1b[0GLoading Weeklist (${i+1}/${WeekData.weeksList.length})');
+			}
 		}
 		Sys.print("\n");
 		Mods.loadTopMod();
@@ -146,7 +151,12 @@ class FreeplayState extends MusicBeatState
 			// songText.x += 40;
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 			// songText.screenCenter(X);
-			if(Main.isConsoleAvailable) Sys.stdout().writeString('\x1b[0GLoading Song (${i+1}/${songs.length})');
+			if(Main.isConsoleAvailable) {
+				if (ClientPrefs.data.numberFormat)
+					Sys.stdout().writeString('\x1b[0GLoading Song (${CoolUtil.formatMoney(i+1)}/${CoolUtil.formatMoney(songs.length)})');
+				else
+					Sys.stdout().writeString('\x1b[0GLoading Song (${i+1}/${songs.length})');
+			}
 		}
 		Sys.println('\nLoading Done');
 		WeekData.setDirectoryFromWeek();
@@ -155,7 +165,7 @@ class FreeplayState extends MusicBeatState
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 		scoreText.antialiasing = ClientPrefs.data.antialiasing;
 
-		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
+		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 72, 0xFF000000);
 		scoreBG.alpha = 0.6;
 		add(scoreBG);
 
@@ -284,7 +294,9 @@ class FreeplayState extends MusicBeatState
 
 		if (!player.playingMusic)
 		{
-			scoreText.text = Language.getPhrase('personal_best', 'PERSONAL BEST: {1} ({2}%)', [lerpScore, ratingFormat]);
+			scoreText.text = Language.getPhrase('personal_best', 'PERSONAL BEST: {1} ({2}%)', [
+				ClientPrefs.data.numberFormat ? CoolUtil.formatMoney(lerpScore) : lerpScore, ratingFormat
+			]);
 			positionHighscore();
 			
 			if(songs.length > 1)

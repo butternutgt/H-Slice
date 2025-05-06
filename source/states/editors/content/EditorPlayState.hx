@@ -386,19 +386,6 @@ class EditorPlayState extends MusicBeatSubstate
 		var strumTimeVector:Vector<Float> = new Vector(8, 0.0);
 		var skipGhostNotes:Bool = ClientPrefs.data.skipGhostNotes;
 		var ghostNotesCaught:Int = 0;
-		
-		function showProgress(force:Bool = false) {
-			if (Main.isConsoleAvailable)
-			{
-				if (Timer.stamp() - syncTime > updateTime || force)
-				{
-					Sys.stdout().writeString('\x1b[0GLoading $noteCount notes');
-					syncTime = Timer.stamp();
-				}
-			} else if (isMobile && force) {
-				Sys.println('Loading $noteCount notes');
-			}
-		}
 
 		// Section Time/Crochet
 		var noteSec:Int = 0;
@@ -417,6 +404,8 @@ class EditorPlayState extends MusicBeatSubstate
 				cachedSectionTimes.push(secTime);
 			}
 		}
+
+		Note.chartArrowSkin = PlayState.SONG.arrowSkin;
 
 		// Load Notes
 		section = songData.notes[0];
@@ -448,8 +437,7 @@ class EditorPlayState extends MusicBeatSubstate
 					strumTime: note[0],
 					noteData: note[1],
 					noteType: Math.isNaN(note[3]) ? note[3] : 0,
-					holdLength: note[2],
-					noteSkin: songData.arrowSkin != null ? songData.arrowSkin : ""
+					holdLength: note[2]
 				};
 				
 				swagNote.noteData |= section.mustHitSection ? 1<<8 : 0; // mustHit
@@ -476,8 +464,7 @@ class EditorPlayState extends MusicBeatSubstate
 							strumTime: swagNote.noteData + Conductor.stepCrochet * susNote,
 							noteData: swagNote.noteData,
 							noteType: swagNote.noteType,
-							holdLength: 0,
-							noteSkin: swagNote.noteSkin
+							holdLength: 0
 						};
 						unspawnSustainNotes.push(sustainNote);
 					}

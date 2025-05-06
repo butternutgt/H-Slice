@@ -144,6 +144,7 @@ import states.TitleState;
 	public var showAfter:Bool = true;
 	public var keepNotes:Bool = false;
 	public var sortNotes:String = "After Note Finalized";
+	public var fastSort:Bool = true;
 	public var showRating:Bool = true;
 	public var showComboNum:Bool = true;
 	public var showCombo:Bool = false;
@@ -174,6 +175,8 @@ import states.TitleState;
 	public var codec:String = 'H.264';
 	public var preshot:Bool = false;
 	public var previewRender:Bool = false;
+
+	public var dummy:Bool = false;
 }
 
 class ClientPrefs {

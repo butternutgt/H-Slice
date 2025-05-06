@@ -19,6 +19,7 @@ class SustainSplash extends FlxSprite
 		super();
 		holding = false;
 		note = new Note();
+		note.visible = false;
 
 		x = -50000;
 		rnd = new FlxRandom();
