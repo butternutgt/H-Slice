@@ -2911,7 +2911,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 								}
 							}
 						} else dunceNote.rgbShader.enabled = false;
-					}
+					} else dunceNote.visible = true;
 
 					if (spawnNoteEvent) {
 						callOnLuas('onSpawnNote', [
