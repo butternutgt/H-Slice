@@ -10,6 +10,9 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 	var gcRateOption:Option;
 	var testOption:Option;
 	
+	var missingTextBG:FlxSprite;
+	var missingText:FlxText;
+	
 	public static final codecList:Array<String> = [
 		'H.264',
 		'H.264 (QSV)',
@@ -171,7 +174,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-        var option:Option = new Option('Test Pipe Frames by encoders',
+        var option:Option = new Option('Test Rendering Each Encoders',
 			"Try to test which is encoder available!\ncheck it out the avail_codecs.txt if it's done.",
 			'dummy',
 			BOOL);
@@ -179,6 +182,18 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
         super();
+		
+		missingTextBG = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		missingTextBG.alpha = 0.6;
+		missingTextBG.visible = false;
+		add(missingTextBG);
+		
+		missingText = new FlxText(50, 0, FlxG.width - 100, '', 24);
+		missingText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		missingText.scrollFactor.set();
+		missingText.visible = false;
+		missingText.antialiasing = ClientPrefs.data.antialiasing;
+		add(missingText);
     }
 
 	function onChangeGCRate()
@@ -207,6 +222,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 		var backupCodec = ClientPrefs.data.codec;
 		var result:Bool = true;
 		var output:String = 'FPS: ${ClientPrefs.data.targetFPS}, Mode: ${ClientPrefs.data.encodeMode}\n';
+		var noFFMpeg:Bool = false;
 
 		video.target = "render_test";
 		video.init();
@@ -229,6 +245,9 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 				result = FileSystem.stat(video.fileName + video.fileExts).size != 0;
 			} catch (e) {
 				result = false;
+				if (e.message == "not found ffmpeg") {
+					noFFMpeg = true; break;
+				}
 			}
 
 			for (i in 0...(maxLength - codec.length)) {
@@ -238,8 +257,25 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 			output += 'Codec: ${ClientPrefs.data.codec},$space Result: ${result ? "PASS" : "fail"}\n';
 		}
 
+		if (noFFMpeg) {
+			missingText.text = "ERROR WHILE TESTING FFMPEG FEATURE:\nYou don't have 'FFMpeg.exe' in same Folder as H-Slice.";
+			missingText.screenCenter(Y);
+			missingText.visible = true;
+			missingTextBG.visible = true;
+			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+		}
+
 		// CoolUtil.deleteDirectoryWithFiles(video.target);
 		File.saveContent("avail_codecs.txt", output);
 		ClientPrefs.data.codec = backupCodec;
+	}
+
+	override function changeSelection(change:Int = 0) {
+		super.changeSelection(change);
+		
+		if (missingText != null) {
+			missingText.visible = false;
+			missingTextBG.visible = false;
+		}
 	}
 }

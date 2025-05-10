@@ -46,12 +46,16 @@ class FFMpeg {
 
     public function setup(testMode:Bool = false) {
         if (!FileSystem.exists('ffmpeg.exe')) {
-            trace("\"FFmpeg.exe\" not found, turning on preview mode...");
-            ClientPrefs.data.previewRender = true;
+            if (testMode) {
+                throw "not found ffmpeg";
+            } else {
+                trace('"FFmpeg.exe" not found, turning on preview mode...');
+                ClientPrefs.data.previewRender = true;
 
-            FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
-            wentPreview = true;
-            return;
+                FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+                wentPreview = true;
+                return;
+            }
         }
         var curCodec:String = ClientPrefs.data.codec;
 
@@ -75,10 +79,12 @@ class FFMpeg {
         ];
         switch (ClientPrefs.data.encodeMode) {
             case "CRF/CQP":
+                arguments.push('-b:v');
+                arguments.push('0');
                 arguments.push(isGPU ? '-qp' : '-crf');
                 arguments.push(Std.string(ClientPrefs.data.constantQuality));
             case 'VBR', 'CBR':
-                arguments.push('-b');
+                arguments.push('-b:v');
                 arguments.push(Std.string(ClientPrefs.data.bitrate * 1_000_000));
                 if (ClientPrefs.data.encodeMode == 'CBR') {
                     arguments.push('-maxrate');
