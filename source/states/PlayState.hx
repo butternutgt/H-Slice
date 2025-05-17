@@ -2367,6 +2367,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			botplayTxt.alpha = 1 - Math.sin(Math.PI * botplaySine / 180);
 			botplaySineCnt = Math.floor((botplaySine + 270) / 360);
 			
+			#if desktop
 			if (ffmpegMode) {
 				if (video.wentPreview == null) {
 					botplayTxt.text = botplaySineCnt % 2 == 0 ? "RENDERED" : "BY H-SLICE";
@@ -2375,6 +2376,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					botplayTxt.text = botplaySineCnt % 2 == 0 ? "Rendering was\ncancelled by" : video.wentPreview;
 				}
 			}
+			#end
 		}
 
 		if (controls.PAUSE #if android || FlxG.android.justReleased.BACK #end && startedCountdown && canPause)
