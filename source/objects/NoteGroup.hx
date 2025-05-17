@@ -67,7 +67,7 @@ class NoteGroup extends FlxTypedGroup<Note>
         if (a.distance != b.distance) 
             return FlxMath.signOf(reverse ? b.distance - a.distance : a.distance - b.distance);
         else if (a.isSustainNote != b.isSustainNote) {
-            return a.isSustainNote ? -1 : 1;
+            return a.isSustainNote ? 1 : -1;
         } else return 0;
     }
 

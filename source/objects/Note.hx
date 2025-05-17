@@ -148,7 +148,6 @@ class Note extends FlxSprite
 
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
-	public var offsetAngle:Float = 0;
 	public var multAlpha:Float = 1;
 	// public var multSpeed(default, set):Float = 1;
 
@@ -520,8 +519,9 @@ class Note extends FlxSprite
 		if (!strum.downScroll) distance *= -1;
 		
 		angleDir = strum.direction * Math.PI / 180;
-		if (copyAngle)
-			angle = strum.direction - 90 + strum.angle + offsetAngle;
+		if (copyAngle) {
+			angle = isSustainNote ? strum.direction - 90 : strum.angle;
+		}
 
 		if (copyAlpha)
 			alpha = strum.alpha * multAlpha;
@@ -545,13 +545,13 @@ class Note extends FlxSprite
 
 	var clipCenter:Float;
 	var swagRect:FlxRect;
+
 	public function clipToStrumNote()
 	{
 		clipCenter = strum.y + offsetY + Note.swagWidth / 2;
 		if((mustPress || !ignoreNote) && (wasGoodHit || hitByOpponent || (prevNote.wasGoodHit && !canBeHit)))
 		{
-			swagRect = clipRect;
-			if(swagRect == null) swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
+			swagRect = clipRect ?? new FlxRect(0, 0, frameWidth, frameHeight);
 
 			if (strum.downScroll)
 			{
@@ -631,7 +631,7 @@ class Note extends FlxSprite
 		// this.parent = parent;
 		// if (this.parent != null) parent.tail = [];
 
-		copyAngle = !isSustainNote;
+		// copyAngle = !isSustainNote;
 
 		// Juuuust in case we recycle a sustain note to a regular note
 		if (PlayState.isPixelStage || !isSustainNote){

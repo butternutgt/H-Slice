@@ -446,8 +446,6 @@ class PlayState extends MusicBeatState
 		practiceMode = ClientPrefs.getGameplaySetting('practice');
 		cpuControlled = ClientPrefs.getGameplaySetting('botplay') || ffmpegMode;
 
-		ClientPrefs.data.guitarHeroSustains = false;
-
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = initPsychCamera();
 		camHUD = new FlxCamera();
@@ -1589,10 +1587,13 @@ class PlayState extends MusicBeatState
 			if (bfVocal) vocals.pause();
 			if (opVocal) opponentVocals.pause();
 
+			var mute:Bool = ffmpegMode || time > 0;
+
 			FlxG.sound.music.time = time - Conductor.offset;
 			#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
 			FlxG.sound.music.play();
-			FlxG.sound.music.volume = ffmpegMode ? 0 : ClientPrefs.data.bgmVolume;
+			FlxG.sound.music.volume = mute ? 0 : ClientPrefs.data.bgmVolume;
+			FlxG.sound.music.onComplete = finishSong.bind();
 
 			if (bfVocal) {
 				if (Conductor.songPosition < vocals.length)
@@ -1600,7 +1601,7 @@ class PlayState extends MusicBeatState
 					vocals.time = time - Conductor.offset;
 					#if FLX_PITCH vocals.pitch = playbackRate; #end
 					vocals.play();
-					vocals.volume = ffmpegMode ? 0 : ClientPrefs.data.bgmVolume;
+					vocals.volume = mute ? 0 : ClientPrefs.data.bgmVolume;
 				}
 				else vocals.pause();
 			}
@@ -1611,7 +1612,7 @@ class PlayState extends MusicBeatState
 					opponentVocals.time = time - Conductor.offset;
 					#if FLX_PITCH opponentVocals.pitch = playbackRate; #end
 					opponentVocals.play();
-					opponentVocals.volume = ffmpegMode ? 0 : ClientPrefs.data.bgmVolume;
+					opponentVocals.volume = mute ? 0 : ClientPrefs.data.bgmVolume;
 				}
 				else opponentVocals.pause();
 			}
@@ -2197,22 +2198,23 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		desyncCount++;
 		#if debug trace('resynced vocals at ' + Math.floor(Conductor.songPosition)); #end
 
-		if (startOnTime <= 0) {
-			FlxG.sound.music.play();
-			#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
-			Conductor.songPosition = FlxG.sound.music.time + Conductor.offset;
+		FlxG.sound.music.play();
+		if (!ffmpegMode && FlxG.sound.music.volume == 0) {
+			FlxG.sound.music.volume = ClientPrefs.data.bgmVolume;
+		}
+		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
+		Conductor.songPosition = FlxG.sound.music.time + Conductor.offset;
 
-			var checkVocals = [vocals, opponentVocals];
-			for (voc in checkVocals)
+		var checkVocals = [vocals, opponentVocals];
+		for (voc in checkVocals)
+		{
+			if (voc == null) continue;
+			if (FlxG.sound.music.time < voc.length)
 			{
-				if (voc == null) continue;
-				if (FlxG.sound.music.time < voc.length)
-				{
-					voc.time = FlxG.sound.music.time;
-					#if FLX_PITCH voc.pitch = playbackRate; #end
-					voc.play();
-				} else voc.pause();
-			}
+				voc.time = FlxG.sound.music.time;
+				#if FLX_PITCH voc.pitch = playbackRate; #end
+				voc.play();
+			} else voc.pause();
 		}
 	}
 
@@ -2924,7 +2926,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						callOnHScript('onSpawnNote', [dunceNote]);
 					}
 
-					if (processFirst && dunceNote.strum != null) {
+					if (processFirst) {
 						if (dunceNote.visible) {
 							dunceNote.followStrumNote(songSpeed, dist[availNoteData]);
 							if (canBeHit && dunceNote.isSustainNote && dunceNote.strum.sustainReduce) {
@@ -2932,7 +2934,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							}
 							++shownCnt;
 						}
-					}
+					} else ++shownCnt;
 					++limitCount;
 				} else {
 					// Skip notes without spawning
@@ -4825,9 +4827,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					char.holdTimer = 0;
 				}
 			}
+			if (!ffmpegMode && (opVocal || !opVocal && bfVocal)) opponentVocals.volume = ClientPrefs.data.bgmVolume;
 		}
 
-		if (!ffmpegMode && opVocal) opponentVocals.volume = ClientPrefs.data.bgmVolume;
 		strumPlayAnim(true, note.noteData, note.isSustainNote && !note.isSustainEnds);
 		if (healthDrain) {
 			health = practiceMode ? health - note.hitHealth * healthLoss : Math.max(0.2e-320, health * 0.99);
@@ -4893,53 +4895,55 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		if (!note.hitCausesMiss) // Common notes
 		{
-			if (!bfHit && !note.noAnimation)
+			if (!bfHit)
 			{
-				animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, note.noteData)))] + note.animSuffix;
+				if (!note.noAnimation) {
+					animToPlay = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, note.noteData)))] + note.animSuffix;
 
-				char = boyfriend;
-				animCheck = 'hey';
-				if (note.gfNote)
-				{
-					char = gf;
-					animCheck = 'cheer';
-				}
-
-				if (char != null)
-				{
-					canPlay = !note.isSustainNote || sustainAnim;
-					if (note.isSustainNote)
+					char = boyfriend;
+					animCheck = 'hey';
+					if (note.gfNote)
 					{
-						holdAnim = animToPlay + '-hold';
-						if (char.animation.exists(holdAnim))
-							animToPlay = holdAnim;
-						if (char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop')
-							canPlay = false;
+						char = gf;
+						animCheck = 'cheer';
 					}
 
-					if (canPlay) {
-						char.playAnim(animToPlay, true);
-					}
-					char.holdTimer = 0;
-
-					if (note.noteType == 'Hey!')
+					if (char != null)
 					{
-						if (char.hasAnimation(animCheck))
+						canPlay = !note.isSustainNote || sustainAnim;
+						if (note.isSustainNote)
 						{
-							char.playAnim(animCheck, true);
-							char.specialAnim = true;
-							char.heyTimer = 0.6;
+							holdAnim = animToPlay + '-hold';
+							if (char.animation.exists(holdAnim))
+								animToPlay = holdAnim;
+							if (char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop')
+								canPlay = false;
+						}
+
+						if (canPlay) {
+							char.playAnim(animToPlay, true);
+						}
+						char.holdTimer = 0;
+
+						if (note.noteType == 'Hey!')
+						{
+							if (char.hasAnimation(animCheck))
+							{
+								char.playAnim(animCheck, true);
+								char.specialAnim = true;
+								char.heyTimer = 0.6;
+							}
 						}
 					}
 				}
+
+				if (!ffmpegMode) vocals.volume = ClientPrefs.data.bgmVolume;
 			}
 
 			if (!cpuControlled)
 			{
 				playerStrums.members[note.noteData].playAnim('confirm', true);
 			} else strumPlayAnim(false, note.noteData, note.isSustainNote && !note.isSustainEnds);
-
-			if (!ffmpegMode && bfVocal) vocals.volume = ClientPrefs.data.bgmVolume;
 
 			if (!note.isSustainNote)
 			{
@@ -4950,9 +4954,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			}
 
 			bfHit = true;
-
-			// if (!guitarHeroSustains || !note.isSustainNote)
-				health += note.hitHealth * healthGain;
+			health += note.hitHealth * healthGain;
 		}
 		else // Notes that count as a miss if you hit them (Hurt notes for example)
 		{

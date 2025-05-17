@@ -3,7 +3,6 @@ color 0a
 cd ..
 echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
-haxelib install lime 8.2.2 --quiet
 haxelib install openfl 9.4.1 --quiet
 haxelib install flixel-addons 3.3.2 --quiet
 haxelib install flixel-tools 1.5.1 --quiet
@@ -13,6 +12,10 @@ haxelib install hxdiscord_rpc 1.2.4 --quiet
 haxelib install hxvlc 1.8.2 --quiet
 haxelib install flixel 6.0.0 --quiet
 haxelib set flixel 6.0.0
+
+haxelib git hxcpp https://github.com/Psych-Slice/hxcpp-mobile.git  --quiet
+haxelib git lime https://github.com/Psych-Slice/lime-mobile.git --quiet 608f3f7196b2b58df19afff4aedec5bdda107301
+
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3 --quiet
 haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7 --quiet
 haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cdc4632397ef3504d464e90 --quiet

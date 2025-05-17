@@ -19,50 +19,115 @@ import states.TitleState;
 	public var storageType:String = "EXTERNAL_DATA";
 	#end
 	public var hitboxType:String = "Gradient";
-	// public var popUpRating:Bool = true;
+
+	// Game Renderer Settings
+	public var ffmpegMode:Bool = false;
+	public var gcRate:Int = 0;
+	public var gcMain:Bool = false;
+	public var targetFPS:Float = 60;
+	public var unlockFPS:Bool = false;
+	public var lossless:Bool = false;
+	public var quality:Int = 80;
+	public var encodeMode:String = 'VBR';
+	public var bitrate:Float = 8.0;
+	public var constantQuality:Int = 20;
+	public var codec:String = 'H.264';
+	public var preshot:Bool = false;
+	public var previewRender:Bool = false;
+
+	// Optimize Settings
+	public var openDoor:String = "!";
+	public var showNotes:Bool = true;
+	public var showAfter:Bool = true;
+	public var keepNotes:Bool = false;
+	public var sortNotes:String = "After Note Finalized";
+	public var fastSort:Bool = true;
+	public var showRating:Bool = true;
+	public var showComboNum:Bool = true;
+	public var showCombo:Bool = false;
+	public var betterRecycle:Bool = true;
+	public var limitNotes:Int = 0;
+	public var cacheNotes:Int = 0;
+	public var hideOverlapped:Float = 0;
+	public var skipSpawnNote:Bool = true;
+	public var processFirst:Bool = true;
+	public var optimizeSpawnNote:Bool = true;
+	public var noteHitPreEvent:Bool = true;
+	public var noteHitEvent:Bool = true;
+	public var skipNoteEvent:Bool = true;
+	public var spawnNoteEvent:Bool = true;
+	public var disableGC:Bool = false;
+
+	// Graphic Settings
+	public var lowQuality:Bool = false;
+	public var antialiasing:Bool = true;
+	public var shaders:Bool = true;
+	public var noteShaders:Bool = true;
+	public var cacheOnGPU:Bool = #if !switch false #else true #end; //From Stilic
 	public var vsync:Bool = false;
-	public var vibrating:Bool = false;
+	public var framerate:Int = 60;
 
 	public var favSongIds:Array<String> = [];
 	public var lastFreeplayMod:String = '||bf';
 
-	public var downScroll:Bool = false;
-	public var middleScroll:Bool = false;
-	public var opponentStrums:Bool = true;
-	public var updateStepLimit:Int = 1;
-	public var ghostRange:Float = 0.01;
-	public var overHealth:Bool = false;
-	public var healthDrain:Bool = false;
-	public var drainAccurated:Bool = false;
+	// Visuals Settings
+	public var noteSkin:String = 'Default';
+	public var splashSkin:String = 'Psych';
+	public var splashAlpha:Float = 0.6;
+	public var splashCount:Int = 2;
+	public var holdSkin:String = 'Vanilla';
+	public var holdSplashAlpha:Float = 0.6;
+	public var splashOpponent:Bool = false;
+	public var strumAnim:Bool = true;
+	public var holdAnim:Bool = true;
+	public var hideHud:Bool = false;
+	public var numberFormat:Bool = false;
+	public var showInfoType:String = "None";
+	public var timeBarType:String = 'Time Left';
+	public var flashing:Bool = true;
+	public var camZooms:Bool = true;
+	public var scoreZoom:Bool = true;
+	public var healthBarAlpha:Float = 1;
+	public var iconBopType:String = 'Default';
+	public var iconStrength:Bool = false;
 	public var showFPS:Bool = true;
 	public var showMemory:Bool = true;
 	public var showPeakMemory:Bool = true;
 	public var showOS:Bool = true;
 	public var fpsRate:Int = 60;
+	public var pauseMusic:String = 'Tea Time';
+	public var discordRPC:Bool = true;
 	public var timePrec:Int = 0;
-	public var flashing:Bool = true;
-	public var autoPause:Bool = true;
-	public var antialiasing:Bool = true;
-	public var noteSkin:String = 'Default';
-	public var splashSkin:String = 'Psych';
-	public var holdSkin:String = 'Vanilla';
-	public var splashAlpha:Float = 0.6;
-	public var splashCount:Int = 2;
-	public var splashOpponent:Bool = false;
-	public var strumAnim:Bool = true;
-	public var holdAnim:Bool = true;
-	public var holdSplashAlpha:Float = 0.6;
-	public var lowQuality:Bool = false;
-	public var shaders:Bool = true;
-	public var noteShaders:Bool = true;
-	public var cacheOnGPU:Bool = #if !switch false #else true #end; //From Stilic
-	public var framerate:Int = 60;
-	
-	public var camZooms:Bool = true;
-	public var hideHud:Bool = false;
-	public var numberFormat:Bool = false;
-	public var showInfoType:String = "None";
+	public var comboStacking:Bool = true;
+	public var changeNotes:Bool = false;
 
+	// Gameplay Settings
+	public var downScroll:Bool = false;
+	public var middleScroll:Bool = false;
+	public var opponentStrums:Bool = true;
+	public var overHealth:Bool = false;
+	public var healthDrain:Bool = false;
+	public var drainAccurated:Bool = false;
+	public var updateStepLimit:Int = 1;
+	public var ghostTapping:Bool = true;
+	public var skipGhostNotes:Bool = false;
+	public var ghostRange:Float = 0.01;
+	public var autoPause:Bool = true;
+	public var checkForUpdates:Bool = true;
+	public var noReset:Bool = false;
+	public var nanoPosition:Bool = false;
+	public var bgmVolume:Float = 1;
+	public var sfxVolume:Float = 1;
+	public var hitsoundVolume:Float = 0;
+	public var vibrating:Bool = false;
+	public var ratingOffset:Int = 0;
+	public var sickWindow:Int = 45;
+	public var goodWindow:Int = 90;
+	public var badWindow:Int = 135;
+	public var safeFrames:Float = 10;
+	public var f11Shortcut:Bool = false;
+
+	// V-Slice Settings
 	public var vsliceFreeplay:Bool = true;
 	public var vsliceFreeplayColors:Bool = true;
 	public var vsliceResults:Bool = true;
@@ -74,7 +139,7 @@ import states.TitleState;
 	public var vsliceBotPlayPlace:String = "Time Bar";
 	public var vsliceForceNewTag:Bool = false;
 
-	public var nanoPosition:Bool = false;
+	// Miscellaneous Settings
 	public var noteOffset:Int = 0;
 	public var arrowRGB:Array<Array<FlxColor>> = [
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
@@ -87,20 +152,6 @@ import states.TitleState;
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
 
-	public var ghostTapping:Bool = true;
-	public var skipGhostNotes:Bool = false;
-	public var timeBarType:String = 'Time Left';
-	public var scoreZoom:Bool = true;
-	public var noReset:Bool = false;
-	public var iconBopType:String = 'Default';
-	public var iconStrength:Bool = false;
-	public var healthBarAlpha:Float = 1;
-	public var bgmVolume:Float = 1;
-	public var sfxVolume:Float = 1;
-	public var hitsoundVolume:Float = 0;
-	public var pauseMusic:String = 'Tea Time';
-	public var checkForUpdates:Bool = true;
-	public var comboStacking:Bool = true;
 	public var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -125,56 +176,10 @@ import states.TitleState;
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0, 0, 0];
-	public var ratingOffset:Int = 0;
-	public var sickWindow:Int = 45;
-	public var goodWindow:Int = 90;
-	public var badWindow:Int = 135;
-	public var safeFrames:Float = 10;
-	public var guitarHeroSustains:Bool = true;
-	public var discordRPC:Bool = true;
+	// public var guitarHeroSustains:Bool = true; // TODO: Should be removed in next major update
 	public var loadingScreen:Bool = true;
 	public var language:String = 'en-US';
-	public var changeNotes:Bool = false;
-	public var f11Shortcut:Bool = false;
 	public var neverShowUpdate:Bool = false;
-
-	// Optimization
-	public var openDoor:String = "!";
-	public var showNotes:Bool = true;
-	public var showAfter:Bool = true;
-	public var keepNotes:Bool = false;
-	public var sortNotes:String = "After Note Finalized";
-	public var fastSort:Bool = true;
-	public var showRating:Bool = true;
-	public var showComboNum:Bool = true;
-	public var showCombo:Bool = false;
-	public var betterRecycle:Bool = true;
-	public var limitNotes:Int = 0;
-	public var cacheNotes:Int = 0;
-	public var hideOverlapped:Float = 0;
-	public var skipSpawnNote:Bool = true;
-	public var processFirst:Bool = true;
-	public var optimizeSpawnNote:Bool = true;
-	public var noteHitPreEvent:Bool = true;
-	public var noteHitEvent:Bool = true;
-	public var skipNoteEvent:Bool = true;
-	public var spawnNoteEvent:Bool = true;
-	public var disableGC:Bool = false;
-
-	// Video Renderer
-	public var ffmpegMode:Bool = false;
-	public var gcRate:Int = 0;
-	public var gcMain:Bool = false;
-	public var targetFPS:Float = 60;
-	public var unlockFPS:Bool = false;
-	public var lossless:Bool = false;
-	public var quality:Int = 80;
-	public var encodeMode:String = 'VBR';
-	public var bitrate:Float = 8.0;
-	public var constantQuality:Int = 20;
-	public var codec:String = 'H.264';
-	public var preshot:Bool = false;
-	public var previewRender:Bool = false;
 
 	public var dummy:Bool = false;
 }
