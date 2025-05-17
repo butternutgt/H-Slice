@@ -119,7 +119,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			FileSystem.deleteFile(file);
 		File.saveContent(file, Std.string(ClientPrefs.data.vsync));
 		#else
-		FlxG.stage.application.window.setVSync(syncOption.getValue());
+		FlxG.stage.application.window.vsync = syncOption.getValue();
 		#end
 	}
 	#end
