@@ -2296,20 +2296,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 	override public function update(elapsed:Float)
 	{
-		#if desktop
 		// Pre Render Image
-		if (ffmpegMode && preshot && !previewRender)
-		{
-			video.pipeFrame();
-
-			if (gcRate != 0 && frameCount % gcRate == 0) {
-				if (ClientPrefs.data.disableGC) MemoryUtil.enable();
-				MemoryUtil.collect(gcMain);
-				if (gcMain) MemoryUtil.compact();
-				if (ClientPrefs.data.disableGC) MemoryUtil.disable();
-			}
-		}
-		#end
+		if (preshot) renderFrame();
 		
 		daHit = bfHit = showAgain = false; canAnim.fill(true);
 		if (popUpHitNote != null) popUpHitNote = null;
@@ -2380,7 +2368,12 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			botplaySineCnt = Math.floor((botplaySine + 270) / 360);
 			
 			if (ffmpegMode) {
-				botplayTxt.text = botplaySineCnt % 2 == 0 ? "RENDERED" : "BY H-SLICE";
+				if (video.wentPreview == null) {
+					botplayTxt.text = botplaySineCnt % 2 == 0 ? "RENDERED" : "BY H-SLICE";
+				} else {
+					botplayTxt.size = Math.round(botplayTxt.size * 0.8);
+					botplayTxt.text = botplaySineCnt % 2 == 0 ? "Rendering was\ncancelled by" : video.wentPreview;
+				}
 			}
 		}
 
@@ -2770,11 +2763,22 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 		#end
 
-		#if desktop
 		// Post Render Image
-		if (ffmpegMode && !preshot && !previewRender)
+		if (!preshot) renderFrame();
+		
+		++frameCount;
+	}
+
+	function renderFrame() {
+		#if desktop
+		if (ffmpegMode && !previewRender)
 		{
-			video.pipeFrame();
+			try {
+				video.pipeFrame();
+			} catch (e) {
+				video.wentPreview = '${e.message}\nException';
+				previewRender = true;
+			}
 
 			if (gcRate != 0 && frameCount % gcRate == 0) {
 				if (ClientPrefs.data.disableGC) MemoryUtil.enable();
@@ -2784,7 +2788,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			}
 		}
 		#end
-		++frameCount;
 	}
 
 	// Health icon updaters
@@ -5154,7 +5157,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			
 			ClientPrefs.data.noteOffset = backupOffset;
 
-			if (video.wentPreview) ClientPrefs.data.previewRender = false;
+			if (video.wentPreview != null) ClientPrefs.data.previewRender = false;
 		}
 		#end
 

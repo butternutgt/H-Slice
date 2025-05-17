@@ -1,3 +1,5 @@
+// Original code from Psych-Slice/lime-mobile/src/lime/_internal/backend/native/NativeWindow.hx
+
 package lime._internal.backend.native;
 
 import haxe.io.Bytes;
@@ -100,9 +102,14 @@ class NativeWindow
 		if (contextAttributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
 		if (contextAttributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
 		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
-        var file:String = lime.system.System.applicationStorageDirectory + "vsync.txt";
+
+		#if linux
+		var file:String = lime.system.System.applicationStorageDirectory + "vsync.txt";
         var vsyncOption:Bool = sys.FileSystem.exists(file) ? sys.io.File.getContent(file).toLowerCase() == "true" : false;
 		if (contextAttributes.vsync || vsyncOption) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		#else
+		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		#end
 
 		var width = Reflect.hasField(attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
 		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
@@ -137,6 +144,7 @@ class NativeWindow
 				var gl = new NativeOpenGLRenderContext();
 
 				useHardware = true;
+				contextAttributes.hardware = true;
 
 				#if lime_opengl
 				context.gl = gl;
@@ -160,6 +168,7 @@ class NativeWindow
 
 			default:
 				useHardware = false;
+				contextAttributes.hardware = false;
 
 				#if lime_cairo
 				context.cairo = cairo;
@@ -712,7 +721,19 @@ class NativeWindow
 
 		return value;
 	}
-	
+
+	public function setVSync(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_set_vsync(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
 	public function warpMouse(x:Int, y:Int):Void
 	{
 		#if (!macro && lime_cffi)

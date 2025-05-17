@@ -227,6 +227,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 		video.target = "render_test";
 		video.init();
 
+		var cnt:Int = 0;
 		var maxLength:Int = 0;
 		var space:String;
 
@@ -237,6 +238,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 		for (codec in codecList) {
 			space = "";
 			ClientPrefs.data.codec = codec;
+			trace(codec);
 			try {
 				video.setup(true);
 				video.pipeFrame();
@@ -249,6 +251,8 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 					noFFMpeg = true; break;
 				}
 			}
+
+			if (result) ++cnt;
 
 			for (i in 0...(maxLength - codec.length)) {
 				space += " ";
@@ -263,6 +267,10 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 			missingText.visible = true;
 			missingTextBG.visible = true;
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+		} else {
+			Sys.println('Test simple result: $cnt/$maxLength codecs passed.');
+			if (cnt != maxLength) 
+				Sys.println('Check avail_codecs.txt for details.');
 		}
 
 		// CoolUtil.deleteDirectoryWithFiles(video.target);

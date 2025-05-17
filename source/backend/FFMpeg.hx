@@ -3,6 +3,7 @@ package backend;
 
 import lime.math.Rectangle;
 import haxe.io.Bytes;
+import haxe.ds.Vector;
 import lime.app.Application;
 import lime.graphics.Image;
 import flixel.FlxG;
@@ -13,17 +14,19 @@ import options.GameRendererSettingsSubState;
 class FFMpeg {
     var x:Int;
     var y:Int;
+    var w:Int;
+    var h:Int;
     var width:Int;
     var height:Int;
     var image:Image;
     var bytes:Bytes;
     var window:Window = null;
-    var frameBuffer:Rectangle;
+    var buffer:Vector<Rectangle> = new Vector(2, null);
 
     public var target = "render_video";
     public var fileName = '';
     public var fileExts = '.mp4';
-    public var wentPreview:Bool = false;
+    public var wentPreview:String = null;
     public var process:Process;
 
     public static var instance:FFMpeg;
@@ -40,20 +43,22 @@ class FFMpeg {
 
         window = Application.current.window;
 
-        x = window.width;
-        y = window.height;
+        x = Std.int(FlxG.scaleMode.offset.x);
+        y = Std.int(FlxG.scaleMode.offset.y);
+        w = Std.int(FlxG.scaleMode.gameSize.x);
+        h = Std.int(FlxG.scaleMode.gameSize.y);
     }
 
     public function setup(testMode:Bool = false) {
-        if (!FileSystem.exists('ffmpeg.exe')) {
+        if (!FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end)) {
             if (testMode) {
                 throw "not found ffmpeg";
             } else {
-                trace('"FFmpeg.exe" not found, turning on preview mode...');
+                trace('"ffmpeg.exe" not found, turning on preview mode...');
                 ClientPrefs.data.previewRender = true;
 
                 FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
-                wentPreview = true;
+                wentPreview = #if linux 'ffmpeg' #else 'ffmpeg.exe' #end + " was not found";
                 return;
             }
         }
@@ -95,28 +100,27 @@ class FFMpeg {
         }
         arguments.push(fileName + fileExts);
         
-        if (!ClientPrefs.data.previewRender) trace("running " + arguments);
+        if (!ClientPrefs.data.previewRender && !testMode) trace("running " + arguments);
         process = new Process('ffmpeg', arguments);
 
-        frameBuffer = new Rectangle(0, 0, x, y);
+        buffer[0] = new Rectangle(x, y, w, h);
+        buffer[1] = new Rectangle(0, 0, w, h);
         FlxG.autoPause = false;
-    }
-
-    function getScreen() {
-        image = window.readPixels();
-
-        x = image.width;
-        y = image.height;
-
-        if(x != frameBuffer.width || y != frameBuffer.height)
-            frameBuffer.setTo(0, 0, x, y);
     }
 
     public function pipeFrame():Void
     {
-        getScreen();
+        var frameBuffer = buffer[1];
+        image = window.readPixels(buffer[0]);
+
+        w = image.width;
+        h = image.height;
+
+        if(w != frameBuffer.width || h != frameBuffer.height)
+            frameBuffer.setTo(0, 0, w, h);
+
         bytes = image.getPixels(frameBuffer);
-        process.stdin.write(bytes);
+        process.stdin.writeBytes(bytes, 0, bytes.length);
     }
 
     public function destroy():Void
