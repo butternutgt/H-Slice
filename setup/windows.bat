@@ -12,6 +12,8 @@ haxelib install hscript-iris 1.1.3
 haxelib install tjson 1.4.0
 haxelib install hxdiscord_rpc 1.2.4 --skip-dependencies
 haxelib install hxvlc 1.8.2 --skip-dependencies
+haxelib install format
+haxelib install hxp
 
 haxelib install hxcpp 4.3.2
 haxelib git lime https://github.com/HRK-EXEX/h-slice-lime.git
