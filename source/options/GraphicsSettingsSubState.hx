@@ -56,7 +56,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 		#if sys
 		var option:Option = new Option('VSync',
-			'If checked, it enables VSync, fixing any screen tearing\nat the cost of capping the FPS to screen refresh rate.' #if linux + '\n(Restart required)' #end,
+			'If checked, it enables VSync, fixing any screen tearing\nat the cost of capping the FPS to screen refresh rate.',
 			'vsync',
 			BOOL);
 		option.onChange = onChangeVSync;
@@ -113,14 +113,14 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 	#if sys
 	function onChangeVSync()
 	{
-		#if linux
+		// #if linux
 		var file:String = StorageUtil.rootDir + "vsync.txt";
 		if(FileSystem.exists(file))
 			FileSystem.deleteFile(file);
 		File.saveContent(file, Std.string(ClientPrefs.data.vsync));
-		#else
+		// #else
 		FlxG.stage.application.window.vsync = syncOption.getValue();
-		#end
+		// #end
 	}
 	#end
 

@@ -8,21 +8,21 @@ mkdir ~/haxelib && haxelib setup ~/haxelib
 echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
 
-haxelib install openfl 9.4.1 --quiet --skip-dependencies
-haxelib install flixel 6.0.0 --quiet --skip-dependencies
-haxelib install flixel-addons 3.3.2 --quiet --skip-dependencies
-haxelib install flixel-tools 1.5.1 --quiet --skip-dependencies
-haxelib install hscript-iris 1.1.3 --quiet
-haxelib install tjson 1.4.0 --quiet
-haxelib install hxdiscord_rpc 1.2.4 --quiet
+haxelib install openfl 9.4.1 --skip-dependencies
+haxelib install flixel 6.0.0 --skip-dependencies
+haxelib install flixel-addons 3.3.2 --skip-dependencies
+haxelib install flixel-tools 1.5.1 --skip-dependencies
+haxelib install hscript-iris 1.1.3
+haxelib install tjson 1.4.0
+haxelib install hxdiscord_rpc 1.2.4 --skip-dependencies
 
-haxelib git hxcpp https://github.com/Psych-Slice/hxcpp-mobile.git  --quiet
-haxelib git lime https://github.com/Psych-Slice/lime-mobile.git --quiet 608f3f7196b2b58df19afff4aedec5bdda107301
+haxelib install hxcpp 4.3.2
+haxelib git lime https://github.com/HRK-EXEX/h-slice-lime.git 608f3f7196b2b58df19afff4aedec5bdda107301
 
-haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3 --quiet
-haxelib git hxCodec https://github.com/polybiusproxy/hxCodec.git 0a51aed0d9523d22a83e453ce7b593ec7fed4742 --quiet
-haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7 --quiet
-haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cdc4632397ef3504d464e90 --quiet
-haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2e374924fe74844086aab7891666 --quiet
-haxelib git FlxPartialSound https://github.com/FunkinCrew/FlxPartialSound.git f986332ba5ab02abd386ce662578baf04904604a --quiet
+haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3
+haxelib git hxCodec https://github.com/polybiusproxy/hxCodec.git 0a51aed0d9523d22a83e453ce7b593ec7fed4742
+haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7
+haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cdc4632397ef3504d464e90
+haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2e374924fe74844086aab7891666
+haxelib git FlxPartialSound https://github.com/FunkinCrew/FlxPartialSound.git f986332ba5ab02abd386ce662578baf04904604a
 echo Finished!
