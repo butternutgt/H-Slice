@@ -17,7 +17,7 @@ haxelib install tjson 1.4.0
 haxelib install hxdiscord_rpc 1.2.4 --skip-dependencies
 
 haxelib install hxcpp 4.3.2
-haxelib git lime https://github.com/HRK-EXEX/h-slice-lime.git 608f3f7196b2b58df19afff4aedec5bdda107301
+haxelib git lime https://github.com/HRK-EXEX/h-slice-lime.git
 
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3
 haxelib git hxCodec https://github.com/polybiusproxy/hxCodec.git 0a51aed0d9523d22a83e453ce7b593ec7fed4742

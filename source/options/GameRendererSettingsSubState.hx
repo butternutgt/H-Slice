@@ -1,5 +1,6 @@
 package options;
 
+import flixel.system.ui.FlxSoundTray;
 import backend.FFMpeg;
 import flixel.input.gamepad.FlxGamepad;
 
@@ -175,7 +176,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
         var option:Option = new Option('Test Rendering Each Encoders',
-			"Try to test which is encoder available!\ncheck it out the avail_codecs.txt if it's done.",
+			"Try to test which is encoder available!",
 			'dummy',
 			BOOL);
 		option.onChange = testRender;
@@ -223,6 +224,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 		var result:Bool = true;
 		var output:String = 'FPS: ${ClientPrefs.data.targetFPS}, Mode: ${ClientPrefs.data.encodeMode}\n';
 		var noFFMpeg:Bool = false;
+		var message:String = "";
 
 		video.target = "render_test";
 		video.init();
@@ -238,7 +240,7 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 		for (codec in codecList) {
 			space = "";
 			ClientPrefs.data.codec = codec;
-			trace(codec);
+			// trace(codec);
 			try {
 				video.setup(true);
 				video.pipeFrame();
@@ -247,34 +249,48 @@ class GameRendererSettingsSubState extends BaseOptionsMenu
 				result = FileSystem.stat(video.fileName + video.fileExts).size != 0;
 			} catch (e) {
 				result = false;
-				if (e.message == "not found ffmpeg") {
+				trace(e.message);
+				message = e.message;
+				if (message == "not found ffmpeg") {
 					noFFMpeg = true; break;
 				}
 			}
 
-			if (result) ++cnt;
+			if (result) {
+				++cnt;
+				FlxG.sound.play(Paths.sound('soundtray/Volup'), ClientPrefs.data.sfxVolume);
+			} else {
+				FlxG.sound.play(Paths.sound('soundtray/VolDown'), ClientPrefs.data.sfxVolume);
+			}
 
 			for (i in 0...(maxLength - codec.length)) {
 				space += " ";
 			}
 
-			output += 'Codec: ${ClientPrefs.data.codec},$space Result: ${result ? "PASS" : "fail"}\n';
+			output += 'Codec: ${ClientPrefs.data.codec},$space Result: ${result ? "PASS" : "fail"} $message\n';
 		}
+
+		output = output.substring(0, output.length - 1);
+
+		missingText.visible = true;
+		missingTextBG.visible = true;
 
 		if (noFFMpeg) {
 			missingText.text = "ERROR WHILE TESTING FFMPEG FEATURE:\nYou don't have 'FFMpeg.exe' in same Folder as H-Slice.";
-			missingText.screenCenter(Y);
-			missingText.visible = true;
-			missingTextBG.visible = true;
+			
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 		} else {
-			Sys.println('Test simple result: $cnt/$maxLength codecs passed.');
-			if (cnt != maxLength) 
-				Sys.println('Check avail_codecs.txt for details.');
+			missingText.text = 'Test simple result: $cnt/$maxLength codecs passed.\n\n' + output;
+			// Sys.println('Test simple result: $cnt/$maxLength codecs passed.');
+			// if (cnt != maxLength) 
+			// 	Sys.println('Check avail_codecs.txt for details.');
 		}
 
+		missingText.screenCenter(Y);
+
 		// CoolUtil.deleteDirectoryWithFiles(video.target);
-		File.saveContent("avail_codecs.txt", output);
+		// File.saveContent("avail_codecs.txt", output);
+		FlxG.sound.play(Paths.sound('soundtray/VolMAX'), ClientPrefs.data.sfxVolume);
 		ClientPrefs.data.codec = backupCodec;
 	}
 

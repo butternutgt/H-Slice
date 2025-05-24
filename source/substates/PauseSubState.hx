@@ -124,7 +124,7 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.antialiasing = ClientPrefs.data.antialiasing;
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "Difficulty: "+CoolUtil.FUL(Difficulty.getString()), 32);
+		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "Difficulty: " + CoolUtil.capitalize(Difficulty.getString()), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();

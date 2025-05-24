@@ -58,16 +58,6 @@ class CoolUtil
 		return daList != null ? listFromString(daList) : [];
 	}
 
-	/**
-	 * Return string with first character uppercase'd, rest lowercase'd
-	 * @param	str
-	 * @return
-	 */
-	 inline public static function FUL(str:String):String
-		{
-			return str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1).toLowerCase();
-		}
-
 	inline public static function colorFromString(color:String):FlxColor
 	{
 		var hideChars = ~/[\t\n\r]/;
@@ -285,7 +275,6 @@ class CoolUtil
 		return Math.round(value);
 	}
 
-
 	inline public static function customNumberDelimiter(value:Dynamic) {
 		if (ClientPrefs.data.numberFormat) {
 			var defined:String = null;
@@ -338,6 +327,22 @@ class CoolUtil
 			}
 		}
 		return cnt;
+	}
+
+	public static function searchFromStrings(target:String, strings:Array<String>):Bool {
+		var result = false;
+		for (s in strings) {
+			result = searchFromString(target, s);
+			if (result) return result;
+		}
+		return false;
+	}
+
+	public static function searchFromString(target:String, string:String):Bool {
+		for (i in 0...(target.length - string.length + 1)) {
+			if (target.substr(i, string.length) == string) return true;
+		}
+		return false;
 	}
 
 	public static function reverseString(str:String) {

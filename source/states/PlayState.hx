@@ -925,6 +925,8 @@ class PlayState extends MusicBeatState
 			}
 			keepNotes = true;
 
+			if (ClientPrefs.data.vsync) FlxG.stage.application.window.vsync = false;
+
 			video.init();
 			video.setup();
 			previewRender = ClientPrefs.data.previewRender;
@@ -2372,7 +2374,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				if (video.wentPreview == null) {
 					botplayTxt.text = botplaySineCnt % 2 == 0 ? "RENDERED" : "BY H-SLICE";
 				} else {
-					botplayTxt.size = Math.round(botplayTxt.size * 0.8);
 					botplayTxt.text = botplaySineCnt % 2 == 0 ? "Rendering was\ncancelled by" : video.wentPreview;
 				}
 			}
@@ -2778,8 +2779,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			try {
 				video.pipeFrame();
 			} catch (e) {
-				video.wentPreview = '${e.message}\nException';
+				video.wentPreview = e.message;
 				previewRender = true;
+				botplayTxt.size = Math.round(botplayTxt.size * 0.8);
 			}
 
 			if (gcRate != 0 && frameCount % gcRate == 0) {
@@ -5156,7 +5158,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				FlxG.updateFramerate = ClientPrefs.data.framerate;
 			}
 			if (!previewRender) video.destroy();
-			
+
+			FlxG.stage.application.window.vsync = ClientPrefs.data.vsync;
 			ClientPrefs.data.noteOffset = backupOffset;
 
 			if (video.wentPreview != null) ClientPrefs.data.previewRender = false;

@@ -14,14 +14,12 @@ import options.GameRendererSettingsSubState;
 class FFMpeg {
     var x:Int;
     var y:Int;
-    var w:Int;
-    var h:Int;
     var width:Int;
     var height:Int;
     var image:Image;
     var bytes:Bytes;
     var window:Window = null;
-    var buffer:Vector<Rectangle> = new Vector(2, null);
+    var buffer:Rectangle = null;
 
     public var target = "render_video";
     public var fileName = '';
@@ -41,16 +39,15 @@ class FFMpeg {
             }
         } else FileSystem.createDirectory(target);
 
-        window = Application.current.window;
+        window = FlxG.stage.application.window;
 
-        x = Std.int(FlxG.scaleMode.offset.x);
-        y = Std.int(FlxG.scaleMode.offset.y);
-        w = Std.int(FlxG.scaleMode.gameSize.x);
-        h = Std.int(FlxG.scaleMode.gameSize.y);
+        x = window.width;
+        y = window.height;
     }
 
     public function setup(testMode:Bool = false) {
-        if (!FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end)) {
+        var executable:String = #if windows 'ffmpeg.exe' #else 'ffmpeg' #end;
+        if (!FileSystem.exists(executable)) {
             if (testMode) {
                 throw "not found ffmpeg";
             } else {
@@ -58,14 +55,16 @@ class FFMpeg {
                 ClientPrefs.data.previewRender = true;
 
                 FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
-                wentPreview = #if linux 'ffmpeg' #else 'ffmpeg.exe' #end + " was not found";
+                wentPreview = executable + " was not found";
                 return;
             }
         }
         var curCodec:String = ClientPrefs.data.codec;
 
+        var isGPU:Bool = CoolUtil.searchFromStrings(curCodec, ['QSV', 'NVENC', 'AMF' ,'VAAPI']);
+        if (CoolUtil.searchFromString(curCodec, 'VP')) fileExts = ".webm";
+
         if (!testMode) {
-            FlxG.sound.play(Paths.sound('confirmMenu'), ClientPrefs.data.sfxVolume);
             fileName = target + '/' + Paths.formatToSongPath(testMode ? "test" : PlayState.SONG.song);
             if (FileSystem.exists(fileName + fileExts)) {
                 var millis = CoolUtil.fillNumber(Std.int(haxe.Timer.stamp() * 1000.0) % 1000, 3, 48);
@@ -74,12 +73,10 @@ class FFMpeg {
         } else {
             fileName = target + '/test-codec-' + curCodec;
         }
-        var isGPU:Bool = curCodec.contains('QSV') || curCodec.contains('NVENC') || curCodec.contains('AMF') || curCodec.contains('VAAPI');
-        if (curCodec.contains('VP')) fileExts = ".webm";
 
         var arguments:Array<String> = [
-            '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', x + 'x' + y,
-            '-r', Std.string(ClientPrefs.data.targetFPS), '-i', '-',
+            '-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba',
+            '-s', x + 'x' + y, '-r', Std.string(ClientPrefs.data.targetFPS), '-i', '-',
             '-c:v', GameRendererSettingsSubState.codecMap[curCodec]
         ];
         switch (ClientPrefs.data.encodeMode) {
@@ -103,28 +100,22 @@ class FFMpeg {
         if (!ClientPrefs.data.previewRender && !testMode) trace("running " + arguments);
         process = new Process('ffmpeg', arguments);
 
-        buffer[0] = new Rectangle(x, y, w, h);
-        buffer[1] = new Rectangle(0, 0, w, h);
+        buffer = new Rectangle(0, 0, x, y);
         FlxG.autoPause = false;
+        
+        // ready to render video
+        if (!testMode) FlxG.sound.play(Paths.sound('confirmMenu'), ClientPrefs.data.sfxVolume);
     }
 
     public function pipeFrame():Void
     {
-        var frameBuffer = buffer[1];
-        image = window.readPixels(buffer[0]);
-
-        w = image.width;
-        h = image.height;
-
-        if(w != frameBuffer.width || h != frameBuffer.height)
-            frameBuffer.setTo(0, 0, w, h);
-
-        bytes = image.getPixels(frameBuffer);
-        process.stdin.writeBytes(bytes, 0, bytes.length);
+        image = window.readPixels();
+        bytes = image.getPixels(buffer);
+        process.stdin.write(bytes);
     }
 
     public function destroy():Void
-    {        
+    {
         if (process != null){
             if (process.stdin != null)
                 process.stdin.close();
