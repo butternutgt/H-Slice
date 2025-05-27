@@ -54,6 +54,7 @@ import states.TitleState;
 	public var optimizeSpawnNote:Bool = true;
 	public var noteHitPreEvent:Bool = true;
 	public var noteHitEvent:Bool = true;
+	public var noteHitStage:Bool = true;
 	public var skipNoteEvent:Bool = true;
 	public var spawnNoteEvent:Bool = true;
 	public var disableGC:Bool = false;

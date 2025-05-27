@@ -147,6 +147,12 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+        var option:Option = new Option('noteHitEvent for stages',
+			"If unchecked, the game will not send any noteHitEvent on stage.\nNot recommended to disable this option for vanilla stages.",
+			'noteHitStage',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('noteHitEvents for Skipped Notes',
 			"If unchecked, the game will not send any hit event\non Lua/HScript for skipped notes. Improves performance.",
 			'skipNoteEvent',

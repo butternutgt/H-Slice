@@ -365,6 +365,7 @@ class PlayState extends MusicBeatState
 	var noteHitEvent:Bool = ClientPrefs.data.noteHitEvent;
 	var skipNoteEvent:Bool = ClientPrefs.data.skipNoteEvent;
 	var spawnNoteEvent:Bool = ClientPrefs.data.spawnNoteEvent;
+	var noteHitStage:Bool = ClientPrefs.data.noteHitStage;
 	var betterRecycle:Bool = ClientPrefs.data.betterRecycle;
 	var limitNotes:Int = ClientPrefs.data.limitNotes;
 	var hideOverlapped:Float = ClientPrefs.data.hideOverlapped;
@@ -4834,7 +4835,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					char.holdTimer = 0;
 				}
 			}
-			if (!ffmpegMode && (opVocal || !opVocal && bfVocal)) opponentVocals.volume = ClientPrefs.data.bgmVolume;
+			if (!ffmpegMode) {
+				if (opVocal) opponentVocals.volume = ClientPrefs.data.bgmVolume;
+				else if (bfVocal) vocals.volume = ClientPrefs.data.bgmVolume;
+			}
 		}
 
 		strumPlayAnim(true, note.noteData, note.isSustainNote && !note.isSustainEnds);
@@ -4843,7 +4847,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 		note.hitByOpponent = true;
 
-		stagesFunc(stage -> stage.goodNoteHit(note));
+		if (noteHitStage) {
+			stagesFunc(stage -> stage.opponentNoteHit(note));
+		}
 
 		if (noteHitEvent) {
 			result = callOnLuas('opponentNoteHit', [
@@ -4944,7 +4950,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 				}
 
-				if (!ffmpegMode) vocals.volume = ClientPrefs.data.bgmVolume;
+				if (!ffmpegMode && bfVocal) vocals.volume = ClientPrefs.data.bgmVolume;
 			}
 
 			if (!cpuControlled)
@@ -4987,7 +4993,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			if (enableSplash && !note.isSustainNote) spawnNoteSplashOnNote(note);
 		}
 
-		stagesFunc(stage -> stage.goodNoteHit(note));
+		if (noteHitStage) {
+			stagesFunc(stage -> stage.goodNoteHit(note));
+		}
 
 		if (noteHitEvent) {
 			result = callOnLuas('goodNoteHit', 
