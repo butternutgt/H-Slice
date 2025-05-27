@@ -3,22 +3,21 @@
 # REMINDER THAT YOU NEED HAXE INSTALLED PRIOR TO USING THIS
 # https://haxe.org/download
 cd ..
-echo Makking the main haxelib and setuping folder in same time..
-mkdir ~/haxelib && haxelib setup ~/haxelib
+echo Making the main haxelib and setuping folder in same time..
 echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
 
-haxelib install openfl 9.4.1 --skip-dependencies
-haxelib install flixel 6.0.0 --skip-dependencies
-haxelib install flixel-addons 3.3.2 --skip-dependencies
-haxelib install flixel-tools 1.5.1 --skip-dependencies
-haxelib install hscript-iris 1.1.3
-haxelib install tjson 1.4.0
-haxelib install hxdiscord_rpc 1.2.4 --skip-dependencies
-haxelib install format
-haxelib install hxp
+haxelib install openfl 9.4.1 --quiet --skip-dependencies
+haxelib install flixel 6.0.0 --quiet --skip-dependencies
+haxelib install flixel-addons 3.3.2 --quiet --skip-dependencies
+haxelib install flixel-tools 1.5.1 --quiet --skip-dependencies
+haxelib install hscript-iris 1.1.3 --quiet
+haxelib install tjson 1.4.0 --quiet
+haxelib install hxdiscord_rpc 1.2.4 --quiet --skip-dependencies
+haxelib install format --quiet
+haxelib install hxp --quiet
 
-haxelib install hxcpp 4.3.2
+haxelib install hxcpp 4.3.2 --quiet
 haxelib git lime https://github.com/HRK-EXEX/h-slice-lime.git
 
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3

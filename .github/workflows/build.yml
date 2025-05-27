@@ -43,6 +43,10 @@ jobs:
         if: inputs.name == 'Linux'
         run: sudo apt install libvlc-dev libvlccore-dev
 
+      - name: Install Libraries for Building Lime on Linux
+        if: inputs.name == 'Linux'
+        run: sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev
+
       - name: Install Libraries
         run: ${{ inputs.setupScript }}
 
