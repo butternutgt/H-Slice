@@ -12,11 +12,9 @@ haxelib install hscript-iris 1.1.3 --quiet
 haxelib install tjson 1.4.0 --quiet
 haxelib install hxdiscord_rpc 1.2.4 --quiet --skip-dependencies
 haxelib install hxvlc 1.8.2 --quiet --skip-dependencies
-haxelib install format --quiet
-haxelib install hxp --quiet
 
 haxelib install hxcpp 4.3.2 --quiet
-haxelib git lime https://github.com/HRK-EXEX/h-slice-lime.git
+haxelib git lime https://github.com/HRK-EXEX/h-slice-lime-stable.git
 
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3
 haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7
