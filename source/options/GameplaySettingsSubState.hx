@@ -48,12 +48,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Health Drain - Accurate',
-			'If checked, health drain will work for skipped notes,\nbut it will take high CPU loads.',
-			'drainAccurated',
-			BOOL);
-		addOption(option);
-
 		var option:Option = new Option('Update Count of stepHit',
 			'In this setting, you can set the stepHit to be accurate up to ${
 				ClientPrefs.data.updateStepLimit != 0 ?

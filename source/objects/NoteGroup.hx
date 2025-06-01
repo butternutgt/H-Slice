@@ -19,7 +19,7 @@ class NoteGroup extends FlxTypedGroup<Note>
         pool.push(n);
     }
 
-    public function spawnNote(castNote:CastNote, ?oldNote:Note) {
+    public function spawnNote(castNote:CastNote) {
         if (pool.length > 0) {
             _ecyc_e = pool.pop();
             _ecyc_e.exists = true;
@@ -29,7 +29,7 @@ class NoteGroup extends FlxTypedGroup<Note>
             members.push(_ecyc_e);
             ++length;
         }
-        return _ecyc_e.recycleNote(castNote, oldNote);
+        return _ecyc_e.recycleNote(castNote);
     }
 
     override function update(elapsed:Float) {
@@ -52,23 +52,18 @@ class NoteGroup extends FlxTypedGroup<Note>
             indexArr.resize(range);
         }
         
-        // ???
-        // sortArr.sort((a,b) -> reverse ? FlxMath.signOf(a.distance - b.distance) : FlxMath.signOf(b.distance - a.distance));
-        // indexArr.sort((a,b) -> reverse ? b-a : a-b);
-
-        // Merge sort
-        ArraySort.sort(sortArr, (a,b) -> noteSort(a, b, reverse));
-        ArraySort.sort(indexArr, (a,b) -> reverse ? b-a : a-b);
+        ArraySort.sort(sortArr, (a,b) -> reverse ? noteSort(b, a) : noteSort(a, b));
+        indexArr.sort((a,b) -> a - b);
 
         for (index => i in indexArr) members[i] = sortArr[index];
     }
 
-    public static function noteSort(a:Note, b:Note, reverse:Bool = false):Int {
-        if (a.distance != b.distance) 
-            return FlxMath.signOf(reverse ? b.distance - a.distance : a.distance - b.distance);
-        else if (a.isSustainNote != b.isSustainNote) {
-            return a.isSustainNote ? 1 : -1;
-        } else return 0;
+    public static function noteSort(a:Note, b:Note):Int {
+        return if (a.strumTime != b.strumTime) {
+            a.strumTime > b.strumTime ? -1 : 1;
+        } else if (a.isSustainNote != b.isSustainNote) {
+            a.isSustainNote ? -1 : 1;
+        } else 0;
     }
 
     public function debugInfo():Array<Float> {

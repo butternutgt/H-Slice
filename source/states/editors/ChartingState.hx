@@ -3909,7 +3909,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			#if LUA_ALLOWED exts.push('.lua'); #end
 			#if HSCRIPT_ALLOWED exts.push('.hx'); #end
 			noteTypes = loadFileList('custom_notetypes/', exts);
-			for (id => noteType in Note.defaultNoteTypes)
+			for (id => noteType in Note.DEFAULT_NOTE_TYPES)
 				if(!noteTypes.contains(noteType))
 					noteTypes.insert(id, noteType);
 

@@ -51,7 +51,7 @@ class FFMpeg {
             if (testMode) {
                 throw "not found ffmpeg";
             } else {
-                trace('"ffmpeg.exe" not found, turning on preview mode...');
+                trace('"$executable" not found, turning on preview mode...');
                 ClientPrefs.data.previewRender = true;
 
                 FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);

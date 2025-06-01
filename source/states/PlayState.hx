@@ -1,5 +1,6 @@
 package states;
 
+import haxe.ds.ArraySort;
 import flixel.animation.FlxAnimation;
 #if desktop import backend.FFMpeg; #end
 import openfl.system.Capabilities;
@@ -204,7 +205,6 @@ class PlayState extends MusicBeatState
 	public var health(default, set):Float = 1;
 	public var overHealth:Bool = ClientPrefs.data.overHealth;
 	public var healthDrain:Bool = ClientPrefs.data.healthDrain;
-	public var drainAccurated:Bool = ClientPrefs.data.drainAccurated;
 
 	private var healthLerp:Float = 1;
 
@@ -1776,7 +1776,6 @@ class PlayState extends MusicBeatState
 		Note.chartArrowSkin = SONG.arrowSkin;
 
 		if (PlayState.unspawnNotes.length == 0) {
-			// var oldNote:CastNote = null;
 			var sectionsData:Array<SwagSection> = PlayState.SONG.notes;
 			var daBpm:Float = Conductor.bpm;
 
@@ -1929,10 +1928,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			for (usn in unspawnSustainNotes)
 				unspawnNotes.push(usn);
 			
-			unspawnSustainNotes = [];
+			unspawnSustainNotes.resize(0);
 
 			Sys.println('Sorting Notes...');
-			unspawnNotes.sort(sortByTime);
+			ArraySort.sort(unspawnNotes, sortByTime);
 		} else {
 			trace("Unspawned Notes are omitted since they are already in the memory!");
 		}
@@ -2279,7 +2278,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var npsTime:Int;
 	var npsMod:Bool = false;
 	var bothNpsAdd:Bool = false;
-	
 	var nps:IntMap<Float> = new IntMap<Float>();
 	var opNps:IntMap<Float> = new IntMap<Float>();
 	var bfNpsVal:Float = 0;
@@ -2294,6 +2292,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var bfSideHit:Float = 0;
 	var opSideHit:Float = 0;
 
+	var bfHitFrame:Float = 0;
+	var opHitFrame:Float = 0;
+
 	var refBpm:Float = 0;
 	var tweenBpm:Float = 1;
 
@@ -2305,7 +2306,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		daHit = bfHit = showAgain = false; canAnim.fill(true);
 		if (popUpHitNote != null) popUpHitNote = null;
 		hit = skipHit = skipBf = skipOp = shownCnt = susEnds = 0;
-		lastSongSpeed = songSpeed;
+		lastSongSpeed = songSpeed; bfHitFrame = opHitFrame = 0;
 
 		if (refBpm != Conductor.bpm) {
 			refBpm = Conductor.bpm;
@@ -2829,7 +2830,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	}
 
 	var limitCount:Int = 0;
-	var oldNote:Note = null;
 	var swapNote:Note = null;
 	var skipOpCNote:CastNote;
 	var skipBfCNote:CastNote;
@@ -2871,8 +2871,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			prevSus[availNoteData] = currSus[availNoteData] ?? false;
 			currSus[availNoteData] = castHold;
 
-			shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed : 0;
-			shownRealTime = shownTime / 1000;
+			shownTime = showNotes ? castHold ? Math.max(spawnTime / songSpeed, globalElapsed * 1000) : spawnTime / songSpeed : 0;
+			shownRealTime = shownTime * 0.001;
 			isDisplay = targetNote.strumTime - fixedPosition < shownTime;
 
 			while (isDisplay && limitCount < limitNotes)
@@ -2895,10 +2895,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 				if ((!noteJudge || !optimizeSpawnNote) && isCanPass) {
 					if (betterRecycle) {
-						dunceNote = notes.spawnNote(targetNote, oldNote);
-					} else dunceNote = notes.recycle(Note).recycleNote(targetNote, oldNote);
-
-					dunceNote.spawned = true;
+						dunceNote = notes.spawnNote(targetNote);
+					} else dunceNote = notes.recycle(Note).recycleNote(targetNote);
 	
 					strumGroup = dunceNote.mustPress ? playerStrums : opponentStrums;
 					dunceNote.strum = strumGroup.members[dunceNote.noteData];
@@ -2967,7 +2965,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					if (castMust) skipBfCNote = targetNote; else skipOpCNote = targetNote;
 				}
 				
-				oldNote = dunceNote; ++totalCnt;
+				++totalCnt;
 				if (unspawnNotes.length > totalCnt) targetNote = unspawnNotes[totalCnt]; else break;
 				
 				noteDataInfo = targetNote.noteData;
@@ -2978,7 +2976,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				currSus[availNoteData] = castHold;
 				
 				if (showNotes) {
-					shownTime = castHold ? Math.max(spawnTime / songSpeed, Conductor.stepCrochet) : spawnTime / songSpeed;
+					shownTime = castHold ? Math.max(spawnTime / songSpeed, globalElapsed * 1000) : spawnTime / songSpeed;
 					shownRealTime = shownTime * 0.001;
 				}
 				
@@ -2989,8 +2987,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		
 		if (sortingWay == 1) {
 			if (ClientPrefs.data.fastSort)
-				notes.fasterSort(!ClientPrefs.data.downScroll);
-			else noteSortShortCut(ClientPrefs.data.downScroll);
+				notes.fasterSort();
+			else noteSortShortCut();
 		}
 	}
 
@@ -3106,8 +3104,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		if (sortingWay == 2) {
 			if (ClientPrefs.data.fastSort)
-				notes.fasterSort(!ClientPrefs.data.downScroll);
-			else noteSortShortCut(ClientPrefs.data.downScroll);
+				notes.fasterSort();
+			else noteSortShortCut();
 		}
 	}
 
@@ -3120,6 +3118,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	public function noteFinalize() {
 		skipAnim.fill(false);
 		skipCnt = skipOp + skipBf;
+
 		if (skipCnt > 0) {
 			opCombo += skipOp; opSideHit += skipOp;
 			combo += skipBf; bfSideHit += skipBf;
@@ -3134,22 +3133,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				--skipHitSearch;
 			}
 			
-			if (healthDrain) {
-				if (practiceMode) {
-					health += (skipBf - skipOp) * 0.02;
-				} else {
-					if(!drainAccurated) {
-						health = randomize.bool() ? Math.max(0.2e-320, health * Math.pow(0.99, skipOp)) : health + 0.02 * skipBf;
-					} else {
-						var max:Null<Int> = FlxMath.maxInt(skipOp, skipBf);
-						for (i in 0...max) {
-							if (skipBf > i) health += 0.02;
-							if (skipOp > i) health *= 0.99;
-						} max = null;
-					}
-				}
-			} else health += 0.02 * skipBf;
-
 			if (enableHoldSplash) {
 				for (holdSplash in susplashMap) {
 					if (holdSplash != null && (susEnds & 1 > 0)) holdSplash.sendSustainEnd();
@@ -3212,22 +3195,23 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				}
 			}
 		}
+		healthUpdate(bfHitFrame + skipBf, opHitFrame + skipOp);
 	}
 	
 	var randomize = new FlxRandom();
 	var sortOrder = false;
-	inline function noteSortShortCut(reverse:Bool) {
-		notes.sort((i, note1, note2) -> NoteGroup.noteSort(note1, note2), ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
+	inline function noteSortShortCut(reverse:Bool = false) {
+		ArraySort.sort(notes.members, (note1, note2) -> reverse ? NoteGroup.noteSort(note2, note1) : NoteGroup.noteSort(note1, note2));
 	}
 	
 	inline function noteSort() {
 		switch (sortingWay) {
 			case 3, 4:
-				sortOrder = sortingWay == 3 ? !ClientPrefs.data.downScroll : ClientPrefs.data.downScroll;
+				sortOrder = sortingWay == 4;
 				if (ClientPrefs.data.fastSort)
 					notes.fasterSort(sortOrder);
 				else
-					noteSortShortCut(ClientPrefs.data.downScroll);
+					noteSortShortCut(sortOrder);
 			case 5:
 				noteSortShortCut(frameCount & 1 == 0);
 			case 6:
@@ -3335,6 +3319,22 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	inline function healthLerper():Float
 	{
 		return vsliceSmoothBar ? FlxMath.lerp(healthLerp, health, vsliceSmoothNess) : health;
+	}
+
+	var appliedHealth:Float = 0;
+	function healthUpdate(bf:Float, op:Float) {
+		if (healthDrain) {
+			if (practiceMode) {
+				health += bf * hitHealth * healthGain - op * 0.02 * healthLoss;
+			} else {
+				appliedHealth = bf - op;
+				if (appliedHealth < 0) { // opponent has more notes than boyfriend
+					health = Math.max(0.1e-320, health * Math.pow(1.00 - 0.01 * healthLoss, -appliedHealth));
+				} else if (appliedHealth > 0) { // boyfriend has more notes than opponent
+					health += hitHealth * appliedHealth * healthGain;
+				}
+			}
+		} else health += bf * hitHealth * healthGain;
 	}
 
 	var cancelCount:Int = 0;
@@ -4842,9 +4842,9 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		strumPlayAnim(true, note.noteData, note.isSustainNote && !note.isSustainEnds);
-		if (healthDrain) {
-			health = practiceMode ? health - note.hitHealth * healthLoss : Math.max(0.2e-320, health * 0.99);
-		}
+		// if (healthDrain) {
+		// 	health = practiceMode ? health - note.hitHealth * healthLoss : Math.max(0.1e-320, health * 0.99);
+		// }
 		note.hitByOpponent = true;
 
 		if (noteHitStage) {
@@ -4869,13 +4869,16 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		if (!note.isSustainNote) {			
-			++opCombo; ++opSideHit; daHit = true;
+			++opCombo; ++opSideHit; ++opHitFrame; daHit = true;
 			if (showPopups && changePopup) popUpHitNote = note;
 			invalidateNote(note);
+		} else if (healthDrain) {
+			health -= note.hitHealth * healthLoss;
 		}
 	}
 
 	var animCheck:String;
+	var hitHealth:Float = 0.02;
 	public function goodNoteHit(note:Note):Void
 	{
 		if (note.wasGoodHit || cpuControlled && note.ignoreNote)
@@ -4960,14 +4963,14 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 			if (!note.isSustainNote)
 			{
-				++combo; ++bfSideHit; globalNoteHit = true;
+				++combo; ++bfSideHit; ++bfHitFrame; globalNoteHit = true;
 				maxCombo = Math.max(maxCombo, combo);
 				if (showPopups) popUpHitNote = note;
 				if (!cpuControlled) addScore(note);
 			}
 
 			bfHit = true;
-			health += note.hitHealth * healthGain;
+			hitHealth = note.hitHealth;
 		}
 		else // Notes that count as a miss if you hit them (Hurt notes for example)
 		{
@@ -5013,6 +5016,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		if (!note.isSustainNote) invalidateNote(note);
+		else health += note.hitHealth * healthGain;
 	}
 
 	public function invalidateNote(note:Note):Void {

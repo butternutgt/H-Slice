@@ -232,7 +232,6 @@ class EditorPlayState extends MusicBeatSubstate
 			while (targetNote.strumTime - Conductor.songPosition < spawnTime)
 			{
 				dunceNote = notes.recycle(Note).recycleNote(targetNote);
-				dunceNote.spawned = true;
 
 				strumGroup = !dunceNote.mustPress ? opponentStrums : playerStrums;
 				dunceNote.strum = strumGroup.members[dunceNote.noteData];
@@ -350,7 +349,6 @@ class EditorPlayState extends MusicBeatSubstate
 		add(notes);
 
 		var daBpm:Float = (PlayState.SONG.notes[0].changeBPM == true) ? PlayState.SONG.notes[0].bpm : PlayState.SONG.bpm;
-		var oldNote:Note = null;
 
 		var sectionNoteCnt:Float = 0;
 		var shownProgress:Bool = false;
