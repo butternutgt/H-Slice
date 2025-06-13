@@ -62,24 +62,6 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-        var option:Option = new Option('Show Rating Pop-Up',
-			"If checked, \"Rating Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
-			'showRating',
-			BOOL);
-		addOption(option);
-
-		var option:Option = new Option('Show Combo Number Pop-Up',
-			"If checked, \"Combo Number Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
-			'showComboNum',
-			BOOL);
-		addOption(option);
-
-		var option:Option = new Option('Show Combo Pop-Up',
-			"If checked, \"Combo Pop-Up\" shows up every time you hit notes.\n(I don't think anyone checks this option)",
-			'showCombo',
-			BOOL);
-		addOption(option);
-
 		var option:Option = new Option('Better Recycling',
 			"If checked, the game will use NoteGroup's recycle system.\nIt boosts game performance massively.",
 			'betterRecycle',
@@ -120,6 +102,12 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
         var option:Option = new Option('Skip Process for Spawned Note',
 			"If checked, enables Skip Note Function.\nIt boosts game performance massively, but it only works in specific situations.\nIf you don't understand, enable this.",
 			'skipSpawnNote',
+			BOOL);
+		addOption(option);
+
+        var option:Option = new Option(' - Break on Time Limit Exceeded',
+			"If checked, breaks from note spawn loop if the time limit is exceeded.\nIt may have good performance on some scenes.",
+			'breakTimeLimit',
 			BOOL);
 		addOption(option);
 

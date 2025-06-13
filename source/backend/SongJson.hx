@@ -340,7 +340,7 @@ class SongJson {
 							buf.addChar(uc);
 						#end
 					default:
-						throw "Invalid escape sequence \\" + String.fromCharCode(c) + " at position " + (pos - 1);
+						throw "Invalid escape sequence \\" + String.fromCharCode(c) + " at position 0x" + (pos - 1).hex(8) + ' (${pos - 1})';
 				}
 				start = pos;
 			}

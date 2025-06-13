@@ -186,6 +186,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 				'None',
 				'Notes Per Second',
 				'Rendered Notes',
+				'NPS & Rendered',
 				'Note Splash Counter',
 				'Note Spawn Time',
 				'Video Info',
@@ -327,6 +328,24 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.maxValue = 6;
 		option.changeValue = 1;
 		option.decimals = 0;
+		addOption(option);
+
+        var option:Option = new Option('Show Rating Pop-Up',
+			"If checked, \"Rating Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
+			'showRating',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Show Combo Number Pop-Up',
+			"If checked, \"Combo Number Pop-Up\" shows up every time you hit notes.\nUnchecking reduces a little bit of memory usage.",
+			'showComboNum',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Show Combo Pop-Up',
+			"If checked, \"Combo Pop-Up\" shows up every time you hit notes.\n(I don't think anyone checks this option)",
+			'showCombo',
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Pop-Up Stacking',

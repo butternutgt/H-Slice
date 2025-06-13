@@ -354,7 +354,7 @@ class PlayState extends MusicBeatState
 	var gcMain = ClientPrefs.data.gcMain;
 	#if desktop public static var video:FFMpeg = new FFMpeg(); #end
 
-	// Optimizer
+	// Optimizations
 	var processFirst:Bool = ClientPrefs.data.processFirst;
 	var showNotes:Bool = ClientPrefs.data.showNotes;
 	var showAfter:Bool = ClientPrefs.data.showAfter;
@@ -370,6 +370,7 @@ class PlayState extends MusicBeatState
 	var limitNotes:Int = ClientPrefs.data.limitNotes;
 	var hideOverlapped:Float = ClientPrefs.data.hideOverlapped;
 	var skipSpawnNote:Bool = ClientPrefs.data.skipSpawnNote;
+	var breakTimeLimit:Bool = ClientPrefs.data.breakTimeLimit;
 	var optimizeSpawnNote:Bool = ClientPrefs.data.optimizeSpawnNote;
 
 	// CoolUtils Shortcut
@@ -1713,29 +1714,28 @@ class PlayState extends MusicBeatState
 				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed');
 		}
 
-		var songData:SwagSong = SONG;
-		Conductor.bpm = songData.bpm;
-		gfSide = !songData.isOldVersion;
+		Conductor.bpm = SONG.bpm;
+		gfSide = !SONG.isOldVersion;
 
-		curSong = songData.song;
+		curSong = SONG.song;
 		bfVocal = opVocal = false;
 
 		vocals = opponentVocals = null;
 		try
 		{
-			if (songData.needsVoices)
+			if (SONG.needsVoices)
 			{
-				var legacyVoices = Paths.voices(songData.song);
+				var legacyVoices = Paths.voices(SONG.song);
 				if (legacyVoices == null)
 				{
-					var playerVocals = Paths.voices(songData.song,
+					var playerVocals = Paths.voices(SONG.song,
 						(boyfriend.vocalsFile == null || boyfriend.vocalsFile.length < 1) ? 'Player' : boyfriend.vocalsFile);
 					if (playerVocals != null && playerVocals.length > 0 && boyfriend != null && boyfriend.alive) {
 						vocals = new FlxSound().loadEmbedded(playerVocals);
 						bfVocal = true;
 					}
 
-					var oppVocals = Paths.voices(songData.song, (dad.vocalsFile == null || dad.vocalsFile.length < 1) ? 'Opponent' : dad.vocalsFile);
+					var oppVocals = Paths.voices(SONG.song, (dad.vocalsFile == null || dad.vocalsFile.length < 1) ? 'Opponent' : dad.vocalsFile);
 					if (oppVocals != null && oppVocals.length > 0 && dad != null && dad.alive) {
 						opponentVocals = new FlxSound().loadEmbedded(oppVocals);
 						opVocal = true;
@@ -1755,7 +1755,7 @@ class PlayState extends MusicBeatState
 		if (opVocal) FlxG.sound.list.add(opponentVocals);
 
 		inst = new FlxSound(); #if debug trace('Alt inst: ${altInstrumentals ?? "None"}'); #end
-		try { inst.loadEmbedded(Paths.inst(altInstrumentals ?? songData.song)); }
+		try { inst.loadEmbedded(Paths.inst(altInstrumentals ?? SONG.song)); }
 		catch (e:Dynamic) {}
 		FlxG.sound.list.add(inst);
 
@@ -1775,8 +1775,8 @@ class PlayState extends MusicBeatState
 
 		Note.chartArrowSkin = SONG.arrowSkin;
 
-		if (PlayState.unspawnNotes.length == 0) {
-			var sectionsData:Array<SwagSection> = PlayState.SONG.notes;
+		if (unspawnNotes.length == 0) {
+			var sectionsData:Array<SwagSection> = SONG.notes;
 			var daBpm:Float = Conductor.bpm;
 
 			var cnt:Float = 0;
@@ -1847,7 +1847,7 @@ class PlayState extends MusicBeatState
 						}
 					}
 
-					holdLength = songNotes[2];
+					holdLength = songNotes[2] ?? 0.0;
 
 					swagNote = {
 						strumTime: songNotes[0],
@@ -1937,7 +1937,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		// IT'S FOR INSIDE EVENTS ON CHART JSON
-		for (event in songData.events) //Event Notes
+		for (event in SONG.events) //Event Notes
 			for (i in 0...event[1].length)
 				makeEvent(event, i);
 
@@ -2506,21 +2506,21 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		// NPS Zone
-		if (showInfoType == "Notes Per Second" && !paused) {
+		if ((showInfoType == "Notes Per Second" || showInfoType == "NPS & Rendered") && !paused) {
 			npsMod = bfNpsAdd > 0 || opNpsAdd > 0;
 			bothNpsAdd = bfNpsAdd > 0 && opNpsAdd > 0;
 
 			if (npsMod) {
 				if (globalNoteHit) {
 					if (opNpsAdd > 0) {
-						doAnim(null, true, false);
+						doAnim(null, false);
 						opSideHit -= bothNpsAdd ? opSideHit : Math.max(opSideHit, bfSideHit);
 					}
 					if (bfNpsAdd > 0) {
-						doAnim(null, false, true);
+						doAnim(null, true);
 						bfSideHit -= bothNpsAdd ? bfSideHit : Math.max(opSideHit, bfSideHit);
 					}
-					npsMod = false;
+					bfNpsAdd = opNpsAdd = 0;
 				}
 				opSideHit += opNpsAdd * globalElapsed;
 				bfSideHit += bfNpsAdd * globalElapsed;
@@ -2589,33 +2589,48 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		}
 
 		if (showInfoType != "None") {
-			var info:String = "";
+			var info:String = '';
 			switch (showInfoType) {
-				case 'Notes Per Second':
-					var nps:Array<Float> = [
-						Math.fround(opNpsVal),
-						Math.fround(bfNpsVal),
-						Math.fround(totalNpsVal),
-						Math.fround(opNpsMax),
-						Math.fround(bfNpsMax),
-						Math.fround(totalNpsMax),
-					];
+				case 'Notes Per Second', 'Rendered Notes', 'NPS & Rendered':
+					var npsInfo:String = '', renderedInfo:String = '';
+					var flag:Int = switch (showInfoType) {
+						case 'NPS & Rendered': 3;
+						case 'Rendered Notes': 2;
+						case 'Notes Per Second': 1;
+						case _: 0; // same as default
+					}
 
-					var lengths:Array<Int> = [Std.string(nps[3]).length, Std.string(nps[4]).length, Std.string(nps[5]).length];
-					var len:Null<Int> = CoolUtil.integerArrayUtil(lengths, 0);
-					var npsStr:Array<String> = [for (n in nps) fillNum(n, len, ' '.code)];
+					if (toBool(flag & 1)) {
+						var nps:Array<Float> = [
+							Math.fround(opNpsVal),
+							Math.fround(bfNpsVal),
+							Math.fround(totalNpsVal),
+							Math.fround(opNpsMax),
+							Math.fround(bfNpsMax),
+							Math.fround(totalNpsMax),
+						];
 
-					info = '${npsStr[0]}/${npsStr[3]}\n${npsStr[1]}/${npsStr[4]}\n${npsStr[2]}/${npsStr[5]}';
+						var lengths:Array<Int> = [Std.string(nps[3]).length, Std.string(nps[4]).length, Std.string(nps[5]).length];
+						var len:Null<Int> = CoolUtil.integerArrayUtil(lengths, 0);
+						var npsStr:Array<String> = [for (n in nps) fillNum(n, len, ' '.code)];
 
-					npsStr.resize(0); nps.resize(0); len = null;
-				case 'Rendered Notes':
-					skipMax = FlxMath.maxInt(skipCnt, skipMax);
+						npsInfo = '${npsStr[0]}/${npsStr[3]}\n'
+							+ '${npsStr[1]}/${npsStr[4]}\n'
+							+ '${npsStr[2]}/${npsStr[5]}';
 
-					if (numberDelimit)
-						info = 'Rendered/Skipped: ${formatD(Math.max(notes.countLiving(), 0))}/${formatD(skipCnt)}/${formatD(notes.length)}/${formatD(skipMax)}';
-					else
-						info = 'Rendered/Skipped: ${Math.max(notes.countLiving(), 0)}/$skipCnt/${notes.length}/$skipMax';
-					// info = 'Rendered/Skipped: ${notes.length}/$shownMax\n';
+						npsStr.resize(0); nps.resize(0); len = null;
+					}
+
+					if (toBool(flag & 2)) {
+						skipMax = FlxMath.maxInt(skipCnt, skipMax);
+
+						if (numberDelimit)
+							renderedInfo = 'Rendered/Skipped: ${formatD(Math.max(notes.countLiving(), 0))}/${formatD(skipCnt)}/${formatD(notes.length)}/${formatD(skipMax)}';
+						else
+							renderedInfo = 'Rendered/Skipped: ${Math.max(notes.countLiving(), 0)}/$skipCnt/${notes.length}/$skipMax';
+					}
+
+					info = npsInfo + (npsInfo != '' && renderedInfo != '' ? '\n' : '') + renderedInfo;
 				case 'Note Splash Counter':
 					var buf:StringBuf = new StringBuf();
 					buf.add("[");
@@ -3239,15 +3254,21 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	 * @param bf 
 	 * @param daddy 
 	 */
-	private function doAnim(objectNote:Note, daddy:Bool = false, bf:Bool = false) {
+	private function doAnim(objectNote:Note, mustHit:Bool = false) {
 		isNullNote = objectNote == null;
 		
-		if (isNullNote) char = daddy && !bf ? !daddy && bf ? boyfriend : dad : null;
+		if (isNullNote) char = mustHit ? boyfriend : dad;
 		else char = objectNote.gfNote ? gf : objectNote.mustPress ? boyfriend : dad;
+		
+		animTarget = if (char == dad) 0;
+				else if (char == boyfriend) 1;
+				else if (char == gf) 2;
+				else -1;
+
+		if (animTarget == -1) return;
 		
 		if (char != null)
 		{
-			animTarget = objectNote.gfNote ? 2 : objectNote.mustPress ? 1 : 0;
 			if (canAnim[animTarget]) {
 				if (!isNullNote) {
 					altAnim = objectNote.animSuffix;
