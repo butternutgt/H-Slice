@@ -1,6 +1,6 @@
 package mikolka.funkin.players;
 
-import mikolka.compatibility.FunkinPath as Paths;
+import mikolka.compatibility.funkin.FunkinPath as Paths;
 
 @:nullSafety
 class PlayerData
@@ -301,6 +301,11 @@ typedef PlayerResultsAnimationData =
 	var renderType:String;
 
 	var assetPath:String;
+
+	var filter:String;
+
+	// We can now play sounds apparently
+	var sound:String;
 
 	@:default([0, 0])
 	var offsets:Array<Float>;

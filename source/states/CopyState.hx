@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Mobile Porting Team
+ * Copyright (C) 2025 Mobile Porting Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -26,11 +26,11 @@ package states;
 import states.TitleState;
 import lime.utils.Assets as LimeAssets;
 import openfl.utils.Assets as OpenFLAssets;
-import flixel.addons.util.FlxAsyncLoop;
 import openfl.utils.ByteArray;
 import haxe.io.Path;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxBar.FlxBarFillDirection;
+import lime.system.ThreadPool;
 
 /**
  * ...
@@ -47,7 +47,7 @@ class CopyState extends MusicBeatState
 	public var loadingImage:FlxSprite;
 	public var loadingBar:FlxBar;
 	public var loadedText:FlxText;
-	public var copyLoop:FlxAsyncLoop;
+	public var thread:ThreadPool;
 
 	var failedFilesStack:Array<String> = [];
 	var failedFiles:Array<String> = [];
@@ -66,76 +66,87 @@ class CopyState extends MusicBeatState
 			return;
 		}
 
-		CoolUtil.showPopUp("Seems like you have some missing files that are necessary to run the game\nPress OK to begin the copy process", "Notice!");
+		CoolUtil.showPopUp("Seems like you have some missing files that are necessary to run the game\nPress OK to begin the copy process", Language.getPhrase('mobile_notice', 'Notice!'));
 
 		shouldCopy = true;
 
 		add(new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0xffcaff4d));
-
+		#if OPENFL_LOOKUP
 		loadingImage = new FlxSprite(0, 0, Paths.image('funkay'));
 		loadingImage.setGraphicSize(0, FlxG.height);
 		loadingImage.updateHitbox();
 		loadingImage.screenCenter();
 		add(loadingImage);
+		#end
 
 		loadingBar = new FlxBar(0, FlxG.height - 26, FlxBarFillDirection.LEFT_TO_RIGHT, FlxG.width, 26);
 		loadingBar.setRange(0, maxLoopTimes);
 		add(loadingBar);
 
+		#if OPENFL_LOOKUP
 		loadedText = new FlxText(loadingBar.x, loadingBar.y + 4, FlxG.width, '', 16);
 		loadedText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
-		loadedText.antialiasing = ClientPrefs.data.antialiasing;
 		add(loadedText);
+		#end
 
-		var ticks:Int = 15;
-		if (maxLoopTimes <= 15)
-			ticks = 1;
-
-		copyLoop = new FlxAsyncLoop(maxLoopTimes, copyAsset, ticks);
-		add(copyLoop);
-		copyLoop.start();
+		thread = new ThreadPool(0, CoolUtil.getCPUThreadsCount());
+		thread.doWork.add(function(poop)
+		{
+			for (file in locatedFiles)
+			{
+				loopTimes++;
+				copyAsset(file);
+			}
+		});
+		new FlxTimer().start(0.5, (tmr) ->
+		{
+			thread.queue({});
+		});
 
 		super.create();
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (shouldCopy && copyLoop != null)
+		if (shouldCopy)
 		{
-			loadingBar.percent = loopTimes / maxLoopTimes * 100;
-			if (copyLoop.finished && canUpdate)
+			if (loopTimes >= maxLoopTimes && canUpdate)
 			{
 				if (failedFiles.length > 0)
 				{
 					CoolUtil.showPopUp(failedFiles.join('\n'), 'Failed To Copy ${failedFiles.length} File.');
-					if (!FileSystem.exists('logs'))
-						FileSystem.createDirectory('logs');
+					if (!NativeFileSystem.exists('logs'))
+						NativeFileSystem.createDirectory('logs');
 					File.saveContent('logs/' + Date.now().toString().replace(' ', '-').replace(':', "'") + '-CopyState' + '.txt', failedFilesStack.join('\n'));
 				}
-				canUpdate = false;
+				
 				FlxG.sound.play(Paths.sound('confirmMenu')).onComplete = () ->
 				{
 					MusicBeatState.switchState(new TitleState());
 				};
+		
+				canUpdate = false;
 			}
-
-			if (loopTimes == maxLoopTimes)
+			
+			#if OPENFL_LOOKUP
+			if (loopTimes >= maxLoopTimes)
 				loadedText.text = "Completed!";
 			else
 				loadedText.text = '$loopTimes/$maxLoopTimes';
+			#end
+
+			loadingBar.percent = Math.min((loopTimes / maxLoopTimes) * 100, 100);
 		}
 		super.update(elapsed);
 	}
 
-	public function copyAsset()
+	public function copyAsset(file:String)
 	{
-		var file = locatedFiles[loopTimes];
-		loopTimes++;
-		if (!FileSystem.exists(file))
+		if (!NativeFileSystem.exists(file))
 		{
 			var directory = Path.directory(file);
-			if (!FileSystem.exists(directory))
-				FileSystem.createDirectory(directory);
+			if (!NativeFileSystem.exists(directory))
+				NativeFileSystem.createDirectory(directory);
 			try
 			{
 				if (OpenFLAssets.exists(getFile(file)))
@@ -168,8 +179,8 @@ class CopyState extends MusicBeatState
 			var fileData:String = OpenFLAssets.getText(getFile(file));
 			if (fileData == null)
 				fileData = '';
-			if (!FileSystem.exists(directory))
-				FileSystem.createDirectory(directory);
+			if (!NativeFileSystem.exists(directory))
+				NativeFileSystem.createDirectory(directory);
 			File.saveContent(Path.join([directory, fileName]), fileData);
 		}
 		catch (e:haxe.Exception)
@@ -213,7 +224,7 @@ class CopyState extends MusicBeatState
 		var assets = locatedFiles.filter(folder -> folder.startsWith('assets/'));
 		var mods = locatedFiles.filter(folder -> folder.startsWith('mods/'));
 		locatedFiles = assets.concat(mods);
-		locatedFiles = locatedFiles.filter(file -> !FileSystem.exists(file));
+		locatedFiles = locatedFiles.filter(file -> !NativeFileSystem.exists(file));
 
 		var filesToRemove:Array<String> = [];
 

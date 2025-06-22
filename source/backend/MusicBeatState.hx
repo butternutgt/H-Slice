@@ -1,8 +1,12 @@
 package backend;
 
 import options.GameplaySettingsSubState;
+import openfl.display.BitmapData;
 import flixel.FlxState;
 import backend.PsychCamera;
+
+@:bitmap("assets/embed/images/ui/cursor.png")
+private class FunkinCursor extends BitmapData {}
 
 class MusicBeatState extends FlxState
 {
@@ -58,8 +62,7 @@ class MusicBeatState extends FlxState
 	{
 		var extraMode = MobileData.extraActions.get(ClientPrefs.data.extraHints);
 
-		hitbox = new Hitbox(extraMode);
-		hitbox = MobileData.setButtonsColors(hitbox);
+		hitbox = new Hitbox(extraMode,MobileData.getButtonsColors());
 
 		camControls = new FlxCamera();
 		camControls.bgColor.alpha = 0;
@@ -115,6 +118,9 @@ class MusicBeatState extends FlxState
 	override function create() {
 		currentState = this;
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
+		// //? Should fix the funkin cursor for good
+		if(!(FlxG.mouse.cursor?.bitmapData is FunkinCursor)) FlxG.mouse.load(new FunkinCursor(0,0));
+		//nvm. too much lag
 		#if MODS_ALLOWED Mods.updatedOnState = false; #end
 
 		if(!_psychCameraInitialized) initPsychCamera();
@@ -326,7 +332,7 @@ class MusicBeatState extends FlxState
 		});
 	}
 
-	function stagesFunc(func:BaseStage->Void)
+	public function stagesFunc(func:BaseStage->Void)
 	{
 		for (stage in stages)
 			if(stage != null && stage.exists && stage.active)

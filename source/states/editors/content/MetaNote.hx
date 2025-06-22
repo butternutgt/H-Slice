@@ -156,10 +156,8 @@ class EventMetaNote extends MetaNote
 		super(time, -1, eventData);
 		this.isEvent = true;
 		events = eventData[1];
-		
-		loadGraphic(Paths.image('editors/eventIcon'));
-		setGraphicSize(ChartingState.GRID_SIZE);
-		updateHitbox();
+		//trace('events: $events');
+		//loadIcon();
 
 		eventText = new FlxText(0, 0, 400, '', 12);
 		eventText.setFormat(Paths.font('vcr.ttf'), 12, FlxColor.WHITE, RIGHT);
@@ -167,7 +165,17 @@ class EventMetaNote extends MetaNote
 		eventText.antialiasing = ClientPrefs.data.antialiasing;
 		updateEventText();
 	}
-	
+	function loadIcon(){
+		if(events.length>1){
+			loadGraphic(Paths.image('editors/eventIcon-many'));
+		}
+		else if(Paths.fileExists('images/editors/events/${events[0][0]}.png',IMAGE)){
+			loadGraphic(Paths.image('editors/events/${events[0][0]}'));
+		}
+		else loadGraphic(Paths.image('editors/eventIcon'));
+		setGraphicSize(ChartingState.GRID_SIZE);
+		updateHitbox();
+	}
 	override function draw()
 	{
 		if(eventText != null && eventText.exists && eventText.visible)
@@ -184,6 +192,7 @@ class EventMetaNote extends MetaNote
 	public var events:Array<Array<String>>;
 	public function updateEventText()
 	{
+		loadIcon();
 		var myTime:Float = Math.floor(this.strumTime);
 		if(events.length == 1)
 		{

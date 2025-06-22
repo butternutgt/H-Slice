@@ -1,10 +1,9 @@
 package backend;
 
-import mikolka.vslice.CrashState;
+import mikolka.vslice.components.crash.CrashState;
 import haxe.CallStack;
 import openfl.events.UncaughtErrorEvent;
 #if sys
-import sys.FileSystem;
 import sys.io.File;
 #end
 
@@ -59,8 +58,8 @@ class CrashHandler
 	{
 		try
 		{
-			if (!FileSystem.exists('logs'))
-				FileSystem.createDirectory('logs');
+			if (!NativeFileSystem.exists('logs'))
+				NativeFileSystem.createDirectory('logs');
 
 			File.saveContent('logs/'
 				+ Date.now().toString().replace(' ', '-').replace(':', "'")

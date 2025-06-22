@@ -113,7 +113,7 @@ class Controls
 	public function pressed(key:String)
 	{
 		var result:Bool = (FlxG.keys.anyPressed(keyboardBinds[key]) == true);
-		if(result) controllerMode = false;
+		if(result) controllerMode = false; 
 
 		return result
 			|| _myGamepadPressed(gamepadBinds[key]) == true
@@ -187,14 +187,12 @@ class Controls
 	#if TOUCH_CONTROLS_ALLOWED
 	public var requestedHitbox(get, default):Hitbox; // for PlayState and EditorPlayState
 	
-
 	private function touchPadPressed(keys:Array<MobileInputID>):Bool
 	{
 		if (keys != null && requestedInstance.touchPad != null)
 		{
 			if (requestedInstance.touchPad.anyPressed(keys) == true)
 			{
-				if (keys == null) trace('the key is ${keys.toString()}');
 				return true;
 			}
 		} else {
@@ -289,8 +287,6 @@ class Controls
 		else
 			return MusicBeatState.getState();
 	}
-
-	
 
 	@:noCompletion
 	private function get_mobileC():Bool

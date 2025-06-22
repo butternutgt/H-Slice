@@ -126,13 +126,17 @@ class Song
 
 	public static var chartPath:String;
 	public static var loadedSongName:String;
-	public static function loadFromJson(jsonInput:String, forPlay:Bool, ?folder:String):SwagSong
+	public static function loadFromJson(jsonInput:String, ?forPlay:Bool, ?folder:String):SwagSong
 	{
 		SongJson.skipChart = forPlay;
 		if(folder == null) folder = jsonInput;
 		PlayState.SONG = getChart(jsonInput, folder);
 		loadedSongName = folder;
-		chartPath = _lastPath.replace('/', '\\');
+		chartPath = _lastPath;
+		#if windows
+		// prevent any saving errors by fixing the path on Windows (being the only OS to ever use backslashes instead of forward slashes for paths)
+		chartPath = chartPath.replace('/', '\\');
+		#end
 		StageData.loadDirectory(PlayState.SONG);
 		return PlayState.SONG;
 	}
@@ -147,12 +151,9 @@ class Song
 		var formattedSong:String = Paths.formatToSongPath(jsonInput);
 		_lastPath = Paths.json('$formattedFolder/$formattedSong');
 
-		#if MODS_ALLOWED
-		if(FileSystem.exists(_lastPath))
-			rawData = File.getContent(_lastPath);
-		else
-		#end
-			rawData = Assets.getText(_lastPath);
+		if(NativeFileSystem.exists(_lastPath))
+			rawData = NativeFileSystem.getContent(_lastPath);
+
 
 		return rawData != null ? parseJSON(rawData, jsonInput) : null;
 	}

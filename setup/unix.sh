@@ -14,8 +14,6 @@ haxelib install flixel-tools 1.5.1 --quiet --skip-dependencies
 haxelib install hscript-iris 1.1.3 --quiet
 haxelib install tjson 1.4.0 --quiet
 haxelib install hxdiscord_rpc 1.2.4 --quiet --skip-dependencies
-haxelib install format --quiet
-haxelib install hxp --quiet
 
 haxelib install hxcpp 4.3.2 --quiet
 haxelib git lime https://github.com/HRK-EXEX/h-slice-lime-stable.git

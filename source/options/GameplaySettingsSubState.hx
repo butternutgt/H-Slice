@@ -1,5 +1,7 @@
 package options;
 
+import options.Option;
+
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	var pastValue:Float = 0;
@@ -185,31 +187,34 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Sick! Hit Window',
 			'Changes the amount of time you have\nfor hitting a "Sick!" in milliseconds.',
 			'sickWindow',
-			INT);
+			FLOAT);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 15;
-		option.minValue = 15;
-		option.maxValue = 45;
+		option.minValue = 15.0;
+		option.maxValue = 45.0;
+		option.changeValue = 0.5;
 		addOption(option);
 
 		var option:Option = new Option('Good Hit Window',
 			'Changes the amount of time you have\nfor hitting a "Good" in milliseconds.',
 			'goodWindow',
-			INT);
+			FLOAT);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 30;
-		option.minValue = 15;
-		option.maxValue = 90;
+		option.minValue = 15.0;
+		option.maxValue = 90.0;
+		option.changeValue = 0.5;
 		addOption(option);
 
 		var option:Option = new Option('Bad Hit Window',
 			'Changes the amount of time you have\nfor hitting a "Bad" in milliseconds.',
 			'badWindow',
-			INT);
+			FLOAT);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 60;
-		option.minValue = 15;
-		option.maxValue = 135;
+		option.minValue = 15.0;
+		option.maxValue = 135.0;
+		option.changeValue = 0.5;
 		addOption(option);
 
 		var option:Option = new Option('Safe Frames',

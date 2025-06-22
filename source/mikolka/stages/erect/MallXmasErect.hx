@@ -1,14 +1,15 @@
 package mikolka.stages.erect;
 
+import mikolka.stages.scripts.PicoCapableStage;
 import flixel.system.debug.watch.Tracker;
-import mikolka.compatibility.FunkinPath;
+import mikolka.compatibility.funkin.FunkinPath;
 import shaders.AdjustColorShader;
 import mikolka.compatibility.VsliceOptions;
 #if !LEGACY_PSYCH
 import substates.GameOverSubstate;
 #end
 
-class MallXmasErect extends PicoCapableStage
+class MallXmasErect extends BaseStage
 {
 	var upperBoppers:BGSprite;
 	var bottomBoppers:MallCrowd;
@@ -76,6 +77,7 @@ class MallXmasErect extends PicoCapableStage
 				erectSanta.shader = santa.shader;
 				erectParents.shader = santa.shader;
 			}
+			PicoCapableStage.instance?.applyABotShader(colorShader);
 		}
 		
 		@:privateAccess

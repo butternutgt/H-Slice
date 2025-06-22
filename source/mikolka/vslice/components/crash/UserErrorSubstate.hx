@@ -1,5 +1,6 @@
 package mikolka.vslice.components.crash;
 
+import mikolka.compatibility.VsliceOptions;
 #if !LEGACY_PSYCH
 import states.TitleState;
 #end
@@ -11,18 +12,34 @@ class UserErrorSubstate extends MusicBeatSubstate
 {
 	var textBg:FlxSprite;
 
-	var EMessage:String;
-	var callstack:OneOfTwo<Array<StackItem>, String>;
+	var error:CrashData;
 	var isCritical:Bool;
 	var allowClosing:Bool = false;
 
 	var camOverlay:FlxCamera;
 
-	public function new(EMessage:String, callstack:OneOfTwo<Array<StackItem>, String>)
+	public static function makeMessage(errorMessage:String, description:String)
 	{
-		this.EMessage = EMessage;
-		this.callstack = callstack;
-		isCritical = Std.isOfType(callstack, Array);
+		var state = FlxG.state;
+		while (state.subState != null)
+			state = state.subState;
+		state.persistentUpdate = false;
+		state.openSubState(new UserErrorSubstate(UserErrorSubstate.collectMessageData(errorMessage, description)));
+	}
+
+	public static function makeError(error:CrashData, isCritical:Bool = false)
+	{
+		var state = FlxG.state;
+		while (state.subState != null)
+			state = state.subState;
+		state.persistentUpdate = false;
+		state.openSubState(new UserErrorSubstate(error, isCritical));
+	}
+
+	public function new(error:CrashData, isCritical:Bool = false)
+	{
+		this.error = error;
+		this.isCritical = isCritical;
 		camOverlay = new FlxCamera();
 		camOverlay.bgColor = FlxColor.TRANSPARENT;
 		FlxG.cameras.add(camOverlay);
@@ -38,40 +55,12 @@ class UserErrorSubstate extends MusicBeatSubstate
 		textBg.screenCenter();
 		textBg.camera = camOverlay;
 		add(textBg);
-		var error:CrashData;
-		if (Std.isOfType(callstack, Array))
-		{
-			error = collectErrorData();
-		}
-		else
-		{
-			var message = cast(callstack, String);
-			var tbl = new Array<Array<String>>();
-			for (x in message.split("\n"))
-			{
-				tbl.push([x]);
-			}
-			error = {
-				logToFile: false,
-				extendedTrace: [],
-				trace: tbl,
-				message: EMessage,
-				date: Date.now().toString(),
-				systemName: #if android 'Android' #elseif linux 'Linux' #elseif mac 'macOS' #elseif windows 'Windows' #else 'iOS' #end,
-				activeMod: ModsHelper.getActiveMod()
-			};
-		}
 
 		printError(error);
-		if (isCritical)
-			saveError(error);
 	}
 
-	function collectErrorData():CrashData
+	public static function collectErrorData(errorMessage:String, callStack:Array<StackItem>):CrashData
 	{
-		var errorMessage = EMessage;
-
-		var callStack:Array<StackItem> = callstack;
 		var errMsg = new Array<Array<String>>();
 		var errExtended = new Array<String>();
 		for (stackItem in callStack)
@@ -91,13 +80,13 @@ class UserErrorSubstate extends MusicBeatSubstate
 							regex.match(classname);
 							line.push("CLS:" + regex.matched(0) + ":" + method + "()");
 						default:
-							Sys.println(stackItem);
+							#if sys Sys.println #else trace #end (stackItem);
 					}
 					line.push("Line:" + pos_line);
 					errMsg.push(line);
 					errExtended.push('In file ${file}: ${line.join("  ")}');
 				default:
-					Sys.println(stackItem);
+					#if sys Sys.println #else trace #end (stackItem);
 			}
 		}
 		return {
@@ -106,25 +95,63 @@ class UserErrorSubstate extends MusicBeatSubstate
 			trace: errMsg,
 			extendedTrace: errExtended,
 			date: Date.now().toString(),
-			systemName: #if android 'Android' #elseif linux 'Linux' #elseif mac 'macOS' #elseif windows 'Windows' #else 'iOS' #end,
+			systemName: getPlatform(),
 			activeMod: ModsHelper.getActiveMod()
 		}
 	}
 
-	var tapped:Bool = false;
-	var released:Bool = false;
-	var touchTime:Float = 0;
+	public static function collectMessageData(errorMessage:String, description:String):CrashData
+	{
+		var tbl = new Array<Array<String>>();
+		for (x in description.split("\n"))
+		{
+			tbl.push([x]);
+		}
+		return {
+			logToFile: false,
+			extendedTrace: [],
+			trace: tbl,
+			message: errorMessage,
+			date: Date.now().toString(),
+			systemName: getPlatform(),
+			activeMod: ModsHelper.getActiveMod()
+		};
+	}
+
+	public inline static function getPlatform():String
+	{
+		return #if android
+			'Android'
+		#elseif linux
+			'Linux'
+		#elseif mac
+			'macOS'
+		#elseif ios
+			'iOS'
+		#elseif windows
+			'Windows'
+		#elseif html5
+			FlxG.html5.platform.getName() + '(${FlxG.html5.browser.getName()})'
+		#else
+			'Unknown'
+		#end;
+	}
+    public inline static function getLogger():String
+	{
+		return switch(VsliceOptions.LOGGING){
+			case "File": "Logs available in the 'latest.log' file";
+			case "Console": "Check the console for logs";
+			case "None": "Logs disabled!";
+			default: "Is the logger corrupted???";
+		}
+	}
+
 	override function update(elapsed:Float)
 	{
-		if (TouchUtil.pressed) { 
-			tapped = true;
-			touchTime += elapsed;
-		} else if (tapped) released = true;
-
 		super.update(elapsed);
 		if (!allowClosing)
 			return;
-		if (released && touchTime < 0.8 || FlxG.keys.justPressed.ENTER)
+		if (TouchUtil.justPressed || controls.ACCEPT)
 		{
 			FlxG.cameras.remove(camOverlay);
 			if (!isCritical)
@@ -134,42 +161,53 @@ class UserErrorSubstate extends MusicBeatSubstate
 				return;
 			}
 			TitleState.initialized = false;
+            ScreenshotPlugin.instance.destroy();
+            ScreenshotPlugin.instance = null;
 			TitleState.closedState = false;
-            
+			#if LEGACY_PSYCH
 			if (Main.fpsVar != null)
-				Main.fpsVar.visible = #if LEGACY_PSYCH ClientPrefs.showFPS #else ClientPrefs.data.showFPS #end;
-			
+				Main.fpsVar.visible = ClientPrefs.showFPS;
+			#else
+			if (Main.fpsVar != null)
+				Main.fpsVar.visible = ClientPrefs.data.showFPS;
+			#end
 			FlxG.sound.pause();
 			FlxTween.globalManager.clear();
 			FlxG.resetGame();
 		}
 		#if sys
-		else if ((touchTime >= 0.8 || FlxG.keys.justPressed.ESCAPE) && isCritical)
+		else if (controls.BACK && isCritical)
 		{
 			Sys.exit(1);
 		}
 		#end
-
-		if (released) {
-			tapped = false;
-			touchTime = 0;
-		}
 	}
 
 	function printError(error:CrashData)
 	{
-		var star = #if CHECK_FOR_UPDATES "" #else "*" #end;
+		var star = #if (CHECK_FOR_UPDATES || debug) "" #else "*" #end;
 		printToTrace('H-SLICE ${MainMenuState.hrkVersion}$star (${error.message})');
 		textNextY += 35;
 		FlxTimer.wait(1 / 24, () ->
 		{
 			printSpaceToTrace();
+			var linesPrinted = 0;
 			for (line in error.trace)
 			{
+				linesPrinted += 1;
 				switch (line.length)
 				{
 					case 1:
-						printToTrace(line[0]);
+						if(line[0].length>43){
+							var remText = line[0];
+							while(remText.length>43){
+								printToTrace(remText.substr(0,43));
+								linesPrinted += 1;
+								remText = remText.substr(42);
+							}
+							printToTrace(remText);
+						}
+						else printToTrace(line[0]);
 					case 2:
 						var first_line = line[0].rpad(" ", 33).replace("_", "");
 						printToTrace('${first_line}${line[1]}');
@@ -177,7 +215,7 @@ class UserErrorSubstate extends MusicBeatSubstate
 						printToTrace(" ");
 				}
 			}
-			var remainingLines = 12 - error.trace.length;
+			var remainingLines = 11 - linesPrinted;
 			if (remainingLines > 0)
 			{
 				for (x in 0...remainingLines)
@@ -192,6 +230,7 @@ class UserErrorSubstate extends MusicBeatSubstate
 			printToTrace('TIME:${date_split[1].rpad(" ", 9)} DATE:${date_split[0]}');
 			printToTrace('MOD:${error.activeMod.rpad(" ", 10)} PE:${MainMenuState.psychEngineVersion.rpad(" ", 5)} SYS:${error.systemName}');
 			printSpaceToTrace();
+            printToTrace(getLogger());
 			if (isCritical)
 				printToTrace('REPORT TO GITHUB.COM/HRK-EXEX/H-SLICE');
 			else
@@ -199,50 +238,19 @@ class UserErrorSubstate extends MusicBeatSubstate
 			if (isCritical)
 			{
 				if (controls.mobileC)
-					printToTrace('TAP ANYWHERE TO RESTART | HOLD TO QUIT');
+					printToTrace('TAP ANYWHERE TO RESTART');
 				else
-					printToTrace('PRESS ENTER TO RESTART | ESC TO QUIT');
+					printToTrace('PRESS \'ACCEPT\' TO RESTART | \'BACK\' TO QUIT');
 			}
 			else
 			{
 				if (controls.mobileC)
 					printToTrace('TAP ANYWHERE TO CONTINUE');
 				else
-					printToTrace('PRESS ENTER TO CONTINUE');
+					printToTrace('PRESS \'ACCEPT\' TO CONTINUE');
 			}
 			allowClosing = true;
 		});
-	}
-
-	static function saveError(error:CrashData)
-	{
-		var errMsg = "";
-		var dateNow:String = error.date;
-		var star = #if CHECK_FOR_UPDATES "" #else "*" #end;
-		dateNow = dateNow.replace(' ', '_');
-		dateNow = dateNow.replace(':', "'");
-		errMsg += 'H-SLICE ${MainMenuState.hrkVersion}$star\n';
-		errMsg += '\nUncaught Error: ' + error.message + "\n";
-		for (x in error.extendedTrace)
-		{
-			errMsg += x + "\n";
-		}
-		errMsg += '----------\n';
-		errMsg += 'Active mod: ${error.activeMod}\n';
-		errMsg += 'Platform: ${error.systemName}\n';
-		errMsg += '\n';
-		errMsg += '\nPlease report this error to the GitHub page: https://github.com/HRK-EXEX/H-Slice';
-		errMsg += '\n\n> Crash Handler written by: sqirra-rng';
-
-		#if !LEGACY_PSYCH
-		@:privateAccess // lazy
-		backend.CrashHandler.saveErrorMessage(errMsg + '\n');
-		#else
-		var path = './crash/' + 'HSlice_' + dateNow + '.txt';
-		File.saveContent(path, errMsg + '\n');
-		Sys.println(errMsg);
-		#end
-		Sys.println(errMsg);
 	}
 
 	var textNextY = 5;

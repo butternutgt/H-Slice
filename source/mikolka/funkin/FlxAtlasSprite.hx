@@ -1,14 +1,8 @@
 package mikolka.funkin;
 
-import mikolka.compatibility.ModsHelper;
-import flixel.graphics.FlxGraphic;
-import haxe.macro.Expr.Catch;
-import flixel.graphics.frames.FlxFramesCollection;
 import mikolka.compatibility.VsliceOptions;
 import flixel.util.FlxSignal.FlxTypedSignal;
-import flxanimate.FlxAnimate;
 import flxanimate.FlxAnimate.Settings;
-import flxanimate.frames.FlxAnimateFrames;
 import flixel.graphics.frames.FlxFrame;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import openfl.display.BitmapData;
@@ -80,9 +74,12 @@ class FlxAtlasSprite extends PsychFlxAnimate
       super.loadAtlas(path);
       return;
     }
+    #if NATIVE_LOOKUP
     try{
       trace(path);
-      super.loadAtlasEx(ModsHelper.loadabsoluteGraphic('$path/spritemap1.png'),
+      //? 'path' here is a full path to the image (do not resolve it. Load it!)
+      @:privateAccess
+      super.loadAtlasEx(BitmapData.fromFile(NativeFileSystem.addCwd('$path/spritemap1.png')),
       File.getContent('$path/spritemap1.json'),
         File.getContent('$path/Animation.json')
         );
@@ -91,7 +88,7 @@ class FlxAtlasSprite extends PsychFlxAnimate
       FlxG.log.error('Failed to load "$path" via EXtended loader: $x');
       trace('Failed to load "$path" via EXtended loader: $x');
     }
-    
+    #end
     
   }
   /**

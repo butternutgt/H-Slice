@@ -1,15 +1,21 @@
 package mikolka.stages.erect;
 
+import mikolka.stages.scripts.PicoCapableStage;
 import mikolka.compatibility.VsliceOptions;
 import openfl.display.BlendMode;
 import shaders.AdjustColorShader;
+import mikolka.stages.objects.StageSpotlight;
+#if !LEGACY_PSYCH
+import objects.Character;
+import objects.Note;
+#end
 
-class MainStageErect extends PicoCapableStage {
-    var dadbattleBlack:BGSprite;
-	var dadbattleLight:BGSprite;
+class MainStageErect extends BaseStage {
+   
 	var peeps:BGSprite;
 	override function create()
 	{
+        new StageSpotlight(200,-50);
 		var bg:BGSprite = new BGSprite('erect/backDark', 729, -170);
 		add(bg);
 
@@ -23,7 +29,7 @@ class MainStageErect extends PicoCapableStage {
             add(lightSmol);
         }
 
-		var stageFront:BGSprite = new BGSprite('erect/bg', -603, -187);
+		var stageFront:BGSprite = new BGSprite('erect/stage_bg', -603, -187);
 		add(stageFront);
 
         var server:BGSprite = new BGSprite('erect/server', -361, 205);
@@ -52,12 +58,14 @@ class MainStageErect extends PicoCapableStage {
 			add(TheOneAbove);
         }
 	}
+
     override function createPost() {
         super.createPost();
         if(VsliceOptions.SHADERS){
             gf.shader = makeCoolShader(-9,0,-30,-4);
             dad.shader = makeCoolShader(-32,0,-33,-23);
             boyfriend.shader = makeCoolShader(12,0,-23,7);
+            PicoCapableStage.instance?.applyABotShader(makeCoolShader(-9,0,-30,-4));
         }
     }
 

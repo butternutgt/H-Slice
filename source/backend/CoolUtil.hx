@@ -1,9 +1,6 @@
 package backend;
 
-import cpp.abi.Abi;
 import cpp.Float64;
-import openfl.utils.Assets;
-import lime.utils.Assets as LimeAssets;
 
 #if windows
 @:cppFileCode('
@@ -50,11 +47,7 @@ class CoolUtil
 	inline public static function coolTextFile(path:String):Array<String>
 	{
 		var daList:String = null;
-		#if (sys && MODS_ALLOWED)
-		if(FileSystem.exists(path)) daList = File.getContent(path);
-		#else
-		if(Assets.exists(path)) daList = Assets.getText(path);
-		#end
+		if(NativeFileSystem.exists(path)) daList = NativeFileSystem.getContent(path);
 		return daList != null ? listFromString(daList) : [];
 	}
 
@@ -169,12 +162,7 @@ class CoolUtil
 		if(decimals < 1)
 			return Math.floor(value);
 
-		var tempMult:Float = 1;
-		for (i in 0...decimals)
-			tempMult *= 10;
-
-		var newValue:Float = Math.floor(value * tempMult);
-		return newValue / tempMult;
+		return Math.floor(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
 	}
 	
 	inline public static function decimal(value:Float, decimals:Int, mode:Int = 1):Float
@@ -354,22 +342,14 @@ class CoolUtil
 	}
 
 	public static function sortAlphabetically(list:Array<String>):Array<String> {
-		// This moster here fixes order of scrips to match the windows implementation
-		// Why? because some people use this quirk (like me)
+		if (list == null) return [];
 
-		list.sort((a,b) -> { 
-				a = a.toUpperCase();
-				b = b.toUpperCase();
-			  
-				if (a < b) {
-				  return -1;
-				}
-				else if (a > b) {
-				  return 1;
-				} else {
-				  return 0;
-				}
-			  });
+		list.sort((a, b) -> {
+			var upperA = a.toUpperCase();
+			var upperB = b.toUpperCase();
+			
+			return upperA < upperB ? -1 : upperA > upperB ? 1 : 0;
+		});
 		return list;
 	}
 
@@ -561,7 +541,7 @@ class CoolUtil
 			Sys.command(command, [folder]);
 			trace('$command $folder');
 		#else
-			FlxG.error("Platform is not supported for CoolUtil.openFolder");
+			FlxG.log.error("Platform is not supported for CoolUtil.openFolder");
 		#end
 	}
 
@@ -656,4 +636,14 @@ class CoolUtil
 		FlxG.stage.window.alert(message, title);
 		#end
 	}
+
+	#if cpp
+    @:functionCode('
+        return std::thread::hardware_concurrency();
+    ')
+	#end
+    public static function getCPUThreadsCount():Int
+    {
+        return 1;
+    }
 }

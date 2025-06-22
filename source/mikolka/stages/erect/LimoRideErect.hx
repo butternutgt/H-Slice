@@ -1,5 +1,13 @@
 package mikolka.stages.erect;
 
+import mikolka.stages.scripts.PicoCapableStage;
+import mikolka.compatibility.freeplay.FreeplayHelpers;
+#if !LEGACY_PSYCH
+import objects.Note.EventNote;
+#else
+import Note.EventNote;
+#end
+
 import mikolka.compatibility.VsliceOptions;
 import openfl.display.BlendMode;
 import shaders.AdjustColorShader;
@@ -20,6 +28,9 @@ class LimoRideErect extends BaseStage
 	var fastCar:BGSprite;
 	var fastCarCanDrive:Bool = true;
 
+	var limoBgMetalPole:BGSprite;
+	var limoBglight:BGSprite;
+	var skipBgPoleOnBeats:Array<Float> = [];
 	// event
 	var limoKillingState:HenchmenKillState = WAIT;
 	var limoMetalPole:BGSprite;
@@ -49,7 +60,7 @@ class LimoRideErect extends BaseStage
 		skyBG.updateHitbox();
 		add(skyBG);
 
-		star = new BGSprite('limo/erect/shooting star', 200, 0, 1, 1, ['shooting star']);
+		star = new BGSprite('limo/erect/shooting_star', 200, 0, 1, 1, ['shooting star']);
 		star.blend = BlendMode.ADD;
 		add(star);
 		if (VsliceOptions.SHADERS)
@@ -68,6 +79,13 @@ class LimoRideErect extends BaseStage
 
 			limoMetalPole = new BGSprite('gore/metalPole', -500, 220, 0.4, 0.4);
 			add(limoMetalPole);
+
+			//? new stuff
+			limoBgMetalPole = new BGSprite('gore/metalPole', -500, 20, 0.4, 0.4);
+			add(limoBgMetalPole);
+
+			limoBglight = new BGSprite('gore/coldHeartKiller', limoBgMetalPole.x - 180, limoBgMetalPole.y - 80, 0.4, 0.4);
+			add(limoBglight);
 
 			bgLimo = new BGSprite('limo/erect/bgLimo', -150, 480, 0.4, 0.4, ['background limo blue'], true);
 			add(bgLimo);
@@ -168,7 +186,10 @@ class LimoRideErect extends BaseStage
 		addBehindGF(fastCar);
 
 		var limo:BGSprite = new BGSprite('limo/erect/limoDrive', -120, 550, 1, 1, ['Limo stage'], true);
-		addBehindGF(limo); // Shitty layering but whatev it works LOL
+		if(FlxG.random.bool(25)){
+			addBehindGF(limo); // Shitty layering but whatev it works LOL
+		}
+		else insert(members.indexOf(game.gfGroup)+1, limo);
 		addBehindGF(mist4);
 		addBehindGF(mist3);
 
@@ -176,12 +197,35 @@ class LimoRideErect extends BaseStage
 		// add(mist1);
 		if (VsliceOptions.SHADERS)
 		{
-			grpLimoDancers.forEach(s -> s.shader = colorShader);
+			if(!VsliceOptions.LOW_QUALITY){
+				grpLimoDancers.forEach(s -> s.shader = colorShader);
+				limoCorpse.shader = colorShader;
+				limoCorpseTwo.shader = colorShader;
+
+				limoMetalPole.shader = colorShader;
+				limoBgMetalPole.shader = colorShader;
+				fastCar.shader = colorShader;
+				grpLimoParticles.forEach(s -> s.shader = colorShader);
+			}
+
+			limoLight.shader = colorShader;
+
+			limoBglight.shader = colorShader;
+
 			gf.shader = colorShader;
 			dad.shader = colorShader;
 			boyfriend.shader = colorShader;
+			PicoCapableStage.instance?.applyABotShader(colorShader);
 		}
 	}
+
+	override function eventPushedUnique(event:EventNote) {
+		if(event.event == ""){
+			skipBgPoleOnBeats.push(Conductor.getBeatRounded(event.strumTime));
+		}
+		super.eventPushedUnique(event);
+	}
+
 
 	var limoSpeed:Float = 0;
 	var _timer:Float = 0;
@@ -301,6 +345,24 @@ class LimoRideErect extends BaseStage
 			{
 				dancer.dance();
 			});
+			if(curBeat%4==0 && !skipBgPoleOnBeats.contains(curBeat)){
+				var endX = 1500;
+				var time = Math.min((60/FreeplayHelpers.BPM) *3,1);
+				limoBgMetalPole.x = -500;
+				FlxTween.tween(limoBgMetalPole,{ x:endX},time,{
+					ease: FlxEase.linear,
+					onComplete: (x) ->{
+						limoBgMetalPole.x = -500;
+					}
+				});
+				limoBglight.x = -500 -180;
+				FlxTween.tween(limoBglight,{ x:endX-180},time,{
+					ease: FlxEase.linear,
+					onComplete: (x) ->{
+						limoBglight.x = -500 -180;
+					}
+				});
+			}
 		}
 
 		if (FlxG.random.bool(10) && fastCarCanDrive)
@@ -336,6 +398,16 @@ class LimoRideErect extends BaseStage
 		{
 			case "Kill Henchmen":
 				killHenchmen();
+		}
+		if(eventName == "Change Character" && VsliceOptions.SHADERS){
+			switch(value1.toLowerCase().trim()) {
+				case 'gf' | 'girlfriend' | '2':
+					gf.shader = colorShader;
+				case 'dad' | 'opponent' | '1':
+					dad.shader = colorShader;
+				default:
+					boyfriend.shader = colorShader;
+			}
 		}
 	}
 

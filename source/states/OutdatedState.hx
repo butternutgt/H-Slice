@@ -18,14 +18,16 @@ class OutdatedState extends MusicBeatState
 			["A", "B", "C", "Port"]
 		];
 
-		var guh:String = 'Sup kiddo, looks like you\'re running an\n' +
-		'outdated version of H-Slice Engine (${MainMenuState.hrkVersion}),\n' +
-		'please update to ${TitleState.updateVersion}!\n' +
-		'Press ${operates[toInt((controls.mobileC))][0]} to go releases page.\n' +
-		'Press ${operates[toInt((controls.mobileC))][1]} to proceed anyway.\n' +
-		'Press ${operates[toInt((controls.mobileC))][2]} to also proceed anyway,\n' +
-		"but this message hasn't shown until turn on Check for Updates option\n" +
-		'Thank you for using this ${operates[toInt((controls.mobileC))][3]}!';
+		var guh:String;
+		final bro:String = #if mobile 'kiddo' #else 'bro' #end;
+		final escape:String = (controls.mobileC) ? 'B' : 'ESCAPE';
+
+		guh = "Sup "+bro+", looks like you're running an   \n
+		outdated version of H-Slice Engine (" + MainMenuState.hrkVersion + ",\n
+		please update to " + TitleState.updateVersion + "!\n
+		Press "+escape+" to proceed anyway.\n
+		\n
+		Thank you for using the Engine!";
 
 		warnText = new FlxText(0, 0, FlxG.width, guh, 32);
 		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);

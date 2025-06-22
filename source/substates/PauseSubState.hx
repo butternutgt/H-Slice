@@ -9,8 +9,7 @@ import backend.Song;
 import flixel.util.FlxStringUtil;
 import flixel.addons.transition.FlxTransitionableState;
 
-import states.StoryMenuState;
-import substates.StickerSubState;
+import mikolka.vslice.StickerSubState;
 import options.OptionsState;
 
 class PauseSubState extends MusicBeatSubstate
@@ -54,12 +53,12 @@ class PauseSubState extends MusicBeatSubstate
 	public function new(inCutscene:Bool = false,type:PauseType = PauseType.CUTSCENE) {
 		super();
 		cutscene_branding = switch(type){
-			case VIDEO: "Video";
-			case CUTSCENE: "Cutscene";
-			case DIALOGUE: "Dialogue";
+			case VIDEO: Language.getPhrase("pause_branding_video","Video");
+			case CUTSCENE: Language.getPhrase("pause_branding_cutscene","Cutscene");
+			case DIALOGUE: Language.getPhrase("pause_branding_dialogue","Dialogue");
 		};
-		cutscene_resetTxt = 'Restart $cutscene_branding';
-		cutscene_skipTxt = 'Skip $cutscene_branding';
+		cutscene_resetTxt = Language.getPhrase("pause_branding_restart",'Restart {1}',[cutscene_branding]);
+		cutscene_skipTxt = Language.getPhrase("pause_branding_skip",'Skip {1}',[cutscene_branding]);
 		this.inVid = inCutscene;
 	}
 	override function create()
@@ -83,6 +82,8 @@ class PauseSubState extends MusicBeatSubstate
 			menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
 			menuItemsOG.insert(5 + num, 'Toggle Botplay');
 		}
+	 	else if(PlayState.instance.practiceMode && !PlayState.instance.startingSong)
+			menuItemsOG.insert(3, 'Skip Time');
 		if(inVid) {
 			menuItems = ['Resume',cutscene_resetTxt , cutscene_skipTxt , 'Options', 'Exit to menu'];
 			if(!cutscene_allowSkipping) menuItems.remove(cutscene_skipTxt);
@@ -124,14 +125,15 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.antialiasing = ClientPrefs.data.antialiasing;
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "Difficulty: " + CoolUtil.capitalize(Difficulty.getString()), 32);
+		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, Language.getPhrase("pause_difficulty","Difficulty: {1}",[CoolUtil.capitalize(Difficulty.getString())]), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
 		levelDifficulty.antialiasing = ClientPrefs.data.antialiasing;
 		add(levelDifficulty);
 		
-		var ballsTxt = inVid ? '$cutscene_branding Paused' : Language.getPhrase("blueballed", "{1} Blue Balls", [PlayState.deathCounter]);
+		var ballsTxt = inVid ? Language.getPhrase("pause_branding",'{1} Paused',[cutscene_branding]) : 
+			Language.getPhrase("blueballed", "{1} Blue Balls", [PlayState.deathCounter]);
 		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, ballsTxt , 32);
 		blueballedTxt.scrollFactor.set();
 		blueballedTxt.setFormat(Paths.font('vcr.ttf'), 32);
@@ -192,7 +194,7 @@ class PauseSubState extends MusicBeatSubstate
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 
 		#if TOUCH_CONTROLS_ALLOWED
-		addTouchPad(PlayState.chartingMode ? 'LEFT_FULL' : 'UP_DOWN', 'A');
+		addTouchPad(menuItems.contains('Skip Time') ? 'LEFT_FULL' : 'UP_DOWN', 'A');
 		addTouchPadCamera();
 		#end
 

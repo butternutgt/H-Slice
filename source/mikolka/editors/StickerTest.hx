@@ -1,8 +1,8 @@
 package mikolka.editors;
 
-import mikolka.compatibility.FunkinControls;
+import mikolka.compatibility.funkin.FunkinControls;
 import mikolka.compatibility.ModsHelper;
-import substates.StickerSubState;
+import mikolka.vslice.StickerSubState;
 #if !LEGACY_PSYCH
 import states.editors.MasterEditorMenu;
 #else
@@ -26,7 +26,7 @@ class StickerTest extends MusicBeatState {
         super();
     }
     override function create() {
-        FlxG.sound.music.pause();
+        FlxG.sound.music?.pause();
         FlxG.mouse.visible = true;
         Paths.clearUnusedMemory();
         if (stickerSubState != null)
@@ -80,19 +80,19 @@ class StickerTest extends MusicBeatState {
     override function update(elapsed:Float) {
         super.update(elapsed);
         if(PsychUIInputText.focusOn == null)
-            {
-                FunkinControls.enableVolume();
+        {
+            FunkinControls.enableVolume();
 
-                if(#if TOUCH_CONTROLS_ALLOWED touchPad.buttonB.justPressed || #end controls.BACK){
-                    FlxG.sound.playMusic(Paths.music('freakyMenu'));
-                    FlxG.mouse.visible = false;
-                    #if LEGACY_PSYCH
-                    MusicBeatState.switchState(new MasterEditorMenu());
-                    #else
-                    MusicBeatState.startTransition(new MasterEditorMenu());
-                    #end
-                }
+            if(#if TOUCH_CONTROLS_ALLOWED touchPad.buttonB.justPressed || #end controls.BACK){
+                FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+                FlxG.mouse.visible = false;
+                #if LEGACY_PSYCH
+                MusicBeatState.switchState(new MasterEditorMenu());
+                #else
+                MusicBeatState.startTransition(new MasterEditorMenu());
+                #end
             }
-            else FunkinControls.disableVolume();
+        }
+        else FunkinControls.disableVolume();
     }
 }

@@ -4,7 +4,7 @@ import objects.Character;
 import objects.Bar;
 import flixel.addons.display.shapes.FlxShapeCircle;
 
-import mikolka.stages.standard.StageWeek1 as BackgroundStage;
+import mikolka.stages.erect.MainStageErect as BackgroundStage;
 
 class NoteOffsetState extends MusicBeatState
 {
@@ -619,7 +619,9 @@ class NoteOffsetState extends MusicBeatState
 
 		var str:String;
 		var str2:String;
-		if(onComboMenu){
+		final accept:String = (controls.mobileC) ? "A" : (!controls.controllerMode) ? "ACCEPT" : "Start";
+		if(onComboMenu)
+		{
 			str = Language.getPhrase('combo_offset', 'Combo Offset');
 			#if TOUCH_CONTROLS_ALLOWED
 			addTouchPad('NONE', 'A_B_C');
@@ -633,12 +635,7 @@ class NoteOffsetState extends MusicBeatState
 			#end
 		}
 
-		if(controls.mobileC)
-			str2 = '(Press A to Switch)';
-		else if(!controls.controllerMode)
-			str2 = Language.getPhrase('switch_on_accept', '(Press Accept to Switch)');
-		else
-			str2 = Language.getPhrase('switch_on_start', '(Press Start to Switch)');
+		str2 = Language.getPhrase('switch_on_button', '(Press {1} to Switch)', [accept]);
 
 		changeModeText.text = '< ${str.toUpperCase()} ${str2.toUpperCase()} >';
 	}

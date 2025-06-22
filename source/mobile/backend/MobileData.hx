@@ -59,35 +59,28 @@ class MobileData
 			extraActions.set(data.getName(), data);
 	}
 
-	public static function setButtonsColors(buttonsInstance:Dynamic):Dynamic
+	public static function getButtonsColors():Array<FlxColor>
 	{
 		// Dynamic Controls Color
-		var data:Dynamic;
+		var data:Dynamic = ClientPrefs.data;
 		if (ClientPrefs.data.dynamicColors)
-			data = ClientPrefs.data;
+			return [data.arrowRGB[0][0],data.arrowRGB[1][0],data.arrowRGB[2][0],data.arrowRGB[3][0],0xFF0066FF,0xA6FF00];
 		else
-			data = ClientPrefs.defaultData;
-
-		buttonsInstance.buttonLeft.color = data.arrowRGB[0][0];
-		buttonsInstance.buttonDown.color = data.arrowRGB[1][0];
-		buttonsInstance.buttonUp.color = data.arrowRGB[2][0];
-		buttonsInstance.buttonRight.color = data.arrowRGB[3][0];
-
-		return buttonsInstance;
+			return [0xFFC24B99,0xFF00FFFF,0xFF12FA05,0xFFF9393F,0xFF0066FF,0xA6FF00];
 	}
 
 	public static function readDirectory(folder:String, map:Dynamic)
 	{
 		folder = folder.contains(':') ? folder.split(':')[1] : folder;
-
-		#if MODS_ALLOWED if (FileSystem.exists(folder)) #end
-		for (file in Paths.readDirectory(folder))
+		Sys.println("PP:"+folder);
+		#if MODS_ALLOWED if (NativeFileSystem.exists(folder)) #end
+		for (file in NativeFileSystem.readDirectory(folder))
 		{
 			var fileWithNoLib:String = file.contains(':') ? file.split(':')[1] : file;
 			if (Path.extension(fileWithNoLib) == 'json')
 			{
-				#if MODS_ALLOWED file = Path.join([folder, Path.withoutDirectory(file)]); #end
-				var str = #if MODS_ALLOWED File.getContent(file) #else Assets.getText(file) #end;
+				file = Path.join([folder, Path.withoutDirectory(file)]);
+				var str = NativeFileSystem.getContent(file);//#if MODS_ALLOWED File.getContent(file) #else Assets.getText(file) #end;
 				var json:TouchButtonsData = cast Json.parse(str);
 				var mapKey:String = Path.withoutDirectory(Path.withoutExtension(fileWithNoLib));
 				map.set(mapKey, json);

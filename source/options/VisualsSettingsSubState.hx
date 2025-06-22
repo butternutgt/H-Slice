@@ -6,12 +6,13 @@ import objects.Note;
 import objects.StrumNote;
 import objects.NoteSplash;
 import objects.Alphabet;
+import options.Option;
 
 import debug.FPSCounter;
 
 class VisualsSettingsSubState extends BaseOptionsMenu
 {
-	public static var pauseMusics:Array<String> = ['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)'];
+	public static var pauseMusics:Array<String> = ['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)', 'Breakfast (Pixel)'];
 	var noteOptionID:Int = -1;
 	var notes:FlxTypedGroup<StrumNote>;
 	var splashes:FlxTypedGroup<NoteSplash>;
@@ -38,9 +39,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		for (i in 0...Note.colArray.length)
 		{
 			var note:StrumNote = new StrumNote(370 + (560 / Note.colArray.length) * i, -200, i, 0);
-			note.centerOffsets();
-			note.centerOrigin();
-			note.playAnim('static');
+			changeNoteSkin(note);
 			notes.add(note);
 			
 			var splash:NoteSplash = new NoteSplash();
@@ -78,6 +77,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			noteOptionID = optionsArray.length - 1;
 		}
 		
+		if (PlayState.SONG != null) PlayState.SONG.splashSkin = null; // Fix this component not working when entering from a song!
 		var noteSplashes:Array<String> = Mods.mergeAllTextsNamed('images/noteSplashes/list.txt');
 		if(noteSplashes.length > 0)
 		{
@@ -507,31 +507,48 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeSplashSkin()
 	{
+		var skin:String = NoteSplash.defaultNoteSplash + NoteSplash.getSplashSkinPostfix();
 		for (splash in splashes)
-			splash.loadSplash();
+			splash.loadSplash(skin);
 
 		playNoteSplashes();
 	}
-
+	
 	function playNoteSplashes()
 	{
+		var rand:Int = 0;
+		if (splashes.members[0] != null && splashes.members[0].maxAnims > 1)
+			rand = FlxG.random.int(0, splashes.members[0].maxAnims - 1); // For playing the same random animation on all 4 splashes
+
 		for (splash in splashes)
 		{
+			splash.revive();
 			var anim:String = splash.playDefaultAnim();
-			splash.visible = true;
-			splash.alpha = ClientPrefs.data.splashAlpha;
-			
 			var conf = splash.config.animations.get(anim);
 			var offsets:Array<Float> = [0, 0];
 
+			var minFps:Int = 22;
+			var maxFps:Int = 26;
 			if (conf != null)
+			{
 				offsets = conf.offsets;
 
+				minFps = conf.fps[0];
+				if (minFps < 0) minFps = 0;
+
+				maxFps = conf.fps[1];
+				if (maxFps < 0) maxFps = 0;
+			}
+
+			splash.offset.set(10, 10);
 			if (offsets != null)
 			{
-				splash.centerOffsets();
-				splash.offset.set(offsets[0], offsets[1]);
+				splash.offset.x += offsets[0];
+				splash.offset.y += offsets[1];
 			}
+
+			if (splash.animation.curAnim != null)
+				splash.animation.curAnim.frameRate = FlxG.random.int(minFps, maxFps);
 		}
 	}
 

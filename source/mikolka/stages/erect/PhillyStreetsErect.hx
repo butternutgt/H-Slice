@@ -1,8 +1,14 @@
 package mikolka.stages.erect;
 
+import mikolka.stages.scripts.PicoCapableStage;
+import mikolka.vslice.StickerSubState;
+import mikolka.compatibility.ModsHelper;
+import mikolka.compatibility.funkin.FunkinControls;
+import mikolka.compatibility.freeplay.FreeplayHelpers;
 import openfl.filters.BlurFilter;
 import mikolka.compatibility.VsliceOptions;
 import shaders.AdjustColorShader;
+//import openfl.display.ShaderParameter_Float;
 import flixel.addons.display.FlxBackdrop;
 import openfl.filters.ShaderFilter;
 import flixel.addons.display.FlxTiledSprite;
@@ -38,7 +44,7 @@ class PhillyStreetsErect extends PicoCapableStage
         override function create()
         {
             buildMist();
-          	if (!VsliceOptions.LOW_QUALITY)
+            if (!VsliceOptions.LOW_QUALITY)
             {
                 var skyImage = Paths.image('phillyStreets/erect/phillySkybox');
                 scrollingSky = new FlxTiledSprite(skyImage, skyImage.width + 400, skyImage.height, true, false);
@@ -203,7 +209,8 @@ class PhillyStreetsErect extends PicoCapableStage
     
         override function createPost()
         {
-    		super.createPost();
+            super.createPost();
+            if(VsliceOptions.LAST_MOD.char_name == "pico") StickerSubState.STICKER_PACK = "weekend";
             spraycanPile = new BGSprite('SpraycanPile', 920, 1045, 1, 1);
 
             add(spraycanPile);
@@ -214,12 +221,14 @@ class PhillyStreetsErect extends PicoCapableStage
     
             carSndAmbience = new FlxSound().loadEmbedded(Paths.sound("ambience/car"), true);
             carSndAmbience.volume = 0.01;
+            FlxG.sound.list.add(carSndAmbience);
             carSndAmbience.play(false, FlxG.random.float(0, carSndAmbience.length));
     
             if (VsliceOptions.SHADERS)
             {
                 // ? ambience
                 rainSndAmbience = new FlxSound().loadEmbedded(Paths.sound("ambience/rain"), true);
+                FlxG.sound.list.add(rainSndAmbience);
                 rainSndAmbience.volume = 0.01;
                 rainSndAmbience.play(false, FlxG.random.float(0, rainSndAmbience.length));
 
@@ -231,6 +240,7 @@ class PhillyStreetsErect extends PicoCapableStage
                 boyfriend.shader = colorShader;
                 dad.shader = colorShader;
                 gf.shader = colorShader;
+                PicoCapableStage.instance?.applyABotShader(colorShader);
             }
         }
     
@@ -256,8 +266,8 @@ class PhillyStreetsErect extends PicoCapableStage
             }
             PlayState.instance.subStateClosed.addOnce((sub) ->{
                 carSndAmbience.volume = 0.1;
-                carSndAmbience.resume();
-                rainSndAmbience.resume();
+                if (carSndAmbience != null) carSndAmbience.resume();
+                if (rainSndAmbience != null) rainSndAmbience.resume();
             });
         }
 
@@ -276,16 +286,21 @@ class PhillyStreetsErect extends PicoCapableStage
             {
                 case 'darnell':
                     rainShaderStartIntensity = 0;
-                    rainShaderEndIntensity = 0.1;
+                    rainShaderEndIntensity = 0.01;
                 case 'lit-up':
-                    rainShaderStartIntensity = 0.1;
-                    rainShaderEndIntensity = 0.2;
+                    rainShaderStartIntensity = 0.01;
+                    rainShaderEndIntensity = 0.02;
                 case '2hot':
-                    rainShaderStartIntensity = 0.2;
-                    rainShaderEndIntensity = 0.4;
+                    rainShaderStartIntensity = 0.02;
+                    rainShaderEndIntensity = 0.04;
             }
             rainShader.intensity = rainShaderStartIntensity;
+            rainShader.rainColor = 0xFFa8adb5;
+            #if LEGACY_PSYCH
+            FlxG.camera.setFilters([new ShaderFilter(rainShader)]);
+            #else
             FlxG.camera.filters = [new ShaderFilter(rainShader)];
+            #end
         }
     
         override function update(elapsed:Float)
@@ -296,7 +311,7 @@ class PhillyStreetsErect extends PicoCapableStage
             if (rainShader != null)
             {
                 var remappedIntensityValue:Float = FlxMath.remapToRange(Conductor.songPosition, 0, (FlxG.sound.music != null ? FlxG.sound.music.length : 0),
-                    rainShaderStartIntensity, rainShaderEndIntensity);
+                rainShaderStartIntensity, rainShaderEndIntensity);
                 rainShader.intensity = remappedIntensityValue;
                 rainShader.updateViewInfo(FlxG.width, FlxG.height, FlxG.camera);
                 rainShader.update(elapsed);
@@ -499,11 +514,7 @@ class PhillyStreetsErect extends PicoCapableStage
             FlxTween.angle(sprite, rotations[0], rotations[1], duration);
             FlxTween.quadPath(sprite, path, duration, true, {onComplete: function(_) car2Interruptable = true});
         }
-    
-    
 
-
-    
 
         function showPicoFade()
         {

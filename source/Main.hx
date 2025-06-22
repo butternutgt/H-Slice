@@ -1,5 +1,10 @@
 package;
 
+import mikolka.vslice.components.crash.Logger;
+#if HSCRIPT_ALLOWED
+import crowplexus.iris.Iris;
+import psychlua.HScript.HScriptInfos;
+#end
 import lime.ui.WindowAttributes;
 import debug.FPSBg;
 #if android
@@ -7,6 +12,7 @@ import android.content.Context;
 #end
 import debug.FPSCounter;
 
+import mikolka.GameBorder;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxG;
@@ -19,6 +25,10 @@ import openfl.events.Event;
 import openfl.display.StageScaleMode;
 import lime.app.Application;
 import states.TitleState;
+
+#if (linux || mac)
+import lime.graphics.Image;
+#end
 #if COPYSTATE_ALLOWED
 import states.CopyState;
 #end
@@ -26,17 +36,14 @@ import states.CopyState;
 import mobile.backend.MobileScaleMode;
 #end
 
-#if linux
-import lime.graphics.Image;
-
+#if (linux && !debug)
 @:cppInclude('./external/gamemode_client.h')
-@:cppFileCode('
-	#define GAMEMODE_AUTO
-')
+@:cppFileCode('#define GAMEMODE_AUTO')
 #end
+
 class Main extends Sprite
 {
-	var game = {
+	public static final game = {
 		width: 1280, // WINDOW width
 		height: 720, // WINDOW height
 		initialState: TitleState, // initial game state
@@ -67,27 +74,26 @@ class Main extends Sprite
 
 		// #if desktop
 		try {
-			Sys.stdout().writeString("Console Available!\n");
+			Sys.println("Console Available!");
 		} catch (e:Dynamic) {isConsoleAvailable = false;}
 		// #else
 		// isConsoleAvailable = false;
 		// #end
 
 		#if mobile
-		#if android
-		StorageUtil.requestPermissions();
+			#if android
+				StorageUtil.requestPermissions();
+			#end
+			Sys.setCwd(StorageUtil.getStorageDirectory());
 		#end
-		Sys.setCwd(StorageUtil.getStorageDirectory());
+		#if sys
+			Logger.startLogging(); 
+			trace("CWD IS "+StorageUtil.getStorageDirectory());
 		#end
 		backend.CrashHandler.init();
 
-		#if windows
-		@:functionCode("
-			#include <windows.h>
-			#include <winuser.h>
-			setProcessDPIAware() // allows for more crisp visuals
-			DisableProcessWindowsGhosting() // lets you move the window and such if it's not responding
-		")
+		#if (cpp && windows)
+		backend.Native.fixScaling();
 		#end
 
 		if (stage != null)
@@ -140,11 +146,74 @@ class Main extends Sprite
 
 		Highscore.load();
 
+		#if HSCRIPT_ALLOWED
+		Iris.warn = function(x, ?pos:haxe.PosInfos) {
+			Iris.logLevel(WARN, x, pos);
+			var newPos:HScriptInfos = cast pos;
+			if (newPos.showLine == null) newPos.showLine = true;
+			var msgInfo:String = (newPos.funcName != null ? '(${newPos.funcName}) - ' : '')  + '${newPos.fileName}:';
+			#if LUA_ALLOWED
+			if (newPos.isLua == true) {
+				msgInfo += 'HScript:';
+				newPos.showLine = false;
+			}
+			#end
+			if (newPos.showLine == true) {
+				msgInfo += '${newPos.lineNumber}:';
+			}
+			msgInfo += ' $x';
+			if (PlayState.instance != null)
+				PlayState.instance.addTextToDebug('WARNING: $msgInfo', FlxColor.YELLOW);
+		}
+		Iris.error = function(x, ?pos:haxe.PosInfos) {
+			Iris.logLevel(ERROR, x, pos);
+			var newPos:HScriptInfos = cast pos;
+			if (newPos.showLine == null) newPos.showLine = true;
+			var msgInfo:String = (newPos.funcName != null ? '(${newPos.funcName}) - ' : '')  + '${newPos.fileName}:';
+			#if LUA_ALLOWED
+			if (newPos.isLua == true) {
+				msgInfo += 'HScript:';
+				newPos.showLine = false;
+			}
+			#end
+			if (newPos.showLine == true) {
+				msgInfo += '${newPos.lineNumber}:';
+			}
+			msgInfo += ' $x';
+			if (PlayState.instance != null)
+				PlayState.instance.addTextToDebug('ERROR: $msgInfo', FlxColor.RED);
+		}
+		Iris.fatal = function(x, ?pos:haxe.PosInfos) {
+			Iris.logLevel(FATAL, x, pos);
+			var newPos:HScriptInfos = cast pos;
+			if (newPos.showLine == null) newPos.showLine = true;
+			var msgInfo:String = (newPos.funcName != null ? '(${newPos.funcName}) - ' : '')  + '${newPos.fileName}:';
+			#if LUA_ALLOWED
+			if (newPos.isLua == true) {
+				msgInfo += 'HScript:';
+				newPos.showLine = false;
+			}
+			#end
+			if (newPos.showLine == true) {
+				msgInfo += '${newPos.lineNumber}:';
+			}
+			msgInfo += ' $x';
+			if (PlayState.instance != null)
+				PlayState.instance.addTextToDebug('FATAL: $msgInfo', 0xFFBB0000);
+		}
+		#end
+
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 		
+		#if mobile
+		FlxG.signals.postGameStart.addOnce(() -> {
+			FlxG.scaleMode = new MobileScaleMode();
+		});
+		#end
+
 		var gameObject = new FlxGame(game.width, game.height, #if COPYSTATE_ALLOWED !CopyState.checkExistingFiles() ? CopyState : #end game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen);
 		// FlxG.game._customSoundTray wants just the class, it calls new from
     	// create() in there, which gets called when it's added to stage
@@ -162,17 +231,23 @@ class Main extends Sprite
 		// FlxG.game.addChild(fpsVar);
 		// #else
 		addChild(fpsBg);
+		#if !debug 
+			var border = new GameBorder();
+			addChild(border);
+			Lib.current.stage.window.onResize.add(border.updateGameSize);
+		#end
 		addChild(fpsVar);
 		// #end
 		
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
+		
 		if(fpsVar != null) fpsVar.visible = ClientPrefs.data.showFPS;
 		if(fpsBg != null) fpsBg.visible = ClientPrefs.data.showFPS;
 
-		// #if debug
-		// flixel.addons.studio.FlxStudio.create();
-		// #end
+		#if (debug)
+		flixel.addons.studio.FlxStudio.create();
+		#end
 
 		#if html5
 		FlxG.autoPause = false;
@@ -191,11 +266,12 @@ class Main extends Sprite
 		DiscordClient.prepare();
 		#end
 
-		#if android FlxG.android.preventDefaultKeys = [BACK]; #end
-
+		
 		#if mobile
+		#if android FlxG.android.preventDefaultKeys = [BACK]; #end
 		lime.system.System.allowScreenTimeout = ClientPrefs.data.screensaver;
 		FlxG.scaleMode = new MobileScaleMode();
+		Application.current.window.vsync = ClientPrefs.data.vsync;
 		#end
 
 		// shader coords fix

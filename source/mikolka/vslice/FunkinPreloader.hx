@@ -1,20 +1,12 @@
 package mikolka.vslice;
 
-import openfl.filters.GlowFilter;
-import openfl.display.SpreadMethod;
-import openfl.display.GradientType;
-import openfl.geom.Matrix;
-import openfl.filters.BlurFilter;
+#if sys import mikolka.vslice.components.crash.Logger; #end
 import openfl.events.MouseEvent;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
-import flash.display.BlendMode;
-import flash.display.Sprite;
 import flash.Lib;
 import flixel.system.FlxBasePreloader;
 import mikolka.funkin.utils.MathUtil;
-import lime.app.Future;
-import lime.math.Rectangle;
 import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
@@ -26,12 +18,16 @@ using StringTools;
 // Annotation embeds the asset in the executable for faster loading.
 // Polymod can't override this, so we can't use this technique elsewhere.
 
-@:bitmap("art/preloaderArt.png")
-class LogoImage extends BitmapData {}
+@:bitmap("art/banner.png")
+class LogoImage extends BitmapData
+{
+}
 
 #if TOUCH_HERE_TO_PLAY
 @:bitmap('art/touchHereToPlay.png')
-class TouchHereToPlayImage extends BitmapData {}
+class TouchHereToPlayImage extends BitmapData
+{
+}
 #end
 
 /**
@@ -130,13 +126,13 @@ class FunkinPreloader extends FlxBasePreloader
 
 	public function new()
 	{
-		super(0.0);
+		super(0.0, ["psych-slice.github.io", FlxBasePreloader.LOCAL]);
 
 		// We can't even call trace() yet, until Flixel loads.
 		trace('Initializing custom preloader...');
 
 		this.siteLockTitleText = "You Loser!";
-		this.siteLockBodyText = "This isn't Newgrounds!\nGo play Friday Night Funkin' on Newgrounds:";
+		// this.siteLockBodyText = "This isn't Newgrounds!\nGo play Friday Night Funkin' on Newgrounds:";
 	}
 
 	override function create():Void
@@ -153,16 +149,20 @@ class FunkinPreloader extends FlxBasePreloader
 		this._height = Lib.current.stage.stageHeight;
 
 		// Tux icon!!!
-		#if linux
+		#if (linux || mac) // fix the app icon not showing up on the Linux Panel
 		var icon = lime.graphics.Image.fromFile("icon.png");
 		Lib.current.stage.window.setIcon(icon);
 		#end
-
+		#if TITLE_SCREEN_EASTER_EGG
+		if (Date.now().getMonth() == 0 && Date.now().getDate() == 14)
+			Lib.current.stage.window.title = "Friday Night Funkin': Mikolka's Engine";
+		#end
 		// Scale assets to the screen size.
 		ratio = this._width / BASE_WIDTH / 2.0;
 
 		// Create the logo.
-		logo = createBitmap(LogoImage, function(bmp:Bitmap) {
+		logo = createBitmap(LogoImage, function(bmp:Bitmap)
+		{
 			// Scale and center the logo.
 			// We have to do this inside the async call, after the image size is known.
 			bmp.scaleX = bmp.scaleY = ratio;
@@ -295,7 +295,8 @@ class FunkinPreloader extends FlxBasePreloader
 		vfdBitmap.shader = vfdShader;
 
 		#if TOUCH_HERE_TO_PLAY
-		touchHereToPlay = createBitmap(TouchHereToPlayImage, function(bmp:Bitmap) {
+		touchHereToPlay = createBitmap(TouchHereToPlayImage, function(bmp:Bitmap)
+		{
 			// Scale and center the touch to start image.
 			// We have to do this inside the async call, after the image size is known.
 			bmp.scaleX = bmp.scaleY = ratio;
@@ -332,15 +333,15 @@ class FunkinPreloader extends FlxBasePreloader
 		switch (currentState)
 		{
 			case FunkinPreloaderState.NotStarted:
-				if (downloadingAssetsPercent > 0.0) currentState = FunkinPreloaderState.DownloadingAssets;
+				if (downloadingAssetsPercent > 0.0)
+					currentState = FunkinPreloaderState.DownloadingAssets;
 
 				return percent;
 
 			case FunkinPreloaderState.DownloadingAssets:
 				// Sometimes percent doesn't go to 100%, it's a floating point error.
-				if (downloadingAssetsPercent >= 1.0
-					|| (elapsed > 0.0
-						&& downloadingAssetsComplete)) currentState = FunkinPreloaderState.PreloadingPlayAssets;
+				if (downloadingAssetsPercent >= 1.0 || (elapsed > 0.0 && downloadingAssetsComplete))
+					currentState = FunkinPreloaderState.PreloadingPlayAssets;
 
 				return percent;
 
@@ -358,7 +359,7 @@ class FunkinPreloader extends FlxBasePreloader
 						var future:Future<lime.utils.AssetLibrary> = Assets.preloadLibrary('gameplay');
 
 						future.onProgress((loaded:Int, total:Int) -> {
-							preloadingPlayAssetsPercent = loaded / total;
+						  preloadingPlayAssetsPercent = loaded / total;
 						});
 						future.onComplete((library:lime.utils.AssetLibrary) -> {
 						});
@@ -380,14 +381,16 @@ class FunkinPreloader extends FlxBasePreloader
 					else
 					{
 						// We need to return SIMULATED progress here.
-						if (preloadingPlayAssetsPercent < (elapsedPreloadingPlayAssets / 0.0)) return preloadingPlayAssetsPercent;
+						if (preloadingPlayAssetsPercent < (elapsedPreloadingPlayAssets / 0.0))
+							return preloadingPlayAssetsPercent;
 						else
 							return elapsedPreloadingPlayAssets / 0.0;
 					}
 				}
 				else
 				{
-					if (preloadingPlayAssetsComplete) currentState = FunkinPreloaderState.InitializingScripts;
+					if (preloadingPlayAssetsComplete)
+						currentState = FunkinPreloaderState.InitializingScripts;
 				}
 
 				return preloadingPlayAssetsPercent;
@@ -401,11 +404,11 @@ class FunkinPreloader extends FlxBasePreloader
 						var future:Future<Array<String>> = []; // PolymodHandler.loadNoModsAsync();
 
 						future.onProgress((loaded:Int, total:Int) -> {
-							trace('PolymodHandler.loadNoModsAsync() progress: ' + loaded + '/' + total);
-							initializingScriptsPercent = loaded / total;
+						  trace('PolymodHandler.loadNoModsAsync() progress: ' + loaded + '/' + total);
+						  initializingScriptsPercent = loaded / total;
 						});
 						future.onComplete((result:Array<String>) -> {
-							trace('Completed initializing scripts: ' + result);
+						  trace('Completed initializing scripts: ' + result);
 						});
 					 */
 
@@ -427,10 +430,10 @@ class FunkinPreloader extends FlxBasePreloader
 
 						var future:Future<Array<String>> = []; // Assets.cacheAssets(assetsToCache);
 						future.onProgress((loaded:Int, total:Int) -> {
-							cachingGraphicsPercent = loaded / total;
+						  cachingGraphicsPercent = loaded / total;
 						});
 						future.onComplete((_result) -> {
-							trace('Completed caching graphics.');
+						  trace('Completed caching graphics.');
 						});
 					 */
 
@@ -486,10 +489,10 @@ class FunkinPreloader extends FlxBasePreloader
 						var future:Future<Array<String>> = []; // Assets.cacheAssets(assetsToCache);
 
 						future.onProgress((loaded:Int, total:Int) -> {
-							cachingAudioPercent = loaded / total;
+						  cachingAudioPercent = loaded / total;
 						});
 						future.onComplete((_result) -> {
-							trace('Completed caching audio.');
+						  trace('Completed caching audio.');
 						});
 					 */
 
@@ -556,10 +559,10 @@ class FunkinPreloader extends FlxBasePreloader
 						var future:Future<Array<String>> = [];
 						// Assets.cacheAssets(assetsToCache, true);
 						future.onProgress((loaded:Int, total:Int) -> {
-							cachingDataPercent = loaded / total;
+						  cachingDataPercent = loaded / total;
 						});
 						future.onComplete((_result) -> {
-							trace('Completed caching data.');
+						  trace('Completed caching data.');
 						});
 					 */
 					cachingDataPercent = 1.0;
@@ -577,7 +580,8 @@ class FunkinPreloader extends FlxBasePreloader
 					else
 					{
 						// We need to return SIMULATED progress here.
-						if (cachingDataPercent < (elapsedCachingData / 0.0)) return cachingDataPercent;
+						if (cachingDataPercent < (elapsedCachingData / 0.0))
+							return cachingDataPercent;
 						else
 							return elapsedCachingData / 0.0;
 					}
@@ -606,10 +610,10 @@ class FunkinPreloader extends FlxBasePreloader
 					/*
 						var future:Future<Array<String>> = []; // Assets.cacheSparrowFrames(sparrowFramesToCache, true);
 						future.onProgress((loaded:Int, total:Int) -> {
-							parsingSpritesheetsPercent = loaded / total;
+						  parsingSpritesheetsPercent = loaded / total;
 						});
 						future.onComplete((_result) -> {
-							trace('Completed parsing spritesheets.');
+						  trace('Completed parsing spritesheets.');
 						});
 					 */
 					parsingSpritesheetsPercent = 1.0;
@@ -627,7 +631,8 @@ class FunkinPreloader extends FlxBasePreloader
 					else
 					{
 						// We need to return SIMULATED progress here.
-						if (parsingSpritesheetsPercent < (elapsedParsingSpritesheets / 0.0)) return parsingSpritesheetsPercent;
+						if (parsingSpritesheetsPercent < (elapsedParsingSpritesheets / 0.0))
+							return parsingSpritesheetsPercent;
 						else
 							return elapsedParsingSpritesheets / 0.0;
 					}
@@ -654,11 +659,11 @@ class FunkinPreloader extends FlxBasePreloader
 						var future:Future<Array<String>> = []; // StageDataParser.loadStageCacheAsync();
 
 						future.onProgress((loaded:Int, total:Int) -> {
-							parsingStagesPercent = loaded / total;
+						  parsingStagesPercent = loaded / total;
 						});
 
 						future.onComplete((_result) -> {
-							trace('Completed parsing stages.');
+						  trace('Completed parsing stages.');
 						});
 					 */
 
@@ -677,7 +682,8 @@ class FunkinPreloader extends FlxBasePreloader
 					else
 					{
 						// We need to return SIMULATED progress here.
-						if (parsingStagesPercent < (elapsedParsingStages / 0.0)) return parsingStagesPercent;
+						if (parsingStagesPercent < (elapsedParsingStages / 0.0))
+							return parsingStagesPercent;
 						else
 							return elapsedParsingStages / 0.0;
 					}
@@ -704,11 +710,11 @@ class FunkinPreloader extends FlxBasePreloader
 						var future:Future<Array<String>> = []; // CharacterDataParser.loadCharacterCacheAsync();
 
 						future.onProgress((loaded:Int, total:Int) -> {
-							parsingCharactersPercent = loaded / total;
+						  parsingCharactersPercent = loaded / total;
 						});
 
 						future.onComplete((_result) -> {
-							trace('Completed parsing characters.');
+						  trace('Completed parsing characters.');
 						});
 					 */
 
@@ -727,7 +733,8 @@ class FunkinPreloader extends FlxBasePreloader
 					else
 					{
 						// We need to return SIMULATED progress here.
-						if (parsingCharactersPercent < (elapsedParsingCharacters / 0.0)) return parsingCharactersPercent;
+						if (parsingCharactersPercent < (elapsedParsingCharacters / 0.0))
+							return parsingCharactersPercent;
 						else
 							return elapsedParsingCharacters / 0.0;
 					}
@@ -755,11 +762,11 @@ class FunkinPreloader extends FlxBasePreloader
 						// SongDataParser.loadSongCacheAsync();
 
 						future.onProgress((loaded:Int, total:Int) -> {
-							parsingSongsPercent = loaded / total;
+						  parsingSongsPercent = loaded / total;
 						});
 
 						future.onComplete((_result) -> {
-							trace('Completed parsing songs.');
+						  trace('Completed parsing songs.');
 						});
 					 */
 
@@ -900,10 +907,8 @@ class FunkinPreloader extends FlxBasePreloader
 			renderLogoFadeIn(elapsed);
 
 			// Render progress bar
-			// var maxWidth = this._width - BAR_PADDING * 2;
-			// var barWidth = maxWidth * percent;
-			var piecesToRender:Int = Std.int(currentSteps / TOTAL_STEPS * progressBarPieces.length);
-			// trace(piecesToRender);
+			var piecesToRender:Int = Std.int(currentSteps / TOTAL_STEPS  * progressBarPieces.length);
+
 			for (i => piece in progressBarPieces)
 			{
 				piece.alpha = i <= piecesToRender ? 0.9 : 0.1;

@@ -1,9 +1,14 @@
 package options;
+import mikolka.vslice.components.crash.Logger;
+import options.Option;
 
 class BaseGameSubState extends BaseOptionsMenu {
+	var logOption:Option;
+
     public function new() {
-        title = "V-Slice settings";
+        title = Language.getPhrase("vslice_menu","V-Slice settings");
         rpcTitle = "V-Slice settings menu";
+
         var option:Option = new Option('Use New Freeplay State',
 			'If disabled, it uses the Freeplay State of Psych Engine instead new one.',
 			'vsliceFreeplay',
@@ -11,13 +16,27 @@ class BaseGameSubState extends BaseOptionsMenu {
 		addOption(option);
 
         var option:Option = new Option('Freeplay Dynamic Coloring',
-			'Enables dynamic freeplay background color.\nDisable this if you prefer original V-slice freeplay menu colors',
+			'Enables dynamic freeplay background color. Disable this if you prefer original V-slice freeplay menu colors',
 			'vsliceFreeplayColors',
 			BOOL);
 		addOption(option);
-
+		#if sys
+		var option:Option = new Option('Logging Type',
+			"Controls verbosity of the game's logs.",
+			'loggingType',
+			STRING,
+			["None", "Console", "File", "Console & File"]);
+		option.onChange = Logger.updateLogType;
+		addOption(option);
+		logOption = option;
+		#end
+		var option:Option = new Option('Naughtyness',
+			'If disabled, some "raunchy content" (such as swearing, etc.) will be disabled',
+			'vsliceNaughtyness',
+			BOOL);
+		addOption(option);
 		var option:Option = new Option('Use Results Screen',
-			'If disabled, it will not show the result screen.',
+			'If disabled will skip showing the result screen',
 			'vsliceResults',
 			BOOL);
 		addOption(option);
@@ -31,6 +50,12 @@ class BaseGameSubState extends BaseOptionsMenu {
 		var option:Option = new Option('Smooth Health Bar',
 			'If enabled, makes health bar move move smoothly.',
 			'vsliceSmoothBar',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Use legacy bar',
+			'Makes health bar and score text much simpler',
+			'vsliceLegacyBar',
 			BOOL);
 		addOption(option);
 
@@ -66,11 +91,17 @@ class BaseGameSubState extends BaseOptionsMenu {
 				"Health Bar",
 			]);
 		addOption(option);
+		
 		var option:Option = new Option('Force "New" tag',
 			'If enabled will force every uncompleted song to show "new" tag even if it\'s disabled',
 			'vsliceForceNewTag',
-			'bool');
+			BOOL);
 		addOption(option);
         super();
     }
+
+	function updateLogType() {
+		ClientPrefs.data.loggingType = logOption.getValue();
+		Logger.updateLogType();
+	}
 }

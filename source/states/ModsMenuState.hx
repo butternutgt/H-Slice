@@ -1,16 +1,10 @@
 package states;
 
-import backend.WeekData;
-import backend.Mods;
-import flixel.FlxBasic;
-import flixel.graphics.FlxGraphic;
-import openfl.geom.Rectangle;
-import haxe.Json;
-import flixel.util.FlxSpriteUtil;
-import objects.AttachedSprite;
-import options.ModSettingsSubState;
 import openfl.display.BitmapData;
-import lime.utils.Assets;
+import backend.Mods;
+import flixel.graphics.FlxGraphic;
+import flixel.util.FlxSpriteUtil;
+import options.ModSettingsSubState;
 
 class ModsMenuState extends MusicBeatState
 {
@@ -116,10 +110,10 @@ class ModsMenuState extends MusicBeatState
 		var myY = buttonReload.y + buttonReload.bg.height + 20;
 		/*buttonModFolder = new MenuButton(buttonX, myY, buttonWidth, buttonHeight, "MODS FOLDER", function() {
 				var modFolder = Paths.mods();
-				if(!FileSystem.exists(modFolder))
+				if(!NativeFileSystem.exists(modFolder))
 				{
 					trace('created missing folder');
-					FileSystem.createDirectory(modFolder);
+					NativeFileSystem.createDirectory(modFolder);
 				}
 				CoolUtil.openFolder(modFolder);
 			});
@@ -178,10 +172,8 @@ class ModsMenuState extends MusicBeatState
 			buttonEnableAll.visible = true;
 
 			var myX = bgList.x + bgList.width + 20;
-			noModsTxt = new FlxText(myX, 0, FlxG.width - myX - 20,
-				Language.getPhrase('no_mods_installed', "NO MODS INSTALLED\nPRESS " + daButton + " TO EXIT OR INSTALL A MOD"), 48);
-			if (FlxG.random.bool(0.1))
-				noModsTxt.text += '\nBITCH.'; // meanie
+			noModsTxt = new FlxText(myX, 0, FlxG.width - myX - 20, Language.getPhrase('no_mods_installed', "NO MODS INSTALLED\nPRESS {1} TO EXIT OR INSTALL A MOD", [daButton]), 48);
+			if(FlxG.random.bool(0.1)) noModsTxt.text += '\nBITCH.'; //meanie
 			noModsTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			noModsTxt.borderSize = 2;
 			noModsTxt.antialiasing = ClientPrefs.data.antialiasing;
@@ -337,7 +329,7 @@ class ModsMenuState extends MusicBeatState
 		bottomBG.alpha = 0.6;
 		add(bottomBG);
 
-		var bottomText = new FlxText(bottomBG.x, bottomBG.y + 4, FlxG.width, Language.getPhrase('mods_leave', "Press " + daButton + " To Leave"), 16);
+		var bottomText = new FlxText(bottomBG.x, bottomBG.y + 4, FlxG.width, Language.getPhrase('mods_leave', "Press {1} To Leave", [daButton]), 16);
 		bottomText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		bottomText.scrollFactor.set();
 		bottomText.antialiasing = ClientPrefs.data.antialiasing;
@@ -877,7 +869,7 @@ class ModsMenuState extends MusicBeatState
 			fileStr += '$mod|$on';
 		}
 
-		var path:String = 'modsList.txt';
+		var path:String = StorageUtil.getStorageDirectory()+'/modsList.txt';
 		File.saveContent(path, fileStr);
 		Mods.parseList();
 		Mods.loadTopMod();
@@ -909,7 +901,7 @@ class ModItem extends FlxSpriteGroup
 		pack = Mods.getPack(folder);
 
 		var path:String = Paths.mods('$folder/data/settings.json');
-		if (FileSystem.exists(path))
+		if (NativeFileSystem.exists(path))
 		{
 			try
 			{
@@ -942,26 +934,24 @@ class ModItem extends FlxSpriteGroup
 
 		var isPixel = false;
 		var file:String = Paths.mods('$folder/pack.png');
-		if (!FileSystem.exists(file))
+		if (!NativeFileSystem.exists(file))
 		{
 			file = Paths.mods('$folder/pack-pixel.png');
 			isPixel = true;
 		}
 
-		var bmp:BitmapData = null;
-		if (FileSystem.exists(file))
-			bmp = BitmapData.fromFile(file);
-		else
-			isPixel = false;
+		var bmp:BitmapData = NativeFileSystem.getBitmap(file);	
 
-		if (FileSystem.exists(file))
+		if (bmp != null)
 		{
 			icon.loadGraphic(Paths.cacheBitmap(file, bmp), true, 150, 150);
 			if (isPixel)
 				icon.antialiasing = false;
 		}
-		else
+		else{
+			isPixel = false;
 			icon.loadGraphic(Paths.image('unknownMod'), true, 150, 150);
+		}
 		icon.scale.set(0.5, 0.5);
 		icon.updateHitbox();
 

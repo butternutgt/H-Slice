@@ -12,11 +12,11 @@ import states.TitleState;
 	public var extraHints:String = "NONE"; // hitbox extra hint option
 	public var hitbox2:Bool = true; // hitbox extra button position option
 	public var dynamicColors:Bool = true; // yes cause its cool -Karim
-	public var controlsAlpha:Float = FlxG.onMobile ? 0.6 : 0;
+	public var controlsAlpha:Float = 0.6;
 	public var screensaver:Bool = false;
 	public var wideScreen:Bool = false;
 	#if android
-	public var storageType:String = "EXTERNAL_DATA";
+	public var storageType:String = "EXTERNAL";
 	#end
 	public var hitboxType:String = "Gradient";
 
@@ -127,6 +127,8 @@ import states.TitleState;
 	public var badWindow:Int = 135;
 	public var safeFrames:Float = 10;
 	public var f11Shortcut:Bool = false;
+	public var fpsRework:Bool = false;
+	public var cacheOnCPU:Bool = #if android false #else true #end;
 
 	// V-Slice Settings
 	public var vsliceFreeplay:Bool = true;
@@ -138,9 +140,11 @@ import states.TitleState;
 	public var vsliceSmoothNess:Float = 0.25;
 	public var vsliceLoadInstAll:Bool = false;
 	public var vsliceBotPlayPlace:String = "Time Bar";
+	public var loggingType:String = "None";
+	public var vsliceLegacyBar:Bool = false;
+	public var vsliceNaughtyness:Bool = #if mobile false #else true #end;
 	public var vsliceForceNewTag:Bool = false;
 
-	// Miscellaneous Settings
 	public var noteOffset:Int = 0;
 	public var arrowRGB:Array<Array<FlxColor>> = [
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
@@ -177,7 +181,6 @@ import states.TitleState;
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0, 0, 0];
-	// public var guitarHeroSustains:Bool = true; // TODO: Should be removed in next major update
 	public var loadingScreen:Bool = true;
 	public var language:String = 'en-US';
 	public var neverShowUpdate:Bool = false;

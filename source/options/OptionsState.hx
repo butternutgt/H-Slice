@@ -1,6 +1,7 @@
 package options;
 
-import states.MainMenuState;
+import mikolka.vslice.components.crash.UserErrorSubstate;
+
 import backend.StageData;
 import flixel.FlxObject;
 #if (target.threaded)
@@ -31,6 +32,7 @@ class OptionsState extends MusicBeatState
 	private static var curSelected:Int = 0;
 	public static var menuBG:FlxSprite;
 	public static var onPlayState:Bool = false;
+	var exiting:Bool = false;
 	#if (target.threaded) var mutex:Mutex = new Mutex(); #end
 
 	private var mainCam:FlxCamera;
@@ -49,8 +51,9 @@ class OptionsState extends MusicBeatState
 			case 'Controls':
 				if (controls.mobileC)
 				{
-					persistentUpdate = true;
-					FlxG.sound.play(Paths.sound('cancelMenu'));
+					funnyCam.visible = persistentUpdate = true;
+					UserErrorSubstate.makeMessage("Unsupported controls", 
+					"You don't need to go there on mobile!\n\nIf you wish to go there anyway\nSet 'Mobile Controls Opacity' to 0%");
 				}
 				else
 					openSubState(new options.ControlsSubState());
@@ -74,8 +77,10 @@ class OptionsState extends MusicBeatState
 			case 'Mobile Options':
 				openSubState(new mobile.options.MobileOptionsSubState());
 			#end
+			#if TRANSLATIONS_ALLOWED
 			case 'Language':
 				openSubState(new options.LanguageSubState());
+			#end
 		}
 	}
 
@@ -172,6 +177,7 @@ class OptionsState extends MusicBeatState
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
+		if(exiting) return;
 
 		if (controls.UI_UP_P)
 			changeSelection(-1);
@@ -200,6 +206,7 @@ class OptionsState extends MusicBeatState
 		if (controls.BACK)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
+			exiting = false;
 			if(onPlayState)
 			{
 				StageData.loadDirectory(PlayState.SONG);

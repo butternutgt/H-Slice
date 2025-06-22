@@ -33,7 +33,7 @@ class NoteSplashEditorState extends MusicBeatState
     override function create()
     {
         if (imageSkin == null)
-            imageSkin =  NoteSplash.DEFAULT_SKIN + NoteSplash.getSplashSkinPostfix();
+            imageSkin =  NoteSplash.defaultNoteSplash + NoteSplash.getSplashSkinPostfix();
 
         FlxG.mouse.visible = true;
 
@@ -720,7 +720,7 @@ class NoteSplashEditorState extends MusicBeatState
 	{
 		super.closeSubState();
         #if TOUCH_CONTROLS_ALLOWED
-		removeTouchPad();
+        removeTouchPad();
 		addTouchPad('LEFT_FULL', 'NOTE_SPLASH_EDITOR');
         #end
 	}
@@ -906,7 +906,7 @@ class NoteSplashEditorState extends MusicBeatState
             #if MODS_ALLOWED
             if (txtLoaded.__path != null)
             {
-                try txt = File.getContent(txtLoaded.__path) catch (e) txt = null;
+                try txt = NativeFileSystem.getContent(txtLoaded.__path) catch (e) txt = null;
                 file = txtLoaded.__path;
                 file = file.substring(0, file.length - 4) + ".json";
             }

@@ -1,6 +1,7 @@
 package options;
 
 import objects.Character;
+import options.Option;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
@@ -48,6 +49,12 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Multithreaded Caching', //Name
+		"If checked, enables multithreaded loading, which improves loading times but with a low chance for the game to freeze while loading a song.", //Description
+		'cacheOnCPU',
+		BOOL);
+		addOption(option);
+		
 		var option:Option = new Option('GPU Caching', //Name
 			"If checked, allows the GPU to be used for caching textures,\ndecreasing RAM usage. Don't turn this on if you have a shitty Graphics Card.", //Description
 			'cacheOnGPU',
@@ -55,7 +62,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		#if sys
-		var option:Option = new Option('VSync',
+		var option:Option = new Option('VSync', //Name
 			'If checked, it enables VSync, fixing any screen tearing\nat the cost of capping the FPS to screen refresh rate.',
 			'vsync',
 			BOOL);

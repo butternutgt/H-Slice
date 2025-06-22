@@ -28,7 +28,7 @@ class BPMCache {
             return 0;
         }
         
-        chartFiles = Paths.readDirectory(sngDataPath);
+        chartFiles = NativeFileSystem.readDirectory(sngDataPath);
         #if MODS_ALLOWED
         chartFiles = chartFiles.filter(s -> s.toLowerCase().startsWith(fileSngName) && s.endsWith(".json"));
         chosenChartToScrap = sngDataPath+"/"+chartFiles[0];

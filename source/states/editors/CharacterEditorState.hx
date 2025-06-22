@@ -1,8 +1,9 @@
 package states.editors;
 
+import openfl.display.BitmapData;
 import flixel.graphics.FlxGraphic;
 
-import flixel.system.debug.interaction.tools.Pointer.GraphicCursorCross;
+
 import flixel.util.FlxDestroyUtil;
 
 import openfl.net.FileReference;
@@ -16,6 +17,9 @@ import objects.Bar;
 
 import states.editors.content.Prompt;
 import states.editors.content.PsychJsonPrinter;
+
+@:bitmap("assets/embed/images/ui/cursorCross.png")
+class GraphicCursorCross extends BitmapData {}
 
 class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
@@ -458,7 +462,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			var characterPath:String = 'characters/$intended.json';
 			var path:String = Paths.getPath(characterPath, TEXT, null, true);
 			#if MODS_ALLOWED
-			if (FileSystem.exists(path))
+			if (NativeFileSystem.exists(path))
 			#else
 			if (Assets.exists(path))
 			#end
@@ -1308,7 +1312,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		characterList = Mods.mergeAllTextsNamed('data/characterList.txt');
 		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'characters/');
 		for (folder in foldersToCheck)
-			for (file in FileSystem.readDirectory(folder))
+			for (file in NativeFileSystem.readDirectory(folder))
 				if(file.toLowerCase().endsWith('.json'))
 				{
 					var charToCheck:String = file.substr(0, file.length - 5);

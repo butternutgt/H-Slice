@@ -1,5 +1,6 @@
 package states;
 
+import mikolka.vslice.components.crash.Logger;
 import haxe.Timer;
 import backend.WeekData;
 import flixel.input.keyboard.FlxKey;
@@ -13,11 +14,12 @@ import openfl.Assets;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import shaders.ColorSwap;
-import states.StoryMenuState;
+
 import states.OutdatedState;
-import states.MainMenuState;
 import mikolka.vslice.components.ScreenshotPlugin;
+#if VIDEOS_ALLOWED
 import mikolka.vslice.AttractState;
+#end
 
 typedef TitleData =
 {
@@ -85,6 +87,7 @@ class TitleState extends MusicBeatState
 			ClientPrefs.loadPrefs();
 			Language.reloadPhrases();
 		}
+		Logger.updateLogType();
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
@@ -135,11 +138,6 @@ class TitleState extends MusicBeatState
 		}
 
 		FlxG.mouse.visible = false;
-		// #if FREEPLAY
-		// MusicBeatState.switchState(new FreeplayState());
-		// #elseif CHARTING
-		// MusicBeatState.switchState(new ChartingState());
-		// #else
 		if (FlxG.save.data.flashing == null && !FlashingState.leftState)
 		{
 			controls.isInSubstate = false;
@@ -794,7 +792,7 @@ class TitleState extends MusicBeatState
 		{
 			if (controls.NOTE_DOWN_P || controls.UI_DOWN_P || SwipeUtil.swipeUp)
 				codePress(FlxDirectionFlags.DOWN);
-			if (controls.NOTE_UP_P || controls.UI_UP_P  || SwipeUtil.swipeDown)
+			if (controls.NOTE_UP_P || controls.UI_UP_P || SwipeUtil.swipeDown)
 				codePress(FlxDirectionFlags.UP);
 			if (controls.NOTE_LEFT_P || controls.UI_LEFT_P || SwipeUtil.swipeRight)
 				codePress(FlxDirectionFlags.LEFT);
@@ -839,8 +837,9 @@ class TitleState extends MusicBeatState
 	 * After sitting on the title screen for a while, transition to the attract screen.
 	 */
 	function moveToAttract():Void
-	{	
+	{	#if VIDEOS_ALLOWED
 		if(!Std.isOfType(FlxG.state,TitleState)) return;
 		FlxG.switchState(() -> new AttractState());
+		#end
 	}
 }

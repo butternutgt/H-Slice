@@ -69,9 +69,9 @@ class ExtraFunctions
 			}
 		});
 
-		Lua_helper.add_callback(lua, "anyGamepadJustPressed", function(name:String) return FlxG.gamepads.anyJustPressed(name));
-		Lua_helper.add_callback(lua, "anyGamepadPressed", function(name:String) FlxG.gamepads.anyPressed(name));
-		Lua_helper.add_callback(lua, "anyGamepadReleased", function(name:String) return FlxG.gamepads.anyJustReleased(name));
+		Lua_helper.add_callback(lua, "anyGamepadJustPressed", function(name:String) return FlxG.gamepads.anyJustPressed(name.toUpperCase()));
+		Lua_helper.add_callback(lua, "anyGamepadPressed", function(name:String) return FlxG.gamepads.anyPressed(name.toUpperCase()));
+		Lua_helper.add_callback(lua, "anyGamepadReleased", function(name:String) return FlxG.gamepads.anyJustReleased(name.toUpperCase()));
 
 		Lua_helper.add_callback(lua, "gamepadAnalogX", function(id:Int, ?leftStick:Bool = true)
 		{
@@ -201,9 +201,9 @@ class ExtraFunctions
 		// File management
 		Lua_helper.add_callback(lua, "checkFileExists", function(filename:String, ?absolute:Bool = false) {
 			#if MODS_ALLOWED
-			if(absolute) return FileSystem.exists(filename);
+			if(absolute) return NativeFileSystem.exists(filename);
 
-			return FileSystem.exists(Paths.getPath(filename, TEXT));
+			return NativeFileSystem.exists(Paths.getPath(filename, TEXT));
 
 			#else
 			if(absolute) return Assets.exists(filename, TEXT);
@@ -232,9 +232,9 @@ class ExtraFunctions
 			try {
 				var lePath:String = path;
 				if(!absolute) lePath = Paths.getPath(path, TEXT, !ignoreModFolders);
-				if(FileSystem.exists(lePath))
+				if(NativeFileSystem.exists(lePath))
 				{
-					FileSystem.deleteFile(lePath);
+					NativeFileSystem.deleteFile(lePath);
 					return true;
 				}
 			} catch (e:Dynamic) {
@@ -248,8 +248,8 @@ class ExtraFunctions
 		Lua_helper.add_callback(lua, "directoryFileList", function(folder:String) {
 			var list:Array<String> = [];
 			#if sys
-			if(FileSystem.exists(folder)) {
-				for (folder in Paths.readDirectory(folder)) {
+			if(NativeFileSystem.exists(folder)) {
+				for (folder in NativeFileSystem.readDirectory(folder)) {
 					if (!list.contains(folder)) {
 						list.push(folder);
 					}

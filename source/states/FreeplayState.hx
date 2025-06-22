@@ -1,5 +1,6 @@
 package states;
 
+import mikolka.funkin.Scoring.ScoringRank;
 import cpp.vm.Gc;
 import backend.WeekData;
 import backend.Highscore;
@@ -81,7 +82,7 @@ class FreeplayState extends MusicBeatState
 			persistentUpdate = false;
 			MusicBeatState.switchState(new states.ErrorState("NO WEEKS ADDED FOR FREEPLAY\n\nPress ACCEPT to go to the Week Editor Menu.\nPress BACK to return to Main Menu.",
 				function() MusicBeatState.switchState(new states.editors.WeekEditorState()),
-				function() MusicBeatState.switchState(new states.MainMenuState())));
+				function() MusicBeatState.switchState(new MainMenuState())));
 			return;
 		}
 
@@ -217,7 +218,9 @@ class FreeplayState extends MusicBeatState
 		
 		#if debug trace(fromResultState); #end
 		if (fromResultState && !ClientPrefs.data.vsliceFreeplay && (!FlxG.sound.music.playing || FlxG.sound.music.volume == 0)) {
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), ClientPrefs.data.bgmVolume);
+			closeSubState();
+			FlxTransitionableState.skipNextTransIn = false;
+			FlxTransitionableState.skipNextTransOut = false;
 			fromResultState = false;
 		}
 		
@@ -265,6 +268,7 @@ class FreeplayState extends MusicBeatState
 	var shiftMult:Int;
 
 	var spamTime:Float = 0;
+
 	override function update(elapsed:Float)
 	{
 		if(WeekData.weeksList.length < 1)
@@ -289,7 +293,6 @@ class FreeplayState extends MusicBeatState
 		// 	ratingSplit[1] += '0';
 
 		ratingFormat = CoolUtil.floatToStringPrecision(lerpRating * 100, 2);
-
 		shiftMult = FlxG.keys.pressed.SHIFT ? 3 : 1;
 
 		if (!player.playingMusic)

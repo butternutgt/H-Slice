@@ -1,8 +1,6 @@
 package mikolka.vslice;
 
-#if html5
-import funkin.graphics.video.FlxVideo;
-#else
+#if VIDEOS_ALLOWED
 import mikolka.compatibility.ModsHelper;
 #if hxCodec
 import hxcodec.flixel.FlxVideoSprite;
@@ -11,7 +9,6 @@ import hxvlc.flixel.FlxVideoSprite;
 #end
 
 using mikolka.funkin.utils.ArrayTools;
-#end
 
 /**
  * After about 2 minutes of inactivity on the title screen,
@@ -20,6 +17,7 @@ using mikolka.funkin.utils.ArrayTools;
  * In the current version, this just plays the ~~Kickstarter trailer~~ Erect teaser, but this can be changed to
  * gameplay footage, a generic game trailer, or something more elaborate.
  */
+
 class AttractState extends MusicBeatSubstate
 {
 	#if html5
@@ -196,3 +194,4 @@ class AttractState extends MusicBeatSubstate
 		}
 	}
 }
+#end

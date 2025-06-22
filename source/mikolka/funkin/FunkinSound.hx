@@ -90,7 +90,9 @@ class FunkinSound extends FlxSound
 				instPath = 'assets/songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}';
 				#if MODS_ALLOWED
 				var modsInstPath = Paths.modFolders('songs/${Paths.formatToSongPath(key)}/Inst.${Paths.SOUND_EXT}');
-				if(FileSystem.exists(modsInstPath)) instPath = modsInstPath;
+				var real_modSngPath = NativeFileSystem.getPathLike(modsInstPath);
+				if(real_modSngPath != null) instPath = real_modSngPath;
+
 				#end
 				
 				var future = FlxPartialSound.partialLoadFromFile(instPath,params.partialParams.start,params.partialParams.end);
@@ -104,20 +106,20 @@ class FunkinSound extends FlxSound
 						loaded = true;
 					
 					@:privateAccess{
-						if(!Std.isOfType(FlxG.state.subState,FreeplayState)) return;
-						var fp = cast (FlxG.state.subState,FreeplayState);
+					if(!Std.isOfType(FlxG.state.subState,FreeplayState)) return;
+					var fp = cast (FlxG.state.subState,FreeplayState);
 
 						var cap = fp.grpCapsules.members[fp.curSelected];
-						if(cap.songData == null || cap.songData.songId != key || fp.busy) return;
+						if(cap.songData == null || cap.songData.getNativeSongId() != key || fp.busy) return;
 					}
 					
-					#if debug trace("Playing preview!"); #end
+					trace("Playing preview!");
 					FlxG.sound.playMusic(sound,0);
 					params.onLoad();
 				});
-				 
-				return loaded;
-			} catch (x) {
+				return true;
+			}
+			catch (x){
 				var targetPath = instPath == "" ? "" : "from "+instPath;
 				trace('Failed to parialy load instrumentals for ${key} ${targetPath}\nError: ${x.message}');
 				return false;
@@ -136,67 +138,67 @@ class FunkinSound extends FlxSound
 /**
  * Additional parameters for `FunkinSound.playMusic()`
  */
- typedef FunkinSoundPlayMusicParams =
- {
-   /**
-	* The volume you want the music to start at.
-	* @default `1.0`
-	*/
-   var ?startingVolume:Float;
- 
-   /**
-	* The suffix of the music file to play. Usually for "-erect" tracks when loading an INST file
-	* @default ``
-	*/
-   var ?suffix:String;
- 
-   /**
-	* Whether to override music if a different track is already playing.
-	* @default `false`
-	*/
-   var ?overrideExisting:Bool;
- 
-   /**
-	* Whether to override music if the same track is already playing.
-	* @default `false`
-	*/
-   var ?restartTrack:Bool;
- 
-   /**
-	* Whether the music should loop or play once.
-	* @default `true`
-	*/
-   var ?loop:Bool;
- 
-   /**
-	* Whether to check for `SongMusicData` to update the Conductor with.
-	* @default `true`
-	*/
-   var ?mapTimeChanges:Bool;
- 
-   /**
-	* Which Paths function to use to load a song
-	* @default `MUSIC`
-	*/
-   var ?pathsFunction:PathsFunction;
- 
-   var ?partialParams:PartialSoundParams;
- 
-   var ?onComplete:Void->Void;
-   var ?onLoad:Void->Void;
- }
-
- typedef PartialSoundParams =
+typedef FunkinSoundPlayMusicParams =
 {
-  var loadPartial:Bool;
-  var start:Float;
-  var end:Float;
+    /**
+	 * The volume you want the music to start at.
+	 * @default `1.0`
+	 */
+    var ?startingVolume:Float;
+
+    /**
+	 * The suffix of the music file to play. Usually for "-erect" tracks when loading an INST file
+	 * @default ``
+	 */
+    var ?suffix:String;
+
+    /**
+	 * Whether to override music if a different track is already playing.
+	 * @default `false`
+	 */
+    var ?overrideExisting:Bool;
+
+    /**
+	 * Whether to override music if the same track is already playing.
+	 * @default `false`
+	 */
+    var ?restartTrack:Bool;
+
+    /**
+	 * Whether the music should loop or play once.
+	 * @default `true`
+	 */
+    var ?loop:Bool;
+
+    /**
+	 * Whether to check for `SongMusicData` to update the Conductor with.
+	 * @default `true`
+	 */
+    var ?mapTimeChanges:Bool;
+
+    /**
+	 * Which Paths function to use to load a song
+	 * @default `MUSIC`
+	 */
+    var ?pathsFunction:PathsFunction;
+
+    var ?partialParams:PartialSoundParams;
+
+    var ?onComplete:Void->Void;
+    var ?onLoad:Void->Void;
+}
+
+typedef PartialSoundParams =
+{
+	var loadPartial:Bool;
+	var start:Float;
+	var end:Float;
 }
 
 enum abstract PathsFunction(String)
 {
-  var MUSIC;
-  var INST;
-  var VOICES;
-  var SOUND;
+	var MUSIC;
+	var INST;
+	var VOICES;
+	var SOUND;
 }

@@ -16,18 +16,17 @@ import flixel.FlxState;
 import flixel.addons.display.FlxRuntimeShader;
 #end
 
-import cutscenes.DialogueBoxPsych;
+
 
 import objects.StrumNote;
 import objects.Note;
 import objects.NoteSplash;
 import objects.Character;
 
-import states.MainMenuState;
-import states.StoryMenuState;
+
 
 import substates.PauseSubState;
-import substates.StickerSubState;
+import mikolka.vslice.StickerSubState;
 import substates.GameOverSubstate;
 
 import psychlua.LuaUtils;
@@ -44,7 +43,9 @@ import flixel.input.gamepad.FlxGamepadInputID;
 import haxe.Json;
 import shaders.WiggleEffect;
 import mobile.psychlua.Functions;
+
 import mikolka.vslice.freeplay.FreeplayState;
+import mikolka.stages.EventLoader;
 
 class FunkinLua {
 	public var lua:State = null;
@@ -431,10 +432,22 @@ class FunkinLua {
 				LuaUtils.loadFrames(spr, image, spriteType);
 			}
 		});
+		Lua_helper.add_callback(lua, "loadMultipleFrames", function(variable:String, images:Array<String>) {
+			var split:Array<String> = variable.split('.');
+			var spr:FlxSprite = LuaUtils.getObjectDirectly(split[0]);
+			if(split.length > 1) {
+				spr = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1]);
+			}
+
+			if(spr != null && images != null && images.length > 0)
+			{
+				spr.frames = Paths.getMultiAtlas(images);
+			}
+		});
 
 		//shitass stuff for epic coders like me B)  *image of obama giving himself a medal*
 		Lua_helper.add_callback(lua, "getObjectOrder", function(obj:String, ?group:String = null) {
-			var leObj:FlxSprite = LuaUtils.getObjectDirectly(obj);
+			var leObj:FlxBasic = LuaUtils.getObjectDirectly(obj);
 			if(leObj != null)
 			{
 				if(group != null)
@@ -456,13 +469,15 @@ class FunkinLua {
 						return -1;
 					}
 				}
-				return LuaUtils.getTargetInstance().members.indexOf(leObj);
+				var groupOrArray:Dynamic = CustomSubstate.instance != null ? CustomSubstate.instance : LuaUtils.getTargetInstance();
+				if(groupOrArray == null) return -1;
+				return groupOrArray.members.indexOf(leObj);
 			}
 			luaTrace('getObjectOrder: Object $obj doesn\'t exist!', false, false, FlxColor.RED);
 			return -1;
 		});
 		Lua_helper.add_callback(lua, "setObjectOrder", function(obj:String, position:Int, ?group:String = null) {
-			var leObj:FlxSprite = LuaUtils.getObjectDirectly(obj);
+			var leObj:FlxBasic = LuaUtils.getObjectDirectly(obj);
 			if(leObj != null)
 			{
 				if(group != null)
@@ -484,7 +499,7 @@ class FunkinLua {
 				}
 				else
 				{
-					var groupOrArray:FlxState = LuaUtils.getTargetInstance();
+					var groupOrArray:Dynamic = CustomSubstate.instance != null ? CustomSubstate.instance : LuaUtils.getTargetInstance();
 					groupOrArray.remove(leObj, true);
 					groupOrArray.insert(position, leObj);
 				}
@@ -758,6 +773,7 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "restartSong", function(?skipTransition:Bool = false) {
 			curGame.persistentUpdate = false;
 			FlxG.camera.followLerp = 0;
+			FlxG.sound.pause();
 			PauseSubState.restartSong(skipTransition);
 			return true;
 		});
@@ -775,15 +791,18 @@ class FunkinLua {
 			curGame.transitioning = true;
 			FlxG.camera.followLerp = 0;
 			FlxG.sound.music.volume = 0;
+			
 			var target = curGame.subState != null ? curGame.subState : curGame;
 			if (PlayState.isStoryMode)
 			{
 				PlayState.storyPlaylist = [];
-				curGame.openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
+				if(skipTransition) FlxG.switchState(() -> new StoryMenuState())
+				else target.openSubState(new StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
 			}
 			else
 			{
-				curGame.openSubState(new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker)));
+				if(skipTransition) FlxG.switchState(() -> FreeplayState.build(null, null))
+				else target.openSubState(new StickerSubState(null, (sticker) -> FreeplayState.build(null, sticker)));
 			}
 
 			Mods.loadTopMod();
@@ -974,7 +993,10 @@ class FunkinLua {
 			LuaUtils.destroyObject(tag);
 			var leSprite:ModchartSprite = new ModchartSprite(x, y);
 
-			LuaUtils.loadFrames(leSprite, image, spriteType);
+			if(image != null && image.length > 0)
+			{
+				LuaUtils.loadFrames(leSprite, image, spriteType);
+			}
 			MusicBeatState.getVariables().set(tag, leSprite);
 		});
 
@@ -1175,7 +1197,7 @@ class FunkinLua {
 
 		Lua_helper.add_callback(lua, "setObjectCamera", function(obj:String, camera:String = 'curGame') {
 			var real = curGame.getLuaObject(obj);
-			if(real!=null){
+			if(real != null){
 				real.cameras = [LuaUtils.cameraFromString(camera)];
 				return true;
 			}
@@ -1243,22 +1265,14 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "objectsOverlap", function(obj1:String, obj2:String) {
 			var namesArray:Array<String> = [obj1, obj2];
-			var objectsArray:Array<FlxSprite> = [];
+			var objectsArray:Array<FlxBasic> = [];
 			for (i in 0...namesArray.length)
 			{
 				var real = curGame.getLuaObject(namesArray[i]);
-				if(real!=null) {
-					objectsArray.push(real);
-				} else {
-					objectsArray.push(Reflect.getProperty(LuaUtils.getTargetInstance(), namesArray[i]));
-				}
+				if(real != null) objectsArray.push(real);
+				else objectsArray.push(Reflect.getProperty(LuaUtils.getTargetInstance(), namesArray[i]));
 			}
-
-			if(!objectsArray.contains(null) && FlxG.overlap(objectsArray[0], objectsArray[1]))
-			{
-				return true;
-			}
-			return false;
+			return (!objectsArray.contains(null) && FlxG.overlap(objectsArray[0], objectsArray[1]));
 		});
 		Lua_helper.add_callback(lua, "getPixelColor", function(obj:String, x:Int, y:Int) {
 			var split:Array<String> = obj.split('.');
@@ -1276,7 +1290,7 @@ class FunkinLua {
 			#if TRANSLATIONS_ALLOWED
 			path = Paths.getPath('data/$songPath/${dialogueFile}_${ClientPrefs.data.language}.json', TEXT);
 			#if MODS_ALLOWED
-			if(!FileSystem.exists(path))
+			if(!NativeFileSystem.exists(path))
 			#else
 			if(!Assets.exists(path, TEXT))
 			#end
@@ -1286,7 +1300,7 @@ class FunkinLua {
 			luaTrace('startDialogue: Trying to load dialogue: ' + path);
 
 			#if MODS_ALLOWED
-			if(FileSystem.exists(path))
+			if(NativeFileSystem.exists(path))
 			#else
 			if(Assets.exists(path, TEXT))
 			#end
@@ -1310,16 +1324,16 @@ class FunkinLua {
 			}
 			return false;
 		});
-		Lua_helper.add_callback(lua, "startVideo", function(videoFile:String, ?canSkip:Bool = true) {
+		Lua_helper.add_callback(lua, "startVideo", function(videoFile:String, ?canSkip:Bool = true, ?forMidSong:Bool = false, ?shouldLoop:Bool = false, ?playOnLoad:Bool = true) {
 			#if VIDEOS_ALLOWED
-			if(FileSystem.exists(Paths.video(videoFile)))
+			if(NativeFileSystem.exists(Paths.video(videoFile)))
 			{
 				if(curGame.videoCutscene != null)
 				{
 					curGame.remove(curGame.videoCutscene);
 					curGame.videoCutscene.destroy();
 				}
-				curGame.videoCutscene = curGame.startVideo(videoFile, false, canSkip);
+				curGame.videoCutscene = curGame.startVideo(videoFile, forMidSong, canSkip, shouldLoop, playOnLoad);
 				return true;
 			}
 			else
@@ -1597,6 +1611,7 @@ class FunkinLua {
 		CustomSubstate.implement(this);
 		ShaderFunctions.implement(this);
 		DeprecatedFunctions.implement(this);
+		EventLoader.implement(this);
 		#if TOUCH_CONTROLS_ALLOWED
 		MobileFunctions.implement(this);
 		MobileDeprecatedFunctions.implement(this);
@@ -1610,10 +1625,11 @@ class FunkinLua {
 		}
 
 		try{
-			var isString:Bool = !FileSystem.exists(scriptName);
+			var realName = NativeFileSystem.getPathLike(scriptName);
+			var isString = realName == null;
 			var result:Dynamic = null;
 			if(!isString)
-				result = LuaL.dofile(lua, scriptName);
+				result = LuaL.dofile(lua, realName);
 			else
 				result = LuaL.dostring(lua, scriptName);
 
@@ -1798,7 +1814,7 @@ class FunkinLua {
 		if(!scriptFile.endsWith(ext)) scriptFile += ext;
 		var path:String = Paths.getPath(scriptFile, TEXT);
 		#if MODS_ALLOWED
-		if(FileSystem.exists(path))
+		if(NativeFileSystem.exists(path))
 		#else
 		if(Assets.exists(path, TEXT))
 		#end
@@ -1806,7 +1822,7 @@ class FunkinLua {
 			return path;
 		}
 		#if MODS_ALLOWED
-		else if(FileSystem.exists(scriptFile))
+		else if(NativeFileSystem.exists(scriptFile))
 		#else
 		else if(Assets.exists(scriptFile, TEXT))
 		#end
@@ -1868,21 +1884,21 @@ class FunkinLua {
 
 		for (folder in foldersToCheck)
 		{
-			if(FileSystem.exists(folder))
+			if(NativeFileSystem.exists(folder))
 			{
 				var frag:String = folder + name + '.frag';
 				var vert:String = folder + name + '.vert';
 				var found:Bool = false;
-				if(FileSystem.exists(frag))
+				if(NativeFileSystem.exists(frag))
 				{
-					frag = File.getContent(frag);
+					frag = NativeFileSystem.getContent(frag);
 					found = true;
 				}
 				else frag = null;
 
-				if(FileSystem.exists(vert))
+				if(NativeFileSystem.exists(vert))
 				{
-					vert = File.getContent(vert);
+					vert = NativeFileSystem.getContent(vert);
 					found = true;
 				}
 				else vert = null;

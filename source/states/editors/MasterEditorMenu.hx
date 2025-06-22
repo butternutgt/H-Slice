@@ -9,7 +9,6 @@ import flixel.math.FlxRandom;
 import backend.WeekData;
 import mikolka.vslice.results.ResultState;
 import objects.Character;
-import states.MainMenuState;
 
 class MasterEditorMenu extends MusicBeatState
 {
@@ -23,7 +22,7 @@ class MasterEditorMenu extends MusicBeatState
 		'Dialogue Editor', 
 		'Dialogue Portrait Editor',
 		'Player editor',
-		#if debug
+		#if PROFILE_BUILD
 		'Crash the game',
 		'Usermess the game',
 		#end
@@ -151,16 +150,22 @@ class MasterEditorMenu extends MusicBeatState
 					MusicBeatState.switchState(new StickerTest());
 				case 'Player editor':
 					MusicBeatState.switchState(new CharSelectEditor());
-				#if debug
+				#if PROFILE_BUILD
 				case 'Crash the game':{
-					@:privateAccess
-					openfl.Lib.current.loaderInfo.uncaughtErrorEvents.dispatchEvent(
-						new UncaughtErrorEvent(
-							openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR,
-							true,true,new openfl.errors.Error("The devs are too stupid and they write way too long errors")));
+					trace("Break the StackOverflow.com");
+					var fnc = null;
+					fnc = () -> {
+						fnc();
+					}
+					fnc();
+					// @:privateAccess
+					// openfl.Lib.current.loaderInfo.uncaughtErrorEvents.dispatchEvent(
+					// 	new UncaughtErrorEvent(
+					// 		openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR,
+					// 		true,true,new openfl.errors.Error("The devs are too stupid and they write way too long errors")));
 				}
 				case 'Usermess the game':{
-					openSubState(new UserErrorSubstate("The devs are too stupid and they write way too long errors","Skill issue :/"));
+					UserErrorSubstate.makeMessage("The devs are too stupid and they write way too long errors","Skill issue :/");
 				}
 				#end
 				case 'Result Preview Menu':
