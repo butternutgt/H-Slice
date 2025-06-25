@@ -1,7 +1,6 @@
 name: Build deps
 on:
-  push:
-    branches: [master]
+  workflow_dispatch:
 
 jobs:
   BuildCaches:
@@ -10,10 +9,15 @@ jobs:
     strategy:
       matrix:
         include:
+          - name: Windows
+            os: windows-2022
+            setupScript: .\"setup/windows.bat"
+            CACHE_NAME: H-Slice_0.2.1.windows-cache
+
           - name: Linux
             os: ubuntu-latest
             setupScript: sh ./setup/unix.sh
-            CACHE_NAME: H-Slice_0.2.1.desktop-cache
+            CACHE_NAME: H-Slice_0.2.1.linux-cache
 
           - name: Mobile
             os: macos-latest

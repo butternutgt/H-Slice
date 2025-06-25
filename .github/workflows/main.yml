@@ -2,6 +2,9 @@ name: Build the game
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
 
 jobs:
   BuildDesktop:
@@ -15,7 +18,7 @@ jobs:
             buildArgs: windows
             exportPath: windows
             artifactName: H-Slice_0.2.1_Windows
-            cacheLibrariesPath: H-Slice_0.2.1.desktop-cache
+            cacheLibrariesPath: H-Slice_0.2.1.windows-cache
             cachePath: H-Slice_0.2.1.build-windows
             artifactPath: export\release\windows\bin\*
           - name: Linux
@@ -24,7 +27,7 @@ jobs:
             exportPath: linux
             artifactName: H-Slice_0.2.1_Linux
             cachePath: H-Slice_0.2.1.build-linux
-            cacheLibrariesPath: H-Slice_0.2.1.desktop-cache
+            cacheLibrariesPath: H-Slice_0.2.1.linux-cache
             artifactPath: export/release/linux/bin/*
           - name: macOS x86_64
             os: macos-14
