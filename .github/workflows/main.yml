@@ -1,11 +1,8 @@
 name: Build the game
-
 on:
   push:
-    branches: [master-dev]
-  pull_request:
-    branches: [master-dev]
-  workflow_dispatch:
+    branches: [master]
+
 jobs:
   BuildDesktop:
     name: ${{ matrix.name }}

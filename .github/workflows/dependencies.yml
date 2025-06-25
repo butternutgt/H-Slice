@@ -13,7 +13,7 @@ on:
 # PE10-Desktop_Cache
 env:
   HAXE_VERSION: 4.3.6
-  PROJECT_NAME: PSliceEngine
+  PROJECT_NAME: H-Slice
 
 jobs:
   build:
