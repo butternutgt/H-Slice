@@ -109,6 +109,7 @@ import states.TitleState;
 	public var opponentStrums:Bool = true;
 	public var overHealth:Bool = false;
 	public var healthDrain:Bool = false;
+	public var drainAccuracy:Int = 500;
 	public var updateStepLimit:Int = 1;
 	public var ghostTapping:Bool = true;
 	public var skipGhostNotes:Bool = false;

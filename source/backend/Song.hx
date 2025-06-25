@@ -154,7 +154,6 @@ class Song
 		if(NativeFileSystem.exists(_lastPath))
 			rawData = NativeFileSystem.getContent(_lastPath);
 
-
 		return rawData != null ? parseJSON(rawData, jsonInput) : null;
 	}
 

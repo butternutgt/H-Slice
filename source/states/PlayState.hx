@@ -212,6 +212,7 @@ class PlayState extends MusicBeatState
 	public var health(default, set):Float = 1;
 	public var overHealth:Bool = ClientPrefs.data.overHealth;
 	public var healthDrain:Bool = ClientPrefs.data.healthDrain;
+	public var drainAccuracy:Int = ClientPrefs.data.drainAccuracy;
 
 	private var healthLerp:Float = 1;
 
@@ -1245,9 +1246,6 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	var startTimer:FlxTimer;
-	var finishTimer:FlxTimer = null;
-
 	// For being able to mess with the sprites on Lua
 	public var countdownReady:FlxSprite;
 	public var countdownSet:FlxSprite;
@@ -1274,6 +1272,9 @@ class PlayState extends MusicBeatState
 		Paths.sound('intro1' + introSoundsSuffix);
 		Paths.sound('introGo' + introSoundsSuffix);
 	}
+
+	var startTimer:FlxTimer = null;
+	var finishTimer:FlxTimer = null;
 
 	public function startCountdown()
 	{
@@ -1337,67 +1338,68 @@ class PlayState extends MusicBeatState
 			}
 			moveCameraSection();
 
-			startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, function(tmr:FlxTimer)
+			for (i in 0...5)
 			{
-				characterBopper(tmr.loopsLeft);
-
-				var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
-				var introImagesArray:Array<String> = switch (stageUI)
+				startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate * (i+1), tmr -> 
 				{
-					case "pixel": ['${stageUI}UI/ready-pixel', '${stageUI}UI/set-pixel', '${stageUI}UI/date-pixel'];
-					case "normal": ["ready", "set", "go"];
-					default: ['${stageUI}UI/ready', '${stageUI}UI/set', '${stageUI}UI/go'];
-				}
-				introAssets.set(stageUI, introImagesArray);
+					characterBopper(i);
 
-				var introAlts:Array<String> = introAssets.get(stageUI);
-				var tick:Countdown = THREE;
-				var countVoice:FlxSound = null;
-
-				switch (swagCounter)
-				{
-					case 0:
-						countVoice = FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
-						tick = THREE;
-					case 1:
-						countdownReady = createCountdownSprite(introAlts[0], antialias);
-						countVoice = FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
-						tick = TWO;
-					case 2:
-						countdownSet = createCountdownSprite(introAlts[1], antialias);
-						countVoice = FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
-						tick = ONE;
-					case 3:
-						countdownGo = createCountdownSprite(introAlts[2], antialias);
-						countVoice = FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
-						tick = GO;
-					case 4:
-						tick = START;
-						FlxG.maxElapsed = nanoPosition || ffmpegMode ? 1000000 : 0.1;
-				}
-
-				#if FLX_PITCH if (countVoice != null) countVoice.pitch = playbackRate; #end
-
-				if (!skipArrowStartTween)
-				{
-					notes.forEachAlive( note ->
+					var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
+					var introImagesArray:Array<String> = switch (stageUI)
 					{
-						if (ClientPrefs.data.opponentStrums || note.mustPress)
+						case "pixel": ['${stageUI}UI/ready-pixel', '${stageUI}UI/set-pixel', '${stageUI}UI/date-pixel'];
+						case "normal": ["ready", "set", "go"];
+						default: ['${stageUI}UI/ready', '${stageUI}UI/set', '${stageUI}UI/go'];
+					}
+					introAssets.set(stageUI, introImagesArray);
+
+					var introAlts:Array<String> = introAssets.get(stageUI);
+					var tick:Countdown = THREE;
+					var countVoice:FlxSound = null;
+
+					switch (i)
+					{
+						case 0:
+							countVoice = FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+							tick = THREE;
+						case 1:
+							countdownReady = createCountdownSprite(introAlts[0], antialias);
+							countVoice = FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+							tick = TWO;
+						case 2:
+							countdownSet = createCountdownSprite(introAlts[1], antialias);
+							countVoice = FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+							tick = ONE;
+						case 3:
+							countdownGo = createCountdownSprite(introAlts[2], antialias);
+							countVoice = FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6 * ClientPrefs.data.sfxVolume);
+							tick = GO;
+						case 4:
+							tick = START;
+							FlxG.maxElapsed = nanoPosition || ffmpegMode ? 1000000 : 0.1;
+					}
+
+					#if FLX_PITCH if (countVoice != null) countVoice.pitch = playbackRate; #end
+
+					if (!skipArrowStartTween)
+					{
+						notes.forEachAlive( note ->
 						{
-							note.copyAlpha = false;
-							note.alpha = note.multAlpha;
-							if (ClientPrefs.data.middleScroll && !note.mustPress)
-								note.alpha *= 0.35;
-						}
-					});
-				}
+							if (ClientPrefs.data.opponentStrums || note.mustPress)
+							{
+								note.copyAlpha = false;
+								note.alpha = note.multAlpha;
+								if (ClientPrefs.data.middleScroll && !note.mustPress)
+									note.alpha *= 0.35;
+							}
+						});
+					}
 
-				stagesFunc(function(stage:BaseStage) stage.countdownTick(tick, swagCounter));
-				callOnLuas('onCountdownTick', [swagCounter]);
-				callOnHScript('onCountdownTick', [tick, swagCounter]);
-
-				swagCounter += 1;
-			}, 5);
+					stagesFunc(function(stage:BaseStage) stage.countdownTick(tick, i));
+					callOnLuas('onCountdownTick', [i]);
+					callOnHScript('onCountdownTick', [tick, i]);
+				});
+			}
 		}
 		return true;
 	}
@@ -3211,7 +3213,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			}
 		}
 
-		healthUpdate(bfHitFrame + skipBf, opHitFrame + skipOp, bfHitSus, opHitSus);
+		healthUpdate(bfHitFrame + skipBf + bfHitSus, opHitFrame + skipOp + opHitSus);
 	}
 	
 	var sortOrder = false;
@@ -3341,30 +3343,28 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		return vsliceSmoothBar ? FlxMath.lerp(healthLerp, health, vsliceSmoothNess) : health;
 	}
 
-	var appliedHealth:Float = 0;
-	function healthUpdate(bf:Float, op:Float, bfSus:Float, opSus:Float) {
-		// if (bf + bfSus + op + opSus > 0) trace(bf, bfSus, op, opSus);
+	var diffCnt:Float = 0;
+	var diffMin:Float = 0;
+	var loseHealth:Float = 0;
+	function healthUpdate(bf:Float, op:Float) {
+		loseHealth = 1.00 - 0.01 * healthLoss;
 		if (healthDrain) {
 			if (practiceMode) {
 				health += bf * hitHealth * healthGain - op * 0.02 * healthLoss;
 			} else {
-				appliedHealth = bf - op;
-				if (appliedHealth < 0) { // opponent has more notes than boyfriend
-					health = Math.max(0.1e-320, health * Math.pow(1.00 - 0.01 * healthLoss, -appliedHealth));
-				} else if (appliedHealth > 0) { // boyfriend has more notes than opponent
-					health += hitHealth * appliedHealth * healthGain;
+				diffCnt = bf - op;
+				diffMin = Math.min(bf, op);
+				if (drainAccuracy > 0) diffMin = Math.min(diffMin, drainAccuracy);
+				
+				while (diffMin > 0) {
+					health = (health + hitHealth) * loseHealth;
+					--diffMin;
 				}
-			}
 
-			while (bfSus + opSus > 0) {
-				if (opSus > 0) {
-					health = Math.max(0.1e-320, health * 1.00 - 0.01 * healthLoss);
-					--opSus;
-				}
-				if (bfSus > 0) {
-					health += hitHealth * healthGain;
-					--bfSus; 
-				}
+				if (diffCnt < 0) // opponent has more notes than boyfriend
+					health = Math.max(0.1e-320, health * Math.pow(loseHealth, -diffCnt));
+				else if (diffCnt > 0) // boyfriend has more notes than opponent
+					health += hitHealth * diffCnt * healthGain;
 			}
 		} else health += bf * hitHealth * healthGain;
 

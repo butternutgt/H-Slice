@@ -5,6 +5,7 @@ import options.Option;
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	var pastValue:Float = 0;
+	var accuracyOption:Option;
 	var timerMethod:Option;
 	var bgmVolume:Option;
 	var sfxVolume:Option;
@@ -49,6 +50,19 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'healthDrain',
 			BOOL);
 		addOption(option);
+
+		var option:Option = new Option('- Accuracy',
+			"Calculates the health correctly depends on count of both players hit.\nSet to 0 If u don't allow slight difference.",
+			'drainAccuracy',
+			INT);
+		option.scrollSpeed = 100;
+		option.minValue = 0;
+		option.maxValue = 10000;
+		option.changeValue = 1;
+		option.decimals = 0;
+		option.onChange = onAccuracyUpdateRate;
+		addOption(option);
+		accuracyOption = option;
 
 		var option:Option = new Option('Update Count of stepHit',
 			'In this setting, you can set the stepHit to be accurate up to ${
@@ -249,6 +263,10 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 
 	function onRangeUpdateRate(){
 		ghostRate.scrollSpeed = interpolate(0.1, 1000.0, (holdTime - 0.5) / 8.0, 5.0);
+	}
+
+	function onAccuracyUpdateRate(){
+		accuracyOption.scrollSpeed = interpolate(20, 10000.0, (holdTime - 0.5) / 5.0, 5.0);
 	}
 
 	function onChangebgmVolume(){

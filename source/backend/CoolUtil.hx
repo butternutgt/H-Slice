@@ -104,9 +104,9 @@ class CoolUtil
 		return Math.log(value) / Math.log(exp);
 	}
 
-	inline public static function interpolate(a:Float, b:Float, m:Float, e:Float = 1) {
-		m = FlxMath.bound(m, 0, 1);
-		return FlxMath.lerp(a, b, Math.pow(m, e));
+	inline public static function interpolate(start:Float, end:Float, progress:Float, exponent:Float = 1) {
+		progress = FlxMath.bound(progress, 0, 1);
+		return FlxMath.lerp(start, end, Math.pow(progress, exponent));
 	}
 
 	inline public static function normalize(x:Float, min:Float, max:Float, isBound:Bool = true) {
