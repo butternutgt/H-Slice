@@ -159,7 +159,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		if (controls.BACK) {
 			FlxG.sound.play(Paths.sound('cancelMenu'), ClientPrefs.data.sfxVolume);
 			#if android
-			// P-Slice moment
+			// P-Slice things
 			if (ClientPrefs.data.storageType != MobileOptionsSubState.lastStorageType)
 			{
 				MobileOptionsSubState.onStorageChange();
