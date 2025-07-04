@@ -49,10 +49,10 @@ class MainMenuState extends MusicBeatState
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
 	public function new(isDisplayingRank:Bool = false) {
-
 		//TODO
 		super();
 	}
+	
 	override function create()
 	{
 		Paths.clearUnusedMemory();

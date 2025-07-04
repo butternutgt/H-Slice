@@ -15,7 +15,7 @@ jobs:
             os: windows-2022
             buildArgs: windows
             exportPath: windows
-            artifactName: H-Slice_0.2.1_windows
+            artifactName: H-Slice_0.2.2_windows
             setupScript: .\"setup/windows.bat"
             artifactPath: export\release\windows\bin\*
           - name: Linux
@@ -23,21 +23,21 @@ jobs:
             buildArgs: linux
             exportPath: linux
             setupScript: sh ./setup/unix.sh
-            artifactName: H-Slice_0.2.1_linux
+            artifactName: H-Slice_0.2.2_linux
             artifactPath: export/release/linux/bin/*
           - name: macOS x86_64
             os: macos-14
             buildArgs: "mac -64 -D HXCPP_M64"
             exportPath: macos
             setupScript: sh ./setup/mobile.sh
-            artifactName: H-Slice_0.2.1_macosx64
+            artifactName: H-Slice_0.2.2_macosx64
             artifactPath: export/release/macos/bin/*
           - name: macOS AArch64
             os: macos-15
             buildArgs: mac
             exportPath: macos
             setupScript: sh ./setup/mobile.sh
-            artifactName: H-Slice_0.2.1_macosarm64
+            artifactName: H-Slice_0.2.2_macosarm64
             artifactPath: export/release/macos/bin/*
     uses: ./.github/workflows/build.yml
     with:
@@ -58,14 +58,14 @@ jobs:
             exportPath: android
             buildArgs: "android"
             setupScript: sh ./setup/mobile.sh
-            artifactName: H-Slice_0.2.1_android
+            artifactName: H-Slice_0.2.2_android
             artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
           - name: iOS
             os: macos-15
             buildArgs: "ios -nosign"
             exportPath: ios
             setupScript: sh ./setup/mobile.sh
-            artifactName: H-Slice_0.2.1_ios
+            artifactName: H-Slice_0.2.2_ios
             artifactPath: "export/release/ios/build/Release-iphoneos/*.ipa"
     uses: ./.github/workflows/build.yml
     with:
