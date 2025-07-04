@@ -27,7 +27,7 @@ jobs:
             exportPath: linux
             artifactName: H-Slice_0.2.1_linux
             cachePath: H-Slice_0.2.1_build-linux
-            cacheLibrariesPath: H-Slice_0.2.1_desktop-cache
+            cacheLibrariesPath: H-Slice_0.2.1_linux-cache
             artifactPath: export/release/linux/bin/*
           - name: macOS x86_64
             os: macos-14

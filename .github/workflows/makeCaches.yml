@@ -9,10 +9,15 @@ jobs:
     strategy:
       matrix:
         include:
+          - name: Windows
+            os: windows-2022
+            setupScript: ".\\setup\\windows.bat"
+            CACHE_NAME: H-Slice_0.2.1_desktop-cache
+
           - name: Linux
             os: ubuntu-latest
             setupScript: sh ./setup/unix.sh
-            CACHE_NAME: H-Slice_0.2.1_desktop-cache
+            CACHE_NAME: H-Slice_0.2.1_linux-cache
 
           - name: Mobile
             os: macos-latest
