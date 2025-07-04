@@ -13,7 +13,7 @@ on:
 # PE10-Desktop_Cache
 env:
   HAXE_VERSION: 4.3.6
-  PROJECT_NAME: H-Slice
+  PROJECT_NAME: PSliceEngine
 
 jobs:
   build:
@@ -33,6 +33,10 @@ jobs:
 
       - name: Install Libraries
         run: ${{ inputs.setupScript }}
+
+      - name: Install hxvlc for windows
+        run: haxelib install hxvlc 1.8.2 --quiet
+        if: inputs.os == 'ubuntu-latest'
    
       - name: Clearing already existing cache
         uses: actions/github-script@v6

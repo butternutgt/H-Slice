@@ -1,11 +1,11 @@
 name: Build the game
+
 on:
   push:
-    branches: [master]
+    branches: [master-dev]
   pull_request:
-    branches: [master]
+    branches: [master-dev]
   workflow_dispatch:
-
 jobs:
   BuildDesktop:
     name: ${{ matrix.name }}
@@ -17,34 +17,34 @@ jobs:
             os: windows-2022
             buildArgs: windows
             exportPath: windows
-            artifactName: H-Slice_0.2.1_Windows
-            cacheLibrariesPath: H-Slice_0.2.1.windows-cache
-            cachePath: H-Slice_0.2.1.build-windows
+            artifactName: H-Slice_0.2.1_windows
+            cacheLibrariesPath: H-Slice_0.2.1_desktop-cache
+            cachePath: H-Slice_0.2.1_build-windows
             artifactPath: export\release\windows\bin\*
           - name: Linux
             os: ubuntu-22.04
             buildArgs: linux
             exportPath: linux
-            artifactName: H-Slice_0.2.1_Linux
-            cachePath: H-Slice_0.2.1.build-linux
-            cacheLibrariesPath: H-Slice_0.2.1.linux-cache
+            artifactName: H-Slice_0.2.1_linux
+            cachePath: H-Slice_0.2.1_build-linux
+            cacheLibrariesPath: H-Slice_0.2.1_desktop-cache
             artifactPath: export/release/linux/bin/*
           - name: macOS x86_64
             os: macos-14
             buildArgs: "mac -64 -D HXCPP_M64"
-            cachePath: H-Slice_0.2.1.build-macos_m64
+            cachePath: H-Slice_0.2.1_build-macos_m64
             exportPath: macos
-            cacheLibrariesPath: H-Slice_0.2.1.mobile-cache
-            artifactName: H-Slice_0.2.1_macOS_x64
+            cacheLibrariesPath: H-Slice_0.2.1_mobile-cache
+            artifactName: H-Slice_0.2.1_macosx64
             artifactPath: export/release/macos/bin/*
             
           - name: macOS AArch64
             os: macos-15
             buildArgs: mac
             exportPath: macos
-            cachePath: H-Slice_0.2.1.build-macos
-            cacheLibrariesPath: H-Slice_0.2.1.mobile-cache
-            artifactName: H-Slice_0.2.1_macOS_arm64
+            cachePath: H-Slice_0.2.1_build-macos
+            cacheLibrariesPath: H-Slice_0.2.1_mobile-cache
+            artifactName: H-Slice_0.2.1_macosarm64
             artifactPath: export/release/macos/bin/*
     uses: ./.github/workflows/build.yml
     with:
@@ -66,26 +66,26 @@ jobs:
             os: macos-15
             exportPath: android
             buildArgs: "android"
-            cacheLibrariesPath: H-Slice_0.2.1.mobile-cache
-            artifactName: H-Slice_0.2.1_Android
-            cachePath: H-Slice_0.2.1.build-android
+            cacheLibrariesPath: H-Slice_0.2.1_mobile-cache
+            artifactName: H-Slice_0.2.1_android
+            cachePath: H-Slice_0.2.1_build-android
             artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
           - name: Android-profiled
             os: macos-15
             exportPath: android
             buildArgs: "android -DPROFILE_BUILD"
-            cacheLibrariesPath: H-Slice_0.2.1.mobile-cache
-            artifactName: H-Slice_0.2.1.android-audited
-            cachePath: H-Slice_0.2.1.build-android-profile
+            cacheLibrariesPath: H-Slice_0.2.1_mobile-cache
+            artifactName: H-Slice_0.2.1_android-audited
+            cachePath: H-Slice_0.2.1_build-android-profile
             artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
           - name: iOS
             os: macos-15
             buildArgs: "ios -nosign"
             exportPath: ios
-            cacheLibrariesPath: H-Slice_0.2.1.mobile-cache
-            artifactName: H-Slice_0.2.1_iOS
+            cacheLibrariesPath: H-Slice_0.2.1_mobile-cache
+            artifactName: H-Slice_0.2.1_ios
             artifactPath: "export/release/ios/build/Release-iphoneos/*.ipa"
-            cachePath: H-Slice_0.2.1.build-ios
+            cachePath: H-Slice_0.2.1_build-ios
     uses: ./.github/workflows/build.yml
     with:
       name: ${{ matrix.name }}
