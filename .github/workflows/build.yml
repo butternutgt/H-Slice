@@ -1,3 +1,5 @@
+name: Build
+
 on:
   workflow_call:
     inputs:
@@ -5,6 +7,9 @@ on:
         required: true
         type: string
       os:
+        required: true
+        type: string
+      setupScript:
         required: true
         type: string
       buildArgs:
@@ -16,19 +21,10 @@ on:
       artifactPath:
         required: true
         type: string
-      cachePath:
-        required: true
-        type: string
-      cacheLibrariesPath:
-        required: true
-        type: string
-      exportPath:
-        required: true
-        type: string
 
 env:
   HAXE_VERSION: 4.3.6
-  PROJECT_NAME: PSliceEngine
+  PROJECT_NAME: H-Slice
 
 jobs:
   build:
@@ -42,38 +38,16 @@ jobs:
         uses: krdlab/setup-haxe@master
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
-        
-      - name: Restore Libraries for compilation
-        id: load-lib-cache
-        uses: actions/cache@v3
-        with:
-          # not caching the bin folder to prevent asset duplication and stuff like that
-          key: ${{ inputs.cacheLibrariesPath }}
-          fail-on-cache-miss: true
-          enableCrossOsArchive: true
-          path: |
-            .haxelib/
-          restore-keys: |
-            ${{ inputs.cacheLibrariesPath }}
-      - name: Restore existing build cache for faster compilation
-        id: load-cache
-        uses: actions/cache@v3
-        with:
-          # not caching the bin folder to prevent asset duplication and stuff like that
-          key: ${{ inputs.cachePath }}
-          path: |
-            export/release/${{ inputs.exportPath }}/haxe/
-            export/release/${{ inputs.exportPath }}/obj/
-          restore-keys: |
-            cache-build-${{ inputs.exportPath }}
-            
 
       - name: Install libVLC
-        if: inputs.exportPath == 'linux'
+        if: inputs.name == 'Linux'
         run: sudo apt install libvlc-dev libvlccore-dev
 
+      - name: Install Libraries
+        run: ${{ inputs.setupScript }}
+
       - name: Configure Android
-        if: inputs.exportPath == 'android'
+        if: inputs.name == 'Android'
         run: |
           haxelib run lime config ANDROID_SDK $ANDROID_HOME
           haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_LATEST_HOME
@@ -96,32 +70,4 @@ jobs:
         with:
           name: ${{ inputs.artifactName }}
           path: ${{ inputs.artifactPath }}
-          if-no-files-found: error      
-      - name: Clearing already existing cache
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const caches = await github.rest.actions.getActionsCacheList({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-            for (const cache of caches.data.actions_caches) {
-              if (cache.key == "${{ inputs.cachePath }}") {
-                console.log('Clearing ' + cache.key + '...')
-                await github.rest.actions.deleteActionsCacheById({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  cache_id: cache.id,
-                })
-                console.log("Cache cleared.")
-              }
-            }
-      - name: Uploading new cache
-        uses: actions/cache@v3
-        with:
-          key: ${{ inputs.cachePath }}
-          path: |
-            export/release/${{ inputs.exportPath }}/haxe/
-            export/release/${{ inputs.exportPath }}/obj/
-          restore-keys: |
-            ${{ inputs.cachePath }}
+          if-no-files-found: error
