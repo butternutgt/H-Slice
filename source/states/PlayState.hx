@@ -2752,12 +2752,11 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					}
 			}
 			infoTxt.text = info;
-			info = null;
 		} else {
-			infoTxt.text = null;
+			if (infoTxt.text.length > 0) infoTxt.text = "";
 		}
 		
-		if (!ClientPrefs.data.downScroll && infoTxt.text != null) {
+		if (!ClientPrefs.data.downScroll && infoTxt.text.length > 0) {
 			var infoTxtAlign:Int = CoolUtil.charAppearanceCnt(infoTxt.text, "\n");
 			infoTxt.y = healthBar.y - 48;
 			if (ClientPrefs.data.showInfoType != "None") {
