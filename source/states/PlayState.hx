@@ -2233,7 +2233,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	var startedCountdown:Bool = false;
 	var canPause:Bool = true;
 	var freezeCamera:Bool = false;
-	var allowDebugKeys:Bool = true;
+	var allowDebugKeys:Bool = false;
 	var bfAnimName:String = "";
 
 	// Time
@@ -3442,6 +3442,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		DiscordClient.resetClientID();
 		#end
 
+		if (controls.justPressed('mobileC') || FlxG.keys.pressed.CONTROL) 
+			ChartingState.youShallNotPass = false;
 		MusicBeatState.switchState(new ChartingState(!chartingMode));
 		chartingMode = true;
 	}
