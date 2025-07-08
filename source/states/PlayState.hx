@@ -2341,9 +2341,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				if (Conductor.songPosition >= Conductor.offset)
 				{
 					Conductor.songPosition = FlxMath.lerp(FlxG.sound.music.time + Conductor.offset, Conductor.songPosition, Math.exp(-globalElapsed * 5));
-					var timeDiff:Float = Math.abs((FlxG.sound.music.time + Conductor.offset) - Conductor.songPosition);
+					var timeDiff:Null<Float> = Math.abs((FlxG.sound.music.time + Conductor.offset) - Conductor.songPosition);
 					if (timeDiff > 1000 * playbackRate)
 						Conductor.songPosition = Conductor.songPosition + 1000 * FlxMath.signOf(timeDiff);
+					timeDiff = null;
 				}
 			}
 			Conductor.songPosition += globalElapsed * 1000;

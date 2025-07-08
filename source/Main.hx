@@ -74,7 +74,7 @@ class Main extends Sprite
 
 		// #if desktop
 		try {
-			Sys.println("Console Available!");
+			Sys.stdout().writeString("Console Available!\n");
 		} catch (e:Dynamic) {isConsoleAvailable = false;}
 		// #else
 		// isConsoleAvailable = false;
