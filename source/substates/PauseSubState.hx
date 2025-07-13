@@ -318,12 +318,13 @@ class PauseSubState extends MusicBeatSubstate
 				menuItems = menuItemsOG;
 				regenMenu();
 			}
-
+			PlayState.canResync = false;
 			switch (daSelected)
 			{
 				case "Resume":
 					Paths.clearUnusedMemory();
 					specialAction = RESUME;
+					PlayState.canResync = true;
 					close();
 				case 'Change Difficulty':
 					menuItems = difficultyChoices;
@@ -372,7 +373,6 @@ class PauseSubState extends MusicBeatSubstate
 					if (pSte.bfVocal) pSte.vocals.volume = 0;
 					if (pSte.opVocal) pSte.opponentVocals.volume = 0;
 
-					pSte.canResync = false;
 					MusicBeatState.switchState(new OptionsState());
 					if(ClientPrefs.data.pauseMusic != 'None')
 					{
@@ -396,8 +396,6 @@ class PauseSubState extends MusicBeatSubstate
 					#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 					PlayState.deathCounter = 0;
 					PlayState.seenCutscene = false;
-
-					pSte.canResync = false;
 					//! not yet
 					Mods.loadTopMod();
 					if (PlayState.isStoryMode)

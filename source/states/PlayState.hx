@@ -1,5 +1,6 @@
 package states;
 
+import options.OptimizeSettingsSubState;
 import backend.StageData;
 import haxe.ds.ArraySort;
 import flixel.animation.FlxAnimation;
@@ -222,6 +223,7 @@ class PlayState extends MusicBeatState
 
 	public var healthBar:Bar;
 	public var timeBar:Bar;
+	public var desyncMusicBar:Array<FlxBar> = [];
 	public var vsliceSmoothBar = ClientPrefs.data.vsliceSmoothBar;
 	public var vsliceSmoothNess = ClientPrefs.data.vsliceSmoothNess;
 	public var vsliceSongPosition = ClientPrefs.data.vsliceSongPosition;
@@ -249,6 +251,7 @@ class PlayState extends MusicBeatState
 	public var changePopup:Bool = ClientPrefs.data.changeNotes;
 
 	// Gameplay settings
+	public var downScroll:Bool = ClientPrefs.data.downScroll;
 	public var healthGain:Float = 1;
 	public var healthLoss:Float = 1;
 
@@ -367,7 +370,6 @@ class PlayState extends MusicBeatState
 	var showAfter:Bool = ClientPrefs.data.showAfter;
 	var keepNotes:Bool = ClientPrefs.data.keepNotes;
 	var sortNotes:String = ClientPrefs.data.sortNotes;
-	var sortingWay:Int = 0;
 	var noteHitPreEvent:Bool = ClientPrefs.data.noteHitPreEvent;
 	var noteHitEvent:Bool = ClientPrefs.data.noteHitEvent;
 	var skipNoteEvent:Bool = ClientPrefs.data.skipNoteEvent;
@@ -404,7 +406,10 @@ class PlayState extends MusicBeatState
 	public var luaTouchPad:TouchPad;
 	#end
 
-	var backupOffset = 0; 
+	var backupOffset = 0;
+	var sortingWay = 0;
+
+	public static var canResync:Bool = false;
 
 	override public function create()
 	{
@@ -652,7 +657,7 @@ class PlayState extends MusicBeatState
 		timeTxt.borderSize = 2;
 		timeTxt.antialiasing = ClientPrefs.data.antialiasing;
 		timeTxt.visible = updateTime = showTime;
-		if (ClientPrefs.data.downScroll)
+		if (downScroll)
 			timeTxt.y = FlxG.height - 44;
 		if (ClientPrefs.data.timeBarType == 'Song Name')
 			timeTxt.text = SONG.song;
@@ -674,6 +679,7 @@ class PlayState extends MusicBeatState
 		}
 
 		generateSong();
+		canResync = true;
 
 		notesGroup.add(grpNoteSplashes);
 		notesGroup.add(grpHoldSplashes);
@@ -696,7 +702,7 @@ class PlayState extends MusicBeatState
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 		moveCameraSection();
 
-		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? (cpuControlled && vsliceBotPlayPlace == 'Time Bar') ? 0.89 : 0.85 : 0.11), 'healthBar', () -> return healthLerp, 0, 2);
+		healthBar = new Bar(0, FlxG.height * (!downScroll ? (cpuControlled && vsliceBotPlayPlace == 'Time Bar') ? 0.89 : 0.85 : 0.11), 'healthBar', () -> return healthLerp, 0, 2);
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
 		healthBar.scrollFactor.set();
@@ -726,7 +732,7 @@ class PlayState extends MusicBeatState
 		updateScore(false);
 		uiGroup.add(scoreTxt);
 		
-		infoTxt = new FlxText(0, ClientPrefs.data.downScroll ? healthBar.y + 64 : healthBar.y - 48, FlxG.width, "", 32);
+		infoTxt = new FlxText(0, downScroll ? healthBar.y + 64 : healthBar.y - 48, FlxG.width, "", 32);
 		infoTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		infoTxt.scrollFactor.set();
 		infoTxt.borderSize = 1.25;
@@ -736,10 +742,10 @@ class PlayState extends MusicBeatState
 		uiGroup.add(infoTxt);
 
 		// Default Value has inherited from HRK Engine
-		var botplayTxtY:Float = timeBar.y + (ClientPrefs.data.downScroll ? -80 : 55);
+		var botplayTxtY:Float = timeBar.y + (downScroll ? -80 : 55);
 		switch (vsliceBotPlayPlace) {
 			case "Health Bar":
-				botplayTxtY = healthBar.y + (ClientPrefs.data.downScroll ? -40 : 60);
+				botplayTxtY = healthBar.y + (downScroll ? -40 : 60);
 			case "Time Bar": // Omitted because nothing has changed.
 		}
 
@@ -860,15 +866,8 @@ class PlayState extends MusicBeatState
 		#end
 
 		super.create();
-		switch (sortNotes) {
-			case "After Note Spawned": sortingWay = 1;
-			case "After Note Processed": sortingWay = 2;
-			case "After Note Finalized": sortingWay = 3;
-			case "Reversed": sortingWay = 4;
-			case "Chaotic": sortingWay = 5;
-			case "Random": sortingWay = 6;
-			case "Shuffle": sortingWay = 7;
-		}
+
+		sortingWay = OptimizeSettingsSubState.SORT_PATTERN.indexOf(sortNotes);
 
 		cacheCountdown();
 		cachePopUpScore();
@@ -881,6 +880,35 @@ class PlayState extends MusicBeatState
 		changeInfo = switch (showInfoType) {
 			case "Debug Info", "Song Info": true;
 			default: false;
+		}
+
+		if (showInfoType == "Music Sync Info") {
+			var barCnt:Int = 1 + toInt(bfVocal) + toInt(opVocal);
+			
+			var colorArray:Array<Int> = [
+				0xffffffff, // Inst
+				boyfriend != null ? 0xff000000 | boyfriend.healthColorArray[0] << 16 | boyfriend.healthColorArray[1] << 8 | boyfriend.healthColorArray[2] : 0xff2080f0, // Bf
+				      dad != null ? 0xff000000 |       dad.healthColorArray[0] << 16 |       dad.healthColorArray[1] << 8 |       dad.healthColorArray[2] : 0xff9040b0 // Dad
+			];
+
+			for (index in 0...barCnt) {
+				var bar = new FlxBar(
+					0, 0,
+					FlxBarFillDirection.LEFT_TO_RIGHT,
+					Std.int(FlxG.width / 4), 24,
+					null, 'Sync $index',
+					-thresholdTime, thresholdTime
+				).createFilledBar(
+					FlxColor.fromInt(0x7f7f7f7f),
+					FlxColor.fromInt(colorArray[index]),
+					true, 0x7f000000, 4
+				);
+				bar.numDivisions = 1000;
+				bar.screenCenter(XY);
+				bar.y += 216 + (index - barCnt + 1) * 32;
+				desyncMusicBar.push(bar);
+				uiGroup.add(bar);
+			}
 		}
 
 		skipNoteSplash.active = false;
@@ -2031,7 +2059,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 	private function generateStaticArrows(player:Int):Void
 	{
 		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
-		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
+		var strumLineY:Float = downScroll ? (FlxG.height - 150) : 50;
 		var chochet:Float = Conductor.crochet;
 		for (i in 0...4)
 		{
@@ -2046,7 +2074,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			}
 
 			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
-			babyArrow.downScroll = ClientPrefs.data.downScroll;
+			babyArrow.downScroll = downScroll;
 			skipArrowStartTween = skipArrowStartTween || chochet <= ClientPrefs.data.framerate * 1000;
 			if (!isStoryMode && !skipArrowStartTween)
 			{
@@ -2107,8 +2135,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 
 		super.openSubState(SubState);
 	}
-
-	public var canResync:Bool = true;
 
 	override function closeSubState()
 	{
@@ -2178,25 +2204,15 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		#end
 	}
 
-	var thresholdTime:Float = 20;
+	var thresholdTime:Float = 25;
 	var desyncCount:Float = 0;
-	var desyncTime:Float = 0;
-	var desyncBf:Float = 0;
-	var desyncOp:Float = 0;
+	var desyncTimes:Vector<Float> = new Vector(3, 0.0);
 	function checkSync() {
-		desyncTime = Math.abs(FlxG.sound.music.time - Conductor.songPosition);
+		desyncTimes[0] = FlxG.sound.music.time - Conductor.songPosition;
+		if (bfVocal) desyncTimes[1] = vocals.time - Conductor.songPosition;
+		if (opVocal) desyncTimes[2] = opponentVocals.time - Conductor.songPosition;
 
-		if (desyncTime > thresholdTime)	resyncVocals();
-
-		if (bfVocal) {
-			desyncBf = Math.abs(vocals.time - Conductor.songPosition);
-			if (desyncBf > thresholdTime) resyncVocals();
-		}
-
-		if (opVocal) {
-			desyncOp = Math.abs(opponentVocals.time - Conductor.songPosition);
-			if (desyncOp > thresholdTime) resyncVocals();
-		}
+		for (value in desyncTimes) if (Math.abs(value) > thresholdTime) resyncVocals();
 	}
 
 	function resyncVocals():Void
@@ -2701,11 +2717,13 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 							info += '\ncurDecBeat: ${numFormat(curDecBeat, 6)}, bopRatio: ${numFormat(bopRatio, 6)}';
 					}
 				case 'Music Sync Info':
-					info = 'Desync: '
-						 + numFormat(desyncTime, 1)
-						 + (bfVocal ? ('/' + numFormat(desyncBf, 1)) : "")
-						 + (opVocal ? ('/' + numFormat(desyncOp, 1)) : "")
-						 + ' - Sync Count: $desyncCount';
+					info = 'Desync (range of -${thresholdTime}ms ~ ${thresholdTime}ms)\n\n'
+						 + (bfVocal ? "\n" : "") + (opVocal ? "\n" : "")
+						 + 'Sync Count: $desyncCount';
+					for (index => bar in desyncMusicBar) {
+						bar.value = desyncTimes[index];
+						bar.updateBar();
+					}
 				case 'Debug Info':
 					debugInfos = true;
 					switch (columnIndex) {
@@ -2757,12 +2775,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			if (infoTxt.text.length > 0) infoTxt.text = "";
 		}
 		
-		if (!ClientPrefs.data.downScroll && infoTxt.text.length > 0) {
+		// upScroll only
+		if (!downScroll && infoTxt.text.length > 0) {
 			var infoTxtAlign:Int = CoolUtil.charAppearanceCnt(infoTxt.text, "\n");
-			infoTxt.y = healthBar.y - 48;
-			if (ClientPrefs.data.showInfoType != "None") {
-				infoTxt.y -= 40 * infoTxtAlign;
-			}
+			infoTxt.y = healthBar.y - 48 - (showInfoType != "None" ? 36 * infoTxtAlign : 0);
 		}
 
 		#if debug

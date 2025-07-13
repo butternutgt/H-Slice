@@ -80,13 +80,13 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 
 	 <!-- Flags for the profile builds (used for assessing performance and such)-->
 	<section if="PROFILE_BUILD">
-		<app title="P-Slice Engine Profiling build" 
-			file="PSliceEngine" 
-			packageName="com.mikolka9144.testPslice" 
-			package="com.mikolka9144.testPslice" 
+		<app title="H-Slice Engine Profiling build" 
+			file="H-Slice-Debug" 
+			packageName="com.hrek.hexex.testHslice" 
+			package="com.hrek.hexex.testHslice" 
 			main="Main" 
-			version="3.0.3"  
-			company="mikolka9144" />
+			version="0.2"  
+			company="hrek-hexex" />
 		<define name="nativesys_profile" />
 
 		<define name="pico_always_kill" />

@@ -5,6 +5,17 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 	var limitCount:Option;
 	var cacheCount:Option;
 
+	public static final SORT_PATTERN:Array<String> = [
+		'Never',
+		'After Note Spawned',
+		'After Note Processed',
+		'After Note Finalized',
+		'Reversed',
+		'Chaotic',
+		'Random',
+		'Shuffle',
+	];
+
 	public function new()
 	{
 		#if DISCORD_ALLOWED
@@ -44,16 +55,7 @@ class OptimizeSettingsSubState extends BaseOptionsMenu
 			"If checked, the notes array is sorted every frame when notes are added.\nUnchecking improves performance, especially if a lot of notes are displayed.\nDefault: \"After Note Finalized\"",
 			'sortNotes',
 			STRING,
-			[
-				'Never',
-				'After Note Spawned',
-				'After Note Processed',
-				'After Note Finalized',
-				'Reversed',
-				'Chaotic',
-				'Random',
-				'Shuffle',
-			]); //Variable type
+			SORT_PATTERN); //Variable type
 		addOption(option);
 
         var option:Option = new Option('Faster Sort',
