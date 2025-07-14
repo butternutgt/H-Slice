@@ -142,6 +142,19 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		timerMethod = option;
 		addOption(option);
 
+		var option:Option = new Option('Song Resync Threshold',
+			"Smaller value improves the sync accuracy, but It makes pop noises.\nLarger value reduces pop noises, but It'll desync little by little.\nDefault values are 20 for desktop and 50 for mobile.",
+			'syncThreshold',
+			INT);
+		option.displayFormat = '%v ms';
+		option.scrollSpeed = 20;
+		option.minValue = 1;
+		option.maxValue = 1000;
+		option.changeValue = 1;
+		option.decimals = 0;
+		option.onChange = onAccuracyUpdateRate;
+		addOption(option);
+
 		var option:Option = new Option('BGM/Music Volume',
 			"I wonder why doesn't this option exists in official build? xd",
 			'bgmVolume',

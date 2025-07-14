@@ -443,10 +443,6 @@ class PlayState extends MusicBeatState
 		if (shaderEnabled) {
 			// Rainbow Eyesore Effect
 			masterPulse = new PulseEffect();
-			masterPulse.waveAmplitude = 1;
-			masterPulse.waveFrequency = 2;
-			masterPulse.waveSpeed = 1;
-			masterPulse.shader.uTime.value[0] = FlxG.random.float(-1e8, 1e8);
 			masterPulse.shader.uampmul.value[0] = 0;
 		}
 
@@ -2204,7 +2200,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		#end
 	}
 
-	var thresholdTime:Float = 25;
+	var thresholdTime:Float = ClientPrefs.data.syncThreshold;
 	var desyncCount:Float = 0;
 	var desyncTimes:Vector<Float> = new Vector(3, 0.0);
 	function checkSync() {
@@ -3906,7 +3902,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					masterPulse.waveAmplitude = 1;
 					masterPulse.waveFrequency = 2;
 					masterPulse.waveSpeed = Std.parseFloat(value2);
-					masterPulse.shader.uTime.value[0] = FlxG.random.float(-1e8, 1e8);
+					masterPulse.shader.uTime.value[0] = FlxG.random.float(-1e3, 0);
 					masterPulse.shader.uampmul.value[0] = 1;
 					masterPulse.enabled = true;
 				}

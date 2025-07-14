@@ -118,6 +118,7 @@ import states.TitleState;
 	public var checkForUpdates:Bool = true;
 	public var noReset:Bool = false;
 	public var nanoPosition:Bool = false;
+	public var syncThreshold:Int = #if desktop 20 #else 50 #end;
 	public var bgmVolume:Float = 1;
 	public var sfxVolume:Float = 1;
 	public var hitsoundVolume:Float = 0;
