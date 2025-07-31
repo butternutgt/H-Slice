@@ -626,7 +626,7 @@ class CoolUtil
 	}
 	#end
 
-	public static function showPopUp(message:String, title:String):Void
+	public static function showPopUp(title:String, message:String):Void
 	{
 		#if android
 		AndroidTools.showAlertDialog(title, message, {name: "OK", func: null}, null);

@@ -68,7 +68,10 @@ enum abstract WaveformTarget(String)
 class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
 	public static final defaultEvents:Array<Array<String>> = [
-		['', "Nothing. Yep, that's right."], // Always leave this one empty pls
+		[
+			'',
+			"Nothing. Yep, that's right."
+		], // Always leave this one empty pls
 		[
 			'Dadbattle Spotlight',
 			"Used in Dad Battle,\nValue 1: 0/1 = ON/OFF,\n2 = Target Dad\n3 = Target BF"
@@ -90,8 +93,14 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			'Add Camera Zoom',
 			"Used on MILF on that one \"hard\" part\nValue 1: Camera zoom add (Default: 0.015)\nValue 2: UI zoom add (Default: 0.03)\nLeave the values blank if you want to use Default."
 		],
-		['BG Freaks Expression', "Should be used only in \"school\" Stage!"],
-		['Trigger BG Ghouls', "Should be used only in \"schoolEvil\" Stage!"],
+		[
+			'BG Freaks Expression',
+			"Should be used only in \"school\" Stage!"
+		],
+		[
+			'Trigger BG Ghouls',
+			"Should be used only in \"schoolEvil\" Stage!"
+		],
 		[
 			'Play Animation',
 			"Plays an animation on a Character,\nonce the animation is completed,\nthe animation changes to Idle\n\nValue 1: Animation to play.\nValue 2: Character (Dad, BF, GF)"
@@ -116,7 +125,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			'Change Scroll Speed',
 			"Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds."
 		],
-		['Set Property', "Value 1: Variable name\nValue 2: New value"],
+		[
+			'Set Property',
+			"Value 1: Variable name\nValue 2: New value"
+		],
 		[
 			'Play Sound',
 			"Value 1: Sound file name\nValue 2: Volume (Default: 1), ranges from 0 to 1"
@@ -133,7 +145,14 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			'Target Camera',
 			"Focus camera on the specific point.\nThis will also lock the camera (like Camera Follow Pos)\n\nValue1:character to focus\nValue2: separated with ',' x, y, duration, ease"
 		],
-		['Rainbow Eyesore', "Value 1: Step to end at\nValue 2: Speed"],
+		[
+			'Change Botplay Txt',
+			"Value 1: Any message\nThis event ignores in rendering mode."
+		],
+		[
+			'Rainbow Eyesore',
+			"Value 1: Step to end at\nValue 2: Speed"
+		],
 		[
 			'Popup',
 			"Value 1: Title\nValue 2: Message\nMakes a window popup with a message in it."
@@ -152,10 +171,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	final BACKUP_EXT = '.bkp';
 
-	public var zoomList:Array<Float> = [
-		0.125, 0.1875, 0.25, 0.375, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096,
-		6144, 8192, 12288, 16384, 24576, 32768, 49152, 65536, 98304, 131072, 196608, 262144, 393216, 524288, 786432, 1048576
+	// 0.125 ~ 1048576
+	public static final zoomList:Array<Float> = [
+		for (i in -3...20)
+			for (a in 0...2)
+				Math.pow(2, a == 0 ? i : i * 1.5)
 	];
+
 	public var quantColors:Array<FlxColor> = [
 		0xFFDF0000,
 		0xFF4040CF,

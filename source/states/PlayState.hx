@@ -3828,6 +3828,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						);
 					}
 				}
+
 			case 'Vslice Scroll Speed':
 				if (songSpeedType == "multiplicative")
 				{
@@ -3856,6 +3857,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 						);
 					}
 				}
+
 			case 'Set Property':
 				try
 				{
@@ -3906,6 +3908,26 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 					masterPulse.shader.uampmul.value[0] = 1;
 					masterPulse.enabled = true;
 				}
+			
+			case 'Change Botplay Text':
+				if (!ffmpegMode) botplayTxt.text = value1;
+			
+			case 'Popup', 'Popup (No Pause)':
+				var doPause:Bool = !eventName.contains("Pause");
+				if (doPause) {
+					FlxG.sound.music.pause();
+					if (bfVocal) vocals.pause();
+					if (opVocal) opponentVocals.pause();
+				}
+				
+				CoolUtil.showPopUp(value1, value2);
+
+				if (doPause) {
+					FlxG.sound.music.resume();
+					if (bfVocal) vocals.resume();
+					if (opVocal) opponentVocals.resume();
+				}
+
 			case 'Play Sound':
 				if(flValue2 == null) flValue2 = 1;
 				FlxG.sound.play(Paths.sound(value1), flValue2);
@@ -5351,7 +5373,10 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			&& !boyfriend.getAnimationName().startsWith('sing')
 			&& !boyfriend.stunned)
 			boyfriend.dance();
-		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimationName().startsWith('sing') && !dad.stunned)
+		if (dad != null
+			&& beat % dad.danceEveryNumBeats == 0
+			&& !dad.getAnimationName().startsWith('sing')
+			&& !dad.stunned)
 			dad.dance();
 	}
 
