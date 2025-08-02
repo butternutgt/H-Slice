@@ -3895,7 +3895,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				}
 
 			case 'Rainbow Eyesore':
-				if (shaderEnabled && ClientPrefs.data.flashing)
+				if (shaderEnabled && ClientPrefs.data.flashing && curStep < Std.parseInt(value1))
 				{
 					allowDisable = false;
 					allowDisableAt = Std.parseInt(value1);
