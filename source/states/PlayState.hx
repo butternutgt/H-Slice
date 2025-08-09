@@ -408,6 +408,7 @@ class PlayState extends MusicBeatState
 
 	var backupOffset = 0;
 	var sortingWay = 0;
+	var commaImg = false;
 
 	public static var canResync:Bool = false;
 
@@ -451,6 +452,9 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
+
+		// check available comma image
+		commaImg = Paths.image('numComma') != null;
 
 		// Gameplay settings
 		healthGain = ClientPrefs.getGameplaySetting('healthgain');
@@ -745,7 +749,7 @@ class PlayState extends MusicBeatState
 			case "Time Bar": // Omitted because nothing has changed.
 		}
 
-		botplayTxt = new FlxText(400, botplayTxtY, FlxG.width - 800, Language.getPhrase("Botplay").toUpperCase(), 32);
+		botplayTxt = new FlxText(0, botplayTxtY, FlxG.width, Language.getPhrase("Botplay").toUpperCase(), 32);
 		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		botplayTxt.scrollFactor.set();
 		botplayTxt.borderSize = 1.25;
@@ -2398,7 +2402,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 				if (video.wentPreview == null) {
 					botplayTxt.text = botplaySineCnt % 2 == 0 ? "RENDERED" : "BY H-SLICE";
 				} else {
-					botplayTxt.text = botplaySineCnt % 2 == 0 ? "Rendering was\ncancelled by" : video.wentPreview;
+					botplayTxt.text = botplaySineCnt % 2 == 0 ? "Rendering was cancelled by: " : video.wentPreview;
 				}
 			}
 			#end
@@ -4439,8 +4443,6 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		var seperatedScore:Array<Null<Float>> = [];
 		var tempCombo:Null<Float> = changePopup ? combo + opCombo : combo;
 		var tempNotes:Null<Float> = tempCombo;
-		
-		var xThing:Null<Float> = 0;
 
 		if (!ClientPrefs.data.comboStacking && popUpGroup.members.length > 0) {
 			for (spr in popUpGroup) {
@@ -4468,22 +4470,31 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		if (showComboNum) {
 			while(tempCombo >= 10) {
 				seperatedScore.unshift(Std.int(tempCombo / 10) % 10);
-				tempCombo = Std.int(tempCombo / 10);
+				tempCombo /= 10;
 			}
 			seperatedScore.push(tempNotes % 10);
 
-			for (i in seperatedScore)
+			for (index => number in seperatedScore)
 			{	
+				var comboDigit = Std.string(tempNotes).length;
+				var delimiter = Std.int(index + 3 - comboDigit % 3);
+				var comma = delimiter % 3 == 0;
 				if (changePopup || combo >= 10 || combo == 0) {
 					numScore = popUpGroup.recycle(Popup);
-					numScore.setupNumberData(uiPrefix + 'num' + Std.int(i) + uiPostfix, daloop, tempNotes);
+					numScore.setupNumberData(uiPrefix + 'num' + Std.int(number) + uiPostfix, index, comboDigit, numberDelimit);
 
 					if (showComboNum) popUpGroup.add(numScore);
 
 					numScore.numberOtherStuff();
 
-					if (numScore.x > xThing) xThing = numScore.x;
-					++daloop;
+					if (comma && index > 0 && commaImg) {
+						numScore = popUpGroup.recycle(Popup);
+						numScore.setupNumberData(uiPrefix + 'numComma' + uiPostfix, index, comboDigit, numberDelimit);
+
+						if (showComboNum) popUpGroup.add(numScore);
+
+						numScore.numberOtherStuff();
+					}
 				}
 			}
 		}
@@ -4500,7 +4511,7 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 		// } catch (e:haxe.Exception) { trace(popUpGroup.length); } // idk why but popUpGroup became null some cases
 
 		for (i in seperatedScore) i = null;
-		daloop = null; tempCombo = xThing = null;
+		daloop = null; tempCombo = null;
 	}
 
 	public var strumsBlocked:Array<Bool> = [];
@@ -4950,6 +4961,8 @@ Average NPS in loading: ${numFormat(notes / takenNoteTime, 3)}');
 			result = null;
 		}
 
+		if (songName != 'tutorial')
+			camZooming = true;
 		note.wasGoodHit = true;
 
 		if (bfHit && note.sustainLength > 0) bfHit = false;

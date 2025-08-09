@@ -10,7 +10,6 @@ enum PopupType {
 class Popup extends FlxSprite {
     public var type:PopupType;
     public var popUpTime:Float = 0;
-    // static var comboDigit:Int = 0;
 	var placement:Float = FlxG.width * 0.35;
     var i:PlayState;
     var tween:FlxTween;
@@ -71,13 +70,14 @@ class Popup extends FlxSprite {
     // ║ NUMBER SPRITE STUFF ║
     // ╚═════════════════════╝
 
-    public function setupNumberData(numberImg:String, daloop:Int, tempNotes:Float) {
-        // comboDigit = Std.string(Math.fround(Math.abs(tempNotes))).length;
+    public function setupNumberData(numberImg:String, index:Int, comboDigit:Int, isDelimit:Bool) {
+        var comma:Null<Bool> = isDelimit && numberImg.contains("numComma");
+        var delimiter:Null<Int> = isDelimit ? Std.int(Math.max(0, (index + 3 - (comboDigit) % 3) / 3) - (comboDigit % 3 == 0 ? 1 : 0)) : 0;
         type = NUMBER;
         reloadTexture(numberImg);
         screenCenter();
-        x = placement + (43 * daloop) - 90 + ClientPrefs.data.comboOffset[2] - 43/2 * (Std.string(tempNotes).length - 3);
-        y += 75 - ClientPrefs.data.comboOffset[3];
+        x = placement + 44 * index - 90 + ClientPrefs.data.comboOffset[2] + (delimiter - (comma ? 1 : 0) - (comboDigit + Std.int((comboDigit - 1) / 3) / 2 - 3)) * 22;
+        y += 75 - ClientPrefs.data.comboOffset[3] + (comma ? 2 : 0);
 
         setGraphicSize(Std.int(width * (PlayState.isPixelStage ? PlayState.daPixelZoom : 0.5)));
         updateHitbox();
@@ -88,6 +88,8 @@ class Popup extends FlxSprite {
         
         visible = !ClientPrefs.data.hideHud;
         antialiasing = i.antialias;
+
+        delimiter = null; comma = null;
     }
 
     public function numberOtherStuff() {

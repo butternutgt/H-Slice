@@ -160,9 +160,9 @@ class CoolUtil
 	public static function floorDecimal(value:Float, decimals:Int):Float
 	{
 		if(decimals < 1)
-			return Math.floor(value);
+			return Math.ffloor(value);
 
-		return Math.floor(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+		return Math.ffloor(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
 	}
 	
 	inline public static function decimal(value:Float, decimals:Int, mode:Int = 1):Float
