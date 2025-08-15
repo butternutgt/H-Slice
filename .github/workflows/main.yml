@@ -24,7 +24,7 @@ jobs:
             artifactName: H-Slice_0.2.2_linux
             artifactPath: export/release/linux/bin/*
           - name: macOS x86_64
-            os: macos-10.6.8
+            os: macos-14
             buildArgs: "mac -64 -D HXCPP_M64"
             setupScript: sh ./setup/mobile.sh
             artifactName: H-Slice_0.2.2_macosx64
